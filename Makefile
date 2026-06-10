@@ -1,4 +1,8 @@
-.PHONY: data data-offline test web build refresh
+.PHONY: data data-offline test web build refresh spatial
+
+# Phase 2: nightly 4D spatial core (LARIAC priors -> GeoParquet/H3 store)
+spatial:
+	cd pipeline && uv run run_spatial.py
 
 # Full live pipeline: fetch → score → emit → validate against official numbers
 data:

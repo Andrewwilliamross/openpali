@@ -63,6 +63,18 @@ npm run dev                   # http://localhost:5173
 npm run build                 # static site → web/dist/
 ```
 
+## Phase 2 — 4D spatial twin core
+
+`pipeline/core/spatial/` extends the tracker into a spatiotemporal 3D dataset:
+LARIAC 3D building extraction (I3S, no Draco), a unified Gaussian-splat-ready
+state model in partitioned GeoParquet keyed by H3 + APN, a full RANSAC+ICP
+registration engine for crowdsourced captures, and a 3D Tiles 1.1 LOD tiler
+for web-streamable splats. See [docs/SPATIAL_CORE.md](docs/SPATIAL_CORE.md).
+
+```bash
+cd pipeline && uv run run_spatial.py --limit 25   # nightly; drains the prior backlog
+```
+
 ## Keeping data fresh
 
 The pipeline is idempotent and safe to run on a schedule (sources update daily). Run
