@@ -1,0 +1,22 @@
+[project]
+name = "palisades-pipeline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "orjson>=3.11.9",
+    "pandas>=3.0.3",
+    "shapely>=2.1.2",
+    "tenacity>=9.1.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

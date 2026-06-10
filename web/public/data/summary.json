@@ -1,0 +1,575 @@
+{
+ "as_of": "2026-06-10T18:56:46+00:00",
+ "totals": {
+  "destroyed": 5877,
+  "cleared": 5590,
+  "plan_check": 911,
+  "permitted": 628,
+  "under_construction": 489,
+  "complete": 17
+ },
+ "weekly": [
+  {
+   "w": "2025-01-13",
+   "submitted": 1,
+   "issued": 0
+  },
+  {
+   "w": "2025-01-20",
+   "submitted": 2,
+   "issued": 0
+  },
+  {
+   "w": "2025-01-27",
+   "submitted": 6,
+   "issued": 0
+  },
+  {
+   "w": "2025-02-03",
+   "submitted": 18,
+   "issued": 0
+  },
+  {
+   "w": "2025-02-10",
+   "submitted": 8,
+   "issued": 0
+  },
+  {
+   "w": "2025-02-17",
+   "submitted": 7,
+   "issued": 0
+  },
+  {
+   "w": "2025-02-24",
+   "submitted": 9,
+   "issued": 0
+  },
+  {
+   "w": "2025-03-03",
+   "submitted": 7,
+   "issued": 1
+  },
+  {
+   "w": "2025-03-10",
+   "submitted": 8,
+   "issued": 1
+  },
+  {
+   "w": "2025-03-17",
+   "submitted": 9,
+   "issued": 0
+  },
+  {
+   "w": "2025-03-24",
+   "submitted": 12,
+   "issued": 0
+  },
+  {
+   "w": "2025-03-31",
+   "submitted": 10,
+   "issued": 1
+  },
+  {
+   "w": "2025-04-07",
+   "submitted": 15,
+   "issued": 4
+  },
+  {
+   "w": "2025-04-14",
+   "submitted": 11,
+   "issued": 2
+  },
+  {
+   "w": "2025-04-21",
+   "submitted": 14,
+   "issued": 1
+  },
+  {
+   "w": "2025-04-28",
+   "submitted": 19,
+   "issued": 4
+  },
+  {
+   "w": "2025-05-05",
+   "submitted": 16,
+   "issued": 3
+  },
+  {
+   "w": "2025-05-12",
+   "submitted": 13,
+   "issued": 6
+  },
+  {
+   "w": "2025-05-19",
+   "submitted": 24,
+   "issued": 6
+  },
+  {
+   "w": "2025-05-26",
+   "submitted": 21,
+   "issued": 10
+  },
+  {
+   "w": "2025-06-02",
+   "submitted": 24,
+   "issued": 7
+  },
+  {
+   "w": "2025-06-09",
+   "submitted": 26,
+   "issued": 8
+  },
+  {
+   "w": "2025-06-16",
+   "submitted": 29,
+   "issued": 3
+  },
+  {
+   "w": "2025-06-23",
+   "submitted": 26,
+   "issued": 15
+  },
+  {
+   "w": "2025-06-30",
+   "submitted": 24,
+   "issued": 7
+  },
+  {
+   "w": "2025-07-07",
+   "submitted": 29,
+   "issued": 10
+  },
+  {
+   "w": "2025-07-14",
+   "submitted": 26,
+   "issued": 14
+  },
+  {
+   "w": "2025-07-21",
+   "submitted": 42,
+   "issued": 12
+  },
+  {
+   "w": "2025-07-28",
+   "submitted": 32,
+   "issued": 21
+  },
+  {
+   "w": "2025-08-04",
+   "submitted": 35,
+   "issued": 14
+  },
+  {
+   "w": "2025-08-11",
+   "submitted": 34,
+   "issued": 15
+  },
+  {
+   "w": "2025-08-18",
+   "submitted": 21,
+   "issued": 20
+  },
+  {
+   "w": "2025-08-25",
+   "submitted": 43,
+   "issued": 18
+  },
+  {
+   "w": "2025-09-01",
+   "submitted": 27,
+   "issued": 19
+  },
+  {
+   "w": "2025-09-08",
+   "submitted": 41,
+   "issued": 23
+  },
+  {
+   "w": "2025-09-15",
+   "submitted": 28,
+   "issued": 20
+  },
+  {
+   "w": "2025-09-22",
+   "submitted": 22,
+   "issued": 20
+  },
+  {
+   "w": "2025-09-29",
+   "submitted": 35,
+   "issued": 24
+  },
+  {
+   "w": "2025-10-06",
+   "submitted": 22,
+   "issued": 16
+  },
+  {
+   "w": "2025-10-13",
+   "submitted": 21,
+   "issued": 20
+  },
+  {
+   "w": "2025-10-20",
+   "submitted": 55,
+   "issued": 22
+  },
+  {
+   "w": "2025-10-27",
+   "submitted": 42,
+   "issued": 29
+  },
+  {
+   "w": "2025-11-03",
+   "submitted": 35,
+   "issued": 22
+  },
+  {
+   "w": "2025-11-10",
+   "submitted": 37,
+   "issued": 10
+  },
+  {
+   "w": "2025-11-17",
+   "submitted": 35,
+   "issued": 20
+  },
+  {
+   "w": "2025-11-24",
+   "submitted": 27,
+   "issued": 13
+  },
+  {
+   "w": "2025-12-01",
+   "submitted": 33,
+   "issued": 30
+  },
+  {
+   "w": "2025-12-08",
+   "submitted": 28,
+   "issued": 21
+  },
+  {
+   "w": "2025-12-15",
+   "submitted": 51,
+   "issued": 29
+  },
+  {
+   "w": "2025-12-22",
+   "submitted": 42,
+   "issued": 18
+  },
+  {
+   "w": "2025-12-29",
+   "submitted": 42,
+   "issued": 14
+  },
+  {
+   "w": "2026-01-05",
+   "submitted": 27,
+   "issued": 18
+  },
+  {
+   "w": "2026-01-12",
+   "submitted": 33,
+   "issued": 32
+  },
+  {
+   "w": "2026-01-19",
+   "submitted": 18,
+   "issued": 15
+  },
+  {
+   "w": "2026-01-26",
+   "submitted": 20,
+   "issued": 37
+  },
+  {
+   "w": "2026-02-02",
+   "submitted": 19,
+   "issued": 29
+  },
+  {
+   "w": "2026-02-09",
+   "submitted": 25,
+   "issued": 25
+  },
+  {
+   "w": "2026-02-16",
+   "submitted": 29,
+   "issued": 20
+  },
+  {
+   "w": "2026-02-23",
+   "submitted": 19,
+   "issued": 17
+  },
+  {
+   "w": "2026-03-02",
+   "submitted": 33,
+   "issued": 36
+  },
+  {
+   "w": "2026-03-09",
+   "submitted": 41,
+   "issued": 27
+  },
+  {
+   "w": "2026-03-16",
+   "submitted": 36,
+   "issued": 21
+  },
+  {
+   "w": "2026-03-23",
+   "submitted": 25,
+   "issued": 23
+  },
+  {
+   "w": "2026-03-30",
+   "submitted": 19,
+   "issued": 19
+  },
+  {
+   "w": "2026-04-06",
+   "submitted": 34,
+   "issued": 18
+  },
+  {
+   "w": "2026-04-13",
+   "submitted": 26,
+   "issued": 24
+  },
+  {
+   "w": "2026-04-20",
+   "submitted": 42,
+   "issued": 17
+  },
+  {
+   "w": "2026-04-27",
+   "submitted": 35,
+   "issued": 14
+  },
+  {
+   "w": "2026-05-04",
+   "submitted": 40,
+   "issued": 17
+  },
+  {
+   "w": "2026-05-11",
+   "submitted": 52,
+   "issued": 18
+  },
+  {
+   "w": "2026-05-18",
+   "submitted": 18,
+   "issued": 18
+  },
+  {
+   "w": "2026-05-25",
+   "submitted": 29,
+   "issued": 12
+  },
+  {
+   "w": "2026-06-01",
+   "submitted": 42,
+   "issued": 34
+  },
+  {
+   "w": "2026-06-08",
+   "submitted": 19,
+   "issued": 7
+  }
+ ],
+ "baselines": [
+  {
+   "source": "LA County",
+   "metric": "destroyed_parcels",
+   "official": 5877,
+   "ours": 5877,
+   "drift_pct": 0.0,
+   "ok": true
+  },
+  {
+   "source": "LADBS",
+   "metric": "parcels_bldgnew_application",
+   "official": 1552,
+   "ours": 1558,
+   "drift_pct": 0.4,
+   "ok": true
+  },
+  {
+   "source": "LADBS",
+   "metric": "parcels_permit_issued_bldgnew",
+   "official": 984,
+   "ours": 1008,
+   "drift_pct": 2.4,
+   "ok": true
+  },
+  {
+   "source": "LADBS",
+   "metric": "parcels_complete_cofo",
+   "official": 16,
+   "ours": 16,
+   "drift_pct": 0.0,
+   "ok": true
+  }
+ ],
+ "neighborhoods": [
+  {
+   "name": "The Alphabets / Village",
+   "center": [
+    -118.5266,
+    34.044
+   ],
+   "zoom": 15.5,
+   "destroyed": 2043,
+   "permitted": 263,
+   "under_construction": 258,
+   "complete": 14
+  },
+  {
+   "name": "Huntington Palisades",
+   "center": [
+    -118.519,
+    34.0368
+   ],
+   "zoom": 15.3,
+   "destroyed": 225,
+   "permitted": 26,
+   "under_construction": 36,
+   "complete": 0
+  },
+  {
+   "name": "El Medio Bluffs",
+   "center": [
+    -118.545,
+    34.0405
+   ],
+   "zoom": 15.3,
+   "destroyed": 672,
+   "permitted": 82,
+   "under_construction": 75,
+   "complete": 1
+  },
+  {
+   "name": "Marquez Knolls",
+   "center": [
+    -118.552,
+    34.048
+   ],
+   "zoom": 15.2,
+   "destroyed": 365,
+   "permitted": 19,
+   "under_construction": 25,
+   "complete": 0
+  },
+  {
+   "name": "Castellammare",
+   "center": [
+    -118.557,
+    34.044
+   ],
+   "zoom": 15.5,
+   "destroyed": 109,
+   "permitted": 4,
+   "under_construction": 3,
+   "complete": 0
+  },
+  {
+   "name": "Paseo Miramar / Castellammare Mesa",
+   "center": [
+    -118.553,
+    34.0512
+   ],
+   "zoom": 15.3,
+   "destroyed": 141,
+   "permitted": 13,
+   "under_construction": 12,
+   "complete": 1
+  },
+  {
+   "name": "Palisades Highlands",
+   "center": [
+    -118.543,
+    34.078
+   ],
+   "zoom": 14.6,
+   "destroyed": 407,
+   "permitted": 25,
+   "under_construction": 14,
+   "complete": 0
+  },
+  {
+   "name": "Bienveneda / Temescal",
+   "center": [
+    -118.539,
+    34.056
+   ],
+   "zoom": 15.0,
+   "destroyed": 468,
+   "permitted": 47,
+   "under_construction": 38,
+   "complete": 0
+  },
+  {
+   "name": "Rustic Canyon",
+   "center": [
+    -118.512,
+    34.04
+   ],
+   "zoom": 15.2,
+   "destroyed": 148,
+   "permitted": 15,
+   "under_construction": 18,
+   "complete": 0
+  },
+  {
+   "name": "The Riviera",
+   "center": [
+    -118.501,
+    34.0455
+   ],
+   "zoom": 15.0,
+   "destroyed": 26,
+   "permitted": 1,
+   "under_construction": 2,
+   "complete": 0
+  },
+  {
+   "name": "Sunset Mesa (County)",
+   "center": [
+    -118.566,
+    34.042
+   ],
+   "zoom": 15.2,
+   "destroyed": 487,
+   "permitted": 59,
+   "under_construction": 4,
+   "complete": 1
+  },
+  {
+   "name": "Topanga (County)",
+   "center": [
+    -118.588,
+    34.07
+   ],
+   "zoom": 13.8,
+   "destroyed": 54,
+   "permitted": 3,
+   "under_construction": 4,
+   "complete": 0
+  },
+  {
+   "name": "Malibu \u2014 Las Flores / PCH",
+   "center": [
+    -118.63,
+    34.037
+   ],
+   "zoom": 14.2,
+   "destroyed": 732,
+   "permitted": 71,
+   "under_construction": 0,
+   "complete": 0
+  }
+ ]
+}
