@@ -69,6 +69,19 @@ mapped from their own status fields — full-footprint coverage with graceful de
 | Post-fire aerial (before/after) | NOAA ERI `stormscdn.ngs.noaa.gov/20250128a-rgb/{z}/{x}/{y}` | standard XYZ; future before/after slider |
 | Basemap | OpenFreeMap `tiles.openfreemap.org/styles/positron` | keyless, no limits |
 
+## Official-record deep links (permit verification)
+The per-permit "verify" link must resolve a specific permit with **no login**. Only the
+City open-data portal does: `https://data.lacity.org/d/gwh9-jnip/explore/query/SELECT * WHERE
+\`permit_nbr\`='<no>'/page/filter` (the `gwh9-jnip` "permits submitted 2020-present" dataset
+covers the full lifecycle across building/grading/electrical/etc).
+- The LADBS permit portal (`permitla.lacitydbs.org`) requires Okta login — unusable for public links.
+- The legacy `ladbsservices2.../PcisPermitDetail?id=` page keys on an internal surrogate id, **not**
+  the permit number (every permit-number value echoes empty) — do not use it.
+- `gwh9-jnip` does not carry every permit class (Fire Sprinkler `260xx` and some very recent permits
+  are absent — ~85% of our permits resolve). Links are therefore **presence-gated**: the pipeline
+  batch-checks each permit against the dataset and attaches a link only when it resolves; the rest
+  render as plain copyable text. Net result: **no dead "No Permits Match" links.**
+
 ## CofO cross-check (Socrata)
 `data.lacity.org/resource/3f9m-afei.json` — `pcis_permit` (dashed), `assessor_book/page/parcel`
 (concat = APN), `cofo_issue_date`, `permit_type`. Use to validate our CofO count. The LADBS

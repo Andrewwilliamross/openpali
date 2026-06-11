@@ -153,8 +153,9 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
       )}
 
       {primaryPermit?.url && (
-        <a className="spatial-cta" href={primaryPermit.url} target="_blank" rel="noreferrer">
-          Validate against official record ↗
+        <a className="spatial-cta" href={primaryPermit.url} target="_blank" rel="noreferrer"
+           title="Opens this permit in the City of LA open-data portal">
+          Verify on LA City open data ↗
         </a>
       )}
     </aside>

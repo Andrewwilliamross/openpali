@@ -39,8 +39,19 @@ MALIBU_MARKERS = (
 
 DESTROYED_WHERE = "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'"
 
-# Deep link to the public LADBS permit record.
-LADBS_PERMIT_URL = "https://www.ladbsservices2.lacity.org/OnlineServices/PermitReport/PcisPermitDetail?id={no}"
+# Official-record deep link. The City's open-data portal (Socrata) is the only
+# PUBLIC, no-login source that resolves a specific permit by number: the LADBS
+# permit portal (permitla.lacitydbs.org) requires Okta login, and the legacy
+# PcisPermitDetail page keys on an internal surrogate id, not the permit number.
+# The "submitted from 2020" dataset (gwh9-jnip) covers the full lifecycle
+# (submitted → issued → finaled) across building/grading/electrical/etc.
+# It does NOT carry every permit class (e.g. Fire Sprinkler 260xx), so links are
+# PRESENCE-GATED — only attached to permits actually present in the dataset.
+SOCRATA_PERMIT_DATASET = "gwh9-jnip"
+SOCRATA_PERMIT_URL = (
+    "https://data.lacity.org/d/{ds}/explore/query/"
+    "SELECT%20*%20WHERE%20%60permit_nbr%60%3D%22{no}%22/page/filter"
+)
 
 # LCITY (county base layer) -> our jurisdiction enum
 _JURIS = {"Los Angeles": "LA", "Malibu": "MALIBU", "Unincorporated": "COUNTY"}
@@ -195,11 +206,11 @@ def attach_ladbs_permits(parcels: dict[str, Parcel], ttl_hours: float = 12.0) ->
         p.coarse = False
         p.coarse_stage = None
 
-        # Permit record for the card
+        # Permit record for the card. The official-record url is filled in later
+        # by presence-gating against the City open-data portal (build_parcels).
         p.permits.append(Permit(
             no=permit_no, type=ptype, status=a.get("PERMIT_STATUS") or a.get("TYPE") or "",
-            submitted=submit, issued=issue, valuation=None,
-            url=LADBS_PERMIT_URL.format(no=permit_no) if permit_no else None,
+            submitted=submit, issued=issue, valuation=None, url=None,
         ))
         # Stage-advancing events come ONLY from new-building permits. Ancillary
         # permits (pool, demo, grading, additions) appear as permit records on the
@@ -265,9 +276,44 @@ def attach_malibu_markers(parcels: dict[str, Parcel], ttl_hours: float = 12.0) -
         p.coarse_stage = max(stage, p.coarse_stage or 0)
 
 
+def socrata_permit_presence(permit_nos: set[str], ttl_hours: float = 12.0) -> set[str]:
+    """Which of these permit numbers actually resolve in the City open-data
+    portal — so we only ever attach a deep link that works. Batched `in(...)`
+    queries against gwh9-jnip; each chunk is independently cached."""
+    found: set[str] = set()
+    nos = sorted(n for n in permit_nos if n)
+    for i in range(0, len(nos), 200):
+        chunk = nos[i : i + 200]
+        inlist = "','".join(chunk)
+        try:
+            rows = cached_get_json(
+                f"https://data.lacity.org/resource/{SOCRATA_PERMIT_DATASET}.json",
+                {"$select": "permit_nbr", "$where": f"permit_nbr in('{inlist}')", "$limit": 5000},
+                ttl_hours=ttl_hours,
+            )
+        except (httpx.HTTPError, ValueError):
+            continue  # never let a verification lookup break the build
+        for r in rows:
+            if r.get("permit_nbr"):
+                found.add(r["permit_nbr"])
+    return found
+
+
 def build_parcels(ttl_hours: float = 12.0) -> list[Parcel]:
     parcels = fetch_destroyed_parcels(ttl_hours)
     permit_to_apn = attach_ladbs_permits(parcels, ttl_hours)
     attach_inspections(parcels, permit_to_apn, ttl_hours)
     attach_malibu_markers(parcels, ttl_hours)
+
+    # Presence-gate official-record links: attach a deep link only to permits
+    # that genuinely resolve in the City open-data portal.
+    all_permits = {pm.no for p in parcels.values() for pm in p.permits if pm.no}
+    present = socrata_permit_presence(all_permits, ttl_hours)
+    linked = 0
+    for p in parcels.values():
+        for pm in p.permits:
+            if pm.no in present:
+                pm.url = SOCRATA_PERMIT_URL.format(ds=SOCRATA_PERMIT_DATASET, no=pm.no)
+                linked += 1
+    print(f"  official-record links: {linked}/{len(all_permits)} permits resolve in open data")
     return list(parcels.values())
