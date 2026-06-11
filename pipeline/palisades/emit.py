@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+import uuid
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -25,11 +27,18 @@ def emit_all(
     *,
     baselines: list[dict[str, Any]] | None = None,
     source_meta: list[dict[str, Any]] | None = None,
+    incidents: list[dict[str, Any]] | None = None,
+    run_id: str | None = None,
+    snapshot_id: str | None = None,
     out_dir: Path | None = None,
 ) -> dict[str, Any]:
     out = out_dir or OUT_DIR
     out.mkdir(parents=True, exist_ok=True)
     now = datetime.now(timezone.utc).replace(microsecond=0)
+    # One snapshot_id stamps every artifact of a run so the frontend can detect
+    # mixed-vintage reads; run_id ties artifacts back to logs/provenance.
+    run_id = run_id or uuid.uuid4().hex[:12]
+    snapshot_id = snapshot_id or f"{now.strftime('%Y%m%dT%H%M%SZ')}-{run_id[:6]}"
 
     # ---- parcels.geojson (lean) ----
     features = []
@@ -53,9 +62,11 @@ def emit_all(
                 "geometry": p.geometry,
             }
         )
-    (out / "parcels.geojson").write_bytes(
-        orjson.dumps({"type": "FeatureCollection", "features": features})
+    parcels_bytes = orjson.dumps(
+        # snapshot_id is a GeoJSON foreign member (RFC 7946 §6.1) — safe for consumers
+        {"type": "FeatureCollection", "snapshot_id": snapshot_id, "features": features}
     )
+    (out / "parcels.geojson").write_bytes(parcels_bytes)
 
     # ---- details.json ----
     details: dict[str, Any] = {}
@@ -88,7 +99,10 @@ def emit_all(
             "lat": round(p.lat, 6) if p.lat else None,
             "lon": round(p.lon, 6) if p.lon else None,
         }
-    (out / "details.json").write_bytes(orjson.dumps(details))
+    # underscore key cannot collide with 10-digit APN keys; web does keyed lookups only
+    details["_snapshot_id"] = snapshot_id
+    details_bytes = orjson.dumps(details)
+    (out / "details.json").write_bytes(details_bytes)
 
     # ---- summary.json ----
     stages = Counter(p.stage for p in parcels)
@@ -145,15 +159,29 @@ def emit_all(
 
     summary = {
         "as_of": now.isoformat(),
+        "snapshot_id": snapshot_id,
         "totals": totals,
         "weekly": weekly,
         "baselines": baselines or [],
         "neighborhoods": neighborhoods,
     }
-    (out / "summary.json").write_text(json.dumps(summary, indent=1))
+    summary_text = json.dumps(summary, indent=1)
+    (out / "summary.json").write_text(summary_text)
 
     # ---- meta.json ----
-    meta = {"generated": now.isoformat(), "sources": source_meta or []}
+    meta = {
+        "generated": now.isoformat(),
+        "run_id": run_id,
+        "snapshot_id": snapshot_id,
+        "sources": source_meta or [],
+        "incidents": incidents or [],
+        "artifacts": {
+            "parcels.geojson": hashlib.sha256(parcels_bytes).hexdigest(),
+            "details.json": hashlib.sha256(details_bytes).hexdigest(),
+            "summary.json": hashlib.sha256(summary_text.encode()).hexdigest(),
+        },
+    }
     (out / "meta.json").write_text(json.dumps(meta, indent=1))
 
-    return {"features": len(features), "totals": totals, "weeks": len(weekly)}
+    return {"features": len(features), "totals": totals, "weeks": len(weekly),
+            "snapshot_id": snapshot_id}
