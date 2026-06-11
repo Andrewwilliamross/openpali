@@ -15,12 +15,22 @@ const TILES_BASE = `${import.meta.env.BASE_URL}tiles/palisades`
 const DEM_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
 const DEM_ATTRIBUTION = 'Terrain: USGS 3DEP/SRTM via Mapzen terrain tiles (AWS Open Data)'
 
+// Ground imagery: the NEWEST Esri Wayback release (2026-05-28 — verified live
+// at the Palisades). Note Wayback's WMTS path is {z}/{y}/{x}: Y BEFORE X.
+const GROUND_IMAGERY_RELEASE = 10842
+const GROUND_IMAGERY_TILES =
+  `https://wayback.maptiles.arcgis.com/arcgis/rest/services/world_imagery/wmts/1.0.0/default028mm/mapserver/tile/${GROUND_IMAGERY_RELEASE}/{z}/{y}/{x}`
+const GROUND_IMAGERY_ATTRIBUTION =
+  'Imagery: Esri World Imagery Wayback 2026-05-28 — Esri, Vantor, Earthstar Geographics'
+
 export type ViewMode = '2d' | '3d'
+export type GroundMode = 'map' | 'sat'
 
 interface Props {
   parcels: ParcelCollection | null
   selectedApn: string | null
   mode: ViewMode
+  ground: GroundMode
   onSelect: (apn: string | null) => void
   onMapReady: (map: MLMap) => void
 }
@@ -37,7 +47,7 @@ function demSource(): maplibregl.RasterDEMSourceSpecification {
   }
 }
 
-export default function MapView({ parcels, selectedApn, mode, onSelect, onMapReady }: Props) {
+export default function MapView({ parcels, selectedApn, mode, ground, onSelect, onMapReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
   const hoveredRef = useRef<string | number | null>(null)
@@ -46,6 +56,8 @@ export default function MapView({ parcels, selectedApn, mode, onSelect, onMapRea
   const intersectorRef = useRef<SpatialIntersector | null>(null)
   const modeRef = useRef<ViewMode>(mode)
   modeRef.current = mode
+  const groundRef = useRef<GroundMode>(ground)
+  groundRef.current = ground
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -71,6 +83,24 @@ export default function MapView({ parcels, selectedApn, mode, onSelect, onMapRea
       // ---- terrain + hillshade (separate source instances, per ML guidance) ----
       map.addSource('terrain-dem', demSource())
       map.addSource('hillshade-dem', demSource())
+      // current-conditions ground imagery (drapes natively on the terrain)
+      map.addSource('ground-imagery', {
+        type: 'raster',
+        tiles: [GROUND_IMAGERY_TILES],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: GROUND_IMAGERY_ATTRIBUTION,
+      })
+      map.addLayer(
+        {
+          id: 'ground-imagery',
+          type: 'raster',
+          source: 'ground-imagery',
+          layout: { visibility: groundRef.current === 'sat' ? 'visible' : 'none' },
+          paint: { 'raster-opacity': 1 },
+        },
+        firstSymbolLayerId(map),
+      )
       map.addLayer(
         {
           id: 'hills',
@@ -150,6 +180,23 @@ export default function MapView({ parcels, selectedApn, mode, onSelect, onMapRea
       map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
     }
   }, [mode])
+
+  // ---- ground mode: map ↔ current-conditions imagery ----
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !loadedRef.current || !map.getLayer('ground-imagery')) return
+    map.setLayoutProperty('ground-imagery', 'visibility',
+      ground === 'sat' ? 'visible' : 'none')
+    // over imagery the score fills read better slightly lighter
+    if (map.getLayer('parcel-fill')) {
+      map.setPaintProperty('parcel-fill', 'fill-opacity', [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        0.92,
+        ground === 'sat' ? 0.45 : 0.55,
+      ] as never)
+    }
+  }, [ground])
 
   // ---- parcel source/layers ----
   useEffect(() => {

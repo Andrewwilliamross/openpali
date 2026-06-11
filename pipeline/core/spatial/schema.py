@@ -91,6 +91,14 @@ class GaussianBatch:
         if bad.any():
             # normalise rather than reject — upstream quantisation drifts slightly
             self.rot = (self.rot / np.maximum(norms, 1e-12)[:, None]).astype(np.float32)
+        # NaN/Inf tier guard: a quaternion singularity or degenerate geometry
+        # upstream must fail HERE, loudly, not poison the GeoParquet store
+        for name, arr in (("xyz_ecef", self.xyz_ecef), ("scale", self.scale),
+                          ("rot", self.rot), ("alpha", self.alpha), ("sh", self.sh)):
+            if not np.isfinite(arr).all():
+                n_bad = int((~np.isfinite(arr)).sum())
+                raise ValueError(
+                    f"GaussianBatch.{name}: {n_bad} non-finite values — refusing to store")
 
     def __len__(self) -> int:
         return len(self.xyz_ecef)

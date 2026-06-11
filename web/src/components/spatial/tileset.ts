@@ -54,6 +54,11 @@ export interface SplatNode {
   firstDrawnAt: number // fade anchor: first frame actually DRAWN (0 = never)
   failedAt: number // performance.now() of last fetch failure (retry cooldown)
   lastUsedFrame: number
+  /** ready nodes in this subtree (incl. self) — lets the zoom-out fallback
+   *  descend ONLY where resident content exists instead of flood-requesting
+   *  the entire tree */
+  residentDesc: number
+  lastZProbeFrame: number // DEM probe throttle while terrain tiles stream
   zOffset: number // terrain clamp, metres ENU (NaN = not yet computed)
   zOffsetReliable: boolean // false while DEM tiles were still streaming
   sortedDirX: number
@@ -102,6 +107,8 @@ export function parseTileset(json: {
       firstDrawnAt: 0,
       failedAt: 0,
       lastUsedFrame: 0,
+      residentDesc: 0,
+      lastZProbeFrame: -100,
       zOffset: Number.NaN,
       zOffsetReliable: false,
       sortedDirX: 0,

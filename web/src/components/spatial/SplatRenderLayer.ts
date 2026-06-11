@@ -112,7 +112,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
                         'u_hasTex', 'u_texOrigin', 'u_texInvSize', 'u_tex']) {
       this.uniforms[name] = gl.getUniformLocation(this.program, name)
     }
-    this.pool = new BufferPool(gl, SLOT_BYTES, 48, 16)
+    this.pool = new BufferPool(gl, 16, 8)
     this.texMan = new NodeTextureManager(gl, () => map.triggerRepaint())
     // 1×1 fallback keeps the sampler valid on un-textured draws
     this.fallbackTex = gl.createTexture()
@@ -211,6 +211,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
       }
       node.state = 'ready'
       node.firstDrawnAt = 0 // fade anchors to the first frame actually drawn
+      for (let p: SplatNode | null = node; p; p = p.parent) p.residentDesc++
       this.map?.triggerRepaint()
     })
   }
@@ -225,7 +226,8 @@ export class SplatRenderLayer implements CustomLayerInterface {
     if (bytes.byteLength <= SLOT_BYTES) {
       node.slot = pool.acquire(new Uint8Array(bytes))
       buffer = node.slot.buffer
-      this.residentBytes += SLOT_BYTES - bytes.byteLength // slot capacity is the true GPU cost
+      // slot CAPACITY is the true GPU cost (classes keep waste low)
+      this.residentBytes += node.slot.capacity - bytes.byteLength
     } else {
       // oversize node (rare): dedicated buffer outside the ring. The handle is
       // kept on the node — ARRAY_BUFFER binding is NOT VAO state in WebGL2, so
@@ -264,8 +266,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
   private evictNode(node: SplatNode): void {
     const gl = this.gl
-    // mirror uploadNode's accounting: pooled nodes cost a full slot on the GPU
-    if (node.bytes) this.residentBytes -= node.slot ? SLOT_BYTES : node.bytes.byteLength
+    if (node.state === 'ready') {
+      for (let p: SplatNode | null = node; p; p = p.parent) p.residentDesc--
+    }
+    // mirror uploadNode's accounting: pooled slots cost their CAPACITY on the GPU
+    if (node.bytes) this.residentBytes -= node.slot ? node.slot.capacity : node.bytes.byteLength
     if (node.slot && this.pool) this.pool.release(node.slot)
     if (node.glBuffer && gl) {
       gl.deleteBuffer(node.glBuffer)
@@ -293,8 +298,25 @@ export class SplatRenderLayer implements CustomLayerInterface {
     return [p[0], p[1], p[2]]
   }
 
+  private static readonly CLAMP_MAX_NODE_M = 600
+
   private ensureZOffset(node: SplatNode): void {
     if (node.zOffsetReliable) return
+    // A single centre-sampled offset is only meaningful for nodes much smaller
+    // than the terrain relief wavelength. Multi-km internal nodes straddle
+    // canyons AND ridges — clamping them by their centre elevation hoists
+    // coastal content hundreds of metres into the sky (the "floating blobs").
+    // Their absolute AMSL heights are already correct: leave them unclamped.
+    if (node.hx * 2 > SplatRenderLayer.CLAMP_MAX_NODE_M) {
+      node.zOffset = 0
+      node.zOffsetReliable = true
+      return
+    }
+    // throttle: while the DEM is still streaming, probe at most every 15
+    // frames per node instead of spinning the render loop every frame
+    if (this.frame - node.lastZProbeFrame < 15) return
+    node.lastZProbeFrame = this.frame
+
     const map = this.map as MLMap
     const m = this.manifest as TilesetManifest
     const latRad = (m.origin.lat * Math.PI) / 180
@@ -316,9 +338,13 @@ export class SplatRenderLayer implements CustomLayerInterface {
     // terrain enabled — but queryTerrainElevation returns 0 (not null) while
     // DEM tiles are still streaming; caching that would bury the node at sea
     // level for the whole session. Only trust the sample once tiles settled.
+    const prev = node.zOffset
     node.zOffset = elev - baseAMSL
     node.zOffsetReliable = map.areTilesLoaded()
-    if (!node.zOffsetReliable) this.map?.triggerRepaint()
+    if (!node.zOffsetReliable &&
+        (Number.isNaN(prev) || Math.abs(prev - node.zOffset) > 0.25)) {
+      this.map?.triggerRepaint()
+    }
   }
 
   /** The full ENU→clip matrix for this frame (float64). */
@@ -400,10 +426,13 @@ export class SplatRenderLayer implements CustomLayerInterface {
         pushDraw(node, dist, fadeOf(node) || (node.firstDrawnAt === 0 ? 0 : 1))
       } else {
         this.requestLoad(node, this.viewDirTo(node, cam))
-        // zoom-out fallback: this coarse node isn't resident yet, but its
-        // (previously refined) descendants may be — draw them instead of
-        // leaving a hole for a full network round-trip
-        for (const c of node.children) visit(c)
+        // zoom-out fallback: draw previously-refined descendants instead of a
+        // hole — but ONLY where resident content already exists. Recursing
+        // into unloaded subtrees here used to flood-request the entire tree
+        // on startup (2,375 fetches + main-thread sorts: the fan spinner).
+        for (const c of node.children) {
+          if (c.residentDesc > 0) visit(c)
+        }
       }
     }
     visit(this.tileset.root)
@@ -427,7 +456,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     gl2.depthMask(false) // depth TEST stays on (terrain occludes splats)
 
     const m = this.manifest as TilesetManifest
-    for (const { node, fade } of drawList) {
+    for (const { node, dist, fade } of drawList) {
       this.ensureZOffset(node)
       const f = fade === 0 ? fadeOf(node) : fade
       if (f < 1) animating = true
@@ -440,7 +469,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
       // would almost never texture anything; size is the correct gate (and it
       // bounds texture residency the same way).
       let bound = false
-      if (this.texturesEnabled && this.texMan && node.hx * 2 <= 400) {
+      if (this.texturesEnabled && this.texMan && node.hx * 2 <= 400 && dist <= 2500) {
         const binding = this.texMan.acquire(
           node.id, this.frame,
           node.cx - node.hx, node.cy - node.hy,
@@ -483,46 +512,52 @@ export class SplatRenderLayer implements CustomLayerInterface {
     return [dx / len, dy / len, dz / len]
   }
 
-  /** Re-sort at most ONE stale node per frame (nearest first) — keeps blending
-   *  correct during orbit without ever blocking the frame budget. */
+  /** Re-sort a small batch of the stalest nearby nodes per frame. A budget of
+   *  one node kept the render loop warm for hundreds of frames after every
+   *  camera move (each resort schedules a repaint to continue the drain) —
+   *  four per frame stays well inside the frame budget (~O(n) counting sort,
+   *  <1 ms each) and settles the backlog in a fraction of a second. */
+  private static readonly RESORT_BUDGET_PER_FRAME = 4
+
   private resortPass(drawList: { node: SplatNode; dist: number }[],
                      cam: [number, number, number]): void {
-    let candidate: SplatNode | null = null
-    let candidateDist = Infinity
+    if (!this.pool) return
+    const stale: { node: SplatNode; dist: number }[] = []
     for (const { node, dist } of drawList) {
       if (!node.bytes) continue
       const dir = this.viewDirTo(node, cam)
       const dot = dir[0] * node.sortedDirX + dir[1] * node.sortedDirY + dir[2] * node.sortedDirZ
-      if (dot < RESORT_DOT_THRESHOLD && dist < candidateDist) {
-        candidate = node
-        candidateDist = dist
+      if (dot < RESORT_DOT_THRESHOLD) stale.push({ node, dist })
+    }
+    if (stale.length === 0) return
+    stale.sort((a, b) => a.dist - b.dist) // nearest (most visible) first
+    const batch = stale.slice(0, SplatRenderLayer.RESORT_BUDGET_PER_FRAME)
+    for (const { node } of batch) {
+      const dir = this.viewDirTo(node, cam)
+      const sorted = sortSplatRecords(node.bytes as ArrayBuffer, dir[0], dir[1], dir[2])
+      node.bytes = sorted
+      node.sortedDirX = dir[0]
+      node.sortedDirY = dir[1]
+      node.sortedDirZ = dir[2]
+      if (node.slot) {
+        this.pool.rewrite(node.slot, new Uint8Array(sorted))
+      } else if (this.gl && node.glBuffer) {
+        // oversize node path — the handle is kept on the node because the
+        // ARRAY_BUFFER binding is NOT VAO state and cannot be recovered later
+        const gl = this.gl
+        gl.bindBuffer(gl.ARRAY_BUFFER, node.glBuffer)
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Uint8Array(sorted))
+        gl.bindBuffer(gl.ARRAY_BUFFER, null)
       }
     }
-    if (!candidate || !this.pool) return
-    const dir = this.viewDirTo(candidate, cam)
-    const sorted = sortSplatRecords(candidate.bytes as ArrayBuffer, dir[0], dir[1], dir[2])
-    candidate.bytes = sorted
-    candidate.sortedDirX = dir[0]
-    candidate.sortedDirY = dir[1]
-    candidate.sortedDirZ = dir[2]
-    if (candidate.slot) {
-      this.pool.rewrite(candidate.slot, new Uint8Array(sorted))
-    } else if (this.gl && candidate.glBuffer) {
-      // oversize node path — the handle is kept on the node because the
-      // ARRAY_BUFFER binding is NOT VAO state and cannot be recovered later
-      const gl = this.gl
-      gl.bindBuffer(gl.ARRAY_BUFFER, candidate.glBuffer)
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Uint8Array(sorted))
-      gl.bindBuffer(gl.ARRAY_BUFFER, null)
-    }
-    this.map?.triggerRepaint()
+    if (stale.length > batch.length) this.map?.triggerRepaint()
   }
 
   /** LRU eviction keeps pooled GPU residency under the byte cap. */
   private evictPass(): void {
     if (!this.tileset || this.residentBytes <= RESIDENT_BYTE_CAP) return
     const candidates = this.tileset.nodes
-      .filter((n) => n.state === 'ready' && n.lastUsedFrame < this.frame - 30)
+      .filter((n) => n.state === 'ready' && n.lastUsedFrame < this.frame - 120)
       .sort((a, b) => a.lastUsedFrame - b.lastUsedFrame)
     for (const n of candidates) {
       if (this.residentBytes <= RESIDENT_BYTE_CAP * 0.85) break

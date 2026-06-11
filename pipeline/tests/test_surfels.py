@@ -112,6 +112,46 @@ def test_deterministic_per_apn():
     np.testing.assert_array_equal(b1.xyz_ecef, b2.xyz_ecef)
 
 
+def test_quaternion_antiparallel_singularity():
+    # §III.1 audit: n = −ẑ is the half-vector singularity (w = 1+n_z → 0).
+    # The deterministic fallback must be an exact 180° flip, no NaN/zero-div.
+    from core.spatial.surfels import quats_from_normals
+
+    q = quats_from_normals(np.array([[0.0, 0.0, -1.0]]))
+    np.testing.assert_allclose(q[0], [0.0, 1.0, 0.0, 0.0], atol=1e-7)
+    mats = quats_to_matrices(q.astype(np.float64))
+    np.testing.assert_allclose(mats[0] @ [0, 0, 1], [0, 0, -1], atol=1e-7)
+
+
+def test_quaternion_near_antiparallel_stability():
+    # overhangs: normals within micro-radians of −ẑ must stay finite and unit,
+    # and still rotate ẑ onto n to high accuracy
+    from core.spatial.surfels import quats_from_normals
+
+    eps = np.array([1e-5, 1e-6, 1e-7, 1e-8])
+    n = np.stack([eps, np.zeros_like(eps), -np.sqrt(1 - eps**2)], axis=1)
+    q = quats_from_normals(n)
+    assert np.isfinite(q).all()
+    np.testing.assert_allclose(np.linalg.norm(q, axis=1), 1.0, atol=1e-6)
+    mats = quats_to_matrices(q.astype(np.float64))
+    for i in range(len(n)):
+        err = np.linalg.norm(mats[i] @ [0, 0, 1] - n[i])
+        assert err < 1e-4, f"eps={eps[i]}: rotation error {err}"
+
+
+def test_downward_faces_sample_finite_into_store_guard():
+    # an overhang (ceiling) face: downward normal — full path must produce a
+    # storable batch (the schema constructor now hard-rejects non-finite data)
+    a, b, c = [0, 0, 5], [10, 0, 5], [0, 10, 5]
+    tris = np.array([[c, b, a]], dtype=float)  # reversed winding → n = −ẑ
+    cols = np.full((1, 3, 4), 120, dtype=np.uint8)
+    batch = sample_faces_stratified(tris, cols, EYE3, t_epoch=0, apn="ovh", source="t")
+    assert batch is not None and len(batch) > 50
+    assert np.isfinite(batch.rot).all() and np.isfinite(batch.xyz_ecef).all()
+    mats = quats_to_matrices(batch.rot[:8].astype(np.float64))
+    np.testing.assert_allclose(mats[:, 2, 2], -1.0, atol=1e-5)  # disks face down
+
+
 def test_color_interpolation_barycentric():
     # gradient triangle: corner colours 0 / 255 — interior samples must span between
     a, b, c = [0, 0, 0], [10, 0, 0], [0, 10, 0]

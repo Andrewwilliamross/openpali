@@ -156,3 +156,38 @@ Texture residency is LRU-capped (112 MB) and tied to node eviction.
 bytes — pool peak dropped 1,264 → 496 slots (566 → 222 MB GPU) under the same
 144 MB cap. Verified: 32 py + 17 ts tests, GL error 0 across pitch-85 sweeps,
 photo roofs + tinted walls confirmed in-browser top-down and at street level.
+
+## Phase 4 — Performance Profiling & Optimization
+
+Root-caused and fixed the runaway-CPU / flicker / floating-geometry symptoms:
+
+- **Startup cascade flood** (the fan): the zoom-out fallback recursed into
+  *unloaded* subtrees, requesting the entire 2,375-node tree (326 MB + ~10 M
+  main-thread sort ops) on first paint. Fallback now descends only where
+  `residentDesc > 0`; loading is purely SSE-paced. Cold-start fetches: 2,375 → ~200.
+- **Eviction thrash** ("everything in between states"): single 448 KB slots made
+  GPU cost ≈ 3× payload, starving the cap into evict→reload→re-fade loops.
+  BufferPool now has size classes (64/192/448 KB) + 120-frame hysteresis on
+  node AND texture eviction. Settled state: zero evictions, zero re-fades.
+- **Texture flicker**: same thrash through `texMan.evict` + per-frame
+  re-compose; killed by the above + distance gating (≤2.5 km) on acquisition.
+- **Floating sky blobs**: the terrain clamp applied a centre-sampled offset to
+  multi-km internal nodes (centre-on-ridge hoisted coastal content hundreds of
+  metres). Clamp is now size-gated (≤600 m); large nodes render at their
+  already-correct absolute AMSL.
+- **Repaint storms**: DEM probes throttled (15-frame cadence, repaint only on
+  >0.25 m change); re-sort budget 1 → 4 nodes/frame so the post-move backlog
+  drains in ~⅓ s instead of keeping the loop warm for hundreds of frames.
+  Verified: **0 renders / 5 s at idle, pitch 85** (was a continuous ~25 fps loop).
+- **Ground layer**: current-conditions Esri Wayback **2026-05-28** imagery as a
+  native terrain-draped raster with a Map/Sat toggle (default Sat in 3D).
+- **§III.1 audit**: antiparallel/near-antiparallel quaternion paths proven NaN-free
+  (exact 180° fallback; overhang test); the GeoParquet tier now hard-rejects
+  non-finite batches at the schema boundary.
+- **§II audit**: no indexing discrepancy — 1,634/1,775 LADBS APNs join the
+  5,877-parcel universe; the 141 others are permits on non-destroyed (Major/
+  Minor) lots, correctly out of scope; 19 upstream rows have unparseable APNs.
+- **§IV evaluation**: Open3D/trimesh rejected (registration + sampling already
+  vectorised numpy/scipy; no mesh repair needed; ~700 MB dep). CuPy rejected
+  (nightly drain is network-bound, 95 s warm). Frustum culling + ring-buffer
+  recycling already present; tightened as above.

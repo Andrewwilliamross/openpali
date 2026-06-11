@@ -110,6 +110,7 @@ export class NodeTextureManager {
   private bytes = 0
   private generation = 0
   private onReady: () => void
+  private currentFrame = 0 // hysteresis: never evict textures in active use
 
   constructor(gl: WebGL2RenderingContext, onReady: () => void) {
     this.gl = gl
@@ -128,6 +129,7 @@ export class NodeTextureManager {
   acquire(nodeId: number, frame: number,
           enuMinX: number, enuMinY: number, enuMaxX: number, enuMaxY: number,
           originLon: number, originLat: number): TextureBinding | null {
+    this.currentFrame = Math.max(this.currentFrame, frame)
     const existing = this.entries.get(nodeId)
     if (existing) {
       existing.lastUsedFrame = frame
@@ -257,8 +259,11 @@ export class NodeTextureManager {
 
   private evictOverBudget(): void {
     if (this.bytes <= MAX_TEX_BYTES) return
+    // hysteresis: a texture used in the last ~2s of frames is part of the
+    // active working set — evicting it would re-fetch + re-compose next frame
+    // (the flicker/churn loop). Only idle textures are reclaimable.
     const ready = [...this.entries.entries()]
-      .filter(([, e]) => e.state === 'ready')
+      .filter(([, e]) => e.state === 'ready' && e.lastUsedFrame < this.currentFrame - 120)
       .sort((a, b) => a[1].lastUsedFrame - b[1].lastUsedFrame)
     for (const [id] of ready) {
       if (this.bytes <= MAX_TEX_BYTES * 0.8) break

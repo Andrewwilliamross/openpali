@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Map as MLMap } from 'maplibre-gl'
-import MapView, { type ViewMode } from './components/MapView'
+import MapView, { type GroundMode, type ViewMode } from './components/MapView'
 import Header from './components/Header'
 import ParcelDetailCard from './components/spatial/ParcelDetailCard'
 import SearchBar from './components/SearchBar'
@@ -17,6 +17,7 @@ export default function App() {
   const [selectedApn, setSelectedApn] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [mode, setMode] = useState<ViewMode>('3d')
+  const [ground, setGround] = useState<GroundMode>('sat')
   const mapRef = useRef<MLMap | null>(null)
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function App() {
           parcels={parcels}
           selectedApn={selectedApn}
           mode={mode}
+          ground={ground}
           onSelect={setSelectedApn}
           onMapReady={(m) => {
             mapRef.current = m
@@ -85,6 +87,14 @@ export default function App() {
           aria-label="Toggle 3D view"
         >
           {mode === '3d' ? '2D' : '3D'}
+        </button>
+        <button
+          className="mode-toggle ground-toggle"
+          onClick={() => setGround((g) => (g === 'sat' ? 'map' : 'sat'))}
+          aria-label="Toggle ground imagery"
+          title="Ground: current imagery (May 2026) vs map"
+        >
+          {ground === 'sat' ? 'Map' : 'Sat'}
         </button>
         <Legend />
         {loadError && <div className="load-error">{loadError}</div>}

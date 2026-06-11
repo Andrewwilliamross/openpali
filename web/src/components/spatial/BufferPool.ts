@@ -1,74 +1,86 @@
-// Pre-allocated GPU vertex-buffer pool.
+// Pre-allocated GPU vertex-buffer pool with SIZE CLASSES.
 //
 // Panning across the canyons loads/evicts dozens of octree nodes per second;
-// allocating a fresh VBO per node (and letting GC + driver churn reclaim them)
-// causes main-thread stutter. Instead we pre-allocate fixed-size buffer slots
-// once and recycle them: acquire on node load, release on evict. Slots are
-// sized to the largest leaf payload; the pool grows by whole banks only when
-// genuinely exhausted (and never shrinks — steady-state is allocation-free).
+// allocating a fresh VBO per node causes driver churn and main-thread stutter,
+// so slots are pre-allocated once and recycled (acquire on load, release on
+// evict — steady-state is allocation-free).
+//
+// Why classes: node payloads are heavily skewed (median ≈ 90 KB, leaves up to
+// 448 KB). A single 448 KB slot size made GPU cost ≈ 3× the data and starved
+// the residency cap into evict/reload thrash. Three classes keep slot waste
+// under ~25% so the byte cap admits the true working set.
 
 export interface PoolSlot {
   buffer: WebGLBuffer
-  /** capacity in bytes (fixed at pool construction) */
+  /** capacity in bytes (fixed per class) */
   capacity: number
   /** bytes valid in the current residency */
   used: number
-  /** pool bookkeeping */
-  index: number
+  /** class index in SLOT_CLASSES */
+  classIndex: number
+}
+
+export const SLOT_CLASSES = [64 * 1024, 192 * 1024, 448 * 1024] as const
+
+/** Smallest class that fits `bytes`, or -1 when nothing fits (oversize path). */
+export function chooseSlotClass(bytes: number,
+                                classes: readonly number[] = SLOT_CLASSES): number {
+  for (let i = 0; i < classes.length; i++) {
+    if (bytes <= classes[i]) return i
+  }
+  return -1
 }
 
 export class BufferPool {
   private gl: WebGL2RenderingContext
-  private slotBytes: number
-  private free: PoolSlot[] = []
+  private free: PoolSlot[][] = SLOT_CLASSES.map(() => [])
   private all: PoolSlot[] = []
   private bank: number
 
   /** total bytes resident in pooled GPU memory (capacity, not used) */
   get capacityBytes(): number {
-    return this.all.length * this.slotBytes
+    return this.all.reduce((s, slot) => s + slot.capacity, 0)
   }
 
   get freeCount(): number {
-    return this.free.length
+    return this.free.reduce((s, f) => s + f.length, 0)
   }
 
   get totalCount(): number {
     return this.all.length
   }
 
-  constructor(gl: WebGL2RenderingContext, slotBytes: number, initialSlots = 64,
-              bank = 16) {
+  constructor(gl: WebGL2RenderingContext, initialPerClass = 16, bank = 8) {
     this.gl = gl
-    this.slotBytes = slotBytes
     this.bank = bank
-    this.grow(initialSlots)
+    for (let c = 0; c < SLOT_CLASSES.length; c++) this.grow(c, initialPerClass)
   }
 
-  private grow(n: number): void {
+  private grow(classIndex: number, n: number): void {
     const gl = this.gl
+    const capacity = SLOT_CLASSES[classIndex]
     for (let i = 0; i < n; i++) {
       const buffer = gl.createBuffer()
       if (!buffer) throw new Error('BufferPool: createBuffer failed')
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
       // allocate once; all future writes are bufferSubData into this block
-      gl.bufferData(gl.ARRAY_BUFFER, this.slotBytes, gl.DYNAMIC_DRAW)
-      const slot: PoolSlot = { buffer, capacity: this.slotBytes, used: 0,
-                               index: this.all.length }
+      gl.bufferData(gl.ARRAY_BUFFER, capacity, gl.DYNAMIC_DRAW)
+      const slot: PoolSlot = { buffer, capacity, used: 0, classIndex }
       this.all.push(slot)
-      this.free.push(slot)
+      this.free[classIndex].push(slot)
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
   }
 
-  /** Acquire a slot and upload `data` into it. Grows by one bank if empty. */
+  /** Acquire the smallest-fitting slot and upload `data` into it. */
   acquire(data: ArrayBufferView): PoolSlot {
-    if (data.byteLength > this.slotBytes) {
+    const classIndex = chooseSlotClass(data.byteLength)
+    if (classIndex < 0) {
       throw new Error(
-        `BufferPool: payload ${data.byteLength}B exceeds slot ${this.slotBytes}B`)
+        `BufferPool: payload ${data.byteLength}B exceeds the largest class`)
     }
-    if (this.free.length === 0) this.grow(this.bank)
-    const slot = this.free.pop() as PoolSlot
+    if (this.free[classIndex].length === 0) this.grow(classIndex, this.bank)
+    const slot = this.free[classIndex].pop() as PoolSlot
     const gl = this.gl
     gl.bindBuffer(gl.ARRAY_BUFFER, slot.buffer)
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, data)
@@ -89,16 +101,16 @@ export class BufferPool {
     slot.used = data.byteLength
   }
 
-  /** Return a slot to the free list. The GPU memory is retained for reuse. */
+  /** Return a slot to its class's free list (GPU memory retained for reuse). */
   release(slot: PoolSlot): void {
     slot.used = 0
-    this.free.push(slot)
+    this.free[slot.classIndex].push(slot)
   }
 
   /** Delete all GPU buffers (layer teardown only). */
   destroy(): void {
     for (const s of this.all) this.gl.deleteBuffer(s.buffer)
     this.all = []
-    this.free = []
+    this.free = SLOT_CLASSES.map(() => [])
   }
 }

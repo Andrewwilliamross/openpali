@@ -774,3 +774,7 @@ body,
     max-height: 62%;
   }
 }
+
+.ground-toggle {
+  top: 58px;
+}
