@@ -191,3 +191,20 @@ Root-caused and fixed the runaway-CPU / flicker / floating-geometry symptoms:
   vectorised numpy/scipy; no mesh repair needed; ~700 MB dep). CuPy rejected
   (nightly drain is network-bound, 95 s warm). Frustum culling + ring-buffer
   recycling already present; tightened as above.
+
+### Phase 4.1 — base-map flicker + true current-conditions ground
+
+- **Flicker root cause**: the splat layer mutated GL state (blendFunc, depth
+  mask, texture/program/VAO bindings) with raw calls; MapLibre v5's `Context`
+  CACHES that state and skips "redundant" sets, so its next terrain-drape pass
+  (which carries the ground imagery) intermittently ran with our state — the
+  constant base-map flicker. render() now snapshots and exactly restores every
+  mutated value, keeping cache == hardware.
+- **Ground imagery**: Wayback "release dates" are publish dates, not capture
+  dates — the world mosaic over the Palisades still shows pre-fire structures.
+  Replaced with the **LA County LARIAC7 Post-Fire Ortho (flown October 2025)**,
+  a public WMTS discovered inside the county's own Road-to-Recovery 3D scene
+  (svc.pictometry.com, GoogleMapsCompatible, live to z21 ≈ 7 cm/px), bounded to
+  its flight footprint with Esri World Imagery as the out-of-coverage fallback.
+  The ground now shows cleared pads and early reconstruction — the truest
+  publicly-served picture of June-2026 conditions.

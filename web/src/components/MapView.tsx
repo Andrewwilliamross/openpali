@@ -15,13 +15,27 @@ const TILES_BASE = `${import.meta.env.BASE_URL}tiles/palisades`
 const DEM_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
 const DEM_ATTRIBUTION = 'Terrain: USGS 3DEP/SRTM via Mapzen terrain tiles (AWS Open Data)'
 
-// Ground imagery: the NEWEST Esri Wayback release (2026-05-28 — verified live
-// at the Palisades). Note Wayback's WMTS path is {z}/{y}/{x}: Y BEFORE X.
-const GROUND_IMAGERY_RELEASE = 10842
-const GROUND_IMAGERY_TILES =
-  `https://wayback.maptiles.arcgis.com/arcgis/rest/services/world_imagery/wmts/1.0.0/default028mm/mapserver/tile/${GROUND_IMAGERY_RELEASE}/{z}/{y}/{x}`
-const GROUND_IMAGERY_ATTRIBUTION =
-  'Imagery: Esri World Imagery Wayback 2026-05-28 — Esri, Vantor, Earthstar Geographics'
+// Ground imagery, two stacked sources:
+// 1. PRIMARY — LA County LARIAC7 POST-FIRE ortho (flown October 2025), the
+//    newest public capture of actual ground conditions: cleared lots, debris
+//    pads, and early reconstruction. Served as a public WMTS by the county's
+//    vendor (found inside the county's own Road-to-Recovery 3D scene; live to
+//    z21 ≈ 7 cm/px). Standard XYZ ({level}/{col}/{row} = z/x/y).
+// 2. FALLBACK — Esri World Imagery (current release) outside the LARIAC7
+//    flight footprint, so the world doesn't go blank at the coverage edge.
+//    NOTE: the world mosaic over the Palisades still shows PRE-fire structures
+//    (Wayback release dates are publish dates, not capture dates).
+const LARIAC7_TILES =
+  'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-LARIAC7--YRwyJETYPH/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
+// LARIAC7 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
+const LARIAC7_BOUNDS: [number, number, number, number] =
+  [-118.7281, 33.9275, -117.9640, 34.2096]
+const LARIAC7_ATTRIBUTION =
+  'Imagery: LA County LARIAC7 Post-Fire Ortho (Oct 2025) © EagleView/Pictometry'
+const WORLD_IMAGERY_TILES =
+  'https://wayback.maptiles.arcgis.com/arcgis/rest/services/world_imagery/wmts/1.0.0/default028mm/mapserver/tile/10842/{z}/{y}/{x}'
+const WORLD_IMAGERY_ATTRIBUTION =
+  'Esri World Imagery — Esri, Vantor, Earthstar Geographics'
 
 export type ViewMode = '2d' | '3d'
 export type GroundMode = 'map' | 'sat'
@@ -83,14 +97,33 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       // ---- terrain + hillshade (separate source instances, per ML guidance) ----
       map.addSource('terrain-dem', demSource())
       map.addSource('hillshade-dem', demSource())
-      // current-conditions ground imagery (drapes natively on the terrain)
-      map.addSource('ground-imagery', {
+      // current-conditions ground imagery (drapes natively on the terrain):
+      // world fallback below, county post-fire flight on top within its bounds
+      map.addSource('ground-imagery-world', {
         type: 'raster',
-        tiles: [GROUND_IMAGERY_TILES],
+        tiles: [WORLD_IMAGERY_TILES],
         tileSize: 256,
         maxzoom: 19,
-        attribution: GROUND_IMAGERY_ATTRIBUTION,
+        attribution: WORLD_IMAGERY_ATTRIBUTION,
       })
+      map.addSource('ground-imagery', {
+        type: 'raster',
+        tiles: [LARIAC7_TILES],
+        tileSize: 256,
+        maxzoom: 21,
+        bounds: LARIAC7_BOUNDS,
+        attribution: LARIAC7_ATTRIBUTION,
+      })
+      map.addLayer(
+        {
+          id: 'ground-imagery-world',
+          type: 'raster',
+          source: 'ground-imagery-world',
+          layout: { visibility: groundRef.current === 'sat' ? 'visible' : 'none' },
+          paint: { 'raster-opacity': 1 },
+        },
+        firstSymbolLayerId(map),
+      )
       map.addLayer(
         {
           id: 'ground-imagery',
@@ -185,8 +218,11 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
   useEffect(() => {
     const map = mapRef.current
     if (!map || !loadedRef.current || !map.getLayer('ground-imagery')) return
-    map.setLayoutProperty('ground-imagery', 'visibility',
-      ground === 'sat' ? 'visible' : 'none')
+    for (const id of ['ground-imagery', 'ground-imagery-world']) {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, 'visibility', ground === 'sat' ? 'visible' : 'none')
+      }
+    }
     // over imagery the score fills read better slightly lighter
     if (map.getLayer('parcel-fill')) {
       map.setPaintProperty('parcel-fill', 'fill-opacity', [

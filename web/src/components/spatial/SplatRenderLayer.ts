@@ -446,11 +446,30 @@ export class SplatRenderLayer implements CustomLayerInterface {
     drawList.sort((a, b) => b.dist - a.dist)
     let animating = false
 
+    // ---- snapshot the GL state we mutate ----
+    // MapLibre v5's Context CACHES blend/depth/texture/program state and skips
+    // "redundant" sets. Raw mutations here desync that cache, so MapLibre's
+    // next pass (the terrain drape that carries the ground imagery) randomly
+    // runs with OUR state — visible as constant flicker of the base map.
+    // Restoring the exact values keeps cache == hardware.
+    const prev = {
+      blendOn: gl2.isEnabled(gl2.BLEND),
+      srcRGB: gl2.getParameter(gl2.BLEND_SRC_RGB) as number,
+      dstRGB: gl2.getParameter(gl2.BLEND_DST_RGB) as number,
+      srcA: gl2.getParameter(gl2.BLEND_SRC_ALPHA) as number,
+      dstA: gl2.getParameter(gl2.BLEND_DST_ALPHA) as number,
+      depthMask: gl2.getParameter(gl2.DEPTH_WRITEMASK) as boolean,
+      activeTexture: gl2.getParameter(gl2.ACTIVE_TEXTURE) as number,
+      program: gl2.getParameter(gl2.CURRENT_PROGRAM) as WebGLProgram | null,
+      vao: gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) as WebGLVertexArrayObject | null,
+    }
+    gl2.activeTexture(gl2.TEXTURE0)
+    const prevTex0 = gl2.getParameter(gl2.TEXTURE_BINDING_2D) as WebGLTexture | null
+
     gl2.useProgram(this.program)
     gl2.uniformMatrix4fv(this.uniforms.u_matrix, false, this.matrixF32)
     gl2.uniform2f(this.uniforms.u_viewport, vw, vh)
     gl2.uniform1i(this.uniforms.u_tex, 0)
-    gl2.activeTexture(gl2.TEXTURE0)
     gl2.enable(gl2.BLEND)
     gl2.blendFunc(gl2.ONE, gl2.ONE_MINUS_SRC_ALPHA)
     gl2.depthMask(false) // depth TEST stays on (terrain occludes splats)
@@ -493,9 +512,16 @@ export class SplatRenderLayer implements CustomLayerInterface {
       gl2.bindVertexArray(node.vao)
       gl2.drawArraysInstanced(gl2.TRIANGLE_STRIP, 0, 4, node.splatCount)
     }
-    gl2.bindVertexArray(null)
-    gl2.bindTexture(gl2.TEXTURE_2D, null)
-    gl2.depthMask(true) // restore MapLibre's expected state
+    // ---- restore the exact pre-render state (keeps MapLibre's cache valid) ----
+    gl2.bindVertexArray(prev.vao)
+    gl2.activeTexture(gl2.TEXTURE0)
+    gl2.bindTexture(gl2.TEXTURE_2D, prevTex0)
+    gl2.activeTexture(prev.activeTexture)
+    gl2.useProgram(prev.program)
+    gl2.blendFuncSeparate(prev.srcRGB, prev.dstRGB, prev.srcA, prev.dstA)
+    if (prev.blendOn) gl2.enable(gl2.BLEND)
+    else gl2.disable(gl2.BLEND)
+    gl2.depthMask(prev.depthMask)
 
     // ---------- async maintenance ----------
     this.resortPass(drawList, cam)
