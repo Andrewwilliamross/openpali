@@ -3,22 +3,49 @@ import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
 import { scorePaintExpression } from '../lib/colors'
+import { SplatRenderLayer } from './spatial/SplatRenderLayer'
+import { SpatialIntersector } from './spatial/spatial_intersector'
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
+const TILES_BASE = `${import.meta.env.BASE_URL}tiles/palisades`
+
+// AWS Open Data terrain tiles (Mapzen terrarium). maxzoom 15 is mandatory —
+// z16 does not exist upstream and must overzoom, not 404.
+const DEM_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
+const DEM_ATTRIBUTION = 'Terrain: USGS 3DEP/SRTM via Mapzen terrain tiles (AWS Open Data)'
+
+export type ViewMode = '2d' | '3d'
 
 interface Props {
   parcels: ParcelCollection | null
   selectedApn: string | null
+  mode: ViewMode
   onSelect: (apn: string | null) => void
   onMapReady: (map: MLMap) => void
 }
 
-export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: Props) {
+function demSource(): maplibregl.RasterDEMSourceSpecification {
+  return {
+    type: 'raster-dem',
+    encoding: 'terrarium',
+    tiles: [DEM_TILES],
+    tileSize: 256,
+    minzoom: 0,
+    maxzoom: 15,
+    attribution: DEM_ATTRIBUTION,
+  }
+}
+
+export default function MapView({ parcels, selectedApn, mode, onSelect, onMapReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
   const hoveredRef = useRef<string | number | null>(null)
   const loadedRef = useRef(false)
+  const splatLayerRef = useRef<SplatRenderLayer | null>(null)
+  const intersectorRef = useRef<SpatialIntersector | null>(null)
+  const modeRef = useRef<ViewMode>(mode)
+  modeRef.current = mode
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -26,21 +53,68 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
       container: containerRef.current,
       style: BASEMAP,
       center: PALISADES_CENTER,
-      zoom: 13.2,
+      zoom: 13.6,
+      pitch: 62,
+      maxPitch: 85,
       minZoom: 10,
       maxZoom: 19,
       attributionControl: { compact: true },
     })
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right')
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right')
     mapRef.current = map
     // expose for E2E checks and debugging
     ;(window as unknown as { __map?: MLMap }).__map = map
+
     map.on('load', () => {
       loadedRef.current = true
+
+      // ---- terrain + hillshade (separate source instances, per ML guidance) ----
+      map.addSource('terrain-dem', demSource())
+      map.addSource('hillshade-dem', demSource())
+      map.addLayer(
+        {
+          id: 'hills',
+          type: 'hillshade',
+          source: 'hillshade-dem',
+          paint: {
+            'hillshade-illumination-direction': 315,
+            'hillshade-exaggeration': 0.35,
+            'hillshade-shadow-color': '#5a5042',
+            'hillshade-highlight-color': '#ffffff',
+            'hillshade-accent-color': '#000000',
+          },
+        },
+        firstSymbolLayerId(map),
+      )
+      // muted atmosphere for the deep-pitch horizon
+      try {
+        map.setSky({
+          'sky-color': '#bcd8f0',
+          'horizon-color': '#e8eef2',
+          'fog-color': '#f2f4f6',
+          'sky-horizon-blend': 0.6,
+          'horizon-fog-blend': 0.7,
+          'fog-ground-blend': 0.85,
+        })
+      } catch {
+        /* sky spec unavailable — cosmetic only */
+      }
+      if (modeRef.current === '3d') {
+        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.0 })
+      }
+
+      // ---- 3D splat pyramid + picking ----
+      const intersector = new SpatialIntersector()
+      void intersector.load(TILES_BASE)
+      intersectorRef.current = intersector
+      const splats = new SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
+      splatLayerRef.current = splats
+      map.addLayer(splats)
+      splats.setEnabled(modeRef.current === '3d')
+
       onMapReady(map)
     })
-    // The map can mount before its flex container has resolved its final height;
-    // keep the GL canvas in sync with the container size.
+
     const ro = new ResizeObserver(() => map.resize())
     ro.observe(containerRef.current)
     return () => {
@@ -48,17 +122,34 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
       map.remove()
       mapRef.current = null
       loadedRef.current = false
+      splatLayerRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Add/refresh the parcel source + layers once both map and data are ready.
+  // ---- mode switching: terrain + splats + camera posture ----
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !loadedRef.current) return
+    if (mode === '3d') {
+      if (map.getSource('terrain-dem')) {
+        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.0 })
+      }
+      splatLayerRef.current?.setEnabled(true)
+      map.easeTo({ pitch: 62, duration: 900 })
+    } else {
+      map.setTerrain(null)
+      splatLayerRef.current?.setEnabled(false)
+      map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
+    }
+  }, [mode])
+
+  // ---- parcel source/layers ----
   useEffect(() => {
     const map = mapRef.current
     if (!map || !parcels) return
 
     const install = () => {
-      // Clear any stale hover state when (re)installing data.
       hoveredRef.current = null
       if (map.getSource('parcels')) {
         ;(map.getSource('parcels') as maplibregl.GeoJSONSource).setData(parcels)
@@ -74,8 +165,8 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            0.95,
-            0.78,
+            0.92,
+            0.55,
           ] as never,
         },
       })
@@ -84,9 +175,9 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
         type: 'line',
         source: 'parcels',
         paint: {
-          'line-color': '#ffffff',
-          'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.2, 16, 0.8] as never,
-          'line-opacity': 0.55,
+          'line-color': scorePaintExpression() as never,
+          'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
+          'line-opacity': 0.9,
         },
       })
       map.addLayer({
@@ -94,7 +185,7 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
         type: 'line',
         source: 'parcels',
         filter: ['==', ['get', 'apn'], ''],
-        paint: { 'line-color': '#1d4ed8', 'line-width': 3 },
+        paint: { 'line-color': '#1d4ed8', 'line-width': 3.5 },
       })
 
       map.on('mousemove', 'parcel-fill', (e: MapMouseEvent) => {
@@ -114,14 +205,19 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
           map.setFeatureState({ source: 'parcels', id: hoveredRef.current }, { hover: false })
         hoveredRef.current = null
       })
-      map.on('click', 'parcel-fill', (e: MapMouseEvent) => {
-        const f = (e as MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] })
-          .features?.[0]
-        onSelect(f ? String(f.properties.apn) : null)
-      })
+
+      // click routing: in 3D, ray-pick the building prisms first; the draped
+      // parcel polygons are the fallback (and the 2D path)
       map.on('click', (e) => {
+        if (modeRef.current === '3d' && intersectorRef.current?.ready) {
+          const hit = intersectorRef.current.pick(map, e.point)
+          if (hit) {
+            onSelect(hit.apn)
+            return
+          }
+        }
         const hits = map.queryRenderedFeatures(e.point, { layers: ['parcel-fill'] })
-        if (!hits.length) onSelect(null)
+        onSelect(hits.length ? String(hits[0].properties.apn) : null)
       })
     }
 
@@ -129,7 +225,7 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
     else map.once('load', install)
   }, [parcels, onSelect])
 
-  // Selection highlight.
+  // selection highlight
   useEffect(() => {
     const map = mapRef.current
     if (!map || !loadedRef.current || !map.getLayer('parcel-selected')) return
@@ -137,4 +233,11 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
   }, [selectedApn])
 
   return <div ref={containerRef} className="map-container" />
+}
+
+function firstSymbolLayerId(map: MLMap): string | undefined {
+  for (const layer of map.getStyle().layers ?? []) {
+    if (layer.type === 'symbol') return layer.id
+  }
+  return undefined
 }

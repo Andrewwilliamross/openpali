@@ -106,7 +106,10 @@ def run_nightly(*, store_root: Path = DEFAULT_STORE, limit: int | None = None,
     extracted = 0
     for apn in todo:
         parcel = universe[apn]
-        if ("%s" % apn, "lariac_prior") in existing:
+        prev = existing.get((apn, "lariac_prior"))
+        # only LIVE/STALE assets count as done — static_baseline rows are the
+        # backlog, and must be retried until real geometry lands
+        if prev is not None and prev["status"] in ("live", "stale_cached"):
             report.priors_existing += 1
             continue
         if limit is not None and extracted >= limit:
@@ -126,9 +129,8 @@ def run_nightly(*, store_root: Path = DEFAULT_STORE, limit: int | None = None,
                 source = "lariac_footprint_extrusion"
         except (httpx.HTTPError, ValueError, KeyError, json.JSONDecodeError) as e:
             _flag(report, f"extract:{apn}", e)
-            if (apn, "lariac_prior") in existing:
+            if prev is not None and prev["status"] in ("live", "stale_cached"):
                 report.stale_cached += 1  # keep the previous asset, mark it
-                prev = existing[(apn, "lariac_prior")]
                 store.index_asset(apn=apn, kind="lariac_prior", t_epoch=prev["t_epoch"],
                                   n_points=prev["n_points"], geometry_wkb=prev["geometry"],
                                   status="stale_cached", source=prev["source"],

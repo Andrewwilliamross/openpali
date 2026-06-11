@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Map as MLMap } from 'maplibre-gl'
-import MapView from './components/MapView'
+import MapView, { type ViewMode } from './components/MapView'
 import Header from './components/Header'
-import DetailCard from './components/DetailCard'
+import ParcelDetailCard from './components/spatial/ParcelDetailCard'
 import SearchBar from './components/SearchBar'
 import Legend from './components/Legend'
 import type { DetailsIndex, ParcelCollection, Summary } from './lib/types'
@@ -16,6 +16,7 @@ export default function App() {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [selectedApn, setSelectedApn] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [mode, setMode] = useState<ViewMode>('3d')
   const mapRef = useRef<MLMap | null>(null)
 
   useEffect(() => {
@@ -45,9 +46,14 @@ export default function App() {
       setSelectedApn(apn)
       const f = parcels?.features.find((x) => x.properties.apn === apn)
       if (f && mapRef.current)
-        mapRef.current.flyTo({ center: centroid(f.geometry), zoom: 17.2, duration: 1200 })
+        mapRef.current.flyTo({
+          center: centroid(f.geometry),
+          zoom: 17.4,
+          pitch: mode === '3d' ? 58 : 0,
+          duration: 1400,
+        })
     },
-    [parcels],
+    [parcels, mode],
   )
 
   const handleGoto = useCallback((center: [number, number], zoom: number) => {
@@ -61,6 +67,7 @@ export default function App() {
         <MapView
           parcels={parcels}
           selectedApn={selectedApn}
+          mode={mode}
           onSelect={setSelectedApn}
           onMapReady={(m) => {
             mapRef.current = m
@@ -72,10 +79,17 @@ export default function App() {
           onPick={handlePickFromSearch}
           onGoto={handleGoto}
         />
+        <button
+          className="mode-toggle"
+          onClick={() => setMode((m) => (m === '3d' ? '2d' : '3d'))}
+          aria-label="Toggle 3D view"
+        >
+          {mode === '3d' ? '2D' : '3D'}
+        </button>
         <Legend />
         {loadError && <div className="load-error">{loadError}</div>}
         {selectedApn && (
-          <DetailCard
+          <ParcelDetailCard
             apn={selectedApn}
             props={selectedProps}
             detail={details?.[selectedApn] ?? null}

@@ -45,6 +45,7 @@ from palisades.http import RAW_DIR, USER_AGENT
 
 from .geodesy import wgs84_to_ecef
 from .schema import GaussianBatch
+from .surfels import surfels_from_vertices
 
 SCENE_LAYER = (
     "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/"
@@ -160,22 +161,32 @@ class SceneClient:
 
     # ---- binary decoding ----
 
-    def _node_geometry(self, resource: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _node_geometry(self, resource: int
+                       ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Decode buffer 0: positions, normals, vertex colors, featureIds, faceRanges.
+
+        Verified layout: header(8) · position f32×3 · normal f32×3 · uv0 f32×2 ·
+        color u8×4 (per-vertex blocks), then featureId u64 and faceRange u32×2
+        (per-feature blocks).
+        """
         buf = _get_bytes(self._client, f"{self.layer_url}/nodes/{resource}/geometries/0")
         vc, fc = struct.unpack_from("<II", buf, 0)
-        off = 8
-        positions = np.frombuffer(buf, dtype="<f4", count=vc * 3, offset=off).reshape(vc, 3)
-        off += vc * 36  # skip normals (12) + uv0 (8) + color (4) after positions (12)
-        # feature ids + face ranges sit after ALL per-vertex arrays
-        feat_off = 8 + vc * 36
-        feature_ids = np.frombuffer(buf, dtype="<u8", count=fc, offset=feat_off)
-        fr_off = feat_off + fc * 8
-        face_ranges = np.frombuffer(buf, dtype="<u4", count=fc * 2, offset=fr_off).reshape(fc, 2)
         expected = 8 + vc * 36 + fc * 16
         if len(buf) < expected:
             raise ValueError(
                 f"geometry buffer node {resource}: {len(buf)} bytes < expected {expected}")
-        return positions.astype(np.float64), feature_ids, face_ranges
+        off = 8
+        positions = np.frombuffer(buf, dtype="<f4", count=vc * 3, offset=off).reshape(vc, 3)
+        off += vc * 12
+        normals = np.frombuffer(buf, dtype="<f4", count=vc * 3, offset=off).reshape(vc, 3)
+        off += vc * 12 + vc * 8  # skip uv0
+        colors = np.frombuffer(buf, dtype="u1", count=vc * 4, offset=off).reshape(vc, 4)
+        feat_off = 8 + vc * 36
+        feature_ids = np.frombuffer(buf, dtype="<u8", count=fc, offset=feat_off)
+        fr_off = feat_off + fc * 8
+        face_ranges = np.frombuffer(buf, dtype="<u4", count=fc * 2, offset=fr_off).reshape(fc, 2)
+        return (positions.astype(np.float64), normals.astype(np.float64),
+                colors, feature_ids, face_ranges)
 
     def _node_string_attribute(self, resource: int, key: str) -> list[str]:
         buf = _get_bytes(self._client, f"{self.layer_url}/nodes/{resource}/attributes/{key}/0")
@@ -193,7 +204,7 @@ class SceneClient:
     def node_mesh(self, node: dict) -> NodeMesh:
         """Decode one leaf node into world-space vertices + APN alignment."""
         resource = node["mesh"]["geometry"]["resource"]
-        positions, feature_ids, face_ranges = self._node_geometry(resource)
+        positions, _normals, _colors, feature_ids, face_ranges = self._node_geometry(resource)
         center = np.asarray(node["obb"]["center"], dtype=np.float64)  # lon, lat, z
         world = positions + center  # f32 offsets about the OBB centre
         world[:, 2] += GEOID_OFFSET_LA_M  # EGM96 orthometric → WGS84 ellipsoidal
@@ -239,30 +250,57 @@ class SceneClient:
 
     def extract_parcel_prior(self, apn: str, node_resources: list[int],
                              *, t_epoch: float) -> GaussianBatch | None:
-        """Extract every mesh vertex belonging to `apn` from the given nodes."""
+        """Extract `apn`'s mesh as oriented, coloured SURFEL splats.
+
+        Triangle-soup vertices are deduplicated (cm grid), then each surviving
+        vertex becomes a disk-shaped Gaussian: oriented by its surface normal,
+        sized by the local vertex spacing, coloured by the LARIAC vertex colour
+        (DC spherical-harmonics band). Render-ready for the web splat layer.
+        """
         target = normalize_apn(apn)
-        chunks: list[np.ndarray] = []
+        v_chunks: list[np.ndarray] = []
+        n_chunks: list[np.ndarray] = []
+        c_chunks: list[np.ndarray] = []
         for resource in node_resources:
-            # rebuild a NodeMesh from the resource id alone (obb comes with the
-            # node, so re-fetch the node's geometry and attributes directly)
-            positions, feature_ids, face_ranges = self._node_geometry(resource)
+            positions, normals, colors, feature_ids, face_ranges = self._node_geometry(resource)
             apn_key = self.attribute_keys()["APN"]
             apns = [normalize_apn(a) or "" for a in self._node_string_attribute(resource, apn_key)]
-            # OBB centre is needed for world coords — pull from the node index once
-            node_meta = self._node_obb_center(resource)
-            world = positions + node_meta
+            center = self._node_obb_center(resource)
+            world = positions + center
             world[:, 2] += GEOID_OFFSET_LA_M
             for i, a in enumerate(apns):
                 if a != target:
                     continue
                 t0, t1 = face_ranges[i]
-                chunks.append(world[3 * int(t0): 3 * (int(t1) + 1)])
-        if not chunks:
+                sl = slice(3 * int(t0), 3 * (int(t1) + 1))
+                v_chunks.append(world[sl])
+                n_chunks.append(normals[sl])
+                c_chunks.append(colors[sl])
+        if not v_chunks:
             return None
-        verts = np.concatenate(chunks)
+        verts = np.concatenate(v_chunks)
+        norms = np.concatenate(n_chunks)
+        cols = np.concatenate(c_chunks)
+
+        # frame guard: surfel orientation assumes ENU UNIT normals. A frame or
+        # layout drift upstream (the I3S spec also allows earth-centred and
+        # vertex-reference frames) would silently survive the downstream
+        # renormalisation — catch the unit-norm violation here instead.
+        nrm = np.linalg.norm(norms, axis=1)
+        med = float(np.median(nrm)) if len(nrm) else 1.0
+        if not (0.95 < med < 1.05):
+            raise ValueError(
+                f"I3S normals are not unit vectors (median |n|={med:.4f}) — "
+                "normalReferenceFrame may have changed; refusing to orient surfels")
+
+        # dedupe the triangle soup on a ~1 cm grid (keeps one normal/colour each)
+        key = np.round(verts / np.array([1e-7, 1e-7, 0.01])).astype(np.int64)  # deg,deg,m
+        _, keep_idx = np.unique(key, axis=0, return_index=True)
+        verts, norms, cols = verts[keep_idx], norms[keep_idx], cols[keep_idx]
+
         xyz = wgs84_to_ecef(verts[:, 0], verts[:, 1], verts[:, 2])
-        return GaussianBatch.from_points(
-            xyz, t_epoch, target, kind="mesh_vertices", source="lariac_scene")
+        return surfels_from_vertices(xyz, norms, cols, t_epoch=t_epoch,
+                                     apn=target, source="lariac_scene")
 
     _obb_cache: dict[int, np.ndarray] | None = None
 

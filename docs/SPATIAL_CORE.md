@@ -99,3 +99,34 @@ grid³ budget.
 idempotency, SOR/Mahalanobis behaviour, Kabsch exactness, RANSAC basin
 capture, ICP convergence, ground-truth SE(3) recovery (synthetic + real LARIAC
 geometry), octree LOD invariants, quaternion algebra round-trips.
+
+## Phase 3 — 3D Spatial Navigator (web/src/components/spatial/)
+
+The 2D tracker becomes an Apple-Maps-Flyover-style navigator: MapLibre terrain
+(AWS terrarium DEM, 60–85° pitch, hillshade + sky atmosphere) with a custom
+**shared-context WebGL2 splat layer** streaming the Phase 2 LOD pyramid.
+
+- `SplatRenderLayer.ts` — CustomLayerInterface (`renderingMode: '3d'`): SSE-driven
+  octree traversal with REPLACE refinement + parent↔child cross-fade, GPU ring
+  BufferPool (448 KB slots, LRU eviction), per-node depth sorting (16-bit
+  counting sort, ~5.7° re-sort threshold), terrain z-clamping on per-node
+  **content min-z** (tileset `extras.contentMinZ`) with a DEM-streaming guard,
+  and depth-test-on/depth-write-off blending against MapLibre's terrain depth.
+- `shaders.ts` — EWA splatting with the Jacobian derived analytically from the
+  final ENU→clip matrix (no focal-length/axis-convention assumptions), 2×2
+  eigen quad construction at √8σ, isotropic-splat NaN guard, 250 ms temporal
+  fade, premultiplied-alpha output.
+- `spatial_intersector.ts` — 3D picking: screen ray (inverse f64 matrix) vs
+  per-APN bounding prisms from `picking.json`, **terrain-shift-aware** (applies
+  the renderer's clamp formula per parcel at pick time).
+- `ParcelDetailCard.tsx` — floating glass card: score with stage-matched glow,
+  milestone timeline, grouped pre-fire metadata, official-record links.
+- Buildings are tinted by **rebuild score** (the map ramp, luminance-modulated
+  by LARIAC vertex colours) — the pre-fire hull of every home, coloured by how
+  far its rebuild has come.
+
+Verified end-to-end in-browser: terrain + splats + GL error 0, SSE streaming,
+3D click → APN → card. Hardened by a 10-agent adversarial review (confirmed
+findings fixed: cube-bottom clamp anchor, DEM-race sea-level clamp, VAO/
+ARRAY_BUFFER state misconception, oversize-buffer leak, REPLACE-fade pop,
+zoom-out holes, generation-guarded async loads, retryable fetch failures).

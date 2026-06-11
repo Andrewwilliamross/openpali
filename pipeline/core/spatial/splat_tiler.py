@@ -183,6 +183,7 @@ class TilingResult:
     levels: int
     total_bytes: int
     origin_lonlat: tuple[float, float]
+    origin_alt_m: float = 0.0  # ellipsoidal altitude of the ENU origin
 
 
 def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
@@ -241,6 +242,10 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
             "geometricError": 0.0 if is_leaf else cube_size / 4.0,
             "refine": "REPLACE",
             "content": {"uri": rel},
+            # terrain-clamp anchor: the octree cube bottom is unrelated to where
+            # content sits (cubes are isotropic, sized by the max extent) — the
+            # client must clamp on the CONTENT's lowest point
+            "extras": {"contentMinZ": float(pos[idx][:, 2].min())},
         }
         if not is_leaf:
             children = []
@@ -277,4 +282,5 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
         levels=stats["max_level"] + 1,
         total_bytes=stats["bytes"],
         origin_lonlat=(lon0, lat0),
+        origin_alt_m=h0,
     )

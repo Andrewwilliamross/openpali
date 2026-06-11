@@ -7,7 +7,11 @@ vector:
     x = [ X_ecef, Y_ecef, Z_ecef,   absolute position (m, WGS84 ECEF)
           T_epoch,                  acquisition time (unix seconds, float64)
           S (3,),                   Gaussian scale (m; isotropic ε for raw points)
-          R (4,),                   rotation quaternion, wxyz, unit norm
+          R (4,),                   rotation quaternion, wxyz, unit norm —
+                                    expressed in the LOCAL ENU frame (axes drift
+                                    <0.1° across the fire footprint, so tiler
+                                    covariance algebra and the web renderer share
+                                    one frame without per-splat re-rotation)
           alpha,                    opacity in [0, 1]
           Psi (K, 3),               spherical-harmonics colour coefficients
           APN ]                     canonical 10-digit unhyphenated parcel key
