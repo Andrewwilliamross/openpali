@@ -107,10 +107,17 @@ export default function MapView({ parcels, selectedApn, mode, onSelect, onMapRea
       const intersector = new SpatialIntersector()
       void intersector.load(TILES_BASE)
       intersectorRef.current = intersector
-      const splats = new SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
-      splatLayerRef.current = splats
-      map.addLayer(splats)
-      splats.setEnabled(modeRef.current === '3d')
+      try {
+        const splats = new SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
+        splatLayerRef.current = splats
+        map.addLayer(splats)
+        splats.setEnabled(modeRef.current === '3d')
+        // E2E/debug handle (custom layers are invisible to map.getLayer in v5)
+        ;(window as unknown as { __splats?: SplatRenderLayer }).__splats = splats
+      } catch (e) {
+        // the 3D layer must never take down the 2D tracker
+        console.error('splat layer failed to initialize:', e)
+      }
 
       onMapReady(map)
     })

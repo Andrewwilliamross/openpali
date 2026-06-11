@@ -1,17 +1,17 @@
 {
- "generated": "2026-06-11T00:08:50+00:00",
+ "generated": "2026-06-11T05:35:53+00:00",
  "tileset": "tileset.json",
  "picking": "picking.json",
  "origin": {
-  "lon": -118.55006657878123,
-  "lat": 34.04749413887553,
-  "alt_ellipsoidal_m": 89.43938722461462
+  "lon": -118.55185002856878,
+  "lat": 34.04776092733249,
+  "alt_ellipsoidal_m": 94.13088568486273
  },
  "geoid_offset_m": -35.6,
- "splats": 2319505,
- "splats_score_tinted": 2319505,
+ "splats": 10016113,
+ "splats_score_tinted": 10016113,
  "parcels": 4976,
- "nodes": 542,
- "levels": 8,
- "bytes": 75720608
+ "nodes": 2375,
+ "levels": 10,
+ "bytes": 326829952
 }

@@ -32,11 +32,17 @@ uniform mat4 u_matrix;      // local ENU metres → clip
 uniform vec2 u_viewport;    // framebuffer pixels
 uniform float u_fade;       // temporal fade-in [0..1]
 uniform float u_zOffset;    // terrain clamp, metres ENU up
+// projective texturing (per node): texture rect in ENU metres
+uniform float u_hasTex;     // 1.0 when an aerial texture is bound for this node
+uniform vec2 u_texOrigin;   // [west edge X, NORTH edge Y] of the texture rect
+uniform vec2 u_texInvSize;  // [1/widthM, 1/heightM]
 
 out vec2 v_uv;
 out vec4 v_color;
+out vec2 v_texUv;           // orthophoto sample coordinate (splat centre)
+out float v_texW;           // projection weight: 1 roof → 0 wall (anti-smear)
 
-void cull() { gl_Position = vec4(0.0, 0.0, 2.0, 1.0); v_color = vec4(0.0); v_uv = vec2(0.0); }
+void cull() { gl_Position = vec4(0.0, 0.0, 2.0, 1.0); v_color = vec4(0.0); v_uv = vec2(0.0); v_texUv = vec2(0.0); v_texW = 0.0; }
 
 void main() {
   // corner of the instanced quad from gl_VertexID (TRIANGLE_STRIP, 4 verts)
@@ -66,6 +72,19 @@ void main() {
                  0.0, a_scale.y*a_scale.y, 0.0,
                  0.0, 0.0, a_scale.z*a_scale.z);
   mat3 Vrk = R * S2 * transpose(R);   // world (ENU) covariance, m²
+
+  // ---- anti-smear projection mask ----
+  // disk normal n = R·ẑ (third column). The orthophoto is projected straight
+  // down, so the weight is w_p = clamp(n·up, 0, 1) — |n_z| in our z-up ENU
+  // frame (abs() makes it winding-proof). Smoothstepped so the photo
+  // cross-fades to the score tint as faces approach vertical, instead of
+  // smearing a roof pixel column down the whole wall.
+  vec3 diskNormal = R[2];
+  v_texW = u_hasTex * smoothstep(0.25, 0.6, clamp(abs(diskNormal.z), 0.0, 1.0));
+  // orthophoto uv at the splat centre: x east of the west edge, v grows
+  // SOUTH from the north edge (texture row 0 = north)
+  v_texUv = vec2((p.x - u_texOrigin.x) * u_texInvSize.x,
+                 (u_texOrigin.y - p.y) * u_texInvSize.y);
 
   // ---- analytic screen-space Jacobian from u_matrix ----
   // rows of M (column-major storage: M[col][row])
@@ -117,8 +136,12 @@ void main() {
 export const SPLAT_FRAG = /* glsl */ `#version 300 es
 precision mediump float;
 
+uniform sampler2D u_tex;    // per-node aerial orthophoto (or 1px fallback)
+
 in vec2 v_uv;
 in vec4 v_color;
+in vec2 v_texUv;
+in float v_texW;
 out vec4 fragColor;
 
 void main() {
@@ -128,7 +151,10 @@ void main() {
   // 1/(1 - e^-4) = 1.0186574
   float falloff = (exp(-4.0 * r2) - 0.0183156) * 1.0186574;
   float alpha = v_color.a * max(falloff, 0.0);
-  fragColor = vec4(v_color.rgb * alpha, alpha);  // premultiplied
+  // projective texture: photo on horizontal surfaces, score tint on walls
+  vec3 photo = texture(u_tex, v_texUv).rgb;
+  vec3 rgb = mix(v_color.rgb, photo, v_texW);
+  fragColor = vec4(rgb * alpha, alpha);  // premultiplied
 }
 `
 

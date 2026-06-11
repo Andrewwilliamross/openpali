@@ -43,9 +43,9 @@ import numpy as np
 from palisades.apn import normalize_apn
 from palisades.http import RAW_DIR, USER_AGENT
 
-from .geodesy import wgs84_to_ecef
+from .geodesy import enu_rotation, wgs84_to_ecef
 from .schema import GaussianBatch
-from .surfels import surfels_from_vertices
+from .surfels import sample_faces_stratified
 
 SCENE_LAYER = (
     "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/"
@@ -250,12 +250,14 @@ class SceneClient:
 
     def extract_parcel_prior(self, apn: str, node_resources: list[int],
                              *, t_epoch: float) -> GaussianBatch | None:
-        """Extract `apn`'s mesh as oriented, coloured SURFEL splats.
+        """Extract `apn`'s mesh as a DENSIFIED surfel surface.
 
-        Triangle-soup vertices are deduplicated (cm grid), then each surviving
-        vertex becomes a disk-shaped Gaussian: oriented by its surface normal,
-        sized by the local vertex spacing, coloured by the LARIAC vertex colour
-        (DC spherical-harmonics band). Render-ready for the web splat layer.
+        The I3S geometry is a triangle soup (3 consecutive vertices per
+        triangle; faceRanges index triangles per feature). Rather than one
+        surfel per source vertex — which leaves the low-poly LARIAC shells
+        ~50% hollow — every face is stratified-sampled at a target spacing
+        (see surfels.sample_faces_stratified): closed surfaces, face-normal
+        orientation, barycentrically interpolated LARIAC vertex colours.
         """
         target = normalize_apn(apn)
         v_chunks: list[np.ndarray] = []
@@ -278,7 +280,7 @@ class SceneClient:
                 c_chunks.append(colors[sl])
         if not v_chunks:
             return None
-        verts = np.concatenate(v_chunks)
+        verts = np.concatenate(v_chunks)  # (3T, 3) lon°, lat°, h_m — face order
         norms = np.concatenate(n_chunks)
         cols = np.concatenate(c_chunks)
 
@@ -293,14 +295,17 @@ class SceneClient:
                 f"I3S normals are not unit vectors (median |n|={med:.4f}) — "
                 "normalReferenceFrame may have changed; refusing to orient surfels")
 
-        # dedupe the triangle soup on a ~1 cm grid (keeps one normal/colour each)
-        key = np.round(verts / np.array([1e-7, 1e-7, 0.01])).astype(np.int64)  # deg,deg,m
-        _, keep_idx = np.unique(key, axis=0, return_index=True)
-        verts, norms, cols = verts[keep_idx], norms[keep_idx], cols[keep_idx]
-
+        # triangle soup → (T, 3, 3) in ECEF metres (Euclidean: exact areas)
         xyz = wgs84_to_ecef(verts[:, 0], verts[:, 1], verts[:, 2])
-        return surfels_from_vertices(xyz, norms, cols, t_epoch=t_epoch,
-                                     apn=target, source="lariac_scene")
+        n_tris = len(xyz) // 3
+        tri_verts = xyz[: n_tris * 3].reshape(n_tris, 3, 3)
+        tri_cols = cols[: n_tris * 3].reshape(n_tris, 3, 4)
+
+        lon0 = float(np.mean(verts[:, 0]))
+        lat0 = float(np.mean(verts[:, 1]))
+        return sample_faces_stratified(
+            tri_verts, tri_cols, enu_rotation(lon0, lat0),
+            t_epoch=t_epoch, apn=target or apn, source="lariac_scene")
 
     _obb_cache: dict[int, np.ndarray] | None = None
 

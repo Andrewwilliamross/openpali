@@ -236,8 +236,8 @@ class ICPResult:
 def icp_refine(source: np.ndarray, target: np.ndarray, *,
                init_rot: np.ndarray | None = None,
                init_trans: np.ndarray | None = None,
-               max_iterations: int = 60, max_corr_dist: float = 2.0,
-               tolerance: float = 1e-6) -> ICPResult:
+               max_iterations: int = 100, max_corr_dist: float = 2.0,
+               tolerance: float = 1e-5) -> ICPResult:
     """Point-to-point ICP with per-iteration Mahalanobis residual gating.
 
     Each iteration:

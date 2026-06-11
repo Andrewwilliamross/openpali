@@ -36,6 +36,7 @@ import {
   type SplatTileset,
   type TilesetManifest,
 } from './tileset'
+import { NodeTextureManager } from './texturing'
 import type { SpatialIntersector } from './spatial_intersector'
 
 const SSE_THRESHOLD_PX = 14
@@ -67,6 +68,9 @@ export class SplatRenderLayer implements CustomLayerInterface {
   private metersToMerc = 0
   private matrixF32 = new Float32Array(16)
   private enabled = true
+  private texturesEnabled = true
+  private texMan: NodeTextureManager | null = null
+  private fallbackTex: WebGLTexture | null = null // 1px — keeps the sampler valid
   // bumped on add/remove: in-flight fetch continuations from a previous layer
   // lifetime must not resurrect nodes into the new pool (React StrictMode
   // double-mounts custom layers)
@@ -104,10 +108,18 @@ export class SplatRenderLayer implements CustomLayerInterface {
     this.gl = gl
     this.generation++
     this.program = compileProgram(gl, SPLAT_VERT, SPLAT_FRAG)
-    for (const name of ['u_matrix', 'u_viewport', 'u_fade', 'u_zOffset']) {
+    for (const name of ['u_matrix', 'u_viewport', 'u_fade', 'u_zOffset',
+                        'u_hasTex', 'u_texOrigin', 'u_texInvSize', 'u_tex']) {
       this.uniforms[name] = gl.getUniformLocation(this.program, name)
     }
     this.pool = new BufferPool(gl, SLOT_BYTES, 48, 16)
+    this.texMan = new NodeTextureManager(gl, () => map.triggerRepaint())
+    // 1×1 fallback keeps the sampler valid on un-textured draws
+    this.fallbackTex = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, this.fallbackTex)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+      new Uint8Array([128, 128, 128, 255]))
+    gl.bindTexture(gl.TEXTURE_2D, null)
     map.on('terrain', this.onTerrainChange)
 
     void (async () => {
@@ -142,6 +154,10 @@ export class SplatRenderLayer implements CustomLayerInterface {
     for (const b of this.oversize) gl2.deleteBuffer(b)
     this.oversize.clear()
     this.pool?.destroy()
+    this.texMan?.destroy()
+    this.texMan = null
+    if (this.fallbackTex) gl2.deleteTexture(this.fallbackTex)
+    this.fallbackTex = null
     if (this.program) gl2.deleteProgram(this.program)
     this.program = null
     this.pool = null
@@ -209,6 +225,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     if (bytes.byteLength <= SLOT_BYTES) {
       node.slot = pool.acquire(new Uint8Array(bytes))
       buffer = node.slot.buffer
+      this.residentBytes += SLOT_BYTES - bytes.byteLength // slot capacity is the true GPU cost
     } else {
       // oversize node (rare): dedicated buffer outside the ring. The handle is
       // kept on the node — ARRAY_BUFFER binding is NOT VAO state in WebGL2, so
@@ -247,13 +264,15 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
   private evictNode(node: SplatNode): void {
     const gl = this.gl
-    if (node.bytes) this.residentBytes -= node.bytes.byteLength
+    // mirror uploadNode's accounting: pooled nodes cost a full slot on the GPU
+    if (node.bytes) this.residentBytes -= node.slot ? SLOT_BYTES : node.bytes.byteLength
     if (node.slot && this.pool) this.pool.release(node.slot)
     if (node.glBuffer && gl) {
       gl.deleteBuffer(node.glBuffer)
       this.oversize.delete(node.glBuffer)
     }
     if (node.vao && gl) gl.deleteVertexArray(node.vao)
+    this.texMan?.evict(node.id) // the node's aerial texture rides its residency
     node.slot = null
     node.glBuffer = null
     node.vao = null
@@ -401,20 +420,52 @@ export class SplatRenderLayer implements CustomLayerInterface {
     gl2.useProgram(this.program)
     gl2.uniformMatrix4fv(this.uniforms.u_matrix, false, this.matrixF32)
     gl2.uniform2f(this.uniforms.u_viewport, vw, vh)
+    gl2.uniform1i(this.uniforms.u_tex, 0)
+    gl2.activeTexture(gl2.TEXTURE0)
     gl2.enable(gl2.BLEND)
     gl2.blendFunc(gl2.ONE, gl2.ONE_MINUS_SRC_ALPHA)
     gl2.depthMask(false) // depth TEST stays on (terrain occludes splats)
 
+    const m = this.manifest as TilesetManifest
     for (const { node, fade } of drawList) {
       this.ensureZOffset(node)
       const f = fade === 0 ? fadeOf(node) : fade
       if (f < 1) animating = true
       gl2.uniform1f(this.uniforms.u_fade, f)
       gl2.uniform1f(this.uniforms.u_zOffset, Number.isNaN(node.zOffset) ? 0 : node.zOffset)
+
+      // projective aerial texture for any node small enough that a 256px
+      // compose keeps useful texel density (≈1.5 m/px at 400 m). The rendered
+      // SSE cut mostly sits on internal nodes, so gating on leaf-ness alone
+      // would almost never texture anything; size is the correct gate (and it
+      // bounds texture residency the same way).
+      let bound = false
+      if (this.texturesEnabled && this.texMan && node.hx * 2 <= 400) {
+        const binding = this.texMan.acquire(
+          node.id, this.frame,
+          node.cx - node.hx, node.cy - node.hy,
+          node.cx + node.hx, node.cy + node.hy,
+          m.origin.lon, m.origin.lat)
+        if (binding) {
+          gl2.bindTexture(gl2.TEXTURE_2D, binding.texture)
+          gl2.uniform1f(this.uniforms.u_hasTex, 1)
+          gl2.uniform2f(this.uniforms.u_texOrigin, binding.originEnu[0], binding.originEnu[1])
+          gl2.uniform2f(this.uniforms.u_texInvSize, binding.invSizeEnu[0], binding.invSizeEnu[1])
+          bound = true
+        }
+      }
+      if (!bound) {
+        gl2.bindTexture(gl2.TEXTURE_2D, this.fallbackTex)
+        gl2.uniform1f(this.uniforms.u_hasTex, 0)
+        gl2.uniform2f(this.uniforms.u_texOrigin, 0, 0)
+        gl2.uniform2f(this.uniforms.u_texInvSize, 0, 0)
+      }
+
       gl2.bindVertexArray(node.vao)
       gl2.drawArraysInstanced(gl2.TRIANGLE_STRIP, 0, 4, node.splatCount)
     }
     gl2.bindVertexArray(null)
+    gl2.bindTexture(gl2.TEXTURE_2D, null)
     gl2.depthMask(true) // restore MapLibre's expected state
 
     // ---------- async maintenance ----------

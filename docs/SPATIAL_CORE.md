@@ -130,3 +130,29 @@ Verified end-to-end in-browser: terrain + splats + GL error 0, SSE streaming,
 findings fixed: cube-bottom clamp anchor, DEM-race sea-level clamp, VAO/
 ARRAY_BUFFER state misconception, oversize-buffer leak, REPLACE-fade pop,
 zoom-out holes, generation-guarded async loads, retryable fetch failures).
+
+## Phase 3.5 — Volumetric Surface Closure & Projective Texturing
+
+**Densification** (`surfels.sample_faces_stratified`): the LARIAC shells are no
+longer sampled at mesh vertices (~0.5× surface coverage — visibly hollow) but
+**stratified-barycentrically across every triangle face**: jittered-grid (r₁,r₂)
+→ the area-preserving warp u=1−√r₁, v=r₂√r₁ → ~1.77× disk coverage at 0.75 m
+spacing. Surfels carry the face normal (quat aligning ẑ→n), s_z=0.001 m
+structural flatness, barycentric LARIAC colours, and an APN-stable RNG seed
+(int(apn) — `hash()` is process-salted and would break nightly idempotency).
+Result: **10.0 M surfels / 4,976 parcels** (universe 5,877 intact, 717 lots
+have no LARIAC building data).
+
+**Projective texturing** (`texturing.ts` + shader): per drawn node ≤400 m, the
+Esri Wayback **pre-fire** orthophoto tiles covering its footprint are composed
+(mercator-correct, async createImageBitmap) into one 256px texture; the
+fragment shader projects each surfel's ENU position into it. The **anti-smear
+mask** w_p = smoothstep(clamp(|n·ẑ|,0,1)) cross-fades photo→score-tint as faces
+go vertical — roofs read as photography, walls stay clean data colour. Pre-fire
+imagery on pre-fire hulls is deliberate (post-fire flights show rubble).
+Texture residency is LRU-capped (112 MB) and tied to node eviction.
+
+**Perf accounting fix**: GPU residency now counts slot *capacity*, not payload
+bytes — pool peak dropped 1,264 → 496 slots (566 → 222 MB GPU) under the same
+144 MB cap. Verified: 32 py + 17 ts tests, GL error 0 across pitch-85 sweeps,
+photo roofs + tinted walls confirmed in-browser top-down and at street level.
