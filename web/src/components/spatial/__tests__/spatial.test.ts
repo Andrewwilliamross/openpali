@@ -111,16 +111,32 @@ describe('splat record sorting', () => {
     return buf
   }
 
-  it('orders records back-to-front along the view direction', () => {
+  it('orders records back-to-front by radial distance from the camera', () => {
     const buf = makeRecords([
-      [0, 0, 10], // nearest along +z view
+      [0, 0, 10], // nearest to a camera at the origin
       [0, 0, 500], // farthest
       [0, 0, 250],
     ])
-    const sorted = sortSplatRecords(buf, 0, 0, 1) // view dir +z
+    const sorted = sortSplatRecords(buf, 0, 0, 0) // camera at origin
     const f32 = new Float32Array(sorted)
     const zs = [f32[2], f32[8 + 2], f32[16 + 2]]
     expect(zs).toEqual([500, 250, 10]) // far first (back-to-front)
+  })
+
+  it('radial keys: order depends on camera POSITION, not view direction', () => {
+    const mk = (): ArrayBuffer => makeRecords([
+      [0, 0, 10],
+      [0, 0, 500],
+      [0, 0, 250],
+    ])
+    // camera beyond the far end reverses the order — translation matters…
+    const fromFar = new Float32Array(sortSplatRecords(mk(), 0, 0, 600))
+    expect([fromFar[2], fromFar[8 + 2], fromFar[16 + 2]]).toEqual([10, 250, 500])
+    // …while the same position always yields the same order (rotation can't
+    // change radial distances, so orbiting triggers zero re-sorts)
+    const a = new Float32Array(sortSplatRecords(mk(), 3, 4, 0))
+    const b = new Float32Array(sortSplatRecords(mk(), 3, 4, 0))
+    expect([...a]).toEqual([...b])
   })
 
   it('preserves full 32-byte records (no field shearing)', () => {
@@ -129,7 +145,7 @@ describe('splat record sorting', () => {
       [1, 0, 99],
       [2, 0, 50],
     ])
-    const sorted = sortSplatRecords(buf, 0, 0, 1)
+    const sorted = sortSplatRecords(buf, 0, 0, 0)
     const f32 = new Float32Array(sorted)
     const u8 = new Uint8Array(sorted)
     // record with z=99 was original index 1 — its color tag must travel with it
@@ -139,14 +155,14 @@ describe('splat record sorting', () => {
   })
 
   it('handles single-record and uniform-depth batches', () => {
-    const one = sortSplatRecords(makeRecords([[7, 8, 9]]), 0, 0, 1)
+    const one = sortSplatRecords(makeRecords([[7, 8, 9]]), 0, 0, 0)
     expect(new Float32Array(one)[0]).toBe(7)
     const same = makeRecords([
       [1, 0, 5],
       [2, 0, 5],
       [3, 0, 5],
     ])
-    const sorted = new Float32Array(sortSplatRecords(same, 0, 0, 1))
+    const sorted = new Float32Array(sortSplatRecords(same, 0, 0, 0))
     const xs = [sorted[0], sorted[8], sorted[16]].sort()
     expect(xs).toEqual([1, 2, 3]) // all retained
   })

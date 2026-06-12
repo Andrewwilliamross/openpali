@@ -61,9 +61,12 @@ export interface SplatNode {
   lastZProbeFrame: number // DEM probe throttle while terrain tiles stream
   zOffset: number // terrain clamp, metres ENU (NaN = not yet computed)
   zOffsetReliable: boolean // false while DEM tiles were still streaming
-  sortedDirX: number
-  sortedDirY: number
-  sortedDirZ: number
+  /** camera ENU position the node's records were last depth-sorted from.
+   *  Radial-distance sort keys are rotation-invariant: only camera
+   *  TRANSLATION (relative to node distance) makes an order stale. */
+  sortedCamX: number
+  sortedCamY: number
+  sortedCamZ: number
 }
 
 export interface SplatTileset {
@@ -111,9 +114,9 @@ export function parseTileset(json: {
       lastZProbeFrame: -100,
       zOffset: Number.NaN,
       zOffsetReliable: false,
-      sortedDirX: 0,
-      sortedDirY: 0,
-      sortedDirZ: -1,
+      sortedCamX: Number.POSITIVE_INFINITY,
+      sortedCamY: Number.POSITIVE_INFINITY,
+      sortedCamZ: Number.POSITIVE_INFINITY,
     }
     nodes.push(node)
     for (const c of raw.children ?? []) node.children.push(build(c, node))
@@ -184,14 +187,18 @@ export class TileFetcher {
 }
 
 /**
- * In-place back-to-front reorder of a node's CPU splat records along a view
- * direction (ENU). 16-bit counting sort on quantised depth — O(n), no
- * allocation churn beyond two scratch buffers reused across calls.
+ * In-place back-to-front reorder of a node's CPU splat records by RADIAL
+ * distance to the camera position (ENU). Radial keys are rotation-invariant
+ * (view-axis projections reorder under pure rotation — StopThePop's popping
+ * mechanism — forcing constant re-sorts mid-orbit); distance is monotonic, so
+ * back-to-front blending order is preserved. 16-bit counting sort on
+ * quantised depth — O(n), no allocation churn beyond two reused scratch
+ * buffers.
  */
 const scratchKeys = { keys: new Uint16Array(0), counts: new Uint32Array(65536 + 1) }
 
-export function sortSplatRecords(bytes: ArrayBuffer, dirX: number, dirY: number,
-                                 dirZ: number): ArrayBuffer {
+export function sortSplatRecords(bytes: ArrayBuffer, camX: number, camY: number,
+                                 camZ: number): ArrayBuffer {
   const n = bytes.byteLength / SPLAT_STRIDE
   const f32 = new Float32Array(bytes)
   if (scratchKeys.keys.length < n) scratchKeys.keys = new Uint16Array(n)
@@ -199,21 +206,26 @@ export function sortSplatRecords(bytes: ArrayBuffer, dirX: number, dirY: number,
   const counts = scratchKeys.counts
   counts.fill(0)
 
+  const d2 = (o: number): number => {
+    const dx = f32[o] - camX
+    const dy = f32[o + 1] - camY
+    const dz = f32[o + 2] - camZ
+    return dx * dx + dy * dy + dz * dz
+  }
+
   // depth range pass
   let dMin = Infinity
   let dMax = -Infinity
   for (let i = 0; i < n; i++) {
-    const o = i * 8 // 32 bytes = 8 floats
-    const d = f32[o] * dirX + f32[o + 1] * dirY + f32[o + 2] * dirZ
+    const d = d2(i * 8) // 32 bytes = 8 floats
     if (d < dMin) dMin = d
     if (d > dMax) dMax = d
   }
   const span = dMax - dMin || 1
-  // back-to-front: larger view-axis distance (further) must come FIRST, so
+  // back-to-front: larger distance (further) must come FIRST, so
   // key = quantised(far→0, near→65535) and counting sort ascending
   for (let i = 0; i < n; i++) {
-    const o = i * 8
-    const d = f32[o] * dirX + f32[o + 1] * dirY + f32[o + 2] * dirZ
+    const d = d2(i * 8)
     const k = 65535 - Math.min(65535, Math.max(0, Math.floor(((d - dMin) / span) * 65535)))
     keys[i] = k
     counts[k + 1]++

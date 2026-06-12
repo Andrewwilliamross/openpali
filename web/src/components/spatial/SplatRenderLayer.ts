@@ -43,7 +43,11 @@ const SSE_THRESHOLD_PX = 14
 const FADE_MS = 250
 const SLOT_BYTES = 14000 * SPLAT_STRIDE // matches pipeline leaf_max
 const RESIDENT_BYTE_CAP = 144 * 1024 * 1024
-const RESORT_DOT_THRESHOLD = 0.995 // ~5.7° view swing triggers a node re-sort
+// Radial sort keys are rotation-invariant — only camera TRANSLATION makes a
+// node's order stale: when the move exceeds ~10% of the node's distance (or
+// 4 m absolute near the ground), the relative depth error becomes visible.
+const RESORT_MIN_M = 4
+const RESORT_DIST_FRAC = 0.1
 const METERS_PER_DEG_LAT = 110_574
 const METERS_PER_DEG_LON_EQ = 111_320 // × cos(lat) for longitude
 
@@ -188,7 +192,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
   private static readonly FAIL_RETRY_MS = 15_000
 
-  private requestLoad(node: SplatNode, viewDir: [number, number, number]): void {
+  private requestLoad(node: SplatNode, cam: [number, number, number]): void {
     if (!node.uri) return
     // failed fetches retry after a cooldown — a transient network error must
     // not freeze the subtree at coarse LOD for the whole session
@@ -208,11 +212,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
       }
       // CPU-only continuation: sort, park the bytes, and queue the node for a
       // render-time upload. No gl.* calls on this (async) path.
-      const sorted = sortSplatRecords(buf, viewDir[0], viewDir[1], viewDir[2])
+      const sorted = sortSplatRecords(buf, cam[0], cam[1], cam[2])
       node.bytes = sorted
-      node.sortedDirX = viewDir[0]
-      node.sortedDirY = viewDir[1]
-      node.sortedDirZ = viewDir[2]
+      node.sortedCamX = cam[0]
+      node.sortedCamY = cam[1]
+      node.sortedCamZ = cam[2]
       this.pendingUploads.push({ node, gen })
       this.map?.triggerRepaint()
     })
@@ -469,12 +473,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
       const sse = screenSpaceError(node.geometricError, dist, vh, fov)
 
       if (node.children.length > 0 && sse > SSE_THRESHOLD_PX) {
-        const dir = this.viewDirTo(node, cam)
         let allReady = true
         for (const c of node.children) {
           if (c.state !== 'ready') {
             allReady = false
-            this.requestLoad(c, dir)
+            this.requestLoad(c, cam)
           }
         }
         if (allReady) {
@@ -494,7 +497,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
       if (node.state === 'ready') {
         pushDraw(node, dist, fadeOf(node) || (node.firstDrawnAt === 0 ? 0 : 1))
       } else {
-        this.requestLoad(node, this.viewDirTo(node, cam))
+        this.requestLoad(node, cam)
         // zoom-out fallback: draw previously-refined descendants instead of a
         // hole — but ONLY where resident content already exists. Recursing
         // into unloaded subtrees here used to flood-request the entire tree
@@ -569,20 +572,13 @@ export class SplatRenderLayer implements CustomLayerInterface {
     if (animating) map.triggerRepaint()
   }
 
-  private viewDirTo(node: SplatNode, cam: [number, number, number]
-                    ): [number, number, number] {
-    const dx = node.cx - cam[0]
-    const dy = node.cy - cam[1]
-    const dz = node.cz - cam[2]
-    const len = Math.hypot(dx, dy, dz) || 1
-    return [dx / len, dy / len, dz / len]
-  }
-
   /** Re-sort a small batch of the stalest nearby nodes per frame. A budget of
    *  one node kept the render loop warm for hundreds of frames after every
    *  camera move (each resort schedules a repaint to continue the drain) —
    *  four per frame stays well inside the frame budget (~O(n) counting sort,
-   *  <1 ms each) and settles the backlog in a fraction of a second. */
+   *  <1 ms each) and settles the backlog in a fraction of a second. Radial
+   *  keys mean pure rotation triggers NO re-sorts at all; only translation
+   *  beyond ~10% of a node's distance does. */
   private static readonly RESORT_BUDGET_PER_FRAME = 4
 
   private resortPass(drawList: { node: SplatNode; dist: number }[],
@@ -591,20 +587,22 @@ export class SplatRenderLayer implements CustomLayerInterface {
     const stale: { node: SplatNode; dist: number }[] = []
     for (const { node, dist } of drawList) {
       if (!node.bytes) continue
-      const dir = this.viewDirTo(node, cam)
-      const dot = dir[0] * node.sortedDirX + dir[1] * node.sortedDirY + dir[2] * node.sortedDirZ
-      if (dot < RESORT_DOT_THRESHOLD) stale.push({ node, dist })
+      const mx = cam[0] - node.sortedCamX
+      const my = cam[1] - node.sortedCamY
+      const mz = cam[2] - node.sortedCamZ
+      const moved2 = mx * mx + my * my + mz * mz
+      const thresh = Math.max(RESORT_MIN_M, dist * RESORT_DIST_FRAC)
+      if (moved2 > thresh * thresh) stale.push({ node, dist })
     }
     if (stale.length === 0) return
     stale.sort((a, b) => a.dist - b.dist) // nearest (most visible) first
     const batch = stale.slice(0, SplatRenderLayer.RESORT_BUDGET_PER_FRAME)
     for (const { node } of batch) {
-      const dir = this.viewDirTo(node, cam)
-      const sorted = sortSplatRecords(node.bytes as ArrayBuffer, dir[0], dir[1], dir[2])
+      const sorted = sortSplatRecords(node.bytes as ArrayBuffer, cam[0], cam[1], cam[2])
       node.bytes = sorted
-      node.sortedDirX = dir[0]
-      node.sortedDirY = dir[1]
-      node.sortedDirZ = dir[2]
+      node.sortedCamX = cam[0]
+      node.sortedCamY = cam[1]
+      node.sortedCamZ = cam[2]
       if (node.slot) {
         this.pool.rewrite(node.slot, new Uint8Array(sorted))
       } else if (this.gl && node.glBuffer) {
