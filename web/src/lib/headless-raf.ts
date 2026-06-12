@@ -7,30 +7,44 @@
 // it is the first import in main.tsx.
 //
 // Activation is explicit: ?headlessRaf=1 (and dev builds only). Frames are
-// driven off MessageChannel tasks (not throttled in hidden tabs); every 4th
-// frame routes through the macrotask timer queue so polling timers used by
-// test scripts still interleave with a continuously-repainting map.
+// driven PURELY off MessageChannel tasks: hidden tabs align ALL timer
+// wake-ups to ≥1 s boundaries, so any setTimeout in the frame path caps the
+// map at ~1 fps. Test scripts must therefore also wait via MessageChannel
+// yields (window.__mcYield), not setTimeout — message tasks interleave with
+// network/decode completions, so the page still makes full progress.
 if (import.meta.env.DEV &&
     new URLSearchParams(window.location.search).has('headlessRaf')) {
-  const native = window.requestAnimationFrame.bind(window)
-  let hidden = document.visibilityState === 'hidden'
-  document.addEventListener('visibilitychange', () => {
-    hidden = document.visibilityState === 'hidden'
-  })
-  let n = 0
-  window.requestAnimationFrame = (cb: FrameRequestCallback): number => {
-    if (!hidden) return native(cb)
-    n++
-    if (n % 4 === 0) {
-      setTimeout(() => cb(performance.now()), 16)
-    } else {
-      const mc = new MessageChannel()
-      mc.port1.onmessage = () => cb(performance.now())
-      mc.port2.postMessage(null)
+  // UNCONDITIONAL while the flag is on: occluded/minimized windows can report
+  // visibilityState 'visible' while the browser still suspends native rAF —
+  // any per-call delegation reintroduces the stall nondeterministically.
+  //
+  // In-flight channels MUST be retained: an unreferenced MessageChannel can
+  // be garbage-collected with its message still queued, silently dropping the
+  // frame callback — MapLibre's _frameRequest then dangles forever and the
+  // map freezes as soon as GC pressure rises (sort/upload churn).
+  const live = new Set<MessageChannel>()
+  const stats = { requested: 0, fired: 0 }
+  ;(window as unknown as { __rafStats?: typeof stats }).__rafStats = stats
+  const postFrame = (fn: () => void): void => {
+    const mc = new MessageChannel()
+    live.add(mc)
+    mc.port1.onmessage = () => {
+      live.delete(mc)
+      fn()
     }
+    mc.port2.postMessage(null)
+  }
+  window.requestAnimationFrame = (cb: FrameRequestCallback): number => {
+    stats.requested++
+    postFrame(() => {
+      stats.fired++
+      cb(performance.now())
+    })
     return 0
   }
-  console.info('[headless-raf] hidden-tab frame driver active')
+  ;(window as unknown as { __mcYield?: () => Promise<void> }).__mcYield = () =>
+    new Promise<void>((resolve) => postFrame(resolve))
+  console.info('[headless-raf] frame driver active (pure MessageChannel, unconditional)')
 }
 
 export {}
