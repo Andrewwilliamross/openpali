@@ -86,6 +86,15 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
   private intersector: SpatialIntersector | null = null
 
+  // Fetched+sorted nodes awaiting RENDER-TIME GPU upload. Fetch continuations
+  // are CPU-only: a buffer/VAO upload running in a microtask between frames
+  // mutates GL state behind MapLibre's Context cache (same failure class as
+  // the async texture upload — see texturing.ts header). render() drains this
+  // queue inside its state envelope.
+  private pendingUploads: { node: SplatNode; gen: number }[] = []
+  private static readonly UPLOAD_BUDGET_PER_FRAME = 6
+  private static readonly TEX_PUBLISH_BUDGET_PER_FRAME = 4
+
   constructor(id: string, baseUrl: string, intersector?: SpatialIntersector) {
     this.id = id
     this.baseUrl = baseUrl.replace(/\/$/, '')
@@ -114,12 +123,14 @@ export class SplatRenderLayer implements CustomLayerInterface {
     }
     this.pool = new BufferPool(gl, 16, 8)
     this.texMan = new NodeTextureManager(gl, () => map.triggerRepaint())
-    // 1×1 fallback keeps the sampler valid on un-textured draws
+    // 1×1 fallback keeps the sampler valid on un-textured draws. Restore the
+    // previous binding (NOT null) — MapLibre's state cache must stay truthful.
+    const prevTex = gl.getParameter(gl.TEXTURE_BINDING_2D) as WebGLTexture | null
     this.fallbackTex = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, this.fallbackTex)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array([128, 128, 128, 255]))
-    gl.bindTexture(gl.TEXTURE_2D, null)
+    gl.bindTexture(gl.TEXTURE_2D, prevTex)
     map.on('terrain', this.onTerrainChange)
 
     void (async () => {
@@ -195,11 +206,26 @@ export class SplatRenderLayer implements CustomLayerInterface {
         node.failedAt = performance.now()
         return
       }
+      // CPU-only continuation: sort, park the bytes, and queue the node for a
+      // render-time upload. No gl.* calls on this (async) path.
       const sorted = sortSplatRecords(buf, viewDir[0], viewDir[1], viewDir[2])
       node.bytes = sorted
       node.sortedDirX = viewDir[0]
       node.sortedDirY = viewDir[1]
       node.sortedDirZ = viewDir[2]
+      this.pendingUploads.push({ node, gen })
+      this.map?.triggerRepaint()
+    })
+  }
+
+  /** Render-time drain of fetched nodes (inside the GL state envelope).
+   *  Returns the number of nodes still queued. */
+  private drainUploads(budget: number): number {
+    let done = 0
+    while (this.pendingUploads.length > 0 && done < budget) {
+      const { node, gen } = this.pendingUploads.shift() as { node: SplatNode; gen: number }
+      // stale: layer re-added, or the node was evicted/reset while queued
+      if (gen !== this.generation || node.state !== 'loading' || !node.bytes) continue
       try {
         this.uploadNode(node)
       } catch {
@@ -207,13 +233,14 @@ export class SplatRenderLayer implements CustomLayerInterface {
         this.evictNode(node)
         node.state = 'failed'
         node.failedAt = performance.now()
-        return
+        continue
       }
       node.state = 'ready'
       node.firstDrawnAt = 0 // fade anchors to the first frame actually drawn
       for (let p: SplatNode | null = node; p; p = p.parent) p.residentDesc++
-      this.map?.triggerRepaint()
-    })
+      done++
+    }
+    return this.pendingUploads.length
   }
 
   private uploadNode(node: SplatNode): void {
@@ -376,6 +403,48 @@ export class SplatRenderLayer implements CustomLayerInterface {
     const vh = canvas.height
     const fov = args.fov || 0.6435 // vertical fov, radians
 
+    // ---- snapshot the GL state we mutate (ALWAYS, before any gl.* below) ----
+    // MapLibre v5's Context CACHES blend/depth/texture/buffer/program state and
+    // skips "redundant" sets. Raw mutations desync that cache, so MapLibre's
+    // next pass (the terrain drape that carries the ground imagery) randomly
+    // runs with OUR state. Every GL-mutating path — texture publishes, buffer
+    // uploads, draws, re-sorts, evictions — runs between this snapshot and
+    // restore(), which re-asserts the exact values (cache == hardware).
+    const prev = {
+      blendOn: gl2.isEnabled(gl2.BLEND),
+      srcRGB: gl2.getParameter(gl2.BLEND_SRC_RGB) as number,
+      dstRGB: gl2.getParameter(gl2.BLEND_DST_RGB) as number,
+      srcA: gl2.getParameter(gl2.BLEND_SRC_ALPHA) as number,
+      dstA: gl2.getParameter(gl2.BLEND_DST_ALPHA) as number,
+      depthMask: gl2.getParameter(gl2.DEPTH_WRITEMASK) as boolean,
+      activeTexture: gl2.getParameter(gl2.ACTIVE_TEXTURE) as number,
+      program: gl2.getParameter(gl2.CURRENT_PROGRAM) as WebGLProgram | null,
+      vao: gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) as WebGLVertexArrayObject | null,
+      arrayBuffer: gl2.getParameter(gl2.ARRAY_BUFFER_BINDING) as WebGLBuffer | null,
+    }
+    gl2.activeTexture(gl2.TEXTURE0)
+    const prevTex0 = gl2.getParameter(gl2.TEXTURE_BINDING_2D) as WebGLTexture | null
+    const restore = (): void => {
+      gl2.bindVertexArray(prev.vao)
+      gl2.bindBuffer(gl2.ARRAY_BUFFER, prev.arrayBuffer)
+      gl2.activeTexture(gl2.TEXTURE0)
+      gl2.bindTexture(gl2.TEXTURE_2D, prevTex0)
+      gl2.activeTexture(prev.activeTexture)
+      gl2.useProgram(prev.program)
+      gl2.blendFuncSeparate(prev.srcRGB, prev.dstRGB, prev.srcA, prev.dstA)
+      if (prev.blendOn) gl2.enable(gl2.BLEND)
+      else gl2.disable(gl2.BLEND)
+      gl2.depthMask(prev.depthMask)
+    }
+    let animating = false
+
+    // ---- render-time GPU maintenance: drain the two-phase publish queues ----
+    const texPending = this.texMan
+      ? this.texMan.publishPending(SplatRenderLayer.TEX_PUBLISH_BUDGET_PER_FRAME)
+      : 0
+    const uploadsPending = this.drainUploads(SplatRenderLayer.UPLOAD_BUDGET_PER_FRAME)
+    if (texPending > 0 || uploadsPending > 0) map.triggerRepaint()
+
     // ---------- SSE traversal (REPLACE refinement with cross-fade) ----------
     const now = performance.now()
     const drawList: { node: SplatNode; dist: number; fade: number }[] = []
@@ -439,32 +508,12 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
     if (drawList.length === 0) {
       this.evictPass()
+      restore()
       return
     }
 
     // ---------- draw: nodes back-to-front ----------
     drawList.sort((a, b) => b.dist - a.dist)
-    let animating = false
-
-    // ---- snapshot the GL state we mutate ----
-    // MapLibre v5's Context CACHES blend/depth/texture/program state and skips
-    // "redundant" sets. Raw mutations here desync that cache, so MapLibre's
-    // next pass (the terrain drape that carries the ground imagery) randomly
-    // runs with OUR state — visible as constant flicker of the base map.
-    // Restoring the exact values keeps cache == hardware.
-    const prev = {
-      blendOn: gl2.isEnabled(gl2.BLEND),
-      srcRGB: gl2.getParameter(gl2.BLEND_SRC_RGB) as number,
-      dstRGB: gl2.getParameter(gl2.BLEND_DST_RGB) as number,
-      srcA: gl2.getParameter(gl2.BLEND_SRC_ALPHA) as number,
-      dstA: gl2.getParameter(gl2.BLEND_DST_ALPHA) as number,
-      depthMask: gl2.getParameter(gl2.DEPTH_WRITEMASK) as boolean,
-      activeTexture: gl2.getParameter(gl2.ACTIVE_TEXTURE) as number,
-      program: gl2.getParameter(gl2.CURRENT_PROGRAM) as WebGLProgram | null,
-      vao: gl2.getParameter(gl2.VERTEX_ARRAY_BINDING) as WebGLVertexArrayObject | null,
-    }
-    gl2.activeTexture(gl2.TEXTURE0)
-    const prevTex0 = gl2.getParameter(gl2.TEXTURE_BINDING_2D) as WebGLTexture | null
 
     gl2.useProgram(this.program)
     gl2.uniformMatrix4fv(this.uniforms.u_matrix, false, this.matrixF32)
@@ -512,20 +561,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
       gl2.bindVertexArray(node.vao)
       gl2.drawArraysInstanced(gl2.TRIANGLE_STRIP, 0, 4, node.splatCount)
     }
-    // ---- restore the exact pre-render state (keeps MapLibre's cache valid) ----
-    gl2.bindVertexArray(prev.vao)
-    gl2.activeTexture(gl2.TEXTURE0)
-    gl2.bindTexture(gl2.TEXTURE_2D, prevTex0)
-    gl2.activeTexture(prev.activeTexture)
-    gl2.useProgram(prev.program)
-    gl2.blendFuncSeparate(prev.srcRGB, prev.dstRGB, prev.srcA, prev.dstA)
-    if (prev.blendOn) gl2.enable(gl2.BLEND)
-    else gl2.disable(gl2.BLEND)
-    gl2.depthMask(prev.depthMask)
-
-    // ---------- async maintenance ----------
+    // ---- GPU maintenance still inside the envelope (binds buffers, deletes) ----
     this.resortPass(drawList, cam)
     this.evictPass()
+    // ---- restore the exact pre-render state (keeps MapLibre's cache valid) ----
+    restore()
     if (animating) map.triggerRepaint()
   }
 

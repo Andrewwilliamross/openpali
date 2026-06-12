@@ -14,6 +14,18 @@
 // All tile fetch/decode is async (fetch → createImageBitmap) and composition
 // happens off the render loop; a node draws score-tinted until its texture
 // lands, then the existing 250 ms fade handles the transition visually.
+//
+// TWO-PHASE GPU PUBLICATION (load-bearing, do not "simplify"): the async
+// pipeline must stop at a CPU-side image. MapLibre v5's Context CACHES GL
+// state and only re-asserts it when IT changes something; it dirties that
+// cache around custom-layer render() calls — but a texture upload running in
+// a fetch/decode microtask BETWEEN frames mutates real GL state (texture
+// bindings on whatever unit happens to be active) behind the cache's back.
+// MapLibre then skips "redundant" rebinds and its terrain-drape pass samples
+// a null texture: ground-imagery tiles composite BLANK and are CACHED blank —
+// the persistent base-map dropouts under camera motion. Every gl.* call in
+// this file therefore happens inside publishPending(), which the splat layer
+// invokes from render() inside its state snapshot/restore envelope.
 
 const WAYBACK_RELEASE = 16453
 // NOTE: Wayback WMTS path is {z}/{y}/{x} — Y BEFORE X (verified Phase 2).
@@ -93,6 +105,11 @@ interface NodeTexture {
   state: TexState
   texture: WebGLTexture | null
   lastUsedFrame: number
+  /** composed image awaiting render-time GPU upload (phase 1 → phase 2) */
+  pendingImage: ImageBitmap | TexImageSource | null
+  /** binding geometry captured at compose time, applied at publish time */
+  pendingOrigin: [number, number] | null
+  pendingInvSize: [number, number] | null
 }
 
 export interface TextureBinding {
@@ -135,15 +152,18 @@ export class NodeTextureManager {
       existing.lastUsedFrame = frame
       return existing.state === 'ready' ? this.bindings.get(nodeId) ?? null : null
     }
-    const entry: NodeTexture = { state: 'loading', texture: null, lastUsedFrame: frame }
+    const entry: NodeTexture = {
+      state: 'loading', texture: null, lastUsedFrame: frame,
+      pendingImage: null, pendingOrigin: null, pendingInvSize: null,
+    }
     this.entries.set(nodeId, entry)
     const gen = this.generation
-    void this.compose(nodeId, entry, gen,
+    void this.compose(entry, gen,
       enuMinX, enuMinY, enuMaxX, enuMaxY, originLon, originLat)
     return null
   }
 
-  private async compose(nodeId: number, entry: NodeTexture, gen: number,
+  private async compose(entry: NodeTexture, gen: number,
                         enuMinX: number, enuMinY: number, enuMaxX: number,
                         enuMaxY: number, originLon: number, originLat: number,
                         ): Promise<void> {
@@ -218,34 +238,109 @@ export class NodeTextureManager {
       bm.close()
     })
 
-    const gl = this.gl
-    const tex = gl.createTexture()
-    if (!tex) {
-      entry.state = 'failed'
-      return
-    }
-    gl.bindTexture(gl.TEXTURE_2D, tex)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-      canvas as TexImageSource)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-    gl.bindTexture(gl.TEXTURE_2D, null)
-
-    entry.texture = tex
-    entry.state = 'ready'
-    this.bytes += TEX_BYTES
-    this.bindings.set(nodeId, {
-      texture: tex,
-      originEnu: [enuMinX, enuMaxY], // west edge, NORTH edge (v grows south)
-      invSizeEnu: [1 / (enuMaxX - enuMinX), 1 / (enuMaxY - enuMinY)],
-    })
-    this.evictOverBudget()
-    this.onReady()
+    // PHASE 1 ends here: park the composed image on the entry. NO gl.* calls
+    // on this (async) path — see the header comment. transferToImageBitmap
+    // detaches synchronously and frees the canvas backing store.
+    entry.pendingImage =
+      'transferToImageBitmap' in canvas
+        ? (canvas as OffscreenCanvas).transferToImageBitmap()
+        : (canvas as TexImageSource)
+    entry.pendingOrigin = [enuMinX, enuMaxY] // west edge, NORTH edge (v grows south)
+    entry.pendingInvSize = [1 / (enuMaxX - enuMinX), 1 / (enuMaxY - enuMinY)]
+    this.onReady() // schedules a repaint; publishPending() runs inside render()
   }
 
-  /** Drop a node's texture (called when the splat node itself is evicted). */
+  /** How many composed images are waiting for render-time upload. */
+  get pendingCount(): number {
+    let n = 0
+    for (const [, e] of this.entries) if (e.pendingImage) n++
+    return n
+  }
+
+  /**
+   * PHASE 2: upload up to `maxUploads` pending images. MUST be called from the
+   * splat layer's render(), inside its GL state envelope. Pixel-store unpack
+   * state is set explicitly and restored exactly — texImage2D semantics depend
+   * on it and MapLibre's cached values must remain truthful. Returns the number
+   * of images still pending (caller schedules another frame when > 0).
+   */
+  publishPending(maxUploads: number): number {
+    const gl = this.gl
+    let uploads = 0
+    let pending = 0
+    let saved: { flipY: boolean; premult: boolean; align: number;
+                 rowLen: number; skipPx: number; skipRows: number;
+                 pub: WebGLBuffer | null; tex0: WebGLTexture | null } | null = null
+    for (const [nodeId, entry] of this.entries) {
+      if (!entry.pendingImage) continue
+      if (uploads >= maxUploads) {
+        pending++
+        continue
+      }
+      if (!saved) {
+        saved = {
+          flipY: gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL) as boolean,
+          premult: gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL) as boolean,
+          align: gl.getParameter(gl.UNPACK_ALIGNMENT) as number,
+          rowLen: gl.getParameter(gl.UNPACK_ROW_LENGTH) as number,
+          skipPx: gl.getParameter(gl.UNPACK_SKIP_PIXELS) as number,
+          skipRows: gl.getParameter(gl.UNPACK_SKIP_ROWS) as number,
+          // a bound PBO silently changes texImage2D's data source (WebGL2)
+          pub: gl.getParameter(gl.PIXEL_UNPACK_BUFFER_BINDING) as WebGLBuffer | null,
+          tex0: gl.getParameter(gl.TEXTURE_BINDING_2D) as WebGLTexture | null,
+        }
+        gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, null)
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4)
+        gl.pixelStorei(gl.UNPACK_ROW_LENGTH, 0)
+        gl.pixelStorei(gl.UNPACK_SKIP_PIXELS, 0)
+        gl.pixelStorei(gl.UNPACK_SKIP_ROWS, 0)
+      }
+      const img = entry.pendingImage
+      entry.pendingImage = null
+      const tex = gl.createTexture()
+      if (!tex) {
+        entry.state = 'failed'
+        if ('close' in img) (img as ImageBitmap).close()
+        continue
+      }
+      gl.bindTexture(gl.TEXTURE_2D, tex)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+        img as TexImageSource)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      if ('close' in img) (img as ImageBitmap).close()
+      entry.texture = tex
+      entry.state = 'ready'
+      this.bytes += TEX_BYTES
+      this.bindings.set(nodeId, {
+        texture: tex,
+        originEnu: entry.pendingOrigin as [number, number],
+        invSizeEnu: entry.pendingInvSize as [number, number],
+      })
+      entry.pendingOrigin = null
+      entry.pendingInvSize = null
+      uploads++
+    }
+    if (saved) {
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, saved.flipY)
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, saved.premult)
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, saved.align)
+      gl.pixelStorei(gl.UNPACK_ROW_LENGTH, saved.rowLen)
+      gl.pixelStorei(gl.UNPACK_SKIP_PIXELS, saved.skipPx)
+      gl.pixelStorei(gl.UNPACK_SKIP_ROWS, saved.skipRows)
+      gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, saved.pub)
+      gl.bindTexture(gl.TEXTURE_2D, saved.tex0)
+      this.evictOverBudget() // GL deletes — also render-time only
+    }
+    return pending
+  }
+
+  /** Drop a node's texture (called when the splat node itself is evicted).
+   *  Callers run inside the render envelope (eviction is render-time only). */
   evict(nodeId: number): void {
     const e = this.entries.get(nodeId)
     if (!e) return
@@ -253,6 +348,7 @@ export class NodeTextureManager {
       this.gl.deleteTexture(e.texture)
       this.bytes -= TEX_BYTES
     }
+    if (e.pendingImage && 'close' in e.pendingImage) (e.pendingImage as ImageBitmap).close()
     this.entries.delete(nodeId)
     this.bindings.delete(nodeId)
   }
@@ -275,6 +371,7 @@ export class NodeTextureManager {
     this.generation++
     for (const [, e] of this.entries) {
       if (e.texture) this.gl.deleteTexture(e.texture)
+      if (e.pendingImage && 'close' in e.pendingImage) (e.pendingImage as ImageBitmap).close()
     }
     this.entries.clear()
     this.bindings.clear()
