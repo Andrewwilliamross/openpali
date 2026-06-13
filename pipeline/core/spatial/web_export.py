@@ -139,6 +139,20 @@ def export_web_tiles(store_root: Path, out_dir: Path = WEB_TILES_DIR, *,
         }
     (out_dir / "picking.json").write_text(json.dumps(picking))
 
+    # ---- coverage.json: the honesty layer (ROADMAP D2) ----
+    # Per-APN geometry provenance for the WHOLE universe, so the UI can label
+    # every 3D parcel ("LARIAC model" / "footprint extrusion" / "lot prism")
+    # and explicitly say when a lot has no renderable geometry rather than
+    # letting absence read as "missing home".
+    universe_apns = [f["properties"]["apn"]
+                     for f in json.loads(parcels_geojson.read_text())["features"]
+                     ] if parcels_geojson.exists() else sorted(picking)
+    coverage = build_coverage(universe_apns, list(store.iter_assets()), picking)
+    data_dir = out_dir.parents[1] / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    (data_dir / "coverage.json").write_text(json.dumps(coverage["parcels"]))
+    print(f"  coverage: {coverage['counts']}")
+
     manifest = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "tileset": "tileset.json",
@@ -152,9 +166,50 @@ def export_web_tiles(store_root: Path, out_dir: Path = WEB_TILES_DIR, *,
         "nodes": result.n_nodes,
         "levels": result.levels,
         "bytes": result.total_bytes,
+        "coverage_sources": coverage["counts"],
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1))
     return manifest
+
+
+# asset-index source → public coverage class (stable UI contract)
+_SOURCE_TO_COVERAGE = {
+    "lariac_scene": "lariac_model",
+    "lariac_footprint_extrusion": "footprint_extrusion",
+    "parcel_prism": "parcel_prism",
+}
+
+
+def build_coverage(universe_apns: list[str], assets: list[dict],
+                   picking: dict[str, dict]) -> dict:
+    """Per-APN geometry provenance: {apn: {geometry_source, n_splats, acquired,
+    missing_reason}} + class counts. Pure function (unit-tested)."""
+    rows: dict[tuple[str, str], dict] = {(a["apn"], a["kind"]): a for a in assets}
+    parcels: dict[str, dict] = {}
+    counts: dict[str, int] = {}
+    for apn in universe_apns:
+        prior = rows.get((apn, "lariac_prior"))
+        rend = rows.get((apn, "renderable_splats"))
+        src_row = None
+        if prior is not None and prior.get("source") == "lariac_scene":
+            src_row = prior
+        elif rend is not None and rend.get("status") == "live":
+            src_row = rend
+        gsource = _SOURCE_TO_COVERAGE.get((src_row or {}).get("source", ""), None)
+        n = picking.get(apn, {}).get("n", 0)
+        entry: dict = {
+            "geometry_source": gsource if n > 0 else None,
+            "n_splats": n,
+            "acquired": (
+                datetime.fromtimestamp(src_row["t_epoch"], tz=timezone.utc)
+                .date().isoformat() if src_row and src_row.get("t_epoch") else None
+            ),
+            "missing_reason": None if n > 0 else "no_renderable_geometry",
+        }
+        parcels[apn] = entry
+        counts[entry["geometry_source"] or "missing"] = (
+            counts.get(entry["geometry_source"] or "missing", 0) + 1)
+    return {"parcels": parcels, "counts": counts}
 
 
 if __name__ == "__main__":

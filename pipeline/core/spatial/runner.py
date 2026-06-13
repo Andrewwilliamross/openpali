@@ -31,6 +31,7 @@ from shapely.geometry import shape
 
 from palisades.sources import fetch_destroyed_parcels
 
+from .prisms import GroundZSampler, footprint_prism_batch, parcel_prism_batch
 from .scene_client import SceneClient, extract_footprint_prior
 from .schema import SpatialStore
 
@@ -45,6 +46,10 @@ class NightlyReport:
     priors_footprint_fallback: int = 0
     static_baseline: int = 0
     stale_cached: int = 0
+    renderable_existing: int = 0
+    renderable_extrusions: int = 0
+    renderable_prisms: int = 0
+    renderable_skipped: int = 0
     anomalies: list[dict] = field(default_factory=list)
     duration_s: float = 0.0
 
@@ -57,6 +62,10 @@ class NightlyReport:
             "priors_footprint_fallback": self.priors_footprint_fallback,
             "static_baseline": self.static_baseline,
             "stale_cached": self.stale_cached,
+            "renderable_existing": self.renderable_existing,
+            "renderable_extrusions": self.renderable_extrusions,
+            "renderable_prisms": self.renderable_prisms,
+            "renderable_skipped": self.renderable_skipped,
             "anomalies": self.anomalies,
             "duration_s": round(self.duration_s, 1),
         }
@@ -150,16 +159,95 @@ def run_nightly(*, store_root: Path = DEFAULT_STORE, limit: int | None = None,
         store.index_asset(apn=apn, kind="lariac_prior", t_epoch=now_epoch,
                           n_points=len(batch), geometry_wkb=geom_wkb,
                           status="live", source=source)
+        existing[(apn, "lariac_prior")] = {"status": "live", "source": source,
+                                           "t_epoch": now_epoch, "n_points": len(batch)}
         extracted += 1
         if source == "lariac_scene":
             report.priors_extracted += 1
         else:
             report.priors_footprint_fallback += 1
 
+    # ---- 4. renderable placeholders (ROADMAP D2: every lot renders in 3D) ----
+    # Scene-modelled parcels stream their real surfels; everything else gets a
+    # labeled placeholder batch (kind="splats") so the web pyramid covers the
+    # full 5,877-parcel universe. Tracked as its own asset kind so re-runs are
+    # cheap no-ops and coverage.json can cite source + acquisition time.
+    ground = _GroundSamplerLazy(store, report)
+    for apn in todo:
+        parcel = universe[apn]
+        prior = existing.get((apn, "lariac_prior"))
+        prior_source = (prior or {}).get("source", "none")
+        if prior_source == "lariac_scene":
+            continue  # real geometry already renderable
+        rend = existing.get((apn, "renderable_splats"))
+        if rend is not None and rend["status"] == "live":
+            report.renderable_existing += 1
+            continue
+        try:
+            batch = None
+            source = ""
+            if prior_source == "lariac_footprint_extrusion":
+                batch = footprint_prism_batch(apn, t_epoch=now_epoch)
+                source = "lariac_footprint_extrusion"
+            if batch is None or len(batch) == 0:
+                gz = None
+                if parcel.lon and parcel.lat:
+                    gz = ground.ground_z(parcel.lon, parcel.lat)
+                if gz is not None and parcel.geometry:
+                    batch = parcel_prism_batch(apn, parcel.geometry, gz,
+                                               t_epoch=now_epoch)
+                    source = "parcel_prism"
+        except (httpx.HTTPError, ValueError, KeyError, json.JSONDecodeError) as e:
+            _flag(report, f"renderable:{apn}", e)
+            report.renderable_skipped += 1
+            continue
+        if batch is None or len(batch) == 0:
+            # no ground reference yet (e.g. first-ever run) — next run resolves
+            report.renderable_skipped += 1
+            continue
+        store.write_batch(batch, epoch_label=epoch_label)
+        geom_wkb = shape(parcel.geometry).wkb if parcel.geometry else b""
+        store.index_asset(apn=apn, kind="renderable_splats", t_epoch=now_epoch,
+                          n_points=len(batch), geometry_wkb=geom_wkb,
+                          status="live", source=source)
+        if source == "parcel_prism":
+            report.renderable_prisms += 1
+        else:
+            report.renderable_extrusions += 1
+
     store.flush_assets()
     report.duration_s = time.monotonic() - t0
     _write_meta(store, report)
     return report
+
+
+class _GroundSamplerLazy:
+    """Builds the neighbour ground-height sampler on first use only.
+
+    Reads the store's splat positions once (a few seconds for 10M rows) and
+    only when at least one parcel-prism lot actually needs an elevation.
+    """
+
+    def __init__(self, store: SpatialStore, report: NightlyReport) -> None:
+        self._store = store
+        self._report = report
+        self._sampler: GroundZSampler | None = None
+        self._failed = False
+
+    def ground_z(self, lon: float, lat: float) -> float | None:
+        if self._failed:
+            return None
+        if self._sampler is None:
+            try:
+                batch = self._store.read(kind="splats")
+                if batch is None or len(batch) == 0:
+                    raise ValueError("store has no splats yet")
+                self._sampler = GroundZSampler(batch.xyz_ecef)
+            except (ValueError, OSError) as e:
+                _flag(self._report, "ground_sampler", e)
+                self._failed = True
+                return None
+        return self._sampler.ground_z(lon, lat)
 
 
 def _index_baseline(store: SpatialStore, apn: str, parcel, now_epoch: float) -> None:
