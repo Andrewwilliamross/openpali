@@ -6,6 +6,11 @@
 import { useEffect, useState } from 'react'
 import type { ParcelDetail, ParcelProps } from '../../lib/types'
 import { STAGE_INFO, scoreColor } from '../../lib/colors'
+import {
+  fetchCoverage,
+  GEOMETRY_SOURCE_LABELS,
+  type CoverageEntry,
+} from '../../lib/coverage'
 import { fmtDate, fmtMoney, fmtNumber, titleCase } from '../../lib/format'
 import { preFireTileUrl, WAYBACK_ATTRIBUTION } from '../../lib/imagery'
 
@@ -38,12 +43,26 @@ const MILESTONE_GLYPHS: Record<string, string> = {
 export default function ParcelDetailCard({ apn, props, detail, onClose }: Props) {
   const [entered, setEntered] = useState(false)
   const [imgFailed, setImgFailed] = useState(false)
+  const [coverage, setCoverage] = useState<CoverageEntry | null | undefined>(undefined)
 
   useEffect(() => {
     setEntered(false)
     setImgFailed(false)
     const t = requestAnimationFrame(() => setEntered(true))
     return () => cancelAnimationFrame(t)
+  }, [apn])
+
+  // geometry-source badge (coverage.json): every 3D parcel carries its
+  // provenance label — placeholders must never read as observations
+  useEffect(() => {
+    let alive = true
+    setCoverage(undefined)
+    void fetchCoverage().then((c) => {
+      if (alive) setCoverage(c[apn] ?? null)
+    })
+    return () => {
+      alive = false
+    }
   }, [apn])
 
   const stage = props ? STAGE_INFO[props.stage] : null
@@ -81,6 +100,20 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
           {stage && (
             <span className="spatial-stage" style={{ background: stage.color }}>
               {stage.label}
+            </span>
+          )}
+          {coverage !== undefined && (
+            <span
+              className={`spatial-geom-badge${coverage?.geometry_source ? '' : ' spatial-geom-badge-none'}`}
+              title={
+                coverage?.geometry_source
+                  ? `3D geometry: ${GEOMETRY_SOURCE_LABELS[coverage.geometry_source]}${coverage.acquired ? ` · source data ${coverage.acquired}` : ''}`
+                  : 'This lot has no 3D geometry yet — it still counts in every statistic.'
+              }
+            >
+              {coverage?.geometry_source
+                ? GEOMETRY_SOURCE_LABELS[coverage.geometry_source]
+                : 'No 3D geometry yet'}
             </span>
           )}
         </div>

@@ -38,6 +38,11 @@ from .schema import GaussianBatch
 
 _SH_DC = 0.2820948  # Y_0^0
 
+# Finite-thickness floor for flat surfels' normal axis (metres). Models the
+# physical thickness of the surface patch a disk represents, so grazing-angle
+# views keep energy under the renderer's screen-space compensation.
+SURFEL_THICKNESS_FLOOR_M = 0.08
+
 
 # ---------------------------------------------------------------------------
 # quaternion / covariance algebra (vectorised)
@@ -96,38 +101,71 @@ def splat_covariances(scale: np.ndarray, rot: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
+# Ledoit–Wolf shrink intensity toward the isotropic mean: bounds the condition
+# number of Σ* before eigendecomposition (coplanar clusters otherwise yield
+# ~zero eigenvalues → unstable quaternion extraction) and pulls extreme
+# anisotropy in while preserving the trace (total spread).
+_LW_SHRINK = 0.1
+_ALPHA_MAX = 0.99
+
+
 def merge_cluster(pos: np.ndarray, cov: np.ndarray, alpha: np.ndarray,
-                  sh_dc: np.ndarray, t_epoch: np.ndarray,
+                  sh_dc: np.ndarray, t_epoch: np.ndarray, area: np.ndarray,
+                  cap_radius: float,
                   ) -> tuple[np.ndarray, np.ndarray, np.ndarray, float, np.ndarray, float]:
     """Merge a cluster of Gaussians into one representative.
 
     Mixture second moment:  Σ* = Σᵢ wᵢ (Σᵢ + dᵢdᵢᵀ),  dᵢ = xᵢ − μ*
     so the merged ellipsoid covers both the members' own extents and their
-    spatial spread. Decomposed back into (scale, quaternion) by eigen-solve.
+    spatial spread. Decomposed back into (scale, quaternion) by eigen-solve,
+    with three sanitizers (the giant-opaque-LOD-sheet fix):
+
+    - Ledoit–Wolf conditioning of Σ* before the eigen-solve;
+    - an eigenvalue cap (σ ≤ cap_radius): a representative may not smear
+      beyond its own clustering voxel;
+    - ENERGY-conserving opacity (Hierarchical-3DGS rule) instead of the
+      members' mean: α_p = clamp(Σᵢ αᵢ·s1ᵢ·s2ᵢ / (s1ₚ·s2ₚ), 0, 0.99) on
+      dominant-plane areas. Dense clusters saturate to opaque (a building
+      mass IS opaque from afar); sparse clusters in mostly-empty voxels
+      become faint instead of painting member opacity across empty space.
     """
+    if len(pos) == 1:
+        # exact passthrough — a singleton cluster IS its own representative
+        evals1, evecs1 = np.linalg.eigh(cov[0])
+        evals1 = np.clip(evals1, 1e-12, cap_radius * cap_radius)
+        if np.linalg.det(evecs1) < 0:
+            evecs1[:, 0] = -evecs1[:, 0]
+        return (pos[0], np.sqrt(evals1), matrix_to_quat(evecs1),
+                float(np.clip(alpha[0], 0.0, _ALPHA_MAX)), sh_dc[0], float(t_epoch[0]))
     w = np.maximum(alpha.astype(np.float64), 1e-4)
     w = w / w.sum()
     mu = (w[:, None] * pos).sum(axis=0)
     d = pos - mu
     sigma = np.einsum("n,nij->ij", w, cov) + np.einsum("n,ni,nj->ij", w, d, d)
+    sigma = (1.0 - _LW_SHRINK) * sigma + _LW_SHRINK * (np.trace(sigma) / 3.0) * np.eye(3)
     evals, evecs = np.linalg.eigh(sigma)  # ascending
-    evals = np.maximum(evals, 1e-12)
+    evals = np.clip(evals, 1e-12, cap_radius * cap_radius)
     if np.linalg.det(evecs) < 0:  # keep a proper rotation
         evecs[:, 0] = -evecs[:, 0]
     scale = np.sqrt(evals)
     quat = matrix_to_quat(evecs)
-    merged_alpha = float(np.clip((alpha.astype(np.float64) * w).sum() / w.sum(), 0.0, 1.0))
+    rep_area = float(scale[1] * scale[2])  # two largest σ (ascending order)
+    merged_alpha = float(np.clip(
+        (alpha.astype(np.float64) * area).sum() / max(rep_area, 1e-12),
+        0.0, _ALPHA_MAX))
     merged_dc = (w[:, None] * sh_dc).sum(axis=0)
     merged_t = float((w * t_epoch).sum())
     return mu, scale, quat, merged_alpha, merged_dc, merged_t
 
 
 def downsample_node(pos: np.ndarray, cov: np.ndarray, alpha: np.ndarray,
-                    sh_dc: np.ndarray, t_epoch: np.ndarray, *,
+                    sh_dc: np.ndarray, t_epoch: np.ndarray, area: np.ndarray, *,
                     cube_min: np.ndarray, cube_size: float, grid: int = 24,
                     ) -> tuple[np.ndarray, ...]:
     """Voxel-cluster a node's subtree points into ≤ grid³ representatives."""
     voxel = cube_size / grid
+    # a representative's ±2σ footprint may span its voxel, never its neighbours
+    cap_radius = voxel / 2.0
     keys = np.clip(np.floor((pos - cube_min) / voxel).astype(np.int64), 0, grid - 1)
     flat = keys[:, 0] * grid * grid + keys[:, 1] * grid + keys[:, 2]
     order = np.argsort(flat, kind="stable")
@@ -137,7 +175,8 @@ def downsample_node(pos: np.ndarray, cov: np.ndarray, alpha: np.ndarray,
 
     out_pos, out_scale, out_rot, out_alpha, out_dc, out_t = [], [], [], [], [], []
     for g in groups:
-        mu, sc, q, a, dc, t = merge_cluster(pos[g], cov[g], alpha[g], sh_dc[g], t_epoch[g])
+        mu, sc, q, a, dc, t = merge_cluster(pos[g], cov[g], alpha[g], sh_dc[g],
+                                            t_epoch[g], area[g], cap_radius)
         out_pos.append(mu)
         out_scale.append(sc)
         out_rot.append(q)
@@ -196,10 +235,21 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
     lon0, lat0, h0 = ecef_to_wgs84(centroid_ecef[None, :])
     lon0, lat0, h0 = float(lon0[0]), float(lat0[0]), float(h0[0])
     pos = ecef_to_enu(batch.xyz_ecef, centroid_ecef, lon0, lat0)
-    cov = splat_covariances(batch.scale, batch.rot)
+    # Finite-thickness floor on the flattest axis (surfels carry σ_z ≈ 1 mm —
+    # a measure-zero disk). The renderer's screen-space energy compensation
+    # correctly drives a zero-thickness disk's edge-on contribution to zero,
+    # which makes under-sampled walls/slopes vanish at grazing angles; ~8 cm
+    # of physical thickness restores their energy without visibly fattening
+    # face-on surfaces (in-plane σ ≈ 0.56 m dominates).
+    scale = batch.scale.astype(np.float64).copy()
+    scale[:, 2] = np.maximum(scale[:, 2], SURFEL_THICKNESS_FLOOR_M)
+    cov = splat_covariances(scale, batch.rot)
     alpha = batch.alpha.astype(np.float64)
     sh_dc = batch.sh[:, 0, :].astype(np.float64)
     t_epoch = batch.t_epoch
+    # per-splat dominant-plane area s1·s2 (two largest σ) — the energy unit
+    # the merge's opacity rule conserves
+    area = np.sort(scale, axis=1)[:, 1:].prod(axis=1)
 
     # root cube: cubic bounding volume (octree subdivision stays isotropic)
     lo = pos.min(axis=0)
@@ -209,7 +259,8 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
 
     stats = {"nodes": 0, "leaves": 0, "bytes": 0, "max_level": 0}
 
-    def build(idx: np.ndarray, level: int, ix: int, iy: int, iz: int) -> dict:
+    def build(idx: np.ndarray, level: int, ix: int, iy: int, iz: int,
+              ) -> tuple[dict, tuple[np.ndarray, ...]]:
         cube_size = size / (1 << level)
         cube_min = root_min + np.array([ix, iy, iz]) * cube_size
         center = cube_min + cube_size / 2
@@ -218,22 +269,6 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
         stats["max_level"] = max(stats["max_level"], level)
 
         is_leaf = len(idx) <= leaf_max or level >= max_depth
-        if is_leaf:
-            payload = pack_splat(pos[idx], batch.scale[idx], batch.rot[idx],
-                                 alpha[idx], sh_dc[idx])
-            stats["leaves"] += 1
-        else:
-            p, s, q, a, dc, _t = downsample_node(
-                pos[idx], cov[idx], alpha[idx], sh_dc[idx], t_epoch[idx],
-                cube_min=cube_min, cube_size=cube_size, grid=node_budget_grid)
-            payload = pack_splat(p, s, q, a, dc)
-
-        rel = f"L{level}/{ix}_{iy}_{iz}.splat"
-        f = out_dir / rel
-        f.parent.mkdir(parents=True, exist_ok=True)
-        f.write_bytes(payload)
-        stats["bytes"] += len(payload)
-
         node: dict = {
             "boundingVolume": {"box": [float(center[0]), float(center[1]), float(center[2]),
                                        half, 0, 0, 0, half, 0, 0, 0, half]},
@@ -241,14 +276,27 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
             # at its cube scale; leaves are exact (error 0)
             "geometricError": 0.0 if is_leaf else cube_size / 4.0,
             "refine": "REPLACE",
-            "content": {"uri": rel},
+            "content": {"uri": f"L{level}/{ix}_{iy}_{iz}.splat"},
             # terrain-clamp anchor: the octree cube bottom is unrelated to where
             # content sits (cubes are isotropic, sized by the max extent) — the
             # client must clamp on the CONTENT's lowest point
             "extras": {"contentMinZ": float(pos[idx][:, 2].min())},
         }
-        if not is_leaf:
+
+        if is_leaf:
+            reps = (pos[idx], scale[idx], batch.rot[idx].astype(np.float64),
+                    alpha[idx], sh_dc[idx], t_epoch[idx], area[idx])
+            stats["leaves"] += 1
+        else:
+            # CASCADED merge (Hierarchical-3DGS regime): cluster the CHILDREN'S
+            # representatives, not the full leaf subtree. Merging ~10⁴⁻⁵
+            # overlapping leaves in one shot double-counts their overlap and
+            # saturates the energy-conserving opacity to 0.99 everywhere — the
+            # giant opaque LOD sheets. Child reps are already overlap-resolved,
+            # so each level composes a handful of members per voxel and sparse
+            # regions stay honestly faint.
             children = []
+            child_reps = []
             local = pos[idx] - cube_min
             octant = ((local[:, 0] >= half).astype(int)
                       | ((local[:, 1] >= half).astype(int) << 1)
@@ -257,13 +305,33 @@ def tile_batch(batch: GaussianBatch, out_dir: Path, *, leaf_max: int = 12000,
                 sub = idx[octant == o]
                 if len(sub) == 0:
                     continue
-                children.append(build(sub, level + 1,
-                                      ix * 2 + (o & 1), iy * 2 + ((o >> 1) & 1),
-                                      iz * 2 + ((o >> 2) & 1)))
+                cnode, creps = build(sub, level + 1,
+                                     ix * 2 + (o & 1), iy * 2 + ((o >> 1) & 1),
+                                     iz * 2 + ((o >> 2) & 1))
+                children.append(cnode)
+                child_reps.append(creps)
             node["children"] = children
-        return node
+            cpos = np.concatenate([r[0] for r in child_reps])
+            cscale = np.concatenate([r[1] for r in child_reps])
+            crot = np.concatenate([r[2] for r in child_reps])
+            calpha = np.concatenate([r[3] for r in child_reps])
+            cdc = np.concatenate([r[4] for r in child_reps])
+            ct = np.concatenate([r[5] for r in child_reps])
+            carea = np.concatenate([r[6] for r in child_reps])
+            ccov = splat_covariances(cscale, crot)
+            p, s, q, a, dc, t = downsample_node(
+                cpos, ccov, calpha, cdc, ct, carea,
+                cube_min=cube_min, cube_size=cube_size, grid=node_budget_grid)
+            reps = (p, s, q, a, dc, t, np.sort(s, axis=1)[:, 1:].prod(axis=1))
 
-    root = build(np.arange(len(batch)), 0, 0, 0, 0)
+        payload = pack_splat(reps[0], reps[1], reps[2], reps[3], reps[4])
+        f = out_dir / node["content"]["uri"]
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(payload)
+        stats["bytes"] += len(payload)
+        return node, reps
+
+    root, _root_reps = build(np.arange(len(batch)), 0, 0, 0, 0)
     root["transform"] = [float(v) for v in
                          enu_to_ecef_matrix(lon0, lat0, h0).T.reshape(-1)]  # column-major
 

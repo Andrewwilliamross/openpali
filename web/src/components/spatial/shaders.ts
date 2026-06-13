@@ -96,13 +96,21 @@ void main() {
   vec3 dpx = 0.5 * u_viewport.x * (m0 * w - clip.x * m3) * inv_w2; // ∂px/∂p
   vec3 dpy = 0.5 * u_viewport.y * (m1 * w - clip.y * m3) * inv_w2; // ∂py/∂p
 
-  // Σ' = A Σ Aᵀ  (2×2, pixels²) + low-pass dilation
-  float sa = dot(dpx, Vrk * dpx) + 0.3;
-  float sb = dot(dpx, Vrk * dpy);
-  float sc = dot(dpy, Vrk * dpy) + 0.3;
-
+  // Σ' = A Σ Aᵀ  (2×2, pixels²) + low-pass dilation WITH energy compensation
+  // (EWA Eq. 33 / Mip-Splatting 2D mip filter / gsplat "antialiased" mode).
+  // The +0.3 px² guarantees a ≥~1px footprint, but without rescaling alpha by
+  // sqrt(det₀/det₁) every dilated sub-pixel surfel keeps full opacity: 10M of
+  // them accumulate into opaque shimmer that crawls under motion, and edge-on
+  // flat disks (σ_z≈1 mm, det₀→0) draw as full-alpha 1-px flicker lines.
+  float sa0 = dot(dpx, Vrk * dpx);
+  float sb  = dot(dpx, Vrk * dpy);
+  float sc0 = dot(dpy, Vrk * dpy);
+  float det0 = max(sa0 * sc0 - sb * sb, 0.0);
+  float sa = sa0 + 0.3;
+  float sc = sc0 + 0.3;
   float det = sa * sc - sb * sb;
   if (det <= 0.0) { cull(); return; }
+  float comp = sqrt(det0 / det); // energy conservation: α·√det is invariant
 
   // closed-form symmetric 2×2 eigendecomposition
   float mid = 0.5 * (sa + sc);
@@ -119,7 +127,12 @@ void main() {
 
   vec2 offNdc = (corner.x * axis1 + corner.y * axis2) * 2.0 / u_viewport;
 
-  float alpha = min(a_color.a, 0.99) * u_fade;
+  float a0 = min(a_color.a, 0.99) * comp;
+  // transmittance-correct LOD cross-fade: the layer hands the child t and the
+  // parent (1−t); with α' = 1−(1−α)^t the pair's combined transmittance is
+  // (1−α)^t · (1−α)^(1−t) = (1−α) — constant through the fade, so REPLACE
+  // refinement produces no brightness pulse (linear weights dim mid-fade).
+  float alpha = u_fade >= 0.999 ? a0 : 1.0 - pow(1.0 - a0, u_fade);
   // near-plane fade hides viewport-sized quads when flying through facades
   alpha *= clamp(clip.z * inv_w + 1.0, 0.0, 1.0);
   if (alpha < 0.0039) { cull(); return; }  // < 1/255
