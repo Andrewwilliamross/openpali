@@ -99,16 +99,35 @@ export default function MapView({
   // one-shot guard mirroring the old load-time try/catch: set after the
   // install attempt, success or not, so we never double-add the layer
   const spatialInstalledRef = useRef(false)
+  // true while a chunk load is in the 'error' state (offline/flaky). Keeps the
+  // status reconciler from clobbering the retry UI back to 'idle'.
+  const spatialErroredRef = useRef(false)
 
   const loadRendererModule = useCallback((): Promise<Renderer3DModule> => {
     if (!rendererModuleRef.current) {
-      onSpatialStatusRef.current?.('loading')
+      spatialErroredRef.current = false // a fresh attempt clears any prior error
       rendererModuleRef.current = import('./spatial/renderer3d').catch((err: unknown) => {
         rendererModuleRef.current = null
         throw err
       })
     }
     return rendererModuleRef.current
+  }, [])
+
+  // Clear a stuck 'loading' status. ensureSpatial() flips status to 'loading'
+  // the moment the chunk fetch starts, but the install is deferred until the
+  // map style is loaded — so an import that resolves before 'load', followed by
+  // a switch to 2D (whose handler then skips ensureSpatial), would otherwise
+  // leave the toggle reading "3D…" forever. Whenever we end up out of 3D with
+  // nothing installed and no error pending, reconcile back to idle.
+  const reconcileSpatialStatus = useCallback(() => {
+    if (
+      modeRef.current !== '3d' &&
+      !spatialInstalledRef.current &&
+      !spatialErroredRef.current
+    ) {
+      onSpatialStatusRef.current?.('idle')
+    }
   }, [])
 
   // Fetch the 3D chunk (idempotent) and, once the map style is loaded,
@@ -118,6 +137,10 @@ export default function MapView({
   const ensureSpatial = useCallback(
     (map: MLMap) => {
       if (spatialInstalledRef.current) return
+      // reflect the in-progress install on every attempt (initial mount, the
+      // load handler, and re-entry from 2D) — not just the first chunk fetch,
+      // so re-entering 3D mid-load shows "3D…" rather than a stale label
+      onSpatialStatusRef.current?.('loading')
       loadRendererModule()
         .then((mod) => {
           if (mapRef.current !== map || !loadedRef.current) return
@@ -146,7 +169,10 @@ export default function MapView({
           // offline / flaky connection: no white screen — the caller reverts
           // the toggle and offers a retry (which re-fetches the chunk)
           console.error('3D renderer chunk failed to load:', err)
-          if (mapRef.current === map) onSpatialStatusRef.current?.('error')
+          if (mapRef.current === map) {
+            spatialErroredRef.current = true
+            onSpatialStatusRef.current?.('error')
+          }
         })
     },
     [loadRendererModule],
@@ -259,6 +285,10 @@ export default function MapView({
         ensureTerrain(map)
         ensureSpatial(map)
       }
+      // if a pre-load 3D start kicked off the chunk fetch but the user has
+      // since dropped to 2D, the block above is skipped — clear the stuck
+      // 'loading' status now that the style is up
+      reconcileSpatialStatus()
 
       onMapReady(map)
     })
@@ -280,7 +310,12 @@ export default function MapView({
   // ---- mode switching: terrain + splats + camera posture ----
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !loadedRef.current) return
+    if (!map) return
+    // runs even before the style loads: a switch to 2D during a pre-load chunk
+    // fetch must release the 'loading' label (the rest of this effect is no-op
+    // until loaded, so the toggle would otherwise stay "3D…")
+    reconcileSpatialStatus()
+    if (!loadedRef.current) return
     if (mode === '3d') {
       ensureTerrain(map)
       // first entry kicks off the chunk fetch; once installed it's a no-op
@@ -293,7 +328,7 @@ export default function MapView({
       splatLayerRef.current?.setEnabled(false)
       map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
     }
-  }, [mode, ensureTerrain, ensureSpatial])
+  }, [mode, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
 
   // ---- ground mode: map ↔ current-conditions imagery ----
   useEffect(() => {
