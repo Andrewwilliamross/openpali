@@ -188,12 +188,28 @@ export class TileFetcher {
 
 /**
  * In-place back-to-front reorder of a node's CPU splat records by RADIAL
- * distance to the camera position (ENU). Radial keys are rotation-invariant
- * (view-axis projections reorder under pure rotation — StopThePop's popping
- * mechanism — forcing constant re-sorts mid-orbit); distance is monotonic, so
- * back-to-front blending order is preserved. 16-bit counting sort on
- * quantised depth — O(n), no allocation churn beyond two reused scratch
- * buffers.
+ * distance to the camera position (ENU). 16-bit counting sort on quantised
+ * depth — O(n), no allocation churn beyond two reused scratch buffers.
+ *
+ * Why radial, not view-axis depth (camera-forward projection): radial keys are
+ * rotation-INVARIANT — pure camera rotation never changes a point's distance to
+ * the camera position, so orbiting triggers zero re-sorts. View-axis depth is
+ * rotation-dependent and reorders mid-orbit (StopThePop's popping mechanism),
+ * which is the popping + per-node re-sort churn this layer exists to avoid.
+ *
+ * The tradeoff (review PR #2, P1): radial distance is NOT the exact alpha-
+ * compositing key. Two splats can invert vs view-depth when one is off-axis.
+ * But blending order only matters for splats that OVERLAP in screen space, and
+ * overlapping splats lie on ~the same camera ray, where radial and view-depth
+ * give identical order (along a fixed ray, radial = view-depth / cos θ, a
+ * monotonic scaling). The inversion the reviewer notes (off-axis-near vs
+ * on-axis-far) needs a wide view-angle gap, i.e. splats that do NOT overlap —
+ * their relative order is unobservable. The residual case is a very large LOD
+ * parent whose footprint spans that angle; those are few, dim post-merge
+ * (alpha p50 ≈ 35), and coarse by construction. Sorting is also per-NODE
+ * (small spatial clusters), which bounds the angular spread further. Exact
+ * order regardless of overlap needs per-pixel/tile sorting or OIT (logged as
+ * follow-up); reverting to a view-axis key would reintroduce the popping.
  */
 const scratchKeys = { keys: new Uint16Array(0), counts: new Uint32Array(65536 + 1) }
 
