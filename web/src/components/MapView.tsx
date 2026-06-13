@@ -16,22 +16,25 @@ const DEM_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{
 const DEM_ATTRIBUTION = 'Terrain: USGS 3DEP/SRTM via Mapzen terrain tiles (AWS Open Data)'
 
 // Ground imagery, two stacked sources:
-// 1. PRIMARY — LA County LARIAC7 POST-FIRE ortho (flown October 2025), the
-//    newest public capture of actual ground conditions: cleared lots, debris
-//    pads, and early reconstruction. Served as a public WMTS by the county's
-//    vendor (found inside the county's own Road-to-Recovery 3D scene; live to
-//    z21 ≈ 7 cm/px). Standard XYZ ({level}/{col}/{row} = z/x/y).
-// 2. FALLBACK — Esri World Imagery (current release) outside the LARIAC7
-//    flight footprint, so the world doesn't go blank at the coverage edge.
-//    NOTE: the world mosaic over the Palisades still shows PRE-fire structures
-//    (Wayback release dates are publish dates, not capture dates).
-const LARIAC7_TILES =
-  'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-LARIAC7--YRwyJETYPH/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
-// LARIAC7 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
-const LARIAC7_BOUNDS: [number, number, number, number] =
-  [-118.7281, 33.9275, -117.9640, 34.2096]
-const LARIAC7_ATTRIBUTION =
-  'Imagery: LA County LARIAC7 Post-Fire Ortho (Oct 2025) © EagleView/Pictometry'
+// 1. PRIMARY — EagleView "CALOSA26" 2026 mosaic from the county's public
+//    LARIAC WMTS account: the newest public capture of actual ground
+//    conditions (cleared pads AND active rebuilds). Layer id re-derived from
+//    the account's WMTS GetCapabilities (svc.pictometry.com/Image/<acct>/wmts)
+//    — that document is the source of truth when the vendor rotates keys.
+//    Full pyramid z11–21 (probe-verified). The service flaps occasionally
+//    (observed 404-at-all-zooms outages); MapLibre then falls through to the
+//    world layer below: degraded vintage, never a blank map.
+// 2. FALLBACK — Esri World Imagery (Wayback) under it, so the world doesn't
+//    go blank at the coverage edge or during vendor outages. NOTE: the world
+//    mosaic over the Palisades still shows PRE-fire structures (Wayback
+//    release dates are publish dates, not capture dates).
+const GROUND26_TILES =
+  'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-CALOSA26-WX2j52mKfq/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
+// CALOSA26-145 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
+const GROUND26_BOUNDS: [number, number, number, number] =
+  [-118.9998, 33.6569, -117.6031, 34.8690]
+const GROUND26_ATTRIBUTION =
+  'Imagery: EagleView 2026 Mosaic (LA County LARIAC WMTS)'
 const WORLD_IMAGERY_TILES =
   'https://wayback.maptiles.arcgis.com/arcgis/rest/services/world_imagery/wmts/1.0.0/default028mm/mapserver/tile/10842/{z}/{y}/{x}'
 const WORLD_IMAGERY_ATTRIBUTION =
@@ -108,11 +111,14 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       })
       map.addSource('ground-imagery', {
         type: 'raster',
-        tiles: [LARIAC7_TILES],
+        tiles: [GROUND26_TILES],
         tileSize: 256,
+        // the WMTS serves nothing below z11 (404s) — without minzoom MapLibre
+        // requests far-field low-zoom tiles at oblique pitch and logs failures
+        minzoom: 11,
         maxzoom: 21,
-        bounds: LARIAC7_BOUNDS,
-        attribution: LARIAC7_ATTRIBUTION,
+        bounds: GROUND26_BOUNDS,
+        attribution: GROUND26_ATTRIBUTION,
       })
       map.addLayer(
         {
