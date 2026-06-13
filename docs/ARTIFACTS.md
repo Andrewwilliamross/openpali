@@ -84,6 +84,30 @@ the `as_of` of the oracle fetch that produced it, our number, and the drift flag
 `ok:false` (drift >5%) is the METHODOLOGY.md data-quality condition: the UI must
 show a notice rather than silently presenting our number as truth.
 
+## coverage.json — the 3D honesty layer
+
+One entry per destroyed parcel (the FULL 5,877 universe — emitted by the
+spatial export). Every rendered 3D parcel carries its geometry provenance so a
+placeholder can never masquerade as an observation; the detail card shows the
+matching badge.
+
+```jsonc
+{
+  "4412017012": {
+    "geometry_source": "parcel_prism",   // lariac_model | footprint_extrusion
+                                          // | parcel_prism | null
+    "n_splats": 217,
+    "acquired": "2026-06-13",            // date of the underlying source data
+    "missing_reason": null                // set when geometry_source is null
+  }
+}
+```
+
+Classes: `lariac_model` (real pre-fire LARIAC scene surfels),
+`footprint_extrusion` (LARIAC footprint × published HEIGHT/ELEV, approximate),
+`parcel_prism` (county parcel polygon × default massing — a presence marker).
+The tiles `manifest.json` carries the class counts as `coverage_sources`.
+
 ## meta.json — source health, provenance, incidents
 
 ```jsonc
