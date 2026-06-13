@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Map as MLMap } from 'maplibre-gl'
-import MapView, { type GroundMode, type ViewMode } from './components/MapView'
+import MapView, { type GroundMode, type SpatialStatus, type ViewMode } from './components/MapView'
 import Header from './components/Header'
 import ParcelDetailCard from './components/spatial/ParcelDetailCard'
 import SearchBar from './components/SearchBar'
 import Legend from './components/Legend'
+import DebugHud from './components/DebugHud'
 import type { DetailsIndex, ParcelCollection, Summary } from './lib/types'
 import { centroid } from './lib/format'
 
@@ -18,7 +19,16 @@ export default function App() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [mode, setMode] = useState<ViewMode>('3d')
   const [ground, setGround] = useState<GroundMode>('sat')
+  // lifecycle of the code-split 3D renderer chunk (MapView reports it)
+  const [spatialStatus, setSpatialStatus] = useState<SpatialStatus>('idle')
   const mapRef = useRef<MLMap | null>(null)
+
+  const handleSpatialStatus = useCallback((status: SpatialStatus) => {
+    setSpatialStatus(status)
+    // chunk fetch failed (offline / flaky connection): revert the toggle so
+    // the 2D tracker keeps working; the retry chip re-arms the fetch
+    if (status === 'error') setMode('2d')
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -74,6 +84,7 @@ export default function App() {
           onMapReady={(m) => {
             mapRef.current = m
           }}
+          onSpatialStatus={handleSpatialStatus}
         />
         <SearchBar
           parcels={parcels}
@@ -82,11 +93,12 @@ export default function App() {
           onGoto={handleGoto}
         />
         <button
-          className="mode-toggle"
+          className={`mode-toggle${spatialStatus === 'loading' ? ' mode-toggle-loading' : ''}`}
           onClick={() => setMode((m) => (m === '3d' ? '2d' : '3d'))}
           aria-label="Toggle 3D view"
+          aria-busy={spatialStatus === 'loading'}
         >
-          {mode === '3d' ? '2D' : '3D'}
+          {spatialStatus === 'loading' ? '3D…' : mode === '3d' ? '2D' : '3D'}
         </button>
         <button
           className="mode-toggle ground-toggle"
@@ -97,7 +109,14 @@ export default function App() {
           {ground === 'sat' ? 'Map' : 'Sat'}
         </button>
         <Legend />
+        <DebugHud />
         {loadError && <div className="load-error">{loadError}</div>}
+        {spatialStatus === 'error' && (
+          <div className="spatial-load-error" role="alert">
+            <span>3D view failed to load.</span>
+            <button onClick={() => setMode('3d')}>Retry</button>
+          </div>
+        )}
         {selectedApn && (
           <ParcelDetailCard
             apn={selectedApn}
