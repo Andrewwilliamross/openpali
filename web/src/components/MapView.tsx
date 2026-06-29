@@ -5,15 +5,11 @@ import type { ParcelCollection } from '../lib/types'
 import { scorePaintExpression } from '../lib/colors'
 import { SplatRenderLayer } from './spatial/SplatRenderLayer'
 import { SpatialIntersector } from './spatial/spatial_intersector'
+import { resolveTerrainConfig, toDemSource } from '../lib/terrain'
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
 const TILES_BASE = `${import.meta.env.BASE_URL}tiles/palisades`
-
-// AWS Open Data terrain tiles (Mapzen terrarium). maxzoom 15 is mandatory —
-// z16 does not exist upstream and must overzoom, not 404.
-const DEM_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
-const DEM_ATTRIBUTION = 'Terrain: USGS 3DEP/SRTM via Mapzen terrain tiles (AWS Open Data)'
 
 // Ground imagery, two stacked sources:
 // 1. PRIMARY — LA County LARIAC7 POST-FIRE ortho (flown October 2025), the
@@ -49,16 +45,10 @@ interface Props {
   onMapReady: (map: MLMap) => void
 }
 
+// Terrain DEM is config-driven (see lib/terrain): default AWS terrarium, or the
+// in-footprint post-fire DTM when VITE_POSTFIRE_TERRAIN is enabled.
 function demSource(): maplibregl.RasterDEMSourceSpecification {
-  return {
-    type: 'raster-dem',
-    encoding: 'terrarium',
-    tiles: [DEM_TILES],
-    tileSize: 256,
-    minzoom: 0,
-    maxzoom: 15,
-    attribution: DEM_ATTRIBUTION,
-  }
+  return toDemSource(resolveTerrainConfig()) as maplibregl.RasterDEMSourceSpecification
 }
 
 export default function MapView({ parcels, selectedApn, mode, ground, onSelect, onMapReady }: Props) {
