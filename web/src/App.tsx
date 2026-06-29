@@ -7,8 +7,7 @@ import SearchBar from './components/SearchBar'
 import Legend from './components/Legend'
 import type { DetailsIndex, ParcelCollection, Summary } from './lib/types'
 import { centroid } from './lib/format'
-
-const BASE = import.meta.env.BASE_URL
+import { DATA_BASE } from './lib/config'
 
 export default function App() {
   const [parcels, setParcels] = useState<ParcelCollection | null>(null)
@@ -22,8 +21,8 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${BASE}data/parcels.geojson`).then((r) => r.json()),
-      fetch(`${BASE}data/summary.json`).then((r) => r.json()),
+      fetch(`${DATA_BASE}/parcels.geojson`).then((r) => r.json()),
+      fetch(`${DATA_BASE}/summary.json`).then((r) => r.json()),
     ])
       .then(([p, s]) => {
         setParcels(p)
@@ -31,7 +30,7 @@ export default function App() {
       })
       .catch(() => setLoadError('Could not load rebuild data. Try refreshing.'))
     // details are big-ish; load after first paint
-    fetch(`${BASE}data/details.json`)
+    fetch(`${DATA_BASE}/details.json`)
       .then((r) => r.json())
       .then(setDetails)
       .catch(() => {})

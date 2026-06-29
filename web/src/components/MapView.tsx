@@ -6,10 +6,10 @@ import { scorePaintExpression } from '../lib/colors'
 import { SplatRenderLayer } from './spatial/SplatRenderLayer'
 import { SpatialIntersector } from './spatial/spatial_intersector'
 import { resolveTerrainConfig, toDemSource } from '../lib/terrain'
+import { TILES_BASE } from '../lib/config'
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
-const TILES_BASE = `${import.meta.env.BASE_URL}tiles/palisades`
 
 // Ground imagery, two stacked sources:
 // 1. PRIMARY — LA County LARIAC7 POST-FIRE ortho (flown October 2025), the
