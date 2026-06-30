@@ -206,14 +206,18 @@ def validate_footprint_datum(bounds: tuple[float, float, float, float] | None = 
 # ---------------------------------------------------------------------------
 
 _RASTER_RECIPE = """\
-Post-fire DTM -> ellipsoidal COG -> terrarium tile pyramid (run where GDAL exists):
+Post-fire DTM -> ellipsoidal COG -> TERRARIUM {z}/{x}/{y}.png pyramid (run where
+GDAL exists). The encoding MUST be terrarium and the delivery MUST be XYZ PNG, to
+match the frontend default (web/src/lib/terrain.ts) and this module's
+encode/decode_terrarium. Do NOT use mapbox terrain-rgb (-b/-i) here — the client
+would decode it as terrarium and read garbage elevations.
 
   # 0. fetch the burn-footprint DTM tiles (anonymous) and mosaic
   aws s3 cp --no-sign-request --recursive \\
     s3://prd-tnm/CA_FireImpactZone_2025_PRELIMINARY/Palisades/<dtm prefix>/ ./src/
   gdalbuildvrt dtm.vrt ./src/*.tif
 
-  # 1. reproject to WebMercator AND lift NAVD88/GEOID18 -> WGS84 ellipsoidal in one warp
+  # 1. reproject to WebMercator AND lift NAVD88/GEOID18 -> WGS84 ellipsoidal
   gdalwarp -s_srs "EPSG:6340+5703" -t_srs "EPSG:4979" -r bilinear dtm.vrt dtm_ellip_4979.tif
   gdalwarp -t_srs EPSG:3857 -te_srs EPSG:4326 -te <minlon> <minlat> <maxlon> <maxlat> \\
     dtm_ellip_4979.tif dtm_ellip_3857.tif
@@ -222,13 +226,21 @@ Post-fire DTM -> ellipsoidal COG -> terrarium tile pyramid (run where GDAL exist
   rio cogeo create --cog-profile deflate --co PREDICTOR=3 --co BLOCKSIZE=512 \\
     dtm_ellip_3857.tif palisades_postfire_dtm_ellipsoidal.cog.tif
 
-  # 3. terrarium tile pyramid (LOSSLESS png) -> PMTiles for range-request delivery
-  rio rgbify -b -10000 -i 0.1 --format png --max-z <maxzoom> --min-z <minzoom> \\
+  # 3. TERRARIUM tile pyramid, lossless PNG (note: --encoding terrarium, NOT -b/-i)
+  rio rgbify --encoding terrarium --format png --min-z <minzoom> --max-z <maxzoom> \\
     palisades_postfire_dtm_ellipsoidal.cog.tif dtm_terrarium.mbtiles
-  pmtiles convert dtm_terrarium.mbtiles palisades_postfire_dtm.pmtiles
 
-Upload the COG + PMTiles/tiles to object storage and point VITE_POSTFIRE_TERRAIN_URL
-at them. Do NOT commit the tiles to git.
+  # 4. explode to {z}/{x}/{y}.png — the XYZ layout lib/terrain.ts toDemSource expects
+  mb-util --image_format=png dtm_terrarium.mbtiles ./dtm_tiles/
+
+Upload ./dtm_tiles/ to object storage; point VITE_POSTFIRE_TERRAIN_URL at
+<store>/{z}/{x}/{y}.png and keep VITE_POSTFIRE_TERRAIN_ENCODING=terrarium (default).
+Do NOT commit tiles to git.
+
+(Alternative delivery: pack as PMTiles for serverless range requests — but that
+needs the pmtiles protocol registered in the frontend, which is out of scope here.
+If you switch to PMTiles + mapbox encoding, set VITE_POSTFIRE_TERRAIN_ENCODING=mapbox
+so the client and tiles agree.)
 """
 
 

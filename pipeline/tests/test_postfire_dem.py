@@ -116,6 +116,18 @@ def test_write_terrain_manifest(tmp_path):
 # ---------------------------------------------------------------------------
 
 
+def test_recipe_encoding_matches_frontend_default():
+    # the heavy-build recipe MUST produce what lib/terrain.ts consumes: terrarium
+    # encoding, XYZ {z}/{x}/{y}.png tiles — never mapbox terrain-rgb (-b/-i), which
+    # the client would mis-decode as terrarium.
+    recipe = pd._RASTER_RECIPE
+    plan = pd.plan_terrain_build(web_tiles_url="https://cdn.x/dtm/{z}/{x}/{y}.png")
+    assert pd.terrain_manifest(plan)["encoding"] == "terrarium"
+    assert "--encoding terrarium" in recipe
+    assert "{z}/{x}/{y}.png" in recipe
+    assert "-b -10000" not in recipe and "-i 0.1" not in recipe
+
+
 def test_generate_terrain_tiles_fails_loudly_without_toolchain():
     plan = pd.plan_terrain_build(web_tiles_url="x")
     # the raster toolchain is intentionally absent from the core deps
