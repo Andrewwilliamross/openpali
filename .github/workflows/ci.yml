@@ -42,3 +42,29 @@ jobs:
 
       - name: Validate Dagster code location
         run: uv run --group orchestration dagster definitions validate -f orchestration/definitions.py
+
+  web:
+    name: web build + tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        # lint is intentionally NOT run yet: it has pre-existing failures on main.

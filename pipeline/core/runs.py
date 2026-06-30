@@ -24,7 +24,14 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-RUNS_DIR = pathlib.Path(__file__).resolve().parents[2] / "data" / "runs"
+# Default is repo-local for dev; production points OPENPALI_RUNS_DIR at a mounted
+# durable volume / object-storage path so run + data-quality history survives.
+_DEFAULT_RUNS_DIR = pathlib.Path(__file__).resolve().parents[2] / "data" / "runs"
+RUNS_DIR = (
+    pathlib.Path(os.environ["OPENPALI_RUNS_DIR"])
+    if os.environ.get("OPENPALI_RUNS_DIR")
+    else _DEFAULT_RUNS_DIR
+)
 
 _SCALAR = (int, float, str, bool)
 

@@ -41,7 +41,13 @@ from core.spatial.web_export import export_web_tiles
 from palisades import emit, sources, validate
 from palisades.score import score_all
 
-OFFLINE = bool(os.environ.get("OPENPALI_OFFLINE"))
+def _env_truthy(name: str) -> bool:
+    """Explicit truthy parse — `OPENPALI_OFFLINE=0`/`false` must mean OFF, not
+    'any non-empty string is truthy'."""
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+
+
+OFFLINE = _env_truthy("OPENPALI_OFFLINE")
 TTL = 1e9 if OFFLINE else 12.0
 OUT_DIR = pathlib.Path(os.environ["OPENPALI_OUT_DIR"]) if os.environ.get("OPENPALI_OUT_DIR") else None  # None -> emit default
 
