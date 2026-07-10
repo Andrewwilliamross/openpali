@@ -36,7 +36,7 @@ import {
   type SplatTileset,
   type TilesetManifest,
 } from './tileset'
-import { NodeTextureManager } from './texturing'
+import { NodeTextureManager, textureFade } from './texturing'
 import type { SpatialIntersector } from './spatial_intersector'
 
 const SSE_THRESHOLD_PX = 14
@@ -326,7 +326,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     try {
       elev = map.queryTerrainElevation([lon, lat])
     } catch {
-      elev = null
+      // The DEM may not have a sample for this node yet.
     }
     const baseAMSL = this.originAltAMSL() + node.baseZ
     if (elev === null) {
@@ -496,7 +496,12 @@ export class SplatRenderLayer implements CustomLayerInterface {
           m.origin.lon, m.origin.lat)
         if (binding) {
           gl2.bindTexture(gl2.TEXTURE_2D, binding.texture)
-          gl2.uniform1f(this.uniforms.u_hasTex, 1)
+          // The aerial image can arrive long after its geometry has faded in.
+          // Cross-fade it from the score tint rather than replacing a whole
+          // octree node's colour in one frame.
+          const imageFade = textureFade(now, binding.readyAt, FADE_MS)
+          if (imageFade < 1) animating = true
+          gl2.uniform1f(this.uniforms.u_hasTex, imageFade)
           gl2.uniform2f(this.uniforms.u_texOrigin, binding.originEnu[0], binding.originEnu[1])
           gl2.uniform2f(this.uniforms.u_texInvSize, binding.invSizeEnu[0], binding.invSizeEnu[1])
           bound = true
@@ -576,7 +581,9 @@ export class SplatRenderLayer implements CustomLayerInterface {
         gl.bindBuffer(gl.ARRAY_BUFFER, null)
       }
     }
-    if (stale.length > batch.length) this.map?.triggerRepaint()
+    // The last batch has changed GPU data too. Without its own repaint, a
+    // stopped camera can keep showing the pre-sort blend order indefinitely.
+    if (batch.length > 0) this.map?.triggerRepaint()
   }
 
   /** LRU eviction keeps pooled GPU residency under the byte cap. */

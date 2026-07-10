@@ -33,7 +33,7 @@ uniform vec2 u_viewport;    // framebuffer pixels
 uniform float u_fade;       // temporal fade-in [0..1]
 uniform float u_zOffset;    // terrain clamp, metres ENU up
 // projective texturing (per node): texture rect in ENU metres
-uniform float u_hasTex;     // 1.0 when an aerial texture is bound for this node
+uniform float u_hasTex;     // aerial texture cross-fade [0 score tint .. 1 image]
 uniform vec2 u_texOrigin;   // [west edge X, NORTH edge Y] of the texture rect
 uniform vec2 u_texInvSize;  // [1/widthM, 1/heightM]
 

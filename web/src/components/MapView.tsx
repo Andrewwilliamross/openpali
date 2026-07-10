@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
 import { scorePaintExpression } from '../lib/colors'
+import { geometryAreaM2, largeParcelVisualWeight } from '../lib/parcelPresentation'
 import { SplatRenderLayer } from './spatial/SplatRenderLayer'
 import { SpatialIntersector } from './spatial/spatial_intersector'
 import { resolveTerrainConfig, toDemSource } from '../lib/terrain'
@@ -32,6 +33,8 @@ const WORLD_IMAGERY_TILES =
   'https://wayback.maptiles.arcgis.com/arcgis/rest/services/world_imagery/wmts/1.0.0/default028mm/mapserver/tile/10842/{z}/{y}/{x}'
 const WORLD_IMAGERY_ATTRIBUTION =
   'Esri World Imagery — Esri, Vantor, Earthstar Geographics'
+const LAYER_TRANSITION_MS = 220
+const VISUAL_WEIGHT_PROPERTY = '__visual_weight'
 
 export type ViewMode = '2d' | '3d'
 export type GroundMode = 'map' | 'sat'
@@ -59,9 +62,29 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
   const splatLayerRef = useRef<SplatRenderLayer | null>(null)
   const intersectorRef = useRef<SpatialIntersector | null>(null)
   const modeRef = useRef<ViewMode>(mode)
-  modeRef.current = mode
   const groundRef = useRef<GroundMode>(ground)
-  groundRef.current = ground
+  useEffect(() => {
+    modeRef.current = mode
+  }, [mode])
+  useEffect(() => {
+    groundRef.current = ground
+  }, [ground])
+  // The fire footprint includes legitimate acreage parcels (parks, canyons,
+  // coastal easements). Keep them interactive and scored, but reduce their
+  // visual weight so they do not blanket the lot-level layer at overview zooms.
+  const renderedParcels = useMemo<ParcelCollection | null>(() => {
+    if (!parcels) return null
+    return {
+      ...parcels,
+      features: parcels.features.map((feature) => ({
+        ...feature,
+        properties: {
+          ...feature.properties,
+          [VISUAL_WEIGHT_PROPERTY]: largeParcelVisualWeight(geometryAreaM2(feature.geometry)),
+        },
+      })),
+    }
+  }, [parcels])
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -109,8 +132,7 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
           id: 'ground-imagery-world',
           type: 'raster',
           source: 'ground-imagery-world',
-          layout: { visibility: groundRef.current === 'sat' ? 'visible' : 'none' },
-          paint: { 'raster-opacity': 1 },
+          paint: { 'raster-opacity': groundRef.current === 'sat' ? 1 : 0 },
         },
         firstSymbolLayerId(map),
       )
@@ -119,8 +141,7 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
           id: 'ground-imagery',
           type: 'raster',
           source: 'ground-imagery',
-          layout: { visibility: groundRef.current === 'sat' ? 'visible' : 'none' },
-          paint: { 'raster-opacity': 1 },
+          paint: { 'raster-opacity': groundRef.current === 'sat' ? 1 : 0 },
         },
         firstSymbolLayerId(map),
       )
@@ -207,47 +228,51 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
   // ---- ground mode: map ↔ current-conditions imagery ----
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !loadedRef.current || !map.getLayer('ground-imagery')) return
+    if (!map || !loadedRef.current) return
+    const imageryOpacity = ground === 'sat' ? 1 : 0
     for (const id of ['ground-imagery', 'ground-imagery-world']) {
       if (map.getLayer(id)) {
-        map.setLayoutProperty(id, 'visibility', ground === 'sat' ? 'visible' : 'none')
+        map.setPaintProperty(id, 'raster-opacity-transition', {
+          duration: LAYER_TRANSITION_MS,
+        } as never)
+        map.setPaintProperty(id, 'raster-opacity', imageryOpacity)
       }
     }
-    // over imagery the score fills read better slightly lighter
+    // Over imagery the score fills read better slightly lighter. The same
+    // transition avoids a one-frame intensity pop when switching ground modes.
     if (map.getLayer('parcel-fill')) {
-      map.setPaintProperty('parcel-fill', 'fill-opacity', [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        0.92,
-        ground === 'sat' ? 0.45 : 0.55,
-      ] as never)
+      map.setPaintProperty('parcel-fill', 'fill-opacity-transition', {
+        duration: LAYER_TRANSITION_MS,
+      } as never)
+      map.setPaintProperty('parcel-fill', 'fill-opacity', parcelFillOpacity(ground) as never)
+    }
+    if (map.getLayer('parcel-line')) {
+      map.setPaintProperty('parcel-line', 'line-opacity-transition', {
+        duration: LAYER_TRANSITION_MS,
+      } as never)
+      map.setPaintProperty('parcel-line', 'line-opacity', parcelLineOpacity(ground) as never)
     }
   }, [ground])
 
   // ---- parcel source/layers ----
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !parcels) return
+    if (!map || !renderedParcels) return
 
     const install = () => {
       hoveredRef.current = null
       if (map.getSource('parcels')) {
-        ;(map.getSource('parcels') as maplibregl.GeoJSONSource).setData(parcels)
+        ;(map.getSource('parcels') as maplibregl.GeoJSONSource).setData(renderedParcels)
         return
       }
-      map.addSource('parcels', { type: 'geojson', data: parcels, promoteId: 'apn' })
+      map.addSource('parcels', { type: 'geojson', data: renderedParcels, promoteId: 'apn' })
       map.addLayer({
         id: 'parcel-fill',
         type: 'fill',
         source: 'parcels',
         paint: {
           'fill-color': scorePaintExpression() as never,
-          'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0.92,
-            0.55,
-          ] as never,
+          'fill-opacity': parcelFillOpacity(groundRef.current) as never,
         },
       })
       map.addLayer({
@@ -257,7 +282,7 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
         paint: {
           'line-color': scorePaintExpression() as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
-          'line-opacity': 0.9,
+          'line-opacity': parcelLineOpacity(groundRef.current) as never,
         },
       })
       map.addLayer({
@@ -287,23 +312,26 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       })
 
       // click routing: in 3D, ray-pick the building prisms first; the draped
-      // parcel polygons are the fallback (and the 2D path)
+      // parcel polygons are the fallback (and the 2D path). Some spatial
+      // assets were generated from a different parcel snapshot, so when both
+      // layers resolve a click, prefer the current parcel under the cursor.
       map.on('click', (e) => {
+        const hits = map.queryRenderedFeatures(e.point, { layers: ['parcel-fill'] })
+        const parcelApn = hits.length ? String(hits[0].properties.apn) : null
         if (modeRef.current === '3d' && intersectorRef.current?.ready) {
           const hit = intersectorRef.current.pick(map, e.point)
-          if (hit) {
+          if (hit && (!parcelApn || hit.apn === parcelApn)) {
             onSelect(hit.apn)
             return
           }
         }
-        const hits = map.queryRenderedFeatures(e.point, { layers: ['parcel-fill'] })
-        onSelect(hits.length ? String(hits[0].properties.apn) : null)
+        onSelect(parcelApn)
       })
     }
 
     if (loadedRef.current) install()
     else map.once('load', install)
-  }, [parcels, onSelect])
+  }, [renderedParcels, onSelect])
 
   // selection highlight
   useEffect(() => {
@@ -313,6 +341,27 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
   }, [selectedApn])
 
   return <div ref={containerRef} className="map-container" />
+}
+
+function parcelFillOpacity(ground: GroundMode): unknown[] {
+  return [
+    'case',
+    ['boolean', ['feature-state', 'hover'], false],
+    0.92,
+    [
+      '*',
+      ground === 'sat' ? 0.45 : 0.55,
+      ['coalesce', ['get', VISUAL_WEIGHT_PROPERTY], 1],
+    ],
+  ]
+}
+
+function parcelLineOpacity(ground: GroundMode): unknown[] {
+  return [
+    '*',
+    ground === 'sat' ? 0.7 : 0.82,
+    ['coalesce', ['get', VISUAL_WEIGHT_PROPERTY], 1],
+  ]
 }
 
 function firstSymbolLayerId(map: MLMap): string | undefined {
