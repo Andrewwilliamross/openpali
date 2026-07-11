@@ -9,10 +9,13 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
+import uuid
 from datetime import date, datetime, timezone
+from pathlib import Path
 
-from palisades import emit, sources, validate
+from palisades import checks, emit, provenance, sources, validate
 from palisades.score import score_all
 
 
@@ -22,6 +25,11 @@ def main() -> int:
     ap.add_argument("--no-validate", action="store_true")
     args = ap.parse_args()
     ttl = 1e9 if args.offline else 12.0
+
+    run_id = uuid.uuid4().hex[:12]
+    started = datetime.now(timezone.utc).replace(microsecond=0)
+    snapshot_id = f"{started.strftime('%Y%m%dT%H%M%SZ')}-{run_id[:6]}"
+    provenance.reset()
 
     print("→ fetching + normalizing sources …")
     parcels = sources.build_parcels(ttl_hours=ttl)
@@ -44,16 +52,15 @@ def main() -> int:
     print("  coarse parcels:", sum(1 for p in parcels if p.coarse))
 
     baselines = []
-    if not args.no_validate and not args.offline:
-        print("→ validating against LADBS oracle …")
+    if not args.no_validate:
+        # live: always re-query the oracle fresh; offline: reuse cached oracle
+        # responses so reconciliation is never silently skipped.
+        print(f"→ validating against official oracle ({'cache' if args.offline else 'live'}) …")
         try:
-            baselines = validate.oracle_baselines()
+            baselines = validate.oracle_baselines(ttl_hours=ttl if args.offline else 0.0)
         except Exception as e:  # noqa: BLE001 - validation must never block emit
             print(f"  validation skipped ({e})", file=sys.stderr)
 
-    print("→ emitting artifacts …")
-    # emit needs the GeoJSON property dicts for reconciliation
-    from palisades.model import STAGE_LABELS
     prop_dicts = [
         {"apn": p.apn, "jurisdiction": p.jurisdiction, "stage": p.stage}
         for p in parcels
@@ -65,20 +72,35 @@ def main() -> int:
             flag = "✓" if r["ok"] else "⚠"
             print(f"    {flag} {r['metric']:32s} official={r['official']:>5} ours={r['ours']!s:>5} drift={r['drift_pct']}%")
 
-    source_meta = [
-        {"id": "county_base", "as_of": _today_iso(), "ok": True, "records": len(parcels),
-         "note": "LA County Parcels Debris Removal (destroyed)"},
-        {"id": "ladbs_permits", "as_of": _today_iso(), "ok": True,
-         "records": sum(len(p.permits) for p in parcels), "note": "LADBS Palisades Recovery"},
-    ]
-    result = emit.emit_all(parcels, baselines=recon, source_meta=source_meta)
+    print("→ expectation gates …")
+    source_meta = sources.source_health()
+    prev_summary = _read_json(emit.OUT_DIR / "summary.json")
+    prev_meta = _read_json(emit.OUT_DIR / "meta.json")
+    incidents = checks.run_gates(parcels, source_meta, recon, prev_summary, prev_meta)
+    for i in incidents:
+        print(f"  [{i['level']}] {i['code']}: {i['message']}")
+    if not incidents:
+        print("  all gates clean")
+    if checks.has_errors(incidents):
+        print("✗ expectation gates failed — artifacts NOT updated", file=sys.stderr)
+        return 2
+
+    print("→ emitting artifacts …")
+    result = emit.emit_all(
+        parcels, baselines=recon, source_meta=source_meta, incidents=incidents,
+        run_id=run_id, snapshot_id=snapshot_id,
+    )
     print(f"  wrote {result['features']} features; totals: {result['totals']}")
+    print(f"  snapshot {snapshot_id} (run {run_id})")
     print("✓ done")
     return 0
 
 
-def _today_iso() -> str:
-    return datetime.now(timezone.utc).date().isoformat()
+def _read_json(path: Path) -> dict | None:
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
 
 
 if __name__ == "__main__":

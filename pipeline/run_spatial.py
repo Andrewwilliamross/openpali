@@ -30,6 +30,9 @@ def main() -> int:
     print(f"priors extracted  {j['priors_extracted']} (+{j['priors_footprint_fallback']} footprint fallback)")
     print(f"static baseline   {j['static_baseline']}")
     print(f"stale cached      {j['stale_cached']}")
+    print(f"renderable        {j['renderable_existing']} existing, "
+          f"+{j['renderable_extrusions']} extrusions, +{j['renderable_prisms']} prisms, "
+          f"{j['renderable_skipped']} skipped")
     print(f"anomalies         {len(j['anomalies'])}")
     for a in j["anomalies"][:8]:
         print(f"  ⚠ {a['source']}: {a['error'][:120]}")

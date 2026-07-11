@@ -1,19 +1,96 @@
 {
- "generated": "2026-06-11T04:27:53+00:00",
+ "generated": "2026-06-11T23:33:50+00:00",
+ "run_id": "db750ef15f69",
+ "snapshot_id": "20260611T233350Z-db750e",
  "sources": [
   {
    "id": "county_base",
-   "as_of": "2026-06-11",
+   "as_of": "2026-06-10",
    "ok": true,
    "records": 5877,
-   "note": "LA County Parcels Debris Removal (destroyed)"
+   "note": "LA County Parcels Debris Removal (destroyed)",
+   "endpoint": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0",
+   "query": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'",
+   "joined": 5877,
+   "sha256": "b0ae1f61009aba64a21cdf92eb08a6b559a5dc3e447dffe26bb3945d7440e925",
+   "schema_fingerprint": "4465489b6e26fdcc",
+   "requests": 6,
+   "bytes": 7790158,
+   "cache_hits": 6,
+   "fetched_at": "2026-06-10T18:39:15+00:00"
   },
   {
    "id": "ladbs_permits",
+   "as_of": "2026-06-10",
+   "ok": true,
+   "records": 4861,
+   "note": "LADBS Palisades Recovery",
+   "endpoint": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0",
+   "query": "1=1",
+   "joined": 4596,
+   "sha256": "b07b37f1799552db3b6668d8f1459ffdcbd472eb5d3556d954c709d8dcc5f203",
+   "schema_fingerprint": "3a140097f78a8a18",
+   "requests": 5,
+   "bytes": 2052627,
+   "cache_hits": 5,
+   "fetched_at": "2026-06-10T18:39:18+00:00",
+   "unparseable": 19,
+   "parcels_matched": 1625
+  },
+  {
+   "id": "inspections",
+   "as_of": "2026-06-10",
+   "ok": true,
+   "records": 1014,
+   "note": "LA City Wildfire Recovery inspections",
+   "endpoint": "https://maps.lacity.org/lahub/rest/services/WildfireRecovery/MapServer/4",
+   "query": "1=1",
+   "joined": 833,
+   "sha256": "a631aee15d7a207107d4696a23280594b829018e7e4415a23baa9e14e4869a09",
+   "schema_fingerprint": "43c1a53b3654e1e9",
+   "requests": 2,
+   "bytes": 146326,
+   "cache_hits": 2,
+   "fetched_at": "2026-06-10T18:39:19+00:00"
+  },
+  {
+   "id": "malibu_dash",
+   "as_of": "2026-06-10",
+   "ok": true,
+   "records": 264,
+   "note": "Malibu rebuild dashboard markers (unofficial)",
+   "endpoint": "https://mlb-pptsrv.ci.malibu.ca.us/Home/GetProjectDashMarkers?sFireView=PalisadesRebuildStatsDetailWithBPComplete",
+   "query": null,
+   "joined": 260,
+   "sha256": "39f1db9233a8b29cbda15874c5dc36b72af8fb759e235bc040a2ca19be67f821",
+   "schema_fingerprint": "23f8f3c186589b8a",
+   "requests": 1,
+   "bytes": 52287,
+   "cache_hits": 1,
+   "fetched_at": "2026-06-10T18:39:19+00:00"
+  },
+  {
+   "id": "socrata_links",
    "as_of": "2026-06-11",
    "ok": true,
-   "records": 4596,
-   "note": "LADBS Palisades Recovery"
+   "records": 3926,
+   "note": "City open-data permit deep-link presence",
+   "endpoint": "https://data.lacity.org/resource/gwh9-jnip.json",
+   "query": "permit_nbr in(<permit numbers>)",
+   "joined": null,
+   "sha256": "0d2eb8aa5f5b247134bd8384b23147d8087f606a233266eddf6d22dacae35aa7",
+   "schema_fingerprint": null,
+   "requests": 23,
+   "bytes": 145264,
+   "cache_hits": 23,
+   "fetched_at": "2026-06-11T04:27:53+00:00",
+   "requested": 4596
   }
- ]
+ ],
+ "incidents": [],
+ "artifacts": {
+  "parcels.geojson": "0f7b4f08a35f419004616fef9cb13c6788c274d86a3bb9c7ecf1ef0f61ad999b",
+  "details.json": "e32d07737ff280fae33957ed78db95ae0afdab141899b639dd34a38e6070ba43",
+  "summary.json": "f41e22301495f00d0876ece23aa3e89cb3760e896bb0dfb724519ed17554bc95"
+ }
 }

@@ -15,7 +15,7 @@ from datetime import date
 
 import httpx
 
-from . import arcgis
+from . import arcgis, provenance
 from .apn import normalize_apn
 from .dates import from_epoch_ms, from_oracle
 from .http import USER_AGENT, cached_get_json
@@ -114,20 +114,26 @@ def fetch_destroyed_parcels(ttl_hours: float = 12.0) -> dict[str, Parcel]:
         "REBUILD_PROGRESS,USETYPE,USEDESCRIPTION,YEARBUILT1,SQFTMAIN1,BEDROOMS1,BATHROOMS1,"
         "UNITS1,TOTAL_UNITS"
     )
-    feats = arcgis.query_layer(
-        BASE_LAYER, DESTROYED_WHERE, out_fields=out_fields, return_geometry=True,
-        out_sr=4326, f="geojson", page_size=1000, ttl_hours=ttl_hours,
-    )
+    with provenance.source("county_base"):
+        feats = arcgis.query_layer(
+            BASE_LAYER, DESTROYED_WHERE, out_fields=out_fields, return_geometry=True,
+            out_sr=4326, f="geojson", page_size=1000, ttl_hours=ttl_hours,
+        )
     parcels: dict[str, Parcel] = {}
-    skipped = 0
+    unparseable = duplicates = no_geometry = 0
+    unknown_progress: set[str] = set()
     for f in feats:
         a = _attrs(f)
         apn = normalize_apn(a.get("APN") or a.get("AIN"))
-        if not apn or apn in parcels:
-            skipped += 1 if not apn else 0
+        if not apn:
+            unparseable += 1
+            continue
+        if apn in parcels:
+            duplicates += 1
             continue
         geom = f.get("geometry")
         if not geom:
+            no_geometry += 1
             continue
         lon, lat = a.get("CENTER_LON"), a.get("CENTER_LAT")
         juris = _JURIS.get(a.get("LCITY"), "COUNTY")
@@ -169,24 +175,42 @@ def fetch_destroyed_parcels(ttl_hours: float = 12.0) -> dict[str, Parcel]:
             if cs is not None:
                 p.coarse = True
                 p.coarse_stage = cs
+            elif prog:
+                unknown_progress.add(prog)
         parcels[apn] = p
-    if skipped:
-        print(f"  warning: {skipped} destroyed features had an unparseable APN and were skipped")
+    if unparseable:
+        print(f"  warning: {unparseable} destroyed features had an unparseable APN and were skipped")
+    if no_geometry:
+        print(f"  warning: {no_geometry} destroyed features had no geometry and were skipped")
+    provenance.set_stats(
+        "county_base",
+        endpoint=BASE_LAYER, query=DESTROYED_WHERE,
+        rows=len(feats), joined=len(parcels),
+        unparseable=unparseable, duplicates=duplicates, no_geometry=no_geometry,
+        unknown_labels=sorted(unknown_progress),
+        schema_fingerprint=provenance.schema_fingerprint(_attrs(f) for f in feats),
+        ok=True,
+    )
     return parcels
 
 
 def attach_ladbs_permits(parcels: dict[str, Parcel], ttl_hours: float = 12.0) -> dict[str, str]:
     """City-of-LA permit timeline. Returns a PERMIT->APN map for inspection joins."""
-    feats = arcgis.query_layer(
-        LADBS_LAYER, "1=1",
-        out_fields="PERMIT,APN,ADDRESS,PERMIT_TYPE,PERMIT_SUBTYPE,TYPE,PERMIT_STATUS,"
-        "SUBMIT_DATE,PC_APPROVED_DATE,ISSUE_DATE,COFO_DATE,STATUS_DATE,PALISADES_WF_REBUILD",
-        return_geometry=False, page_size=1000, ttl_hours=ttl_hours,
-    )
+    with provenance.source("ladbs_permits"):
+        feats = arcgis.query_layer(
+            LADBS_LAYER, "1=1",
+            out_fields="PERMIT,APN,ADDRESS,PERMIT_TYPE,PERMIT_SUBTYPE,TYPE,PERMIT_STATUS,"
+            "SUBMIT_DATE,PC_APPROVED_DATE,ISSUE_DATE,COFO_DATE,STATUS_DATE,PALISADES_WF_REBUILD",
+            return_geometry=False, page_size=1000, ttl_hours=ttl_hours,
+        )
     permit_to_apn: dict[str, str] = {}
+    unparseable = permits_attached = 0
+    matched_apns: set[str] = set()
     for f in feats:
         a = _attrs(f)
         apn = normalize_apn(a.get("APN"))
+        if not apn and a.get("APN"):
+            unparseable += 1
         permit_no = (a.get("PERMIT") or "").strip()
         if permit_no and apn:
             permit_to_apn[permit_no] = apn
@@ -213,6 +237,8 @@ def attach_ladbs_permits(parcels: dict[str, Parcel], ttl_hours: float = 12.0) ->
             no=permit_no, type=ptype, status=a.get("PERMIT_STATUS") or a.get("TYPE") or "",
             submitted=submit, issued=issue, valuation=None, url=None,
         ))
+        permits_attached += 1
+        matched_apns.add(apn)
         # Stage-advancing events come ONLY from new-building permits. Ancillary
         # permits (pool, demo, grading, additions) appear as permit records on the
         # card but never advance the lot's rebuild stage.
@@ -227,17 +253,27 @@ def attach_ladbs_permits(parcels: dict[str, Parcel], ttl_hours: float = 12.0) ->
                 p.events.append(Event(issue, "permit_issued", "Building permit issued", ref=permit_no))
             if cofo:
                 p.events.append(Event(cofo, "cofo", "Certificate of Occupancy issued", ref=permit_no))
+    provenance.set_stats(
+        "ladbs_permits",
+        endpoint=LADBS_LAYER, query="1=1",
+        rows=len(feats), joined=permits_attached, parcels_matched=len(matched_apns),
+        unparseable=unparseable,
+        schema_fingerprint=provenance.schema_fingerprint(_attrs(f) for f in feats),
+        ok=True,
+    )
     return permit_to_apn
 
 
 def attach_inspections(parcels: dict[str, Parcel], permit_to_apn: dict[str, str],
                        ttl_hours: float = 12.0) -> None:
     """Current construction milestone per permit -> stage-4 position."""
-    feats = arcgis.query_layer(
-        INSPECTION_TABLE, "1=1",
-        out_fields="PERMIT,INSP_DT,INSP_DESC,INSP_STATUS",
-        return_geometry=False, page_size=1000, ttl_hours=ttl_hours,
-    )
+    with provenance.source("inspections"):
+        feats = arcgis.query_layer(
+            INSPECTION_TABLE, "1=1",
+            out_fields="PERMIT,INSP_DT,INSP_DESC,INSP_STATUS",
+            return_geometry=False, page_size=1000, ttl_hours=ttl_hours,
+        )
+    joined = 0
     for f in feats:
         a = _attrs(f)
         permit_no = (a.get("PERMIT") or "").strip()
@@ -254,27 +290,53 @@ def attach_inspections(parcels: dict[str, Parcel], permit_to_apn: dict[str, str]
             f"{a.get('INSP_DESC')} inspection ({a.get('INSP_STATUS', 'scheduled').lower()})",
             milestone=milestone,
         ))
+        joined += 1
+    provenance.set_stats(
+        "inspections",
+        endpoint=INSPECTION_TABLE, query="1=1",
+        rows=len(feats), joined=joined,
+        schema_fingerprint=provenance.schema_fingerprint(_attrs(f) for f in feats),
+        ok=True,
+    )
 
 
 def attach_malibu_markers(parcels: dict[str, Parcel], ttl_hours: float = 12.0) -> None:
     """Malibu coarse stage from the city rebuild dashboard marker feed."""
     try:
-        data = cached_get_json(MALIBU_MARKERS, ttl_hours=ttl_hours)
-    except (httpx.HTTPError, ValueError):
-        return  # unofficial endpoint; degrade gracefully if shape/host changes
-    for m in data if isinstance(data, list) else []:
+        with provenance.source("malibu_dash"):
+            data = cached_get_json(MALIBU_MARKERS, ttl_hours=ttl_hours)
+    except (httpx.HTTPError, ValueError) as e:
+        # unofficial endpoint; degrade gracefully if shape/host changes
+        provenance.set_stats("malibu_dash", endpoint=MALIBU_MARKERS, query=None,
+                             rows=0, joined=0, ok=False, error=str(e) or type(e).__name__)
+        return
+    rows = data if isinstance(data, list) else []
+    joined = 0
+    unknown_shapes: set[str] = set()
+    for m in rows:
         apn = normalize_apn(m.get("apn"))
         p = parcels.get(apn) if apn else None
         if not p:
             continue
         stage = _MALIBU_STAGE.get(m.get("iconShape"))
         if stage is None:
+            if m.get("iconShape"):
+                unknown_shapes.add(str(m["iconShape"]))
             continue
         # Only set coarse stage if we don't already have richer (LADBS) data.
         if not p.coarse and any(e.kind in ("permit_issued", "cofo") for e in p.events):
             continue
         p.coarse = True
         p.coarse_stage = max(stage, p.coarse_stage or 0)
+        joined += 1
+    provenance.set_stats(
+        "malibu_dash",
+        endpoint=MALIBU_MARKERS, query=None,
+        rows=len(rows), joined=joined,
+        unknown_labels=sorted(unknown_shapes),
+        schema_fingerprint=provenance.schema_fingerprint(rows),
+        ok=True,
+    )
 
 
 def socrata_permit_presence(permit_nos: set[str], ttl_hours: float = 12.0) -> set[str]:
@@ -283,20 +345,30 @@ def socrata_permit_presence(permit_nos: set[str], ttl_hours: float = 12.0) -> se
     queries against gwh9-jnip; each chunk is independently cached."""
     found: set[str] = set()
     nos = sorted(n for n in permit_nos if n)
+    failed_chunks = 0
     for i in range(0, len(nos), 200):
         chunk = nos[i : i + 200]
         inlist = "','".join(chunk)
         try:
-            rows = cached_get_json(
-                f"https://data.lacity.org/resource/{SOCRATA_PERMIT_DATASET}.json",
-                {"$select": "permit_nbr", "$where": f"permit_nbr in('{inlist}')", "$limit": 5000},
-                ttl_hours=ttl_hours,
-            )
+            with provenance.source("socrata_links"):
+                rows = cached_get_json(
+                    f"https://data.lacity.org/resource/{SOCRATA_PERMIT_DATASET}.json",
+                    {"$select": "permit_nbr", "$where": f"permit_nbr in('{inlist}')", "$limit": 5000},
+                    ttl_hours=ttl_hours,
+                )
         except (httpx.HTTPError, ValueError):
+            failed_chunks += 1
             continue  # never let a verification lookup break the build
         for r in rows:
             if r.get("permit_nbr"):
                 found.add(r["permit_nbr"])
+    provenance.set_stats(
+        "socrata_links",
+        endpoint=f"https://data.lacity.org/resource/{SOCRATA_PERMIT_DATASET}.json",
+        query="permit_nbr in(<permit numbers>)",
+        rows=len(found), requested=len(nos), failed_chunks=failed_chunks,
+        ok=failed_chunks == 0,
+    )
     return found
 
 
@@ -318,3 +390,50 @@ def build_parcels(ttl_hours: float = 12.0) -> list[Parcel]:
                 linked += 1
     print(f"  official-record links: {linked}/{len(all_permits)} permits resolve in open data")
     return list(parcels.values())
+
+
+_SOURCE_NOTES = {
+    "county_base": "LA County Parcels Debris Removal (destroyed)",
+    "ladbs_permits": "LADBS Palisades Recovery",
+    "inspections": "LA City Wildfire Recovery inspections",
+    "malibu_dash": "Malibu rebuild dashboard markers (unofficial)",
+    "socrata_links": "City open-data permit deep-link presence",
+}
+
+
+def source_health() -> list[dict]:
+    """Per-source health + provenance entries for meta.json (docs/ARTIFACTS.md).
+
+    `as_of`/`fetched_at` reflect when the data was ACTUALLY fetched (cache mtime
+    on offline runs), not when the pipeline ran — honest freshness.
+    """
+    out: list[dict] = []
+    for sid, note in _SOURCE_NOTES.items():
+        stats = provenance.get_stats(sid)
+        agg = provenance.summarize(sid)
+        last = agg["last_fetch"]
+        entry: dict = {
+            "id": sid,
+            "as_of": last[:10] if last else None,
+            "ok": bool(stats.get("ok", False)),
+            "records": stats.get("rows", 0),
+            "note": note,
+            "endpoint": stats.get("endpoint"),
+            "query": stats.get("query"),
+            "joined": stats.get("joined"),
+            "sha256": agg["sha256"],
+            "schema_fingerprint": stats.get("schema_fingerprint"),
+            "requests": agg["requests"],
+            "bytes": agg["bytes"],
+            "cache_hits": agg["cache_hits"],
+            "fetched_at": last,
+        }
+        if stats.get("error"):
+            entry["error"] = stats["error"]
+        for k in ("unparseable", "duplicates", "no_geometry", "unknown_labels",
+                  "parcels_matched", "requested", "failed_chunks"):
+            v = stats.get(k)
+            if v not in (None, 0, []):
+                entry[k] = v
+        out.append(entry)
+    return out

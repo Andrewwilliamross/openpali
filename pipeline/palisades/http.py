@@ -11,11 +11,14 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+from . import provenance
 
 RAW_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
 USER_AGENT = "PalisadesRebuildTracker/0.1 (open-source civic project; respring.ai)"
@@ -54,14 +57,30 @@ def cached_get_json(
     ttl_hours: float = 12.0,
     sleep: float = 0.2,
 ) -> Any:
-    """GET JSON with an on-disk cache. ttl_hours<=0 forces a refetch."""
+    """GET JSON with an on-disk cache. ttl_hours<=0 forces a refetch.
+
+    Every call — hit or miss — is recorded in the provenance registry with the
+    sha256 of the canonical response text and the time it was actually fetched
+    (cache mtime for hits), so artifacts can carry true source lineage.
+    """
     path = _cache_path(url, params)
     if path.exists() and ttl_hours > 0:
         age_hours = (time.time() - path.stat().st_mtime) / 3600
         if age_hours < ttl_hours:
-            return json.loads(path.read_text())
+            text = path.read_text()
+            fetched_at = datetime.fromtimestamp(
+                path.stat().st_mtime, tz=timezone.utc
+            ).isoformat(timespec="seconds")
+            provenance.add(url, params, text, fetched_at=fetched_at, cache_hit=True)
+            return json.loads(text)
     data = _get(url, params)
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data))
+    text = json.dumps(data)
+    path.write_text(text)
+    provenance.add(
+        url, params, text,
+        fetched_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        cache_hit=False,
+    )
     time.sleep(sleep)  # be polite to public agency servers
     return data

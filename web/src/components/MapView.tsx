@@ -1,10 +1,15 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
 import { scorePaintExpression } from '../lib/colors'
-import { SplatRenderLayer } from './spatial/SplatRenderLayer'
-import { SpatialIntersector } from './spatial/spatial_intersector'
+// Type-only imports are erased at build time: the renderer subsystem itself
+// is code-split and fetched via import('./spatial/renderer3d') on 3D entry
+// (ROADMAP D10 / PR3). Never import its values statically here.
+import type { SplatRenderLayer } from './spatial/SplatRenderLayer'
+import type { SpatialIntersector } from './spatial/spatial_intersector'
+
+type Renderer3DModule = typeof import('./spatial/renderer3d')
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
@@ -16,22 +21,25 @@ const DEM_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{
 const DEM_ATTRIBUTION = 'Terrain: USGS 3DEP/SRTM via Mapzen terrain tiles (AWS Open Data)'
 
 // Ground imagery, two stacked sources:
-// 1. PRIMARY — LA County LARIAC7 POST-FIRE ortho (flown October 2025), the
-//    newest public capture of actual ground conditions: cleared lots, debris
-//    pads, and early reconstruction. Served as a public WMTS by the county's
-//    vendor (found inside the county's own Road-to-Recovery 3D scene; live to
-//    z21 ≈ 7 cm/px). Standard XYZ ({level}/{col}/{row} = z/x/y).
-// 2. FALLBACK — Esri World Imagery (current release) outside the LARIAC7
-//    flight footprint, so the world doesn't go blank at the coverage edge.
-//    NOTE: the world mosaic over the Palisades still shows PRE-fire structures
-//    (Wayback release dates are publish dates, not capture dates).
-const LARIAC7_TILES =
-  'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-LARIAC7--YRwyJETYPH/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
-// LARIAC7 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
-const LARIAC7_BOUNDS: [number, number, number, number] =
-  [-118.7281, 33.9275, -117.9640, 34.2096]
-const LARIAC7_ATTRIBUTION =
-  'Imagery: LA County LARIAC7 Post-Fire Ortho (Oct 2025) © EagleView/Pictometry'
+// 1. PRIMARY — EagleView "CALOSA26" 2026 mosaic from the county's public
+//    LARIAC WMTS account: the newest public capture of actual ground
+//    conditions (cleared pads AND active rebuilds). Layer id re-derived from
+//    the account's WMTS GetCapabilities (svc.pictometry.com/Image/<acct>/wmts)
+//    — that document is the source of truth when the vendor rotates keys.
+//    Full pyramid z11–21 (probe-verified). The service flaps occasionally
+//    (observed 404-at-all-zooms outages); MapLibre then falls through to the
+//    world layer below: degraded vintage, never a blank map.
+// 2. FALLBACK — Esri World Imagery (Wayback) under it, so the world doesn't
+//    go blank at the coverage edge or during vendor outages. NOTE: the world
+//    mosaic over the Palisades still shows PRE-fire structures (Wayback
+//    release dates are publish dates, not capture dates).
+const GROUND26_TILES =
+  'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-CALOSA26-WX2j52mKfq/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
+// CALOSA26-145 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
+const GROUND26_BOUNDS: [number, number, number, number] =
+  [-118.9998, 33.6569, -117.6031, 34.8690]
+const GROUND26_ATTRIBUTION =
+  'Imagery: EagleView 2026 Mosaic (LA County LARIAC WMTS)'
 const WORLD_IMAGERY_TILES =
   'https://wayback.maptiles.arcgis.com/arcgis/rest/services/world_imagery/wmts/1.0.0/default028mm/mapserver/tile/10842/{z}/{y}/{x}'
 const WORLD_IMAGERY_ATTRIBUTION =
@@ -39,6 +47,9 @@ const WORLD_IMAGERY_ATTRIBUTION =
 
 export type ViewMode = '2d' | '3d'
 export type GroundMode = 'map' | 'sat'
+// Lifecycle of the lazily fetched 3D chunk; 'idle' = never requested (2D-only
+// sessions stay here and ship zero renderer bytes).
+export type SpatialStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 interface Props {
   parcels: ParcelCollection | null
@@ -47,6 +58,7 @@ interface Props {
   ground: GroundMode
   onSelect: (apn: string | null) => void
   onMapReady: (map: MLMap) => void
+  onSpatialStatus?: (status: SpatialStatus) => void
 }
 
 function demSource(): maplibregl.RasterDEMSourceSpecification {
@@ -61,7 +73,15 @@ function demSource(): maplibregl.RasterDEMSourceSpecification {
   }
 }
 
-export default function MapView({ parcels, selectedApn, mode, ground, onSelect, onMapReady }: Props) {
+export default function MapView({
+  parcels,
+  selectedApn,
+  mode,
+  ground,
+  onSelect,
+  onMapReady,
+  onSpatialStatus,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
   const hoveredRef = useRef<string | number | null>(null)
@@ -72,6 +92,102 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
   modeRef.current = mode
   const groundRef = useRef<GroundMode>(ground)
   groundRef.current = ground
+  const onSpatialStatusRef = useRef(onSpatialStatus)
+  useEffect(() => {
+    onSpatialStatusRef.current = onSpatialStatus
+  })
+  // cached promise for the code-split renderer chunk (cleared on failure so
+  // a retry issues a fresh network request instead of replaying the rejection)
+  const rendererModuleRef = useRef<Promise<Renderer3DModule> | null>(null)
+  // one-shot guard mirroring the old load-time try/catch: set after the
+  // install attempt, success or not, so we never double-add the layer
+  const spatialInstalledRef = useRef(false)
+  // true while a chunk load is in the 'error' state (offline/flaky). Keeps the
+  // status reconciler from clobbering the retry UI back to 'idle'.
+  const spatialErroredRef = useRef(false)
+
+  const loadRendererModule = useCallback((): Promise<Renderer3DModule> => {
+    if (!rendererModuleRef.current) {
+      spatialErroredRef.current = false // a fresh attempt clears any prior error
+      rendererModuleRef.current = import('./spatial/renderer3d').catch((err: unknown) => {
+        rendererModuleRef.current = null
+        throw err
+      })
+    }
+    return rendererModuleRef.current
+  }, [])
+
+  // Clear a stuck 'loading' status. ensureSpatial() flips status to 'loading'
+  // the moment the chunk fetch starts, but the install is deferred until the
+  // map style is loaded — so an import that resolves before 'load', followed by
+  // a switch to 2D (whose handler then skips ensureSpatial), would otherwise
+  // leave the toggle reading "3D…" forever. Whenever we end up out of 3D with
+  // nothing installed and no error pending, reconcile back to idle.
+  const reconcileSpatialStatus = useCallback(() => {
+    if (
+      modeRef.current !== '3d' &&
+      !spatialInstalledRef.current &&
+      !spatialErroredRef.current
+    ) {
+      onSpatialStatusRef.current?.('idle')
+    }
+  }, [])
+
+  // Fetch the 3D chunk (idempotent) and, once the map style is loaded,
+  // install the splat pyramid + ray-picking exactly as the old eager path
+  // did. Safe to call before map 'load': the load handler re-invokes it and
+  // the cached module promise resolves instantly.
+  const ensureSpatial = useCallback(
+    (map: MLMap) => {
+      if (spatialInstalledRef.current) return
+      // reflect the in-progress install on every attempt (initial mount, the
+      // load handler, and re-entry from 2D) — not just the first chunk fetch,
+      // so re-entering 3D mid-load shows "3D…" rather than a stale label
+      onSpatialStatusRef.current?.('loading')
+      loadRendererModule()
+        .then((mod) => {
+          if (mapRef.current !== map || !loadedRef.current) return
+          if (spatialInstalledRef.current) return
+          spatialInstalledRef.current = true
+
+          // ---- 3D splat pyramid + picking ----
+          const intersector = new mod.SpatialIntersector()
+          void intersector.load(TILES_BASE)
+          intersectorRef.current = intersector
+          try {
+            const splats = new mod.SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
+            splatLayerRef.current = splats
+            map.addLayer(splats)
+            splats.setEnabled(modeRef.current === '3d')
+            // E2E/debug handle (custom layers are invisible to map.getLayer in v5)
+            ;(window as unknown as { __splats?: SplatRenderLayer }).__splats = splats
+          } catch (e) {
+            // the 3D layer must never take down the 2D tracker; terrain-only
+            // 3D still works, so this is not surfaced as a chunk failure
+            console.error('splat layer failed to initialize:', e)
+          }
+          onSpatialStatusRef.current?.('ready')
+        })
+        .catch((err: unknown) => {
+          // offline / flaky connection: no white screen — the caller reverts
+          // the toggle and offers a retry (which re-fetches the chunk)
+          console.error('3D renderer chunk failed to load:', err)
+          if (mapRef.current === map) {
+            spatialErroredRef.current = true
+            onSpatialStatusRef.current?.('error')
+          }
+        })
+    },
+    [loadRendererModule],
+  )
+
+  // 3D-only DEM source: created on first 3D entry, never in 2D-only sessions
+  const ensureTerrain = useCallback((map: MLMap) => {
+    if (!map.getSource('terrain-dem')) {
+      map.addSource('terrain-dem', demSource())
+    }
+    map.setTerrain({ source: 'terrain-dem', exaggeration: 1.0 })
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -91,11 +207,15 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
     // expose for E2E checks and debugging
     ;(window as unknown as { __map?: MLMap }).__map = map
 
+    // starting in 3D: fetch the renderer chunk in parallel with the style
+    // load (install waits for 'load' below). 2D starts fetch nothing.
+    if (modeRef.current === '3d') ensureSpatial(map)
+
     map.on('load', () => {
       loadedRef.current = true
 
-      // ---- terrain + hillshade (separate source instances, per ML guidance) ----
-      map.addSource('terrain-dem', demSource())
+      // ---- hillshade DEM (2D feature too; terrain-dem is added lazily on
+      // 3D entry — separate source instances, per ML guidance) ----
       map.addSource('hillshade-dem', demSource())
       // current-conditions ground imagery (drapes natively on the terrain):
       // world fallback below, county post-fire flight on top within its bounds
@@ -108,11 +228,14 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       })
       map.addSource('ground-imagery', {
         type: 'raster',
-        tiles: [LARIAC7_TILES],
+        tiles: [GROUND26_TILES],
         tileSize: 256,
+        // the WMTS serves nothing below z11 (404s) — without minzoom MapLibre
+        // requests far-field low-zoom tiles at oblique pitch and logs failures
+        minzoom: 11,
         maxzoom: 21,
-        bounds: LARIAC7_BOUNDS,
-        attribution: LARIAC7_ATTRIBUTION,
+        bounds: GROUND26_BOUNDS,
+        attribution: GROUND26_ATTRIBUTION,
       })
       map.addLayer(
         {
@@ -162,25 +285,16 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       } catch {
         /* sky spec unavailable — cosmetic only */
       }
+      // 3D-only pieces (terrain + splat renderer) are lazy: nothing spatial
+      // initializes unless the session actually enters 3D
       if (modeRef.current === '3d') {
-        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.0 })
+        ensureTerrain(map)
+        ensureSpatial(map)
       }
-
-      // ---- 3D splat pyramid + picking ----
-      const intersector = new SpatialIntersector()
-      void intersector.load(TILES_BASE)
-      intersectorRef.current = intersector
-      try {
-        const splats = new SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
-        splatLayerRef.current = splats
-        map.addLayer(splats)
-        splats.setEnabled(modeRef.current === '3d')
-        // E2E/debug handle (custom layers are invisible to map.getLayer in v5)
-        ;(window as unknown as { __splats?: SplatRenderLayer }).__splats = splats
-      } catch (e) {
-        // the 3D layer must never take down the 2D tracker
-        console.error('splat layer failed to initialize:', e)
-      }
+      // if a pre-load 3D start kicked off the chunk fetch but the user has
+      // since dropped to 2D, the block above is skipped — clear the stuck
+      // 'loading' status now that the style is up
+      reconcileSpatialStatus()
 
       onMapReady(map)
     })
@@ -193,6 +307,8 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       mapRef.current = null
       loadedRef.current = false
       splatLayerRef.current = null
+      intersectorRef.current = null
+      spatialInstalledRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -200,11 +316,17 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
   // ---- mode switching: terrain + splats + camera posture ----
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !loadedRef.current) return
+    if (!map) return
+    // runs even before the style loads: a switch to 2D during a pre-load chunk
+    // fetch must release the 'loading' label (the rest of this effect is no-op
+    // until loaded, so the toggle would otherwise stay "3D…")
+    reconcileSpatialStatus()
+    if (!loadedRef.current) return
     if (mode === '3d') {
-      if (map.getSource('terrain-dem')) {
-        map.setTerrain({ source: 'terrain-dem', exaggeration: 1.0 })
-      }
+      ensureTerrain(map)
+      // first entry kicks off the chunk fetch; once installed it's a no-op
+      // and setEnabled below drives the already-resident layer
+      ensureSpatial(map)
       splatLayerRef.current?.setEnabled(true)
       map.easeTo({ pitch: 62, duration: 900 })
     } else {
@@ -212,7 +334,7 @@ export default function MapView({ parcels, selectedApn, mode, ground, onSelect, 
       splatLayerRef.current?.setEnabled(false)
       map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
     }
-  }, [mode])
+  }, [mode, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
 
   // ---- ground mode: map ↔ current-conditions imagery ----
   useEffect(() => {

@@ -1,5 +1,6 @@
 {
- "as_of": "2026-06-11T04:27:53+00:00",
+ "as_of": "2026-06-11T23:33:50+00:00",
+ "snapshot_id": "20260611T233350Z-db750e",
  "totals": {
   "destroyed": 5877,
   "cleared": 5590,
@@ -380,7 +381,44 @@
    "issued": 7
   }
  ],
- "baselines": [],
+ "baselines": [
+  {
+   "source": "LA County",
+   "metric": "destroyed_parcels",
+   "official": 5877,
+   "as_of": "2026-06-10",
+   "ours": 5877,
+   "drift_pct": 0.0,
+   "ok": true
+  },
+  {
+   "source": "LADBS",
+   "metric": "parcels_bldgnew_application",
+   "official": 1552,
+   "as_of": "2026-06-10",
+   "ours": 1558,
+   "drift_pct": 0.4,
+   "ok": true
+  },
+  {
+   "source": "LADBS",
+   "metric": "parcels_permit_issued_bldgnew",
+   "official": 984,
+   "as_of": "2026-06-10",
+   "ours": 1008,
+   "drift_pct": 2.4,
+   "ok": true
+  },
+  {
+   "source": "LADBS",
+   "metric": "parcels_complete_cofo",
+   "official": 16,
+   "as_of": "2026-06-10",
+   "ours": 16,
+   "drift_pct": 0.0,
+   "ok": true
+  }
+ ],
  "neighborhoods": [
   {
    "name": "The Alphabets / Village",

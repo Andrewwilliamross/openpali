@@ -60,6 +60,7 @@ export interface ParcelDetail {
 
 export interface Summary {
   as_of: string
+  snapshot_id?: string
   totals: {
     destroyed: number
     cleared: number
@@ -75,6 +76,8 @@ export interface Summary {
     metric: string
     official: number
     ours: number
+    drift_pct?: number | null
+    ok?: boolean
   }[]
   neighborhoods: {
     name: string
@@ -97,5 +100,6 @@ export interface ParcelFeature {
 
 export interface ParcelCollection {
   type: 'FeatureCollection'
+  snapshot_id?: string
   features: ParcelFeature[]
 }
