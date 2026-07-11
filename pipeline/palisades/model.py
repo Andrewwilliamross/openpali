@@ -25,7 +25,7 @@ STAGE_LABELS = {
     5: "Complete",
 }
 
-# score bands per stage (see docs/METHODOLOGY.md)
+# score bands per stage (see Docs/initialbuild_docs/METHODOLOGY.md)
 STAGE_BANDS: dict[int, tuple[float, float]] = {
     0: (0, 7),
     1: (8, 14),

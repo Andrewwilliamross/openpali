@@ -1,6 +1,7 @@
 """Fetch + normalize every source into a list of scored-ready Parcel objects.
 
-See docs/DATA_SOURCES.md for the endpoint rationale. Pipeline shape:
+See Docs/initialbuild_docs/DATA_SOURCES.md for the prototype endpoint rationale.
+Pipeline shape:
   fetch_destroyed_parcels()  -> base universe + geometry + jurisdiction + debris + pre-fire
   attach_ladbs_permits()     -> City-of-LA permit/CofO timeline (the rich scoring signal)
   attach_inspections()       -> current construction milestone (stage-4 position)

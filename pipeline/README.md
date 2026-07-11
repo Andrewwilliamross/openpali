@@ -55,9 +55,12 @@ dates.py          epoch-ms / Oracle-string / ISO date parsing
 parcels, with polygon geometry, jurisdiction, debris status, and pre-fire attributes);
 the LADBS Palisades Recovery feed overlays the rich permit/inspection/CofO timeline that
 drives the score; Malibu + unincorporated lots get a coarser stage from their own status
-fields. Endpoints and the join strategy are documented in [`../docs/DATA_SOURCES.md`](../docs/DATA_SOURCES.md);
-the score method in [`../docs/METHODOLOGY.md`](../docs/METHODOLOGY.md); the emitted artifact
-contract in [`../docs/ARTIFACTS.md`](../docs/ARTIFACTS.md).
+fields. Endpoints and the join strategy are documented in
+[`../Docs/initialbuild_docs/DATA_SOURCES.md`](../Docs/initialbuild_docs/DATA_SOURCES.md);
+the score method in
+[`../Docs/initialbuild_docs/METHODOLOGY.md`](../Docs/initialbuild_docs/METHODOLOGY.md);
+the emitted artifact contract in
+[`../Docs/initialbuild_docs/ARTIFACTS.md`](../Docs/initialbuild_docs/ARTIFACTS.md).
 
 **Self-validating.** Every live run re-queries the LADBS feed (the same data behind the
 city's official dashboard) and reconciles our parcel counts against it under identical
@@ -86,7 +89,8 @@ trained Gaussian splat — is one row of the state vector `[ECEF xyz, T_epoch, s
 alpha, SH coeffs, APN]`. The nightly job evaluates the **complete parcel universe** (lots
 with no spatial data get explicit `static_baseline` rows — never dropped), is idempotent,
 and isolates per-source/per-parcel failures (preserving the last valid asset). Full design
-in [`../docs/SPATIAL_CORE.md`](../docs/SPATIAL_CORE.md).
+in
+[`../Docs/initialbuild_docs/SPATIAL_CORE.md`](../Docs/initialbuild_docs/SPATIAL_CORE.md).
 
 ## Conventions
 

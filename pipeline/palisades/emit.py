@@ -1,4 +1,4 @@
-"""Emit static artifacts per docs/ARTIFACTS.md into web/public/data/."""
+"""Emit static artifacts per Docs/initialbuild_docs/ARTIFACTS.md into web/public/data/."""
 
 from __future__ import annotations
 

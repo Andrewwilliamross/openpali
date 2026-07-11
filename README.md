@@ -28,21 +28,23 @@ pipeline/ (Python)              web/ (React + MapLibre)
 ```
 
 No backend, no database — the pipeline emits static JSON that a static site serves.
-Cheap, durable, forkable. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Cheap, durable, forkable. See
+[the initial architecture](Docs/initialbuild_docs/ARCHITECTURE.md).
 
 ### The rebuild score
 
 Each lot gets a 0–100 score that blends its current permit/inspection **stage** with how
 it's **moving** relative to its cohort — so a lot permitted last week looks different from
 one permitted eight months ago with no inspection since. Full method:
-[docs/METHODOLOGY.md](docs/METHODOLOGY.md).
+[the initial methodology](Docs/initialbuild_docs/METHODOLOGY.md).
 
 ### Data sources
 
 Built on LA County's and LA City's pre-joined parcel layers, enriched with the LADBS
 per-permit feed (the rich timeline), construction inspections, CofO records, USACE debris
 status, Malibu's rebuild dashboard, and Esri Wayback pre-fire imagery. Every endpoint is
-documented and was live-verified: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
+documented and was live-verified:
+[initial data sources](Docs/initialbuild_docs/DATA_SOURCES.md).
 
 Pipeline output **reconciles against the official LADBS dashboard** every run (destroyed
 parcels and CofO count match exactly; permits-issued within ~2%).
@@ -69,7 +71,8 @@ npm run build                 # static site → web/dist/
 LARIAC 3D building extraction (I3S, no Draco), a unified Gaussian-splat-ready
 state model in partitioned GeoParquet keyed by H3 + APN, a full RANSAC+ICP
 registration engine for crowdsourced captures, and a 3D Tiles 1.1 LOD tiler
-for web-streamable splats. See [docs/SPATIAL_CORE.md](docs/SPATIAL_CORE.md).
+for web-streamable splats. See
+[the initial spatial-core design](Docs/initialbuild_docs/SPATIAL_CORE.md).
 
 ```bash
 cd pipeline && uv run run_spatial.py --limit 25   # nightly; drains the prior backlog

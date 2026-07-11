@@ -1,4 +1,4 @@
-// Mirrors docs/ARTIFACTS.md — the pipeline/frontend contract.
+// Mirrors Docs/initialbuild_docs/ARTIFACTS.md — the prototype pipeline/frontend contract.
 import type { Polygon, MultiPolygon } from 'geojson'
 
 export type Jurisdiction = 'LA' | 'COUNTY' | 'MALIBU'

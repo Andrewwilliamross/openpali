@@ -1,4 +1,6 @@
-"""Rebuild score (0-100) + predicted completion. See docs/METHODOLOGY.md.
+"""Rebuild score (0-100) + predicted completion.
+
+See Docs/initialbuild_docs/METHODOLOGY.md for the prototype methodology.
 
 The score blends:
   1. stage band      — where the lot sits in the permit pipeline
