@@ -11,20 +11,22 @@ from pathlib import Path
 
 PROTECTED_SUFFIXES = (
     "/openpali-one-shot/GOAL_PROMPT.txt",
+    "/openpali-one-shot/README.md",
     "/openpali-one-shot/SYSTEM.md",
     "/openpali-one-shot/MISSION.md",
     "/openpali-one-shot/BASELINE.md",
     "/openpali-one-shot/settings.json",
     "/openpali-one-shot/mcp.json",
+    "/openpali-one-shot/research/",
     "/openpali-one-shot/contract/",
     "/openpali-one-shot/plugin/",
     "/openpali-one-shot/scripts/",
     "/openpali-one-shot/state/evaluator-latest.md",
     "/openpali-one-shot/state/evaluator-attestation.json",
-    "/openpali-one-shot/state/evaluator/",
 )
 
 DANGEROUS_BASH = (
+    (r"(?:^|[;&|]\s*)docker\s", "Direct Docker access is forbidden; use openpali-one-shot/scripts/docker_safe.py with a repository-scoped Compose file."),
     (r"\bgit\s+push\b", "Git push is outside this experiment."),
     (r"\bgit\s+pull\b", "Git pull can change the controlled starting state."),
     (r"\bgit\s+fetch\b", "Git fetch can change the controlled starting refs mid-run."),
@@ -33,7 +35,7 @@ DANGEROUS_BASH = (
     (r"\bgit\s+stash\b", "Do not hide pre-existing or run state in a stash."),
     (r"\bgit\s+(?:checkout\s+--|restore\b)", "Do not discard working-tree changes."),
     (r"\bgit\s+branch\s+-D\b", "Force-deleting branches is forbidden."),
-    (r"\bgh\b", "GitHub CLI access is outside this isolated experiment."),
+    (r"\bgh\b", "GitHub CLI access is outside this local implementation run."),
     (r"\brm\s+-[^\n]*r[^\n]*f\b|\brm\s+-rf\b", "Recursive forced deletion is forbidden."),
     (r"\b(?:npm\s+publish|pnpm\s+publish|yarn\s+npm\s+publish|twine\s+upload)\b", "Package publication is outside scope."),
     (r"\b(?:terraform|pulumi)\s+(?:apply|destroy|up)\b", "Cloud/infrastructure mutation is outside scope."),
@@ -41,7 +43,6 @@ DANGEROUS_BASH = (
     (r"\b(?:aws|gcloud|az)\b", "Cloud CLI access is outside this local experiment."),
     (r"\b(?:vercel|netlify|wrangler|flyctl|firebase)\s+(?:deploy|publish)\b", "Production deployment is outside scope."),
     (r"(?:^|[;&|]\s*)(?:curl|wget|http|https)(?:\s|$)", "Ad-hoc network clients are blocked; use read-only WebFetch/WebSearch or tested source adapters."),
-    (r"\bcapture_evaluator\.py\b", "Evaluator capture may run only as the trusted SubagentStop hook."),
     (r"(?:^|[;&|]\s*)(?:printenv|env|set|export\s+-p)\s*(?:$|[;&|])", "Enumerating the session environment can expose credentials."),
     (r"\bsecurity\s+find-", "Reading macOS Keychain entries is forbidden."),
 )
@@ -50,6 +51,11 @@ MUTATING_COMMAND = re.compile(
     r"(?:^|[;&|]\s*)(?:rm|mv|cp|truncate|tee|chmod|chown)\b|"
     r"\bsed\s+-i\b|\bperl\s+-p?i\b|(?:^|[^<])>{1,2}\s*[^&]",
     re.IGNORECASE,
+)
+SAFE_DOCKER_WRAPPER = re.compile(
+    r"^\s*(?:python3\s+openpali-one-shot/scripts/docker_safe\.py|"
+    r"\./openpali-one-shot/scripts/docker_safe\.py)"
+    r"(?:\s+[^;&|`$<>\n]+)?\s*$"
 )
 
 
@@ -99,27 +105,13 @@ def main() -> int:
         return 0
 
     command = str(tool_input.get("command") or "")
+    if "openpali-one-shot/scripts/docker_safe.py" in command and not SAFE_DOCKER_WRAPPER.fullmatch(command):
+        return deny("the unsandboxed Docker wrapper must be the entire simple command")
     for pattern, reason in DANGEROUS_BASH:
         if re.search(pattern, command, flags=re.IGNORECASE):
             return deny(reason)
 
     protected_reference = any(token.lstrip("/") in command for token in PROTECTED_SUFFIXES)
-    protected_evaluator_reference = any(
-        token.lstrip("/") in command
-        for token in (
-            "/openpali-one-shot/state/evaluator-latest.md",
-            "/openpali-one-shot/state/evaluator-attestation.json",
-            "/openpali-one-shot/state/evaluator/",
-        )
-    )
-    if protected_evaluator_reference and not re.match(
-        r"^\s*(?:git\s+(?:add|diff|show|status|ls-files)\b|"
-        r"cat\b|head\b|tail\b|sed\s+-n\b|rg\b|grep\b|jq\b|"
-        r"shasum\b|sha256sum\b|stat\b|ls\b)",
-        command,
-        flags=re.IGNORECASE,
-    ):
-        return deny("evaluator output and attestation are hook-owned; use read-only inspection or git add")
     if protected_reference and MUTATING_COMMAND.search(command):
         return deny("a shell command attempted to mutate protected harness controls")
 

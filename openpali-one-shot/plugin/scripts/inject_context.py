@@ -32,8 +32,8 @@ def main() -> int:
         print(json.dumps({
             "continue": False,
             "stopReason": (
-                "OpenPali control plane is missing from this worktree. "
-                "Restore the committed harness before any model turn."
+                "OpenPali task context is missing from this checkout. "
+                "Restore the committed task folder before any model turn."
             ),
         }))
         return 0
@@ -41,13 +41,13 @@ def main() -> int:
     digest = hashlib.sha256(contract_path.read_bytes()).hexdigest()
     status = status_path.read_text(encoding="utf-8") if status_path.exists() else "State file missing."
 
-    print("OPENPALI ONE-SHOT CONTEXT (re-injected on startup/resume/compaction)")
+    print("OPENPALI PRODUCT BUILD CONTEXT (re-injected on startup/resume/compaction)")
     print(f"Acceptance contract SHA256: {digest}")
     print("\n--- OPERATING CONTRACT ---")
     print(system_path.read_text(encoding="utf-8").strip())
     print("\n--- CURRENT COMPACT STATUS ---")
     print(status.strip())
-    print("\nRe-read MISSION.md and the relevant acceptance items before choosing work.")
+    print("\nRe-read openpali-one-shot/MISSION.md, openpali-one-shot/research/production-mvp-architecture.md, and the relevant openpali-one-shot/contract/acceptance.json items before choosing product work. Do not expand the harness.")
     return 0
 
 

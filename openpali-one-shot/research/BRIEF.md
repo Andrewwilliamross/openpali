@@ -14,15 +14,19 @@ public claim, and preserve the retrieved evidence.
    small evaluator sees the transcript and cannot run tools.
 3. Keep acceptance criteria outside the builder's control. Fresh evaluator
    evidence and machine gates decide completion.
-4. Correct data semantics and publication integrity before ML or new 3D work.
+4. Correct data semantics and publication integrity as phase 0, then continue
+   through mandatory backend, continual-ML, multimodal, and 3D implementation.
 5. Model recovery as parallel milestone lanes. Cleanup is not necessarily a
    prerequisite for application submission, and scheduled activity is not an
    achieved milestone.
 6. Treat the existing 0–100 score as an unvalidated communication heuristic.
    Use censoring-aware descriptive baselines before conditional prediction.
-7. Keep static-first publication until measured operational complexity earns an
-   orchestrator/database. Borrow experiment discipline from Plexe; do not import
-   its generic agent/AutoML stack as domain validity.
+7. The requested continually learning product has already earned a modular
+   backend, canonical geospatial database, immutable object plane,
+   orchestration, and experiment tracking. Preserve deterministic static
+   artifacts as publication derivatives, not as the sole backend. Borrow
+   experiment discipline from Plexe without importing generic agent/AutoML
+   behavior as domain validity.
 8. Default to openly licensed/public-domain spatial baselines. Disable
    LARIAC/EagleView derivatives unless rights are affirmatively documented.
 
@@ -39,35 +43,37 @@ public claim, and preserve the retrieved evidence.
   explains that `/goal` starts another turn after a fresh transcript-only
   evaluator says the condition is unmet. Active goals resume with a session.
 - [Custom subagents](https://code.claude.com/docs/en/sub-agents) documents fresh
-  contexts, background behavior, worktree isolation, tool restrictions, and
-  persistent memory. Subagents cannot spawn subagents.
+  contexts, background behavior, tool restrictions, persistent memory, and
+  nested delegation in current Claude Code releases. Use them to isolate
+  input-heavy context while the principal continues implementation.
 - [Claude Code plugins](https://code.claude.com/docs/en/plugins) and the
   [plugin reference](https://code.claude.com/docs/en/plugins-reference) support
   task-local agents and hooks without modifying root `.claude/` files.
-- [Hooks](https://code.claude.com/docs/en/hooks) support pre-tool guardrails,
-  compaction/start context injection, exact evaluator-output capture, and a
-  deterministic blocking `Stop` decision. A `/goal` prompt evaluator is not a
-  substitute for that machine gate.
+- [Hooks](https://code.claude.com/docs/en/hooks) support compact startup context
+  and pre-tool guardrails. The revised harness avoids a bespoke stop loop;
+  `/goal`, executable product gates, and a fresh read-only evaluator provide the
+  completion loop, while one hook plus a deterministic verifier preserve the
+  final candidate/evidence boundary.
 - [Sandboxing](https://code.claude.com/docs/en/sandboxing) documents OS-level
   filesystem/network boundaries, `denyWrite`, and `failIfUnavailable`.
   Host-wide bypass permissions are not appropriate for this run.
-- [Worktrees](https://code.claude.com/docs/en/worktrees) normally branch from
-  `origin/HEAD`; `worktree.baseRef: head` is required to carry the deliberately
-  prepared local snapshot. Interactive cleanup can delete the branch and all
-  new commits, so the human handoff must choose Keep.
+- [Worktrees](https://code.claude.com/docs/en/worktrees) are source-edit
+  isolation, not runtime isolation, and omit untracked local state by default.
+  This one-shot intentionally runs in Andrew's prepared current checkout after
+  the intended starting snapshot is committed.
 - [Session management](https://code.claude.com/docs/en/sessions) explains named
   interactive resume and the UUID required to resume `-p` sessions.
 - [Subprocess environment scrubbing](https://code.claude.com/docs/en/env-vars#claude-code-subprocess-env-scrub)
   keeps Claude/provider authentication in the parent while removing those
   credentials from Bash, hooks, and stdio MCP children.
 
-Local Claude Code was 2.1.207, newer than Fable's 2.1.170 minimum. This harness
-pins 2.1.207 as its tested floor because it relies on newer headless hook and
-worktree behavior. No active Claude Code login was present during preparation;
-account entitlement was not tested. Anthropic currently says Fable is unavailable for
-zero-data-retention use and uses 30-day retention; this run must contain only
-public project data. Capture fallback notices so a run that falls back to Opus
-4.8 is not mislabeled as pure Fable.
+Local preparation observed Claude Code 2.1.207, `uv` 0.8.24, Node 24.9.0,
+npm 11.6.0, Docker 28.5.1, and Docker Compose 2.40.3. The preflight probes the
+launch-time versions and authentication in the same checkout. Account-level
+Fable entitlement was not tested. Anthropic currently says Fable is unavailable
+for zero-data-retention use and uses 30-day retention; this run must contain
+only public project data. Capture fallback notices so a run that falls back to
+another model is not mislabeled as pure Fable.
 
 ## Long-horizon agent evidence
 
@@ -185,13 +191,28 @@ before/after chart is not causal evidence.
   are hypothesis records, metric selection, robustness checks, self-contained
   model artifacts, and experiment tracking. Its agents do not guarantee valid
   censoring, temporal leakage control, or causal inference.
-- [Prefect tasks/flows](https://docs.prefect.io/v3/concepts/tasks) can add
-  retries, caching, concurrency, state, and observable deployments. The current
-  one-process pipeline should first gain idempotency, manifests, atomic publish,
-  and failure tests. Adopt Prefect only if measured operations justify it.
-- [MLflow tracking](https://mlflow.org/docs/latest/ml/tracking) becomes useful
-  when more than one valid model/experiment actually exists. A local versioned
-  experiment folder is sufficient for the first baseline.
+- [Prefect tasks/flows](https://docs.prefect.io/v3/concepts/tasks),
+  [workers](https://docs.prefect.io/v3/concepts/workers), and the
+  [self-hosted server](https://docs.prefect.io/v3/concepts/server) provide the
+  retries, caching, concurrency, state, schedules, artifacts, and observable
+  deployments required by the requested source/model/spatial refresh platform.
+  Use a local self-hosted production-like topology and keep domain state in
+  OpenPali's database, not in Prefect.
+- [MLflow tracking](https://mlflow.org/docs/latest/ml/tracking) records run
+  parameters, code, datasets, metrics, and artifacts, and its registry uses a
+  database-backed store. The MVP must execute baseline and challenger runs,
+  preserve their artifacts, and gate manual promotion; a folder convention by
+  itself is not sufficient.
+- MinIO is not the local default: its
+  [community repository](https://github.com/minio/minio) was archived on April
+  25, 2026, moved to source-only distribution, and remains AGPL-3.0. Use a
+  portable S3 client boundary and pin the actively released, Apache-2.0
+  [SeaweedFS](https://github.com/seaweedfs/seaweedfs) S3 service for local
+  Compose unless Fable demonstrates a better maintained compatible option.
+  SeaweedFS does not make all S3 features equivalent to AWS; test the exact
+  multipart, versioning, conditional-write, checksum, and failure subset used.
+  OpenPali's content hashes, append-only manifests, database transaction, and
+  publication pointer—not assumed object-lock support—enforce MVP immutability.
 - [GitHub Actions schedule behavior](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
   may be delayed or dropped under load. Schedule off-hour, provide manual
   dispatch, and monitor freshness independently.
@@ -258,8 +279,12 @@ The current content is pre-fire LARIAC-derived mesh/surfels packed into a custom
 - [gsplat](https://www.jmlr.org/papers/v26/24-1476.html) is Apache-2.0 and a
   better later research candidate than code with research-only licensing.
 
-For this run: 2D first; lazy 3D; one acquisition epoch and snapshot; explicit
-CRS/vertical datum and coverage; reference scenes; cold/warm transfer, CPU,
-frame-time, actual allocation, overdraw where available, context loss, and
-visual comparisons. Distinguish transparency ordering, coplanar z-fighting,
-and registration/datum errors. Do not rewrite to WebGPU.
+For this run, preserve a fast top-down 2D journey and lazy opt-in 3D, but build
+the production spatial asset and reconstruction path rather than stopping at a
+benchmark. Preserve acquisition epoch, observation kind, CRS/vertical datum,
+registration, rights, lineage, and coverage; execute deterministic reference
+scenes and a CPU reconstruction fixture; measure cold/warm transfer, CPU,
+frame time, actual allocation, request backlog, context loss, and visual
+output; and implement at least one profiling-selected material improvement.
+Distinguish transparency ordering, coplanar z-fighting, registration/datum
+errors, and LOD/asset quality. Do not rewrite to WebGPU without evidence.

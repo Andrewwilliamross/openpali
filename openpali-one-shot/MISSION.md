@@ -1,179 +1,312 @@
-# Mission: evidence-first OpenPali production MVP
+# Mission: build the OpenPali production MVP
 
-## Why this exists
+## Purpose
 
-OpenPali should help Pacific Palisades residents, recovery organizations,
-researchers, and policymakers understand the rebuild without turning partial
-public records into false certainty. Its public claims must be reproducible,
-source-backed, current, and explicit about what is observed, inferred, unknown,
-or not comparable.
+OpenPali is intended to become open-source recovery intelligence for the
+Pacific Palisades. It
+should help residents understand what public evidence exists for their property,
+help the community see where recovery is moving or bottlenecked, and give
+researchers and policymakers reproducible longitudinal data without converting
+partial records or imagery into false certainty.
 
-The repository already contains meaningful engineering: a Python ingestion and
-scoring pipeline, static publication artifacts, a React/MapLibre product, a
-GeoParquet spatial store, and a custom WebGL2 splat renderer. The mission is not
-to replace those components reflexively. It is to turn the strongest parts into
-a trustworthy production release candidate and remove or quarantine claims the
-evidence cannot support.
+The repository is already a meaningful prototype: Python source adapters and
+scoring, static public artifacts, a React/MapLibre product, a GeoParquet spatial
+store, registration code, splat tiling, and a custom WebGL2 renderer. Fable's
+mission is to turn that prototype into an integrated, locally deployable
+production-MVP release candidate. The work must include the platform and feature
+engineering needed for OpenPali to keep collecting, learning, mapping, and
+serving recovery evidence after this run.
 
-## Stewardship and authority
+## Authority
 
 Andrew Ross is the applied-AI researcher and project manager. respring.ai is
-the sponsoring applied-AI lab. Fable 5 is the principal implementer and
-architect for this experiment, with authority for reversible repository work
-inside the mission. Product scope, source-code licensing, proprietary-data
-rights, private resident data, material spend, deployment, and irreversible
-actions remain with Andrew and the sponsor.
+the sponsoring applied-AI lab. Fable 5 is the principal implementer, architect,
+and CTO for reversible repository work in this mission.
 
-## Outcome
+Andrew retains decisions over source-code licensing, proprietary data rights,
+private resident data, material external spend, production deployment, and
+irreversible action. Those decisions may gate public release; they do not narrow
+the safe local implementation scope.
 
-Deliver one complete public journey:
+## Non-negotiable outcome
 
-1. An authoritative public source is acquired into an immutable, identified
-   snapshot with source metadata and schema evidence.
-2. Records are normalized without inventing missing facts.
-3. A versioned property/parcel identity and append-only recovery event ledger
-   preserve source record, event time, observation time, and provenance.
-4. Current recovery state is a documented milestone vector—not a forced linear
-   ladder—and distinguishes scheduled, attempted, failed, approved, issued,
-   observed, inferred, and unknown activity. Cleanup, design/review, permits,
-   construction/inspections, and occupancy may progress in parallel.
-5. Community throughput and bottleneck metrics use explicit numerators,
-   denominators, windows, sample sizes, and validation state.
-6. A forecast is shown only when a temporal, censoring-aware evaluation proves
-   it is useful and calibrated. Otherwise the product honestly presents a
-   descriptive baseline or “insufficient evidence.”
-7. A user can find a property and inspect its source-backed timeline, current
-   state, freshness, limitations, and the evidence behind consequential claims.
-8. A reproducible CI/release process stages, validates, and atomically promotes
-   a coherent snapshot while retaining the last known good snapshot.
+Deliver a release candidate with six connected capabilities:
 
-The result is a deployable **release candidate**, not an actual production
-deployment. Do not push or deploy during this experiment.
+1. **Recovery data platform.** Immutable raw/source artifacts, source and run
+   lineage, stable property/parcel/structure identity, append-only bitemporal
+   recovery observations, point-in-time snapshots, audited metrics, and atomic
+   last-known-good publication.
+2. **Production backend.** Persistent geospatial/query storage, schema
+   migrations, object-storage abstraction, idempotent jobs, a typed and
+   versioned API, health/readiness, snapshot pinning, source/model/spatial
+   metadata, and generated frontend contracts.
+3. **Continual ML system.** Point-in-time datasets and features, a naive
+   baseline, a censoring-aware baseline, at least one justified challenger,
+   temporal backtesting, calibration/coverage/cohort analysis, experiment and
+   model tracking, manual promotion gates, snapshot-triggered reevaluation,
+   batch predictions, and honest insufficiency behavior.
+4. **Spatial and 3D platform.** A rights-safe source/capture-to-asset path,
+   acquisition time and CRS/datum provenance, registration and quality gates,
+   a deterministic reconstruction fixture/job, versioned spatial publication,
+   coherent top-down 2D and interactive 3D layers, and measured fixes for the
+   most important renderer, z-fighting, GPU/memory, request, picking,
+   registration, or visual-quality defects.
+5. **Public product.** API-backed resident/property and community/bottleneck
+   journeys with evidence, freshness, conflicts, unknowns, model status and
+   uncertainty, spatial coverage and observation kind, correction path,
+   research exports, mobile/accessibility behavior, and graceful stale/offline
+   states.
+6. **Production operations.** Reproducible local topology, fast/full/CI gates,
+   scheduled refresh entrypoints, observability, performance budgets, release
+   bundles, security/privacy/rights enforcement, SBOM/scans, backup/restore,
+   rollback, runbooks, and governance foundations.
 
-## Critical starting facts to re-verify
+The property recovery journey is the first integration spine across these
+capabilities. It is not the ceiling of the one-shot.
 
-The checked-in 2026-06-11 publication calls 489 parcels “under construction,”
-yet all 817 emitted inspection events are labeled `insp scheduled`. Inspections
-from ancillary permits can also advance the home-rebuild stage. Missing cleanup
-dates are replaced with the 2025-01-07 fire date, including 1,595 private
-opt-outs. `PALISADES_WF_REBUILD` is fetched but ignored. The existing
-reconciliation has no construction oracle and a later run reports 23.8% CofO
-drift. These defects contaminate the score, ETA, and any prospective learning
-system.
+## Required architecture
 
-Therefore the first accepted checkpoint must repair source semantics and
-publication safety. New ML, orchestration, data sources, or 3D features cannot
-compensate for invalid labels.
+Use the implementation blueprint in
+`openpali-one-shot/research/production-mvp-architecture.md`. Its default is a modular monolith
+plus workers:
 
-## Product boundary
+- the current Python project evolves into domain, storage, ingestion, metrics,
+  ML, spatial, publication, API, and orchestration modules;
+- PostgreSQL/PostGIS is the canonical query and transactional plane;
+- an S3-compatible abstraction holds immutable source, feature, model,
+  spatial, and publication objects, with a pinned SeaweedFS S3 service for the
+  local stack;
+- Prefect runs source, snapshot, analytics, model, spatial, and release flows;
+- MLflow records experiments and model artifacts;
+- FastAPI exposes versioned read contracts and health;
+- React/MapLibre/WebGL consumes the API and immutable assets; and
+- deterministic static JSON/Parquet/tiles remain portable derivatives, not the
+  sole backend.
 
-### In scope
+This is not a mandate for microservices or a greenfield rewrite. Reuse and
+migrate existing code behind tested boundaries. Fable may adopt an equivalent
+design only with a measured ADR showing how it preserves every contract,
+operator command, failure mode, and product capability.
 
-- Repository archaeology and a reproducible current-state report.
-- Formal definitions for parcel, structure, qualifying fire rebuild,
-  milestone/state, event, source record, snapshot, and public metric.
-- Source-contract tests and golden semantic fixtures for the existing County,
-  LADBS permit, LADBS inspection, Malibu, and Socrata integrations.
-- Immutable raw/run manifests, bitemporal normalized events, stable event IDs,
-  idempotency, lineage, schema drift detection, and true offline behavior.
-- Atomic publication with one shared snapshot ID, critical fail-closed gates,
-  last-known-good retention, and rollback instructions.
-- A defensible current-state/bottleneck engine and a lightweight versioned
-  experiment path for future learning.
-- A naive and a censoring-aware statistical baseline, temporal backtesting,
-  calibration/coverage reporting, and a data-sufficiency decision.
-- One tested property journey plus community metrics, freshness, evidence,
-  uncertainty, limitations, and accessible/mobile behavior.
-- CI, scheduled-refresh configuration, operational runbooks, source-rights
-  inventory, privacy/methodology notices, security policy, and contributor
-  documentation appropriate to an open-source release candidate.
-- A bounded 3D pass: truth-in-labeling, license gate, coherent snapshot/version
-  selection, 2D-first loading, coverage disclosure, deterministic benchmarks,
-  and only measured fixes required for MVP safety or usability.
+## Phase 0: safe labels and public truth
 
-### Non-goals
+The first product checkpoint must repair the known load-bearing defects:
 
-- Production deployment, DNS, cloud-resource creation, or live migrations.
-- Purchasing imagery, satellite tasking, drone work, or collecting resident
-  photos/private records.
-- A general digital twin, new 3DGS training system, synthetic reconstruction,
-  photorealistic completion, or survey/insurance-grade measurement.
-- Automatic model promotion or retraining on every refresh.
-- Wholesale Plexe integration, a large AutoML search, Prefect adoption without
-  measured workflow need, or microservices.
-- Parcel-level causal claims about policies, technologies, funding, insurers,
-  contractors, or resident behavior. Observational trend reporting is not
-  causal evaluation.
-- Legal, insurance, financial, engineering, or permitting advice.
-- Choosing the sponsor's source-code license or asserting imagery rights on its
-  behalf.
+- scheduled, future, failed, canceled, missing-status, or ancillary-permit
+  inspections cannot prove physical construction;
+- `PALISADES_WF_REBUILD`, permit type, jurisdiction, multi-permit, and
+  multi-structure semantics are explicitly resolved from source evidence;
+- private cleanup opt-out is not cleanup completion;
+- missing event times remain null or interval-censored rather than becoming
+  the fire date, run date, or today;
+- current state is a versioned projection over parallel cleanup,
+  design/review, permitting, construction/inspection, and occupancy lanes;
+- the invalid 0-100 score/ETA is removed from public API, forecast, sorting,
+  color, map, and spatial behavior or explicitly deprecated outside the public
+  product; every authorized downstream count, metric, prediction, color, and
+  artifact is recomputed; and
+- publication fails closed on undocumented taxonomy, schema drift,
+  reconciliation failure, partial acquisition, or mixed snapshots.
 
-## Execution policy
+Create executable positive, negative, ambiguous, conflicting, corrected,
+future, missing-date, ancillary-permit, multi-structure, and cross-jurisdiction
+fixtures. Phase 0 supplies valid domain types and labels to every later track.
+It is not a terminal outcome.
 
-Fable owns the mutable implementation plan and may choose the simplest sound
-design. The following ordering is a dependency graph, not a mandated class or
-directory design:
+## Mandatory implementation workstreams
 
-1. Reproduce and independently audit the starting state. Preserve pre-existing
-   changes and record exact commands.
-2. Establish domain definitions against live schema metadata, source docs,
-   golden records, and official dashboard definitions. Repair truth defects.
-3. Build source/run manifests, bitemporal events, snapshot identity, offline
-   semantics, atomic publication, and fail-closed validation.
-4. Recompute all downstream artifacts and expose reconciliations and source
-   health. Do not keep compatibility with invalid scores merely to preserve a
-   color palette.
-5. Implement descriptive metrics and the minimum valid forecasting experiment.
-   If data is insufficient, suppress parcel ETAs and produce the collection
-   plan rather than forcing a model.
-6. Complete the property/community vertical slice and browser evaluation.
-7. Harden CI, operations, governance, accessibility, and performance.
-8. Perform the bounded spatial/license pass.
-9. Run the fresh independent evaluator, repair every material failure, rerun
-   all gates, and produce the final report.
+### Backend and data plane
 
-At milestone boundaries, preserve a coherent commit and update the compact
-state. A best-valid pointer may advance only after required machine gates and
-fresh evaluator evidence. Experimental work must not erase that checkpoint.
+Implement real production behavior, not architecture diagrams:
 
-## Subagent policy
+- database schemas and migrations for sources, acquisition runs, raw objects,
+  identities, source-record versions, observations/revisions, snapshots,
+  metrics, reconciliations, datasets, experiments, models, predictions,
+  spatial assets/candidates/review state, jobs, publications, and corrections;
+- content-addressed immutable object storage and an exact run/snapshot manifest;
+- online acquisition plus true zero-network offline replay;
+- deterministic paging, schema/domain drift detection, idempotency,
+  corrections/retractions, late-arrival behavior, and point-in-time queries;
+- orchestrated source refresh, civic snapshot, analytics, model evaluation,
+  spatial refresh, and release-candidate flows with typed retry/failure policy,
+  worker restart/idempotency, and reconciled Prefect/OpenPali lifecycle IDs;
+- transactional staging/promotion with PostgreSQL/API as the sole current/LKG
+  authority, a non-authoritative object mirror, rollback, and fault-injection
+  tests; and
+- `/v1/releases/current` plus release-qualified property/search/observations/
+  forecast/community/bottleneck/source/spatial/tile interfaces, separate live
+  operational health, liveness/readiness, OpenAPI, generated TypeScript types,
+  release-bound pagination/cache semantics, and bounded queries.
 
-Use the supplied agents proactively:
+Migrate every applicable core civic source named in the architecture source
+policy and consequential new CAL FIRE DINS data through the production path.
+DINS counts only when the verified full incident-filtered result, pagination,
+damage distribution, APN/address/spatial join and ambiguity counts, and an
+independently checked public property contribution all pass.
+Execute a separate current representative release and zero-network replay of
+its exact raw hashes; a polished fixture release cannot substitute for it.
 
-- `openpali-repository-auditor`: read-only archaeology and regression mapping.
-- `openpali-source-researcher`: official schemas, definitions, licensing, and
-  public-data candidates.
-- `openpali-methods-reviewer`: censoring, temporal evaluation, calibration,
-  metric design, and causal-claim review.
-- `openpali-spatial-reviewer`: acquisition time, asset truth, browser/GPU
-  profiling, rights, and benchmark design.
-- `openpali-independent-evaluator`: fresh, skeptical final and milestone
-  verification; it must not modify product code.
+### Analytics and continual ML
 
-Keep working while background research runs. Resolve disagreements with primary
-sources and observed behavior. Do not delegate the architectural synthesis or
-final integration.
+Replace the 0–100 heuristic as a prediction mechanism. Model explicit recovery
+questions and risk sets rather than a universal rank.
 
-## Human/external gates
+The first target is qualifying rebuild application submission to permit
+issuance: censoring-aware time-to-issuance and probability by 180 days. The
+unit is one qualifying application, never a silent property-level aggregation;
+withdrawal/cancellation/expiration policy and post-horizon behavior are
+predeclared. The implementation must build historical features using only observations
+known at each cutoff; declare populations, targets, horizons, censoring and
+competing events; create rolling-origin splits plus an untouched final period;
+and version data, features, labels, code, configuration, seeds, environment,
+metrics, calibration, cohorts, and artifacts.
 
-The sponsor must choose the source-code license. Written permission or a valid
-license must cover LARIAC/EagleView/Pictometry imagery, derived 3D assets,
-redistribution, and any model training before those assets can ship. A public
-URL is not permission. Default-disable or replace unresolved assets; document
-the exact decision needed from Andrew.
+Run a naive cohort baseline, a valid censoring-aware baseline, and at least one
+interpretable challenger. Evaluate discrimination/error as appropriate,
+time-specific loss, calibration, interval coverage, sample size, censoring,
+follow-up, missingness, and cohort failure. A new snapshot must trigger a
+reproducible challenger evaluation and report; model promotion remains manual
+and independently gated.
 
-No non-public resident material may enter Fable's context. Design future
-privacy and consent boundaries without ingesting real private data.
+The current representative ledger must always produce a real dataset,
+late-entry/sufficiency report, and any statistically valid naive or
+censoring-aware estimate. It may fit a representative challenger only when a
+precommitted methods-reviewed point-in-time-history gate passes; otherwise it
+must emit `INSUFFICIENT_POINT_IN_TIME_HISTORY`. The complete challenger,
+serialization, MLflow/OpenPali lifecycle, rejection, and serving path still
+executes on a nontrivial temporal fixture. Filesystem dates, current-row
+presence, retrospective status, and outcome dates never prove historical
+availability.
 
-## Definition of completion
+If real observations cannot support a public parcel estimate, serve a typed
+`insufficient_evidence` result and descriptive cohort history. That suppresses
+an unsafe prediction; it does not excuse omitting datasets, experiment runs,
+tracking, registry, promotion logic, batch serving, drift/reevaluation, or the
+fixture-backed eligible path.
 
-`contract/acceptance.json` is authoritative and initially fails. Fable may add
-stricter tests and acceptance items, never weaken or delete the supplied ones.
-Results and evidence belong under `state/`; do not edit status fields in the
-contract.
+### Spatial, multimodal, and 3D
 
-Completion requires a captured fresh evaluator `VERDICT: PASS`, all mandatory
-machine gates green, a clean worktree, coherent commits, and a final report for
-a founder who did not watch the run. The report must lead with what demonstrably
-works, then evidence, limitations, external release gates, and the next three
-highest-value missions.
+Treat spatial engineering as a core track. Preserve source/vintage,
+acquisition/observation/processing time, horizontal CRS, vertical datum,
+registration transform/residual, extent, resolution, coverage, quality,
+lineage, observation kind, rights state, and format version for every asset.
+
+Ship all of the following:
+
+- a real bounded public-domain USGS post-fire 3DEP Palisades AOI through the
+  production source-to-browser path, covering at least 25 damaged-universe
+  parcels and four requested LOD tiles and producing a nonempty USGS-derived
+  point/surfel layer in the custom renderer as well as terrain;
+- a source/capture registry and immutable asset pipeline;
+- terrain/elevation and parcel/evidence layers for the coherent snapshot;
+- independently labeled Gaussian/surfel/fallback vintage slots without
+  concatenating stale epochs;
+- a multimodal observation candidate/review state machine integrated with the
+  recovery ledger, where only accepted candidates append observations;
+- a CPU-runnable reconstruction/registration fixture and production job path,
+  plus an optional pinned GPU worker profile and bounded pilot when available;
+- a nontrivial two-view/depth-cloud fixture with withheld nonidentity transform,
+  noise, occlusion, change/no-change regions, estimated alignment/fusion, and
+  predeclared numeric transform/RMSE gates rather than a hard-coded result;
+- the same scan/evidence structure meaning in top-down 2D and opt-in 3D, with a
+  neutral contextual basemap, street labels, explicit fallback/no-coverage,
+  and no score-tinted pre-fire geometry presented as current evidence;
+- deterministic reference scenes, screenshots, numeric registration checks,
+  z-fighting/ordering reproductions, and browser/GPU/network/frame/memory
+  benchmarks; and
+- at least one material, profiling-selected production improvement, with
+  before/after evidence, to loading/cancellation, worker sorting/decoding,
+  memory allocation/eviction, picking, GL lifecycle/context recovery,
+  registration/datum, splat quality/LOD, or z-fighting.
+
+Unresolved LARIAC/EagleView/Pictometry rights require default exclusion or an
+open replacement. They do not permit disabling the entire 3D capability.
+
+### Product and operations
+
+Build routed, API-backed property, map, community, methods, and status
+experiences. A user must be able to trace a consequential claim to its source
+and snapshot, understand unknown/conflicting evidence, inspect bottleneck and
+model limitations, distinguish current/prior/derived/inferred spatial content,
+and use the core journey with keyboard, mobile, reduced motion, or no WebGL.
+
+The repository must provide a documented validated-Compose-plus-bootstrap local
+startup sequence, fast and full gates, a fixture release, a separate current
+representative-data release, model
+evaluation, spatial benchmark, browser E2E, release
+bundle, rollback, and restore drill. CI must run the same executable checks as
+local development; workflow YAML alone is not evidence. Add structured
+run/request/snapshot/source/model/asset observability, alerts tied to runbooks,
+dependency/secret/vulnerability checks, SBOM, privacy and methodology notices,
+attribution, correction/contact, security policy, and technical rights gates.
+
+## Execution sequence
+
+1. Reconcile the intended local starting state and reproduce current behavior.
+2. Repair source semantics and establish the golden truth gate.
+3. Build the storage/object/API spine and migrate one source-to-property slice.
+4. Complete multi-source orchestration, event storage, metrics, and atomic
+   publication.
+5. In parallel, implement the continual-ML, spatial/3D, and complete-product
+   tracks against the shared snapshot and APIs.
+6. Integrate all tracks into one fixture release and inject dependency,
+   acquisition, schema, model, publication, browser, and renderer failures.
+7. Complete CI, security, observability, operations, performance, and release
+   packaging.
+8. Run a fresh independent evaluation, repair material failures, and repeat
+   until every technical criterion passes.
+
+The principal owns the critical path. Read-only research subagents may run in
+parallel, but their summaries never replace implementation or verification.
+
+## Explicit non-goals
+
+- Actual cloud/production deployment, DNS, live migration, or merging/pushing.
+- Purchasing or tasking imagery; collecting private resident photos or records.
+- Choosing a source-code license or asserting proprietary rights for Andrew.
+- Automatic model promotion, unsupported causal impact claims, or resident,
+  agency, contractor, insurer, or program rankings.
+- Reconstructing the full Palisades at survey/insurance quality during this
+  local run.
+- Kafka, Kubernetes, a service mesh, microservice-per-source, a generic AutoML
+  platform, or unrelated framework rewrites.
+
+These exclusions limit authority and unnecessary scale. They do not remove the
+local backend, continual-learning platform, reconstruction/asset path, 3D
+product, or operations foundations.
+
+## Completion rule
+
+
+`openpali-one-shot/contract/acceptance.json` is authoritative and begins red.
+Every technical MUST requires a production implementation artifact outside
+`openpali-one-shot/` plus current runtime evidence of the declared kinds. A
+generic test log, documentation, a schema with no caller, a workflow with no
+executed flow, a model report with no reproducible run, or a benchmark with no
+production change cannot satisfy it.
+
+Completion requires:
+
+- a Prefect-worker fixture release and a separate current representative release
+  through acquisition, ledger, analytics, model, spatial publication, API, and
+  browser, plus exact-hash zero-network replay of the representative inputs;
+- a clean candidate commit with meaningful implementation in every component;
+- all fast/full/data/API/model/spatial/browser/security/ops gates passing;
+- a fresh skeptical evaluator PASS after independently exercising that exact
+  candidate, captured automatically by the supplied hook; and
+- a founder-readable final report committed in that evaluated candidate and
+  leading with demonstrated product behavior,
+  measured model/spatial/system results, limitations, external release gates,
+  and the next three highest-value research or implementation efforts.
+
+After the evaluator passes, make exactly one child evidence commit that changes
+only `openpali-one-shot/state/evaluator-latest.md` and
+`openpali-one-shot/state/evaluator-attestation.json`. The terminal
+command `python3 openpali-one-shot/scripts/verify_completion.py` must pass at
+that clean child commit. Do not add another control loop or modify product code
+between the evaluated candidate and this evidence commit.
+
+Only the source-code license and specific external rights/credential decisions
+may remain human gates after all safe implementation and default-disable paths
+are complete. Backend, data, ML, spatial, frontend, and operations cannot be
+recorded as planned deferrals or external blockers.

@@ -4,13 +4,17 @@ State: `NOT_STARTED`
 
 Verified checkpoint: none.
 
-Failing gate: all acceptance criteria begin `FAIL`.
+Technical criteria: 20 `MUST` items begin `FAIL`.
 
-Immediate next action: run harness validation and preflight from a clean,
-committed starting snapshot, then launch the single `/goal` prompt.
+Human release gate: `APPROVAL-001` begins `UNRESOLVED`; safe defaults must keep
+the rights-safe technical MVP functional.
 
-Known external decisions: source-code license; LARIAC/EagleView/Pictometry use,
-derivative, redistribution, and training rights.
+Immediate next action: validate the task package and run preflight from the
+clean, committed, intentionally reconciled local starting branch; then launch
+the single `/goal` prompt in this same checkout.
 
-This file is mutable during the Fable run. Keep it short and rewrite it when the
-truth changes.
+The first Fable status update must record actual local versions/capabilities,
+the baseline commands, current data/artifact state, the reconciled starting
+commit, parallel research tasks, and the first production-code checkpoint.
+
+This file is mutable during the run. Rewrite it to remain short and current.

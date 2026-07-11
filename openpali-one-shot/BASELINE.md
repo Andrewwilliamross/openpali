@@ -1,8 +1,8 @@
 # Verified starting baseline
 
 Captured 2026-07-11 in `/Users/andrewross/paliml` at commit `c59bc64` on
-`main`. Fable must reproduce time-sensitive facts in its isolated worktree and
-record corrections rather than editing this file.
+`main`. Fable must reproduce time-sensitive facts in the exact prepared local
+checkout and record corrections in mutable state rather than editing this file.
 
 At preparation time, that local commit was an ancestor of `origin/main` and 18
 remote commits behind it (`origin/main` at `4e2301f`). The remote line already
@@ -25,8 +25,28 @@ The working tree was dirty before this harness was added. It contained modified
 README/pipeline/type files, a `docs/` to `Docs/initialbuild_docs/` reorganization,
 untracked production-readiness documents, and `data/runs/`. These are user-owned
 changes. The launch preflight requires Andrew to commit the intended snapshot so
-the new worktree includes it; Fable must never reset, clean, stash, or overwrite
-them implicitly.
+Fable sees it in the same checkout; Fable must never reset, clean, stash, or
+overwrite it implicitly.
+
+## Shared local tool environment
+
+The preparation environment contained the actual repository, local public-data
+caches/artifacts, and the same tool surface Fable will receive:
+
+- Claude Code 2.1.207;
+- `uv` 0.8.24 and Python 3.14 on the host, with the project locked to Python
+  3.12 or newer;
+- Node 24.9.0 and npm 11.6.0;
+- Docker 28.5.1 and Docker Compose 2.40.3;
+- Git and authenticated GitHub CLI; and
+- the React browser project plus the checked-in civic and spatial artifacts.
+
+Preparation did not prove Docker daemon state, account-level Fable entitlement,
+GPU availability, free disk, browser binaries, or every native library. The
+preflight and Fable must probe these at launch. The current checkout and tool
+access are the starting environment; a linked Git worktree would only isolate
+source edits and would omit untracked local state, so this harness does not
+create one.
 
 ## Local verification
 
@@ -187,11 +207,16 @@ claims.
 
 ## Baseline interpretation
 
-The strongest path to community impact is not a larger score formula. It is:
+The strongest path to community impact is not a larger score formula, and it is
+not truth repair alone. The baseline demands a connected build:
 
-1. trustworthy source semantics and immutable observations;
-2. fail-closed, coherent publication;
-3. honest property timelines and community bottleneck measures;
-4. censoring-aware baselines with a data-sufficiency gate;
-5. a fast, accessible, evidence-first public product;
-6. licensed, versioned spatial context kept separate from observed progress.
+1. trustworthy source semantics and immutable bitemporal observations;
+2. persistent geospatial storage, object artifacts, orchestration, typed APIs,
+   fail-closed snapshots, last-known-good, and rollback;
+3. auditable property timelines and community bottleneck measures;
+4. an executed point-in-time continual-learning system with baseline,
+   challenger, tracking, gated reevaluation, and honest serving;
+5. an operational rights-safe spatial/reconstruction path plus measured 2D/3D
+   renderer improvements; and
+6. a fast, accessible API-backed product with CI, observability, security, and
+   recovery operations.

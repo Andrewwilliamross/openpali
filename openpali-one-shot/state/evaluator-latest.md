@@ -1,4 +1,5 @@
-VERDICT: NOT_RUN
+# Independent evaluator output
 
-No independent evaluator has run. This file is overwritten atomically with the
-evaluator's exact final response by the task-local `SubagentStop` hook.
+No passing final evaluation has run. This tracked placeholder is replaced only
+by the evaluator-capture hook after a fresh PASS at a clean candidate; Fable
+must never edit or paste this file manually.

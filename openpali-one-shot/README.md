@@ -1,175 +1,209 @@
 # OpenPali Fable 5 production-MVP one-shot
 
-This folder is the complete, siloed control plane for a long-running Claude
-Code experiment. It does **not** implement the MVP itself. It gives Fable 5 a
-repository-specific mission, immutable acceptance contract, bounded tools,
-persistent run state, specialist subagents, and an independent verification
-loop.
+This folder launches one Fable 5 principal-engineering run against the exact
+local OpenPali checkout. The goal is not another planning or harness sprint. It
+is an integrated production-MVP release candidate with a real backend/data
+platform, continual ML experimentation and serving, substantive spatial/3D
+engineering, complete product journeys, and executable operations.
 
-The mission is intentionally narrower than “improve everything.” It first
-repairs public-data truth and publication safety, then delivers one evidence-
-backed recovery-intelligence journey. Continual ML and 3D expansion are gated
-on trustworthy observations, licensing, and measured value.
+The known civic-data defects are mandatory phase-0 repairs because they poison
+metrics and learning labels. They are the foundation of the build, not a reason
+to omit the rest of it.
 
-## Before launch
+## What Fable is required to build
 
-1. Review `MISSION.md`, `BASELINE.md`, and `contract/acceptance.json`.
-2. Fetch the current remote refs (`git fetch --prune origin`) and make an
-   explicit starting-base decision. At harness creation, local `main` was 18
-   commits behind `origin/main`; the remote commits include overlapping
-   provenance and spatial work. Preserve the current local/uncommitted work on
-   a safe branch and reconcile deliberately. Do not reset, clean, or discard it.
-3. Decide which current uncommitted changes belong in the experiment snapshot,
-   then commit that complete snapshot—including this folder—on the safe branch.
-   Launch refuses a dirty tree and requires the remote default ref to be an
-   ancestor of local `HEAD`.
-4. Task settings pin Claude Code's isolated worktree to that local `HEAD`, not
-   its normal remote-default base. Preflight verifies every control-plane file
-   in this folder exists in the commit, so ignored or untracked controls cannot
-   silently disappear.
-5. Authenticate Claude Code (`claude auth login`) or configure the intended
-   supported API provider. Local inspection found no active Claude Code login;
-   Fable entitlement still depends on the account/provider.
-6. If this repository has not previously been trusted by Claude Code, start
-   `claude` once from the repository root, accept the workspace trust prompt,
-   and exit. This interactive trust decision cannot be pre-approved by the
-   harness.
-7. Run:
+- PostgreSQL/PostGIS-backed canonical recovery data and a FastAPI-style typed
+  backend, migrations, immutable object artifacts, snapshot APIs, and health;
+- idempotent source acquisition, Prefect-style orchestration, bitemporal event
+  history, metrics, atomic publication, last-known-good, and rollback;
+- point-in-time ML datasets, baseline plus challenger experiments, MLflow-style
+  tracking/registry, temporal evaluation, batch inference, and continual
+  reevaluation without unsafe automatic promotion;
+- a rights-safe spatial asset and reconstruction path, multimodal observation
+  contract, coherent 2D/3D map, and measured renderer/GPU/z-fighting/
+  registration improvements;
+- property and community intelligence journeys backed by the live local API;
+  and
+- a bounded validated-Compose-plus-bootstrap local operator path, CI-equivalent
+  gates, browser/model/spatial tests, observability, security, accessibility,
+  release, backup, and recovery work.
 
-   ```bash
-   python3 openpali-one-shot/scripts/validate_harness.py
-   ./openpali-one-shot/scripts/preflight.sh
-   ```
+The detailed reference architecture is
+[`research/production-mvp-architecture.md`](research/production-mvp-architecture.md).
+The machine-readable outcome contract is
+[`contract/acceptance.json`](contract/acceptance.json).
 
-## Launch
+## Why the harness is deliberately small
 
-From the repository root, run one command:
+Claude Code's native `/goal` loop already continues across turns and uses a
+fresh transcript evaluator. Fable 5 is also designed for long-horizon work and
+strong subagent delegation. This package therefore keeps only:
+
+- one immutable product mission and acceptance contract;
+- a compact startup context and safety guardrail;
+- read-only specialist research/evaluation agents;
+- launch, resume, preflight, and static validation scripts; and
+- small mutable plan/status/evidence directories plus one deterministic terminal
+  verifier.
+
+It does not run a custom stop loop or make Fable build another harness. Claude
+Code's native goal/evaluator loop decides when product work is complete; one
+hook preserves the fresh evaluator response and a small verifier proves that
+the terminal child contains evidence only. Working product behavior and
+independent runtime evidence remain the basis of completion.
+
+## Exact local environment
+
+Fable runs from this repository directory. No separate Git worktree is created.
+That means it sees the same committed files and local toolchain prepared by
+Andrew. The preflight intentionally requires the intended starting state to be
+clean and committed so existing work is included and attributable; it never
+resets, stashes, cleans, fetches, or rewrites that state.
+
+The preparation audit found:
+
+- Claude Code 2.1.207;
+- `uv` 0.8.24 and the locked Python 3.12 project;
+- Node 24.9.0 and npm 11.6.0;
+- Docker 28.5.1 and Docker Compose 2.40.3; and
+- the current local data, cache, spatial artifacts, browser project, and
+  uncommitted production-readiness work described in `BASELINE.md`.
+
+Fable must probe and record the actual launch-time state rather than trusting
+these preparation-time versions. A Docker socket is effectively host authority,
+so raw Docker is unavailable to Fable. The only unsandboxed path is the supplied
+`scripts/docker_safe.py` wrapper, which accepts repository-scoped Compose
+operations after structural and rendered validation. It uses an isolated
+Docker HOME/config and fixed local socket; blocks external resources, local
+secret files, unsafe mounts/contexts/privileges, unpinned external images, and
+arbitrary `run`/`exec`; and permits runtime egress only through one pinned,
+bind-free proxy while product services remain on internal networks.
+
+## Before the one-shot
+
+The launch must represent the intended product snapshot, not an accidental
+combination of stale local and remote history.
+
+1. Review and reconcile the local branch, current user-owned changes, and the
+   useful `origin/main` work identified in `BASELINE.md` and the architecture
+   blueprint.
+2. Commit the exact starting snapshot on the branch Fable should develop.
+3. Run `claude` once from the repository and accept workspace trust.
+4. Authenticate Claude Code and confirm the account can use Fable 5.
+5. Decide the maximum spend/time for the run. The headless launcher requires an
+   explicit dollar cap.
+
+Use the headless launcher when a hard CLI-enforced budget is required;
+interactive mode requires the operator to monitor and interrupt the session.
+
+The sponsor may decide the source-code license and proprietary imagery rights
+later. The mission requires technical gates and rights-safe defaults now.
+
+## Validate and launch
+
+From `/Users/andrewross/paliml`:
 
 ```bash
+./openpali-one-shot/scripts/preflight.sh
 ./openpali-one-shot/scripts/launch.sh
 ```
 
-The script launches Claude Code 2.1.207 or newer—the tested harness floor—with:
+`launch.sh` starts Fable 5 at `xhigh` effort in the current checkout with the
+single prompt in `GOAL_PROMPT.txt`, the task-local specialist agents, the
+task-local sandbox/permission policy, and the user's normal local project
+instructions and browser/toolchain environment. Ambient MCP connectors are
+excluded so signed-in external write tools cannot bypass the Git/deployment
+boundary; public research remains available through WebSearch/WebFetch.
 
-- Claude Fable 5 at `xhigh` effort;
-- an isolated Git worktree named `openpali-fable5-mvp`;
-- Claude Code sandboxing and auto permission review;
-- this folder's local plugin, agents, hooks, and guardrails;
-- an explicit empty MCP configuration, a fixed built-in tool surface, no
-  signed-in Chrome session, and no user/project CLAUDE.md or auto-memory;
-- a single `/goal` prompt from `GOAL_PROMPT.txt`.
-
-`/goal` keeps starting turns until the condition is satisfied. If the session
-is interrupted, resume it with Claude Code's `--continue` or `--resume`; active
-goals are restored. The authoritative state is on disk under `state/`, not in
-one conversation. The task raises Claude Code's default consecutive Stop-hook
-override cap so an incomplete narrative cannot end the run after eight blocks;
-use Ctrl+C for deliberate human interruption and a headless budget cap for
-unattended spend control.
-
-For a non-interactive run with a hard API-spend ceiling, use:
+For a non-interactive run with an explicit incremental spend cap:
 
 ```bash
-OPENPALI_MAX_BUDGET_USD=<positive-cap> ./openpali-one-shot/scripts/launch_headless.sh
+OPENPALI_MAX_BUDGET_USD=250 \
+  ./openpali-one-shot/scripts/launch_headless.sh
 ```
 
-This harness deliberately does not choose a budget for the sponsor.
-
-## Preserve and resume the experiment
-
-When the interactive Claude session exits, choose **Keep the worktree**. The
-Claude Code Remove option deletes the worktree branch and its new commits. Then
-inspect the exact branch and commit before any integration:
+The headless launcher prints a UUID and stores the JSONL stream under
+`openpali-one-shot/state/runs/<session-id>/`. Resume it with:
 
 ```bash
-git worktree list
-git -C .claude/worktrees/openpali-fable5-mvp status --short --branch
-git -C .claude/worktrees/openpali-fable5-mvp log --oneline --decorate -10
-```
-
-Resume an interrupted interactive run with:
-
-```bash
-./openpali-one-shot/scripts/resume.sh
-```
-
-Headless worktrees are retained automatically. The launcher prints and records
-the required UUID. Resume with a new explicit incremental spend cap:
-
-```bash
-OPENPALI_SESSION_ID=<uuid> OPENPALI_MAX_BUDGET_USD=<positive-cap> \
+OPENPALI_SESSION_ID=<uuid> OPENPALI_MAX_BUDGET_USD=100 \
   ./openpali-one-shot/scripts/resume_headless.sh
 ```
 
-Do not remove either worktree until Andrew has reviewed and preserved its
-branch. Neither launch path pushes, merges, or deploys.
+The interactive launcher prints its UUID before Claude starts. Resume that
+session from the same checkout and branch with:
 
-## Experiment record
+```bash
+OPENPALI_SESSION_ID=<uuid> ./openpali-one-shot/scripts/resume.sh
+```
 
-Each launch gets a UUID and an ignored trace directory at
-`state/runs/<session-id>/`. Hooks record lifecycle events, starting and final
-commit/branch, requested and observed models, observed token/cost fields, wall
-time, status, and a hash plus archival copy of the Claude transcript. Headless
-mode also records the complete stream-JSON output and process exit. These trace
-files are experiment observability—not product acceptance evidence—and should
-be handled according to the no-private-data rule.
+## Specialist agents
 
-## What is enforced
+Fable remains the only architect/integrator and uses read-only subagents for
+input-heavy work:
 
-- `MISSION.md`, `SYSTEM.md`, `BASELINE.md`, the acceptance contract, plugin,
-  settings, launch controls, and evaluator artifacts are protected from both
-  built-in edit tools and sandboxed subprocess writes during the run.
-- Git push, remote-ref mutation, GitHub CLI, common ad-hoc network clients,
-  production deploy commands, destructive Git, and paid acquisition are
-  blocked. The network allowlist is defense in depth, not TLS method
-  inspection; the operating contract remains authoritative.
-- Ambient MCP servers and personal Chrome state are excluded so the run cannot
-  silently acquire unrelated external authority.
-- Claude/cloud credentials are stripped from Bash, hooks, and stdio child
-  processes while the parent Claude process retains authentication.
-- A `SessionStart` hook re-injects the operating invariants and compact status
-  after startup, resume, or compaction.
-- Input-heavy research and audit work has named read-only agents. One principal
-  owns architecture and integration.
-- The final evaluator has no Write/Edit tools. Its exact verdict is captured by
-  a hook, bound to its transcript, contract hash, and evaluated commit.
-- The `/goal` evaluator is only a persistence mechanism. It cannot call tools;
-  it is never treated as the independent product verifier.
-- A deterministic Stop hook rejects narrative completion unless the terminal
-  evidence schema, required criterion IDs, evaluator attestation, commit chain,
-  and clean-tree rules validate.
+- repository and backend/data-platform archaeology;
+- official public-data and rights research;
+- continual-ML/statistical methods and leakage review;
+- multimodal/spatial/reconstruction/renderer analysis; and
+- fresh adversarial evaluation of the integrated candidate.
 
-## Terminal states
+They may retrieve papers, documentation, schemas, public data candidates, and
+large test/log context. Their reports are not implementation evidence.
+The input-heavy research agents use Sonnet so Fable's frontier context remains
+focused on architecture, implementation, integration, and final evaluation.
 
-- `PASS`: every mandatory acceptance item has machine evidence and the fresh
-  independent evaluator returns `VERDICT: PASS`.
-- `BLOCKED_EXTERNAL`: all safe in-scope work is complete and only a documented
-  human decision, private credential, license/right, or material spend remains.
-- `BUDGET_EXHAUSTED` or `STALLED`: the best valid commit, failing gates, exact
-  resume command, and next action are recorded. Neither is MVP completion or a
-  Stop-gate success; a budget limit, API failure, or deliberate human interrupt
-  ends the invocation while preserving those recovery records.
+## Completion evidence
 
-## Cost and data warning
+A release candidate passes only when:
 
-Fable 5 is a premium model and `/goal` can run for many turns. Monitor spend.
-Anthropic's current documentation also says Fable is not available for
-zero-data-retention use and uses 30-day retention. Keep resident submissions,
-credentials, insurance documents, private imagery, and other non-public data
-out of this experiment.
+- meaningful product implementation exists outside this task folder in every
+  required component;
+- a Prefect-worker fixture release and a separate current representative-data
+  release exercise source acquisition, temporal ledger, metrics, model
+  evaluation/status, spatial publication, release-qualified API, and browser;
+- the representative release includes the named civic sources, DINS, and a real
+  USGS Palisades AOI, and exact-hash zero-network replay matches;
+- fast/full/CI-equivalent, browser, model, spatial, security, and recovery
+  checks pass;
+- the working tree is clean at the candidate commit;
+- the fresh independent evaluator reports `VERDICT: PASS` after rerunning the
+  exact clean candidate;
+- exactly one evidence-only child changes the two hook-owned files in
+  `state/README.md` while the founder report remains in the evaluated candidate;
+  and
+- `python3 openpali-one-shot/scripts/verify_completion.py` passes there.
+
+Data insufficiency may cause a typed no-forecast product result, but the ML
+system must still execute. Proprietary-rights uncertainty may remove an asset,
+but a rights-safe 3D path must still work. Documentation-only, harness-only,
+workflow-YAML-only, no-model, or disabled-3D-only outcomes fail.
 
 ## Folder map
 
 ```text
 openpali-one-shot/
-├── GOAL_PROMPT.txt              single prompt sent to Claude Code
-├── SYSTEM.md                    compact non-negotiable operating contract
-├── MISSION.md                   product outcome, scope, and execution policy
-├── BASELINE.md                  verified repository findings as of 2026-07-11
-├── contract/                    immutable acceptance and evidence schema
-├── research/                    curated primary-source brief
-├── state/                       mutable plan, status, evidence, and handoffs
-├── plugin/                      local Claude Code agents and hooks
-├── scripts/                     launch, resume, preflight, and validation
-└── state/runs/                  ignored session manifests and trace archives
+├── GOAL_PROMPT.txt
+├── SYSTEM.md
+├── MISSION.md
+├── BASELINE.md
+├── contract/acceptance.json
+├── research/
+│   ├── BRIEF.md
+│   └── production-mvp-architecture.md
+├── plugin/
+│   ├── agents/
+│   ├── hooks/hooks.json
+│   └── scripts/
+├── scripts/
+│   ├── preflight.sh
+│   ├── validate_harness.py
+│   ├── verify_completion.py
+│   ├── docker_safe.py
+│   ├── launch.sh
+│   ├── launch_headless.sh
+│   ├── resume.sh
+│   └── resume_headless.sh
+├── settings.json
+└── state/
 ```

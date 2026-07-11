@@ -1,7 +1,7 @@
 ---
 name: openpali-source-researcher
 description: Use proactively for input-heavy official public-data, schema, field-semantics, licensing, privacy, and source-candidate research. Read-only and primary-source-first.
-model: inherit
+model: sonnet
 effort: medium
 maxTurns: 60
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
@@ -23,6 +23,9 @@ failure modes; and a small contract-test fixture plan.
 Explicitly investigate County cleanup/opt-out, LADBS fire-rebuild qualifying
 fields, inspection outcome codes, official metric definitions, Malibu access,
 LARIAC/EagleView/Pictometry display/derivative/redistribution/training rights,
-Esri Wayback acquisition metadata, and open USGS/NOAA alternatives. Cite direct
-URLs and retrieved timestamps. Mark unresolved rights as blockers; never infer
-permission from access.
+Esri Wayback acquisition metadata, and open USGS/NOAA alternatives. Discover
+and rank at least one consequential new civic or spatial source that can be
+integrated in this run, including CAL FIRE DINS and USGS post-fire elevation,
+and provide an executable adapter/fixture contract. Cite direct URLs and
+retrieved timestamps. Mark unresolved rights as release gates; never infer
+permission from access and never suggest omitting the rights-safe spatial path.

@@ -11,25 +11,26 @@ cd "$REPO_ROOT"
 goal="$(<"$TASK_DIR/GOAL_PROMPT.txt")"
 system_prompt="$(<"$TASK_DIR/SYSTEM.md")"
 session_id="$(python3 -c 'import uuid; print(uuid.uuid4())')"
+run_dir="$TASK_DIR/state/runs/$session_id"
+mkdir -p "$run_dir"
+
+python3 -c 'import json,sys; from pathlib import Path; Path(sys.argv[1]).write_text(json.dumps({"session_id":sys.argv[2],"mode":"interactive","checkout":sys.argv[3],"start_commit":sys.argv[4],"branch":sys.argv[5]},indent=2)+"\n")' \
+  "$run_dir/launcher.json" "$session_id" "$REPO_ROOT" "$(git rev-parse HEAD)" "$(git branch --show-current)"
+
+echo "INTERACTIVE_SESSION_ID: $session_id"
+echo "RESUME_WITH: OPENPALI_SESSION_ID=$session_id ./openpali-one-shot/scripts/resume.sh"
 
 unset GH_TOKEN GITHUB_TOKEN NPM_TOKEN NODE_AUTH_TOKEN PYPI_TOKEN VERCEL_TOKEN NETLIFY_AUTH_TOKEN CLOUDFLARE_API_TOKEN
-export OPENPALI_RUNS_ROOT="$TASK_DIR/state/runs"
-python3 "$TASK_DIR/plugin/scripts/run_observer.py" --launch "$session_id" interactive
 
 exec claude \
   --session-id "$session_id" \
   --model fable \
   --effort xhigh \
   --permission-mode auto \
-  --brief \
-  --no-chrome \
   --strict-mcp-config \
   --mcp-config "$TASK_DIR/mcp.json" \
-  --setting-sources project \
-  --tools "Bash,Edit,Read,Write,Grep,Glob,Agent,WebFetch,WebSearch" \
   --name "OpenPali Fable 5 production MVP" \
   --plugin-dir "$TASK_DIR/plugin" \
   --settings "$TASK_DIR/settings.json" \
   --append-system-prompt "$system_prompt" \
-  --worktree openpali-fable5-mvp \
   "$goal"

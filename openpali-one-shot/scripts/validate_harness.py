@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static validation for the siloed OpenPali one-shot control plane."""
+"""Static integrity checks for the product-directed OpenPali one-shot."""
 
 from __future__ import annotations
 
@@ -7,347 +7,291 @@ import ast
 import hashlib
 import json
 import os
-import re
-import sys
 from pathlib import Path
+from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-
-REQUIRED = (
-    ".gitignore",
-    "README.md",
-    "GOAL_PROMPT.txt",
-    "SYSTEM.md",
-    "MISSION.md",
-    "BASELINE.md",
-    "settings.json",
-    "mcp.json",
-    "research/BRIEF.md",
-    "contract/acceptance.json",
-    "contract/evidence.schema.json",
-    "state/STATUS.md",
-    "state/PLAN.md",
-    "state/evaluator-latest.md",
-    "state/evaluator/.gitkeep",
-    "plugin/.claude-plugin/plugin.json",
-    "plugin/hooks/hooks.json",
-    "plugin/agents/repository-auditor.md",
-    "plugin/agents/source-researcher.md",
-    "plugin/agents/methods-reviewer.md",
-    "plugin/agents/spatial-reviewer.md",
-    "plugin/agents/independent-evaluator.md",
-    "plugin/scripts/inject_context.py",
-    "plugin/scripts/guardrails.py",
-    "plugin/scripts/evaluator_protocol.py",
-    "plugin/scripts/capture_evaluator.py",
-    "plugin/scripts/terminal_gate.py",
-    "plugin/scripts/run_observer.py",
-    "scripts/preflight.sh",
-    "scripts/launch.sh",
-    "scripts/launch_headless.sh",
-    "scripts/resume.sh",
+REQUIRED = {
+    ".gitignore", "README.md", "GOAL_PROMPT.txt", "SYSTEM.md", "MISSION.md",
+    "BASELINE.md", "settings.json", "mcp.json", "research/BRIEF.md",
+    "research/production-mvp-architecture.md", "contract/acceptance.json",
+    "state/README.md", "state/STATUS.md", "state/PLAN.md",
+    "state/evaluator-latest.md", "state/evidence/.gitkeep",
+    "state/failures/.gitkeep", "state/handoffs/.gitkeep",
+    "state/memory/.gitkeep", "state/runs/.gitkeep",
+    "plugin/.claude-plugin/plugin.json", "plugin/hooks/hooks.json",
+    "plugin/scripts/inject_context.py", "plugin/scripts/guardrails.py",
+    "plugin/scripts/capture_evaluator.py", "scripts/preflight.sh",
+    "scripts/docker_safe.py", "scripts/test_harness.py",
+    "scripts/validate_harness.py", "scripts/verify_completion.py",
+    "scripts/launch.sh", "scripts/launch_headless.sh", "scripts/resume.sh",
     "scripts/resume_headless.sh",
-    "scripts/test_controls.py",
+}
+COMPONENTS = {
+    "environment", "domain_truth", "acquisition", "canonical_store",
+    "publication", "backend", "analytics", "ml_data", "ml_experiments",
+    "ml_operations", "spatial_pipeline", "renderer_3d",
+    "multimodal_observations", "property_product", "community_product",
+    "cross_stack", "ci_release", "operations", "governance_security",
+    "independent_evaluation", "human_release_gate",
+}
+AGENTS = {
+    "openpali-repository-auditor", "openpali-source-researcher",
+    "openpali-platform-researcher", "openpali-methods-reviewer",
+    "openpali-spatial-reviewer", "openpali-multimodal-researcher",
+    "openpali-independent-evaluator",
+}
+OBSOLETE = {
+    "plugin/scripts/terminal_gate.py", "plugin/scripts/evaluator_protocol.py",
+    "plugin/scripts/run_observer.py", "scripts/test_controls.py",
     "scripts/test_observer.py",
-    "state/.gitignore",
-    "state/runs/.gitkeep",
-)
+}
+ENTRYPOINTS = {
+    "scripts/preflight.sh", "scripts/docker_safe.py", "scripts/test_harness.py",
+    "scripts/validate_harness.py", "scripts/verify_completion.py",
+    "scripts/launch.sh", "scripts/launch_headless.sh", "scripts/resume.sh",
+    "scripts/resume_headless.sh",
+}
 
 
-def fail(errors: list[str], message: str) -> None:
-    errors.append(message)
-
-
-def load_json(errors: list[str], relative: str) -> dict:
-    path = ROOT / relative
+def load(relative: str, errors: list[str]) -> dict[str, Any]:
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = json.loads((ROOT / relative).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        fail(errors, f"{relative}: invalid JSON: {exc}")
+        errors.append(f"{relative}: invalid JSON: {exc}")
         return {}
     if not isinstance(value, dict):
-        fail(errors, f"{relative}: top level must be an object")
+        errors.append(f"{relative}: top level must be an object")
         return {}
     return value
 
 
-def validate_markdown_links(errors: list[str]) -> None:
-    link_re = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
-    for path in ROOT.rglob("*.md"):
-        for target in link_re.findall(path.read_text(encoding="utf-8")):
-            target = target.strip().strip("<>").split("#", 1)[0]
-            if not target or target.startswith(("http://", "https://", "mailto:")):
-                continue
-            resolved = (path.parent / target).resolve()
-            if not resolved.exists():
-                fail(errors, f"{path.relative_to(ROOT)}: missing local link target {target}")
+def validate_contract(contract: dict[str, Any], errors: list[str]) -> tuple[int, int]:
+    if contract.get("immutable") is not True or contract.get("contract_version") != "2.0.0":
+        errors.append("acceptance contract must be immutable version 2.0.0")
+    if "outside openpali-one-shot" not in str(contract.get("implementation_rule") or ""):
+        errors.append("acceptance contract must require product implementation outside the task folder")
+    kinds = contract.get("evidence_kinds")
+    evidence_kinds = set(kinds) if isinstance(kinds, list) else set()
+    criteria = contract.get("criteria")
+    if not isinstance(criteria, list):
+        errors.append("acceptance criteria must be an array")
+        return 0, 0
+
+    ids: list[str] = []
+    components: set[str] = set()
+    must = human = implementations = 0
+    for item in criteria:
+        if not isinstance(item, dict):
+            errors.append("acceptance criterion is not an object")
+            continue
+        criterion_id = str(item.get("id") or "")
+        ids.append(criterion_id)
+        components.add(str(item.get("component") or ""))
+        priority = item.get("priority")
+        if priority == "MUST":
+            must += 1
+            implementations += item.get("implementation_required") is True
+            release_exception = (
+                criterion_id == "RELEASE-001"
+                and item.get("component") == "independent_evaluation"
+                and item.get("implementation_required") is False
+            )
+            if item.get("status") != "FAIL" or item.get("external_blockable") is not False:
+                errors.append(f"{criterion_id}: technical criterion must begin FAIL and be non-blockable")
+            if item.get("implementation_required") is not True and not release_exception:
+                errors.append(f"{criterion_id}: invalid implementation flag")
+        elif priority == "HUMAN_GATE":
+            human += 1
+            if (
+                item.get("status") != "UNRESOLVED"
+                or item.get("implementation_required") is not False
+                or item.get("external_blockable") is not True
+            ):
+                errors.append(f"{criterion_id}: malformed human gate")
+        else:
+            errors.append(f"{criterion_id}: unsupported priority")
+        required_kinds = item.get("required_evidence_kinds")
+        if not isinstance(required_kinds, list) or not required_kinds or not set(required_kinds).issubset(evidence_kinds):
+            errors.append(f"{criterion_id}: invalid evidence kinds")
+        if any(not item.get(key) for key in ("title", "requirement", "proof", "fail_if")):
+            errors.append(f"{criterion_id}: incomplete criterion")
+
+    if len(ids) != len(set(ids)):
+        errors.append("acceptance IDs must be unique")
+    if (must, implementations, human) != (20, 19, 1) or "APPROVAL-001" not in ids:
+        errors.append(f"acceptance counts must be 20 MUST/19 implementation/1 human, got {must}/{implementations}/{human}")
+    if components != COMPONENTS:
+        errors.append(f"acceptance component mismatch: missing {sorted(COMPONENTS-components)}, extra {sorted(components-COMPONENTS)}")
+    serialized = json.dumps(contract)
+    for phrase in (
+        "time-to-issuance", "Prefect", "representative Palisades release",
+        "USGS 2025 post-wildfire 3DEP", "/v1/releases/{release_id}/", "N to N+1",
+    ):
+        if phrase not in serialized:
+            errors.append(f"acceptance contract is missing frozen product depth: {phrase}")
+    return must, human
 
 
 def validate_agents(errors: list[str]) -> None:
     names: set[str] = set()
-    for path in (ROOT / "plugin" / "agents").glob("*.md"):
+    for path in (ROOT / "plugin/agents").glob("*.md"):
         text = path.read_text(encoding="utf-8")
         if not text.startswith("---\n") or "\n---\n" not in text[4:]:
-            fail(errors, f"{path.relative_to(ROOT)}: missing frontmatter")
+            errors.append(f"{path.relative_to(ROOT)}: invalid frontmatter")
             continue
-        frontmatter = text.split("---", 2)[1]
-        fields: dict[str, str] = {}
-        for line in frontmatter.splitlines():
+        fields = {}
+        for line in text.split("---", 2)[1].splitlines():
             if ":" in line:
                 key, value = line.split(":", 1)
                 fields[key.strip()] = value.strip()
-        for key in ("name", "description", "model", "effort", "tools"):
-            if not fields.get(key):
-                fail(errors, f"{path.relative_to(ROOT)}: missing {key}")
-        name = fields.get("name", "")
-        if name in names:
-            fail(errors, f"duplicate agent name: {name}")
-        names.add(name)
-    expected = {
-        "openpali-repository-auditor",
-        "openpali-source-researcher",
-        "openpali-methods-reviewer",
-        "openpali-spatial-reviewer",
-        "openpali-independent-evaluator",
-    }
-    if names != expected:
-        fail(errors, f"agent set mismatch: expected {sorted(expected)}, got {sorted(names)}")
+        if any(not fields.get(key) for key in ("name", "description", "model", "effort", "tools")):
+            errors.append(f"{path.relative_to(ROOT)}: incomplete agent frontmatter")
+        names.add(fields.get("name", ""))
+    if names != AGENTS:
+        errors.append(f"agent set mismatch: expected {sorted(AGENTS)}, got {sorted(names)}")
+
+
+def count_lines(paths: list[Path]) -> int:
+    return sum(len(path.read_text(encoding="utf-8").splitlines()) for path in paths if path.is_file())
 
 
 def main() -> int:
     errors: list[str] = []
-    for relative in REQUIRED:
+    for relative in sorted(REQUIRED):
         if not (ROOT / relative).is_file():
-            fail(errors, f"missing required file: {relative}")
+            errors.append(f"missing required file: {relative}")
+    for relative in sorted(ENTRYPOINTS):
+        if (ROOT / relative).is_file() and not os.access(ROOT / relative, os.X_OK):
+            errors.append(f"{relative}: entrypoint must be executable")
+    for relative in sorted(OBSOLETE):
+        if (ROOT / relative).exists():
+            errors.append(f"obsolete control remains: {relative}")
 
-    for path in (ROOT / "scripts").glob("*.sh"):
-        if not os.access(path, os.X_OK):
-            fail(errors, f"{path.relative_to(ROOT)}: launch/control script must be executable")
-
-    acceptance = load_json(errors, "contract/acceptance.json")
-    evidence_schema = load_json(errors, "contract/evidence.schema.json")
-    settings = load_json(errors, "settings.json")
-    mcp = load_json(errors, "mcp.json")
-    plugin = load_json(errors, "plugin/.claude-plugin/plugin.json")
-    hooks = load_json(errors, "plugin/hooks/hooks.json")
-
-    if acceptance:
-        if acceptance.get("immutable") is not True:
-            fail(errors, "acceptance contract must be immutable")
-        criteria = acceptance.get("criteria")
-        if not isinstance(criteria, list) or len(criteria) < 15:
-            fail(errors, "acceptance contract must contain at least 15 criteria")
-            criteria = []
-        ids: list[str] = []
-        for item in criteria:
-            if not isinstance(item, dict):
-                fail(errors, "acceptance criterion is not an object")
-                continue
-            criterion_id = str(item.get("id") or "")
-            ids.append(criterion_id)
-            if item.get("priority") != "MUST":
-                fail(errors, f"{criterion_id}: supplied criterion must be MUST")
-            if item.get("status") != "FAIL":
-                fail(errors, f"{criterion_id}: initial status must be FAIL")
-            if not item.get("proof") or not item.get("fail_if"):
-                fail(errors, f"{criterion_id}: proof and fail_if are required")
-        if len(ids) != len(set(ids)):
-            fail(errors, "acceptance criterion IDs must be unique")
-        schema_covered_ids: set[str] = set()
-        for clause in evidence_schema.get("allOf", []) if evidence_schema else []:
-            try:
-                criterion_id = clause["properties"]["criteria"]["contains"]["properties"]["id"]["const"]
-            except (KeyError, TypeError):
-                continue
-            if isinstance(criterion_id, str):
-                schema_covered_ids.add(criterion_id)
-        missing_schema_ids = sorted(set(ids) - schema_covered_ids)
-        if missing_schema_ids:
-            fail(
-                errors,
-                "evidence schema must require every supplied criterion exactly once; missing "
-                + ", ".join(missing_schema_ids),
-            )
-        try:
-            schema_version = evidence_schema["properties"]["schema_version"]["const"]
-        except (KeyError, TypeError):
-            schema_version = None
-        if schema_version != "2.0.0":
-            fail(errors, "evidence schema must require schema_version 2.0.0")
+    contract = load("contract/acceptance.json", errors)
+    settings = load("settings.json", errors)
+    mcp = load("mcp.json", errors)
+    plugin = load("plugin/.claude-plugin/plugin.json", errors)
+    hooks = load("plugin/hooks/hooks.json", errors)
+    must, human = validate_contract(contract, errors) if contract else (0, 0)
+    if mcp.get("mcpServers") != {}:
+        errors.append("strict task MCP must contain no ambient connectors")
 
     goal = (ROOT / "GOAL_PROMPT.txt").read_text(encoding="utf-8").strip()
-    if not goal.startswith("/goal "):
-        fail(errors, "GOAL_PROMPT.txt must be a single /goal prompt")
-    if len(goal) > 4000:
-        fail(errors, f"GOAL_PROMPT.txt exceeds Claude Code's 4,000-character goal limit: {len(goal)}")
+    if not goal.startswith("/goal ") or "\n" in goal or len(goal) > 4000:
+        errors.append(f"GOAL_PROMPT.txt must be one /goal line at most 4,000 characters, got {len(goal)}")
+    for phrase in ("backend", "learning system", "spatial", "exact current local", "cannot be deferred"):
+        if phrase not in goal.lower():
+            errors.append(f"GOAL_PROMPT.txt is missing: {phrase}")
 
-    sandbox = settings.get("sandbox") if settings else None
-    if not isinstance(sandbox, dict) or sandbox.get("enabled") is not True:
-        fail(errors, "settings must enable sandboxing")
-    elif sandbox.get("failIfUnavailable") is not True or sandbox.get("allowUnsandboxedCommands") is not False:
-        fail(errors, "sandbox must fail closed and disallow the escape hatch")
-
-    worktree = settings.get("worktree") if settings else None
-    if not isinstance(worktree, dict) or worktree.get("baseRef") != "head":
-        fail(errors, "settings must pin worktree.baseRef to local head")
-
-    environment = settings.get("env") if settings else None
-    if not isinstance(environment, dict) or environment.get("CLAUDE_CODE_SUBPROCESS_ENV_SCRUB") != "1":
-        fail(errors, "settings must scrub credentials from subprocess environments")
-    else:
-        try:
-            stop_cap = int(environment.get("CLAUDE_CODE_STOP_HOOK_BLOCK_CAP", "0"))
-        except (TypeError, ValueError):
-            stop_cap = 0
-        if stop_cap < 1000:
-            fail(errors, "settings must raise Claude Code's Stop-hook override cap")
-
-    filesystem = sandbox.get("filesystem") if isinstance(sandbox, dict) else None
-    deny_write = filesystem.get("denyWrite") if isinstance(filesystem, dict) else None
-    required_deny_write = {
-        "./.claude",
-        "./openpali-one-shot/contract",
-        "./openpali-one-shot/plugin",
-        "./openpali-one-shot/scripts",
-        "./openpali-one-shot/state/evaluator-latest.md",
-        "./openpali-one-shot/state/evaluator-attestation.json",
-        "./openpali-one-shot/state/evaluator",
+    sandbox = settings.get("sandbox")
+    if not isinstance(sandbox, dict):
+        sandbox = {}
+    if (
+        sandbox.get("enabled") is not True
+        or sandbox.get("failIfUnavailable") is not True
+        or sandbox.get("allowUnsandboxedCommands") is not False
+    ):
+        errors.append("sandbox must be enabled and fail closed")
+    wrappers = {
+        "python3 openpali-one-shot/scripts/docker_safe.py *",
+        "./openpali-one-shot/scripts/docker_safe.py *",
     }
-    if not isinstance(deny_write, list) or not required_deny_write.issubset(set(deny_write)):
-        fail(errors, "sandbox must deny subprocess writes to immutable/evaluator controls")
-
-    permissions = settings.get("permissions") if settings else None
-    permission_denies = permissions.get("deny") if isinstance(permissions, dict) else None
-    required_edit_denies = {
-        "Edit(/openpali-one-shot/contract/**)",
-        "Edit(/openpali-one-shot/plugin/**)",
-        "Edit(/openpali-one-shot/scripts/**)",
-        "Edit(/openpali-one-shot/state/evaluator-latest.md)",
-        "Edit(/openpali-one-shot/state/evaluator-attestation.json)",
-        "Edit(/openpali-one-shot/state/evaluator/**)",
+    excluded = sandbox.get("excludedCommands")
+    if not isinstance(excluded, list) or not wrappers.issubset(set(excluded)) or "docker *" in excluded:
+        errors.append("only the validated Docker wrapper may bypass the Bash sandbox")
+    if "worktree" in settings:
+        errors.append("settings must use the exact checkout, not a worktree")
+    if (settings.get("env") or {}).get("CLAUDE_CODE_SUBPROCESS_ENV_SCRUB") != "1":
+        errors.append("subprocess credential scrubbing must be enabled")
+    deny = (settings.get("permissions") or {}).get("deny")
+    if not isinstance(deny, list) or "Bash(docker *)" not in deny:
+        errors.append("settings must deny raw Docker")
+    filesystem = sandbox.get("filesystem") or {}
+    deny_write = set(filesystem.get("denyWrite") or [])
+    protected = {
+        "./openpali-one-shot/GOAL_PROMPT.txt", "./openpali-one-shot/MISSION.md",
+        "./openpali-one-shot/research", "./openpali-one-shot/contract",
+        "./openpali-one-shot/plugin", "./openpali-one-shot/scripts",
     }
-    if not isinstance(permission_denies, list) or not required_edit_denies.issubset(set(permission_denies)):
-        fail(errors, "permissions must deny built-in edits to immutable/evaluator controls")
+    if not protected.issubset(deny_write):
+        errors.append("immutable mission/contract/plugin/scripts are not protected")
+    network = sandbox.get("network") or {}
+    domains = set(network.get("allowedDomains") or [])
+    if network.get("allowLocalBinding") is not True:
+        errors.append("sandbox must permit local service/browser binding")
+    for domain in ("services.arcgis.com", "pypi.org", "registry.npmjs.org", "docs.prefect.io", "mlflow.org", "postgis.net"):
+        if domain not in domains:
+            errors.append(f"sandbox network allowlist is missing {domain}")
 
-    network = sandbox.get("network") if isinstance(sandbox, dict) else None
-    allowed_domains = network.get("allowedDomains") if isinstance(network, dict) else None
-    if not isinstance(network, dict) or network.get("allowLocalBinding") is not True:
-        fail(errors, "sandbox must allow local dev/E2E server binding")
-    required_source_domains = {
-        "services.arcgis.com",
-        "services5.arcgis.com",
-        "tiles.arcgis.com",
-        "maps.lacity.org",
-        "data.lacity.org",
-        "mlb-pptsrv.ci.malibu.ca.us",
-        "svc.pictometry.com",
-    }
-    if not isinstance(allowed_domains, list) or not required_source_domains.issubset(set(allowed_domains)):
-        fail(errors, "sandbox network allowlist omits a current source adapter host")
-
-    if mcp.get("mcpServers") != {}:
-        fail(errors, "mcp.json must declare an explicit empty MCP surface")
-
-    required_cli_controls = (
-        "--model fable",
-        "--effort xhigh",
-        "--no-chrome",
-        "--strict-mcp-config",
-        "--mcp-config",
-        "--setting-sources project",
-        "--tools \"Bash,Edit,Read,Write,Grep,Glob,Agent,WebFetch,WebSearch\"",
-        "--plugin-dir",
-        "--settings",
+    cli_required = (
+        "--model fable", "--effort xhigh", "--permission-mode auto",
+        "--strict-mcp-config", "--mcp-config", "--plugin-dir", "--settings",
+        "--append-system-prompt",
     )
     for relative in ("scripts/launch.sh", "scripts/launch_headless.sh", "scripts/resume.sh", "scripts/resume_headless.sh"):
         text = (ROOT / relative).read_text(encoding="utf-8")
-        for control in required_cli_controls:
-            if control not in text:
-                fail(errors, f"{relative}: missing CLI isolation control {control}")
+        for flag in cli_required:
+            if flag not in text:
+                errors.append(f"{relative}: missing {flag}")
+        if any(flag in text for flag in ("--worktree", "--no-chrome", "--setting-sources")):
+            errors.append(f"{relative}: improperly isolates the local environment")
     for relative in ("scripts/launch_headless.sh", "scripts/resume_headless.sh"):
         if "math.isfinite" not in (ROOT / relative).read_text(encoding="utf-8"):
-            fail(errors, f"{relative}: spend cap must reject NaN and infinity")
+            errors.append(f"{relative}: finite budget check is missing")
+    for relative in ("scripts/resume.sh", "scripts/resume_headless.sh"):
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        if any(phrase not in text for phrase in ("OPENPALI_SESSION_ID", "launcher.json", "branch", "start_commit", "merge-base --is-ancestor")):
+            errors.append(f"{relative}: resume lineage checks are incomplete")
 
     if plugin.get("name") != "openpali-one-shot":
-        fail(errors, "plugin name mismatch")
-    hook_groups = hooks.get("hooks") if hooks else None
-    if not isinstance(hook_groups, dict):
-        fail(errors, "plugin hooks missing")
+        errors.append("plugin name mismatch")
+    hook_groups = hooks.get("hooks")
+    expected_hooks = {"SessionStart", "PreToolUse", "SubagentStop"}
+    if not isinstance(hook_groups, dict) or set(hook_groups) != expected_hooks:
+        errors.append("plugin hook set mismatch")
     else:
-        for event in ("SessionStart", "PreToolUse", "SubagentStop", "Stop", "SessionEnd"):
-            if event not in hook_groups:
-                fail(errors, f"plugin hook missing {event}")
-        expected_hook_scripts = {
-            "SessionStart": {"inject_context.py", "run_observer.py"},
-            "PreToolUse": {"guardrails.py"},
-            "SubagentStop": {"capture_evaluator.py"},
-            "Stop": {"terminal_gate.py"},
-            "SessionEnd": {"run_observer.py"},
-        }
-        for event, expected_scripts in expected_hook_scripts.items():
-            groups = hook_groups.get(event)
-            observed_scripts: set[str] = set()
-            if isinstance(groups, list):
-                for group in groups:
-                    if not isinstance(group, dict):
-                        continue
-                    handlers = group.get("hooks")
-                    if not isinstance(handlers, list):
-                        continue
-                    for handler in handlers:
-                        if not isinstance(handler, dict):
-                            continue
-                        arguments = handler.get("args")
-                        command = " ".join(
-                            [str(handler.get("command") or "")]
-                            + ([str(item) for item in arguments] if isinstance(arguments, list) else [])
-                        )
-                        observed_scripts.update(
-                            re.findall(r"/scripts/([A-Za-z0-9_.-]+\.py)", command)
-                        )
-            if observed_scripts != expected_scripts:
-                fail(
-                    errors,
-                    f"plugin {event} binding mismatch: expected {sorted(expected_scripts)}, "
-                    f"got {sorted(observed_scripts)}",
-                )
+        serialized = json.dumps(hook_groups)
+        for script in ("inject_context.py", "guardrails.py", "capture_evaluator.py"):
+            if script not in serialized:
+                errors.append(f"plugin hook is missing {script}")
+    validate_agents(errors)
 
-    for path in (ROOT / "plugin" / "scripts").glob("*.py"):
+    python_paths = list((ROOT / "plugin/scripts").glob("*.py")) + list((ROOT / "scripts").glob("*.py"))
+    for path in python_paths:
         try:
             ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         except SyntaxError as exc:
-            fail(errors, f"{path.relative_to(ROOT)}: Python syntax error: {exc}")
+            errors.append(f"{path.relative_to(ROOT)}: {exc}")
 
-    try:
-        ast.parse(
-            (ROOT / "scripts" / "test_controls.py").read_text(encoding="utf-8"),
-            filename="scripts/test_controls.py",
-        )
-    except SyntaxError as exc:
-        fail(errors, f"scripts/test_controls.py: Python syntax error: {exc}")
-    try:
-        ast.parse(
-            (ROOT / "scripts" / "test_observer.py").read_text(encoding="utf-8"),
-            filename="scripts/test_observer.py",
-        )
-    except SyntaxError as exc:
-        fail(errors, f"scripts/test_observer.py: Python syntax error: {exc}")
-
-    validate_agents(errors)
-    validate_markdown_links(errors)
+    controls = (
+        list((ROOT / "scripts").glob("*"))
+        + list((ROOT / "plugin/scripts").glob("*.py"))
+        + [ROOT / "plugin/hooks/hooks.json", ROOT / "settings.json"]
+    )
+    product = (
+        [ROOT / "MISSION.md", ROOT / "BASELINE.md", ROOT / "contract/acceptance.json"]
+        + list((ROOT / "research").glob("*.md"))
+        + list((ROOT / "plugin/agents").glob("*.md"))
+    )
+    control_lines, product_lines = count_lines(controls), count_lines(product)
+    if control_lines >= product_lines:
+        errors.append(f"control plane must remain smaller than product direction ({control_lines} >= {product_lines})")
 
     if errors:
         print("HARNESS: FAIL")
         for error in errors:
             print(f"- {error}")
         return 1
-
-    contract = ROOT / "contract" / "acceptance.json"
-    digest = hashlib.sha256(contract.read_bytes()).hexdigest()
+    digest = hashlib.sha256((ROOT / "contract/acceptance.json").read_bytes()).hexdigest()
     print("HARNESS: PASS")
     print(f"GOAL_CHARS: {len(goal)}")
-    print(f"CRITERIA: {len(acceptance['criteria'])}")
+    print(f"TECHNICAL_MUSTS: {must}")
+    print(f"HUMAN_GATES: {human}")
+    print(f"CONTROL_LINES: {control_lines}")
+    print(f"PRODUCT_DIRECTION_LINES: {product_lines}")
+    print(f"CONTROL_TO_PRODUCT_RATIO: {control_lines / product_lines:.2f}")
     print(f"CONTRACT_SHA256: {digest}")
     return 0
 
