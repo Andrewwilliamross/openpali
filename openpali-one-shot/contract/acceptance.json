@@ -1,0 +1,341 @@
+{
+  "contract_version": "1.0.0",
+  "created_at": "2026-07-11",
+  "immutable": true,
+  "initial_state": "FAIL",
+  "instructions": {
+    "results_path": "openpali-one-shot/state/acceptance-results.json",
+    "evidence_schema": "openpali-one-shot/contract/evidence.schema.json",
+    "worker_may_add_stricter_criteria": true,
+    "worker_may_edit_or_remove_supplied_criteria": false,
+    "worker_may_self_approve": false,
+    "skipped_counts_as_pass": false,
+    "blocked_counts_as_pass": false
+  },
+  "terminal_pass_rule": "Every MUST criterion has reproducible evidence, all authoritative commands exit 0, the fresh read-only evaluator returns VERDICT: PASS, and the worktree is clean.",
+  "criteria": [
+    {
+      "id": "BASE-001",
+      "priority": "MUST",
+      "title": "Reproducible starting state",
+      "status": "FAIL",
+      "requirement": "A clean checkout can install with locked dependencies, run a bounded smoke check, run the Python and web suites, lint, typecheck, and build without undocumented local state.",
+      "proof": [
+        "One documented bootstrap command is idempotent.",
+        "One documented fast gate and one full gate emit concise summaries, full log paths, timestamps, tool versions, commit, and exit codes.",
+        "Pre-existing user changes are inventoried and preserved; no reset, clean, or hidden stash was used."
+      ],
+      "fail_if": [
+        "A required check is skipped because it was already green in a prior session.",
+        "A setup command depends on an untracked cache without declaring that dependency."
+      ]
+    },
+    {
+      "id": "TRUTH-001",
+      "priority": "MUST",
+      "title": "Authoritative domain definitions and qualifying cohort",
+      "status": "FAIL",
+      "requirement": "Parcel, structure, damaged universe, qualifying fire rebuild, permit/application, inspection states, parallel milestone lanes, construction, completion, and public headline metrics have source-backed definitions and executable taxonomy tests.",
+      "proof": [
+        "Exact live source-layer metadata and coded/domain values are snapshotted with schema fingerprints.",
+        "PALISADES_WF_REBUILD, permit types, ancillary permits, multi-structure parcels, and jurisdiction differences have an evidence-backed decision record.",
+        "Golden positive, negative, ambiguous, and conflicting source records are tested against the published classification."
+      ],
+      "fail_if": [
+        "All Bldg-New permits on damaged parcels are assumed to be fire rebuilds without resolving the source field semantics.",
+        "Parcel and structure counts are relabeled interchangeably."
+      ]
+    },
+    {
+      "id": "TRUTH-002",
+      "priority": "MUST",
+      "title": "Inspection and construction semantics",
+      "status": "FAIL",
+      "requirement": "Only a qualifying permit and agency-defined successful/accepted progress evidence may advance physical construction state. Scheduling or an inspection description alone never proves a reached milestone.",
+      "proof": [
+        "Regression fixtures cover scheduled, future, canceled, failed, partial, passed, missing-status, missing-date, and ancillary-permit inspections.",
+        "A scheduled or future inspection advances no physical milestone.",
+        "An ancillary permit inspection advances no residential-rebuild stage.",
+        "Published under-construction counts are rebuilt and independently sampled against source records."
+      ],
+      "fail_if": [
+        "INSP_DESC is treated as outcome.",
+        "Missing inspection dates become the run date.",
+        "The 2026-06-11 value of 489 is retained only for visual continuity."
+      ]
+    },
+    {
+      "id": "TRUTH-003",
+      "priority": "MUST",
+      "title": "No fabricated cleanup or event time",
+      "status": "FAIL",
+      "requirement": "Cleanup program choice, cleanup completion, event occurrence time, source effective time, and OpenPali observation time remain distinct. Missing occurrence times remain null, bounded, or explicitly interval-censored.",
+      "proof": [
+        "Private opt-out alone does not emit a debris-complete event.",
+        "No missing upstream time is replaced with fire date or run date.",
+        "Tests cover unknown, conflicting, corrected, and late-arriving timestamps.",
+        "All downstream durations and totals are recomputed after semantic repair."
+      ],
+      "fail_if": [
+        "Unknown is serialized as an invented milestone.",
+        "The event model cannot distinguish occurred_at from observed_at."
+      ]
+    },
+    {
+      "id": "DATA-001",
+      "priority": "MUST",
+      "title": "Immutable source and run lineage",
+      "status": "FAIL",
+      "requirement": "Every acquisition produces a versioned run manifest with source URL/layer, parameters, upstream edit time, retrieval time, response/content hash, schema fingerprint, record count, license/terms reference, transform version, and health result.",
+      "proof": [
+        "Every current source, including inspections, Malibu, and Socrata verification, appears in source health or is explicitly excluded with reason.",
+        "Repeated ingestion of identical responses is content-idempotent.",
+        "Schema/domain drift fails with a source-specific actionable report.",
+        "Raw immutable artifacts are not silently overwritten."
+      ],
+      "fail_if": [
+        "Run time is presented as upstream source freshness.",
+        "Source health is hard-coded true.",
+        "Lineage exists only as a prose README."
+      ]
+    },
+    {
+      "id": "DATA-002",
+      "priority": "MUST",
+      "title": "True offline and failure behavior",
+      "status": "FAIL",
+      "requirement": "Offline execution performs zero network attempts. Missing or invalid cached inputs fail explicitly. Source outages and partial pages cannot produce a silently plausible publication.",
+      "proof": [
+        "A network-denied test proves zero outbound attempts in offline mode.",
+        "Cache miss, corrupt response, timeout, partial pagination, duplicate page, and schema drift fixtures are covered.",
+        "ArcGIS acquisition uses a deterministic paging/snapshot strategy or documents and detects upstream mutation risk."
+      ],
+      "fail_if": [
+        "Offline is implemented only as a large TTL.",
+        "A failed optional source is indistinguishable from zero records."
+      ]
+    },
+    {
+      "id": "DATA-003",
+      "priority": "MUST",
+      "title": "Canonical identity and append-only bitemporal event ledger",
+      "status": "FAIL",
+      "requirement": "Source records are separated from versioned canonical property/parcel/structure identities and append-only recovery observations with stable IDs, provenance, confidence/observation type, occurred_at, observed_at, source_record_id, and run_id.",
+      "proof": [
+        "Reprocessing one run creates no duplicate events.",
+        "Corrections supersede or retract observations without erasing source history.",
+        "APN changes, multiple structures, multiple qualifying permits, and unresolved joins have tests.",
+        "Point-in-time queries cannot see observations first acquired after the query cutoff."
+      ],
+      "fail_if": [
+        "APN is assumed globally immutable or one-to-one with structures without a crosswalk/version.",
+        "A mutable Parcel object is the only historical record."
+      ]
+    },
+    {
+      "id": "PUB-001",
+      "priority": "MUST",
+      "title": "Coherent atomic publication and last-known-good",
+      "status": "FAIL",
+      "requirement": "Civic JSON, event/analytics artifacts, spatial manifest, tiles/picking metadata, and client-visible metadata share one snapshot ID. Publication stages, validates, then atomically promotes; critical failure preserves the last known good snapshot.",
+      "proof": [
+        "A forced mid-write failure cannot expose a mixed snapshot.",
+        "A failed reconciliation/schema/contract gate cannot advance the public pointer.",
+        "Two builds from one immutable input produce deterministic semantic content hashes.",
+        "Rollback and stale/incident behavior are tested and documented."
+      ],
+      "fail_if": [
+        "Files are promoted sequentially without a manifest/pointer boundary.",
+        "The UI hides critical source or reconciliation failure."
+      ]
+    },
+    {
+      "id": "METRIC-001",
+      "priority": "MUST",
+      "title": "Auditable community metrics and bottlenecks",
+      "status": "FAIL",
+      "requirement": "Every public metric declares its unit, numerator, denominator, jurisdiction, time window, as-of/source dates, inclusion rules, missingness, sample size, snapshot, and validation status. Throughput, time-in-milestone/state, and bottleneck outputs handle censoring, parallel lanes, and ambiguous state.",
+      "proof": [
+        "Headline and neighborhood figures are reconciled with independently specified definitions plus row-level golden samples.",
+        "Application/permit records and unique parcel counts are not conflated.",
+        "Small samples, stale sources, unknown states, and cross-jurisdiction incomparability are visible in artifacts and UI.",
+        "No policy-impact metric is described as causal."
+      ],
+      "fail_if": [
+        "Validation simply mirrors the production query.",
+        "A tolerance is chosen after observing the result without justification."
+      ]
+    },
+    {
+      "id": "MODEL-001",
+      "priority": "MUST",
+      "title": "Score and forecast honesty",
+      "status": "FAIL",
+      "requirement": "The arbitrary 0-100 score and deterministic completion label are removed, renamed as non-predictive communication aids, or replaced only after valid evaluation. No parcel forecast ships by default without sufficient point-in-time data and quantified uncertainty.",
+      "proof": [
+        "A data-sufficiency report follows truth repair and reports event/cohort counts, censoring, follow-up, missingness, and jurisdiction coverage.",
+        "A naive descriptive baseline and at least one censoring-aware baseline are evaluated with rolling temporal cutoffs and untouched final evaluation data.",
+        "Current/latest status, later milestone dates, and source-provided days-to-outcome fields are proven absent from historical feature rows unless they existed at that row's cutoff.",
+        "Metrics include forecast error/discrimination as appropriate, calibration, interval coverage, cohort failure, and comparison to naive baseline.",
+        "Every displayed estimate carries model/baseline version, training cutoff, evidence basis/sample size, interval, and limitations; otherwise the UI says insufficient evidence."
+      ],
+      "fail_if": [
+        "Only completed transitions are used as if uncensored.",
+        "A more complex model is promoted because it fits training data.",
+        "A humanized season/year is presented as calibrated uncertainty."
+      ]
+    },
+    {
+      "id": "MODEL-002",
+      "priority": "MUST",
+      "title": "Versioned continual experiment path without automatic promotion",
+      "status": "FAIL",
+      "requirement": "New snapshots can be evaluated reproducibly through a lightweight champion/challenger experiment contract. Dataset, feature, code, cutoff, configuration, metrics, calibration, cohort results, artifact hashes, and promotion decision are versioned.",
+      "proof": [
+        "A deterministic baseline experiment can be reproduced from one command and immutable input.",
+        "A challenger cannot replace the champion unless predeclared gates and independent review pass.",
+        "Drift or new data triggers evaluation/reporting, not automatic production retraining.",
+        "An ADR evaluates the current lightweight approach, Prefect, Plexe patterns, and MLflow/other dependencies against demonstrated needs."
+      ],
+      "fail_if": [
+        "Plexe or Prefect is integrated wholesale without a measured problem it solves.",
+        "The final evaluation set is exposed to iterative tuning and called held out."
+      ]
+    },
+    {
+      "id": "PRODUCT-001",
+      "priority": "MUST",
+      "title": "Evidence-first property journey",
+      "status": "FAIL",
+      "requirement": "A user can locate a property and understand the verified parallel milestone state or unknown state, source-backed timeline, source/evidence links, freshness, conflicting/ambiguous records, forecast limitations, and correction route without interpreting the 3D layer as proof. Missing public activity is described as not observed in covered sources, never as proof of no private activity.",
+      "proof": [
+        "Browser E2E covers address search, direct/linkable property state, timeline evidence, freshness/source health, unknown/conflict state, error/offline degradation, and keyboard/focus behavior.",
+        "Consequential claims can be traced to source record and snapshot.",
+        "The UI visibly distinguishes observed, source-reported, derived, inferred, scheduled, and unavailable."
+      ],
+      "fail_if": [
+        "A network or schema error becomes an empty/zero-success state.",
+        "Source health and snapshot age are hidden in metadata only."
+      ]
+    },
+    {
+      "id": "PRODUCT-002",
+      "priority": "MUST",
+      "title": "Community recovery and bottleneck journey",
+      "status": "FAIL",
+      "requirement": "A user can inspect community milestone/state distribution, throughput, time-in-state/bottleneck evidence, change over time, coverage, sample size, and uncertainty with definitions that remain comparable across snapshots or explicitly disclose breaks.",
+      "proof": [
+        "At least one end-to-end test starts from source fixtures and asserts the published community view.",
+        "Metric definitions and data-quality status are available from the UI.",
+        "No ranking or color implies moral fault, resident effort, contractor quality, or causal policy impact."
+      ],
+      "fail_if": [
+        "A parcel score is aggregated as if it were a validated interval-scale measure.",
+        "Jurisdictional coarse statuses are silently compared with LADBS event histories."
+      ]
+    },
+    {
+      "id": "WEB-001",
+      "priority": "MUST",
+      "title": "Reliable, accessible, mobile-first web release",
+      "status": "FAIL",
+      "requirement": "Unit/integration/browser tests, lint, typecheck, build, artifact-schema validation, automated accessibility checks, and deterministic 2D smoke tests pass. The app has explicit loading/error states and 2D is usable without downloading 3D assets or all parcel details.",
+      "proof": [
+        "Initial 2D smoke fetches no splat tile and defers parcel detail payload until needed.",
+        "The current Vite oversized-initial-chunk warning is eliminated by a measured loading boundary or explicitly budgeted with evidence.",
+        "Automated accessibility has no serious/critical violations in core journeys; keyboard, focus return, reduced motion, and non-color status cues are exercised.",
+        "A repeatable performance artifact records initial transfer, main-thread long tasks, memory, and representative mobile timings."
+      ],
+      "fail_if": [
+        "3D or the roughly 318 MiB tile corpus loads on the default 2D journey.",
+        "A build-only check substitutes for browser interaction."
+      ]
+    },
+    {
+      "id": "SPATIAL-001",
+      "priority": "MUST",
+      "title": "Spatial truth, rights, time, and coverage",
+      "status": "FAIL",
+      "requirement": "The product and artifact schemas distinguish historical/pre-fire prior, post-fire context, current observation, planned geometry, inference, fallback, and no coverage. Acquisition/source time survives publication. Every spatial source and derivative has a documented right or is disabled from the release candidate.",
+      "proof": [
+        "LARIAC/EagleView/Pictometry source imagery, derived surfels/tiles, hotlinking, redistribution, and training rights are inventoried with authoritative terms or written approval.",
+        "Unresolved licensed assets are default-disabled or replaced, not justified by public endpoint reachability.",
+        "The UI does not call pre-fire score-tinted surfels current rebuild scans or learned 3DGS.",
+        "The 901-parcel no-scan gap and every fallback type are explicit and reconcile to the civic denominator.",
+        "Wayback dates are labeled as release dates unless location-specific acquisition metadata proves capture time."
+      ],
+      "fail_if": [
+        "Extraction/run time is presented as acquisition time.",
+        "A missing spatial asset makes a parcel disappear from recovery metrics."
+      ]
+    },
+    {
+      "id": "SPATIAL-002",
+      "priority": "MUST",
+      "title": "Bounded deterministic spatial publication and renderer benchmark",
+      "status": "FAIL",
+      "requirement": "One selected spatial asset version per APN/kind/snapshot is exported; tiles, picking, coverage, and civic snapshot agree. Deterministic reference scenes quantify correctness, network, CPU, GPU allocation, overdraw/frame timing where available, visual artifacts, and graceful capability fallback.",
+      "proof": [
+        "Re-export cannot concatenate all historical epochs or leave stale tiles.",
+        "Fallback geometry is renderable or explicitly no-geometry.",
+        "A bounded camera/soak test checks GL errors, request backlog/cancellation, idle repaint, context loss, and actual allocation growth.",
+        "Only profiled MVP-critical renderer fixes are implemented; larger reconstruction research is ranked and deferred."
+      ],
+      "fail_if": [
+        "A broad 3D rewrite delays the evidence-first vertical slice.",
+        "GPU-resident byte counters are accepted as proof of actual allocation limits without measurement."
+      ]
+    },
+    {
+      "id": "OPS-001",
+      "priority": "MUST",
+      "title": "CI, refresh, release, and rollback operations",
+      "status": "FAIL",
+      "requirement": "CI runs static checks, tests, artifact contracts, fixture pipeline, browser smoke, and dependency/security checks. A scheduled live-refresh workflow stages data, records manifests/evidence, fails closed, supports dry run, and never requires Fable to deploy or push during this mission.",
+      "proof": [
+        "Workflow definitions are locally linted/tested where feasible and documented with required permissions/secrets.",
+        "Source outage, critical drift, stale snapshot, failed publish, rollback, and incident communication have runbook procedures and tests where automatable.",
+        "Generated large/binary data has an intentional storage/CDN/versioning policy rather than accidental Git history."
+      ],
+      "fail_if": [
+        "A cron claim exists only in documentation.",
+        "The workflow commits or deploys invalid artifacts after a failing gate."
+      ]
+    },
+    {
+      "id": "GOV-001",
+      "priority": "MUST",
+      "title": "Open-source, data-rights, privacy, and security release gates",
+      "status": "FAIL",
+      "requirement": "The release candidate contains a source/derivative rights register, attribution surface, privacy and model-use notice, methodology/limitations, correction/contact path, security policy, contribution guide, dependency/SBOM and secret checks, and a clear external decision for any sponsor-owned license choice.",
+      "proof": [
+        "No license is invented on the sponsor's behalf; the exact required choice is documented if unresolved.",
+        "No private resident data, credentials, or purchased data entered the run.",
+        "Third-party requests, exposed public property attributes, retention/correction expectations, and consequential-use disclaimers are explained plainly.",
+        "The release surface carries required map/imagery/data attribution."
+      ],
+      "fail_if": [
+        "README says open source while no license decision/blocker exists.",
+        "Public-record status is treated as permission for proprietary imagery derivatives."
+      ]
+    },
+    {
+      "id": "RELEASE-001",
+      "priority": "MUST",
+      "title": "Independent release-candidate verification",
+      "status": "FAIL",
+      "requirement": "A fresh openpali-independent-evaluator that did not author the implementation inspects the contract, diff, tests, source semantics, browser behavior, leakage, rights gates, and public claims without modifying product code.",
+      "proof": [
+        "Its exact output is captured in openpali-one-shot/state/evaluator-latest.md and begins with VERDICT: PASS.",
+        "Every acceptance result links command, exit code, timestamp, commit, concise result, and full artifact/log.",
+        "All failures from the penultimate evaluation are repaired or remain explicit blocking failures.",
+        "Final full gates pass at the reported commit and git status is clean."
+      ],
+      "fail_if": [
+        "The principal paraphrases the evaluator instead of preserving its output.",
+        "The evaluator approves based on implementation plausibility or worker claims.",
+        "A skipped or blocked mandatory check is marked pass."
+      ]
+    }
+  ]
+}
