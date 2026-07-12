@@ -26,3 +26,20 @@ deterministic pair; correctness guarded by the existing e2e spatial spec
 
 Baseline for the before/after: this file. The improvement lands in
 SplatRenderLayer.render() traversal only (no tiler/format change).
+
+## AFTER (same job, same scenes, budget=150k active; e2e gate 2/2 green)
+
+    scene            frames p50_ms  splats/frame nodes/frame resident_mb
+    top-down-far     13     2016.6  164,498      108         18.9
+    usgs-aoi-medium  15     2150.0  169,049      86          31.6
+
+Measured effect: wide-scene instanced draws -24.4% (217,559 -> 164,498),
+nodes -19%, resident GPU bytes -10%; correctness/coverage unchanged (spatial
+e2e spec 2/2: draws, picking, labels; medium scene barely touched, -6%).
+HONEST scoping: p50 frame time on SwiftShader moved +11%/+15% — software
+rasterization is FILL-bound (coarser cut = fewer but larger quads covering
+similar pixels) and 13-15 samples carry high run variance (p95 ~unchanged).
+The instance/vertex/sort-side win this targets applies to hardware GPUs;
+claiming a frame-time improvement requires a HEADED run on real hardware,
+recorded as a human-runnable follow-up — per the acceptance rule that
+headless/software supports correctness, never GPU-performance claims.
