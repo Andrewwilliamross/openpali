@@ -19,6 +19,7 @@ import {
   GEOMETRY_SOURCE_LABELS,
   type CoverageEntry,
 } from '../../lib/coverage'
+import { fetchApiDetail } from '../../lib/apiDetail'
 import { fmtDate, fmtMoney, fmtNumber, titleCase } from '../../lib/format'
 import { preFireTileUrl, WAYBACK_ATTRIBUTION } from '../../lib/imagery'
 import CorrectionForm from './CorrectionForm'
@@ -92,12 +93,13 @@ function occurrenceText(o: Observation): string {
   return 'date unknown'
 }
 
-export default function ParcelDetailCard({ apn, props, detail, onClose }: Props) {
+export default function ParcelDetailCard({ apn, props, detail: staticDetail, onClose }: Props) {
   // The parent keys this component by APN, so selecting a different parcel
   // remounts it: entry animation is pure CSS and per-parcel state resets
   // without effect-driven setState churn.
   const [imgFailed, setImgFailed] = useState(false)
   const [coverage, setCoverage] = useState<CoverageEntry | null | undefined>(undefined)
+  const [apiDetail, setApiDetail] = useState<ParcelDetail | null>(null)
   const [postfire, setPostfire] = useState<{
     sources: PostfireSources
     samples: number
@@ -109,6 +111,11 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
     let alive = true
     void fetchCoverage().then((c) => {
       if (alive) setCoverage(c[apn] ?? null)
+    })
+    // FRONTEND-001: lanes + evidence timeline from the pinned release's API
+    // (the static bundle stays as offline/LKG fallback + permit enrichment)
+    void fetchApiDetail(apn).then((d) => {
+      if (alive && d) setApiDetail(d)
     })
     // post-fire surface coverage for THIS parcel (release-qualified asset)
     void Promise.all([fetchPostfireSources(), fetchPostfirePicking()]).then(
@@ -122,6 +129,12 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
       alive = false
     }
   }, [apn])
+
+  // API detail wins for evidence/lanes/address; static supplies permits
+  // (portal links/valuations) and covers full offline
+  const detail: ParcelDetail | null = apiDetail
+    ? { ...apiDetail, permits: staticDetail?.permits ?? [] }
+    : staticDetail
 
   const category = props ? evidenceCategory(props) : null
   const apnFmt = `${apn.slice(0, 4)}-${apn.slice(4, 7)}-${apn.slice(7)}`

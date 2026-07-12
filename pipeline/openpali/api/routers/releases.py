@@ -231,6 +231,11 @@ def search_properties(
 def _state_for_property(
     session: Session, publication: Publication, property_id: str
 ) -> SnapshotPropertyState:
+    # the public map addresses parcels by 10-digit APN; accept both
+    if property_id.isdigit() and len(property_id) == 10:
+        from openpali.identity.ids import property_id_from_apn
+
+        property_id = property_id_from_apn(property_id)
     state = session.execute(
         select(SnapshotPropertyState).where(
             SnapshotPropertyState.snapshot_id == publication.snapshot_id,
@@ -254,7 +259,7 @@ def property_detail(
     _maybe_304(request, response, etag, IMMUTABLE_CACHE)
     state = _state_for_property(session, publication, property_id)
     identity = session.execute(
-        select(PropertyIdentity).where(PropertyIdentity.property_id == property_id)
+        select(PropertyIdentity).where(PropertyIdentity.property_id == state.property_id)
     ).scalar_one_or_none()
     parcel = session.execute(
         select(ParcelVersion)
@@ -263,7 +268,7 @@ def property_detail(
         .limit(1)
     ).scalar_one_or_none()
     return PropertyDetail(
-        property_id=property_id,
+        property_id=state.property_id,
         apn=state.apn,
         address=state.address,
         neighborhood=state.neighborhood,
