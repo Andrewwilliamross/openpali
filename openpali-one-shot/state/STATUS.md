@@ -19,10 +19,16 @@ sliding window, idempotent, restricted ops.correction_contact; 17 API
 paths). scripts/check-full written (host half runs directly; service half
 launches wrapper jobs, with a printed-commands fallback when Docker is
 unreachable from sandboxed shells); fast gate 4/4 green (vitest now
-excludes Playwright specs). REMAINING CP4C: map parcel data still static
-geojson (release-pinned API migration), reduced-motion, correction-form UI
-in the detail card. Then CP5 (CI, SBOM, observability alert drill,
-schedule drill, worker kill/resume, restore drill, CofO disclosure wiring,
+excludes Playwright specs). Correction journey VERIFIED LIVE (202 + restricted
+contact after fixing a non-PK-FK insert-ordering bug, idempotent resubmit,
+429 rate limit, 404 unknown property; form in the property card).
+Reduced-motion landed (camera durations -> 0, CSS minimized).
+TOP CP4C LEFTOVER (do FIRST next session): the map's parcel geojson +
+details.json are still STATIC files — FRONTEND-001 wants the property
+evidence timeline from the release-qualified API (a mapping layer from
+/properties/{id}+/observations to the card's ParcelDetail shape, with
+static fallback). Then CP5 (CI, SBOM, observability alert drill, schedule
+drill, worker kill/resume, restore drill, CofO disclosure wiring,
 fault-test isolation) and CP6 terminal protocol.
 
 Latest verified (commits through b82ac3a + bench-budget commit):
