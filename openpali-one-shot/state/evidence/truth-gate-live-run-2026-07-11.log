@@ -1,0 +1,22 @@
+→ fetching + normalizing sources …
+  official-record links: 4181/5033 permits resolve in open data
+  5877 destroyed parcels
+  qualifying rebuild applications: 1126
+→ lane distribution …
+  cleanup        {'milestone_reached': 3964}
+  design_review  {'in_progress': 380, 'milestone_reached': 878}
+  permitting     {'milestone_reached': 1380}
+  construction   {'activity_scheduled': 436, 'milestone_reached': 1}
+  occupancy      {'milestone_reached': 27}
+→ validating against official oracle (live) …
+  reconciliation vs official:
+    ✓ destroyed_parcels                    official= 5877 ours= 5877 drift=0.0%
+    ✓ parcels_qualifying_application       official= 1074 ours= 1067 drift=0.7%
+    ✓ parcels_qualifying_permit_issued     official=  794 ours=  790 drift=0.5%
+    ✓ parcels_qualifying_cofo              official=   27 ours=   27 drift=0.0%
+→ expectation gates …
+  all gates clean
+→ emitting artifacts …
+  wrote 5877 features; totals: {'destroyed': 5877, 'cleanup_complete': 3964, 'cleanup_opt_out': 1595, 'application_submitted': 1205, 'plan_check_approved': 878, 'permit_issued': 965, 'construction_evidence': 1, 'construction_inspection_scheduled_only': 436, 'cofo_issued': 27}
+  snapshot 20260712T022255Z-7e67da (run 7e67da54a698)
+✓ done

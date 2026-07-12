@@ -13,7 +13,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from .model import STAGE_LABELS, Parcel
+from openpali.domain.lanes import LaneSignal
+
+from .model import Parcel
 
 ERROR, WARN, INFO = "error", "warn", "info"
 
@@ -32,6 +34,7 @@ def run_gates(
     reconciliation: list[dict[str, Any]],
     prev_summary: dict[str, Any] | None = None,
     prev_meta: dict[str, Any] | None = None,
+    undocumented_values: list[str] | None = None,
 ) -> list[dict[str, str]]:
     incidents: list[dict[str, str]] = []
     health = {h["id"]: h for h in source_health}
@@ -73,17 +76,35 @@ def run_gates(
             detail = h.get("error") or "no data fetched"
             incidents.append(_inc(WARN, "source_failed", f"{h['id']}: {detail}"))
 
-    # --- status taxonomy ---
-    bad_stages = sorted({p.stage for p in parcels} - set(STAGE_LABELS))
-    if bad_stages:
-        incidents.append(_inc(ERROR, "stage_taxonomy",
-                              f"parcels carry undefined stages: {bad_stages}"))
+    # --- status taxonomy: fail CLOSED on any undocumented source value ---
+    if undocumented_values:
+        incidents.append(_inc(ERROR, "undocumented_taxonomy",
+                              "sources carry values outside the documented, "
+                              f"evidence-backed domains: {sorted(undocumented_values)} — "
+                              "publication is blocked until the taxonomy documents them"))
+    valid_signals = {signal.value for signal in LaneSignal}
+    bad_signals = sorted(
+        {
+            projection.signal.value
+            for p in parcels
+            if p.lane_state is not None
+            for projection in p.lane_state.lanes
+        }
+        - valid_signals
+    )
+    if bad_signals:
+        incidents.append(_inc(ERROR, "lane_taxonomy",
+                              f"parcels carry undefined lane signals: {bad_signals}"))
+    missing_projection = sum(1 for p in parcels if p.lane_state is None)
+    if missing_projection:
+        incidents.append(_inc(ERROR, "lane_projection_missing",
+                              f"{missing_projection} parcels have no lane projection"))
     for h in source_health:
         labels = h.get("unknown_labels") or []
         if labels:
             incidents.append(_inc(WARN, "label_taxonomy",
                                   f"{h['id']}: unrecognized status labels {labels} — "
-                                  f"affected parcels may be under-staged"))
+                                  f"affected parcels may be under-represented"))
 
     # --- universe delta vs the previously published artifact ---
     prev = ((prev_summary or {}).get("totals") or {}).get("destroyed")

@@ -119,6 +119,7 @@ export default function App() {
         )}
         {selectedApn && (
           <ParcelDetailCard
+            key={selectedApn}
             apn={selectedApn}
             props={selectedProps}
             detail={details?.[selectedApn] ?? null}

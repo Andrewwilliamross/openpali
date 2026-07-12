@@ -353,7 +353,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     const latRad = (m.origin.lat * Math.PI) / 180
     const lon = m.origin.lon + node.cx / (METERS_PER_DEG_LON_EQ * Math.cos(latRad))
     const lat = m.origin.lat + node.cy / METERS_PER_DEG_LAT
-    let elev: number | null = null
+    let elev: number | null
     try {
       elev = map.queryTerrainElevation([lon, lat])
     } catch {

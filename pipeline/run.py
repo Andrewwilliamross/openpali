@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Palisades Rebuild Tracker — pipeline entrypoint.
+"""Palisades Rebuild Tracker — static-artifact pipeline entrypoint.
 
   uv run run.py              # full live run + emit + validate
   uv run run.py --offline    # use cached raw responses only (ttl=inf)
   uv run run.py --no-validate # skip the oracle reconciliation queries
+
+Emits lane-signal/milestone artifacts. The retired 0-100 score and stage
+ladder are never computed or published (TRUTH-001).
 """
 
 from __future__ import annotations
@@ -12,11 +15,14 @@ import argparse
 import json
 import sys
 import uuid
-from datetime import date, datetime, timezone
+from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
+from openpali.domain.lanes import LaneSignal
+from openpali.domain.observations import MilestoneLane
+
 from palisades import checks, emit, provenance, sources, validate
-from palisades.score import score_all
 
 
 def main() -> int:
@@ -32,24 +38,27 @@ def main() -> int:
     provenance.reset()
 
     print("→ fetching + normalizing sources …")
-    parcels = sources.build_parcels(ttl_hours=ttl)
+    parcels, report = sources.build_parcels(ttl_hours=ttl)
     print(f"  {len(parcels)} destroyed parcels")
     if not parcels:
         print("ERROR: no parcels — aborting", file=sys.stderr)
         return 1
+    print(f"  qualifying rebuild applications: {report.qualifying_applications}")
+    if report.conflicts:
+        print(f"  conflicting assertions detected: {len(report.conflicts)}")
 
-    print("→ scoring …")
-    cohort = score_all(parcels, today=date.today())
-    for s in (2, 3, 4):
-        st = cohort[s]
-        print(f"  stage {s}: median {st['median']:.0f}d (n={st['n']})")
-
-    # stage histogram
-    from collections import Counter
-    hist = Counter(p.stage for p in parcels)
-    print("  stage histogram:", dict(sorted(hist.items())))
-    print("  jurisdictions:", dict(Counter(p.jurisdiction for p in parcels)))
-    print("  coarse parcels:", sum(1 for p in parcels if p.coarse))
+    print("→ lane distribution …")
+    for lane in MilestoneLane:
+        dist = Counter(
+            p.lane_state.lane(lane).signal.value
+            for p in parcels
+            if p.lane_state is not None
+        )
+        interesting = {
+            k: v for k, v in sorted(dist.items())
+            if k != LaneSignal.NO_PUBLIC_EVIDENCE.value
+        }
+        print(f"  {lane.value:14s} {interesting or '(no public evidence anywhere)'}")
 
     baselines = []
     if not args.no_validate:
@@ -62,7 +71,11 @@ def main() -> int:
             print(f"  validation skipped ({e})", file=sys.stderr)
 
     prop_dicts = [
-        {"apn": p.apn, "jurisdiction": p.jurisdiction, "stage": p.stage}
+        {
+            "apn": p.apn,
+            "jurisdiction": p.jurisdiction,
+            **emit._milestones(p.lane_state),
+        }
         for p in parcels
     ]
     recon = validate.reconcile(prop_dicts, baselines) if baselines else []
@@ -70,13 +83,16 @@ def main() -> int:
         print("  reconciliation vs official:")
         for r in recon:
             flag = "✓" if r["ok"] else "⚠"
-            print(f"    {flag} {r['metric']:32s} official={r['official']:>5} ours={r['ours']!s:>5} drift={r['drift_pct']}%")
+            print(f"    {flag} {r['metric']:36s} official={r['official']:>5} ours={r['ours']!s:>5} drift={r['drift_pct']}%")
 
     print("→ expectation gates …")
     source_meta = sources.source_health()
     prev_summary = _read_json(emit.OUT_DIR / "summary.json")
     prev_meta = _read_json(emit.OUT_DIR / "meta.json")
-    incidents = checks.run_gates(parcels, source_meta, recon, prev_summary, prev_meta)
+    incidents = checks.run_gates(
+        parcels, source_meta, recon, prev_summary, prev_meta,
+        undocumented_values=report.undocumented,
+    )
     for i in incidents:
         print(f"  [{i['level']}] {i['code']}: {i['message']}")
     if not incidents:

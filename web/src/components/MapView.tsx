@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
-import { scorePaintExpression } from '../lib/colors'
+import { evidencePaintExpression } from '../lib/colors'
 // Type-only imports are erased at build time: the renderer subsystem itself
 // is code-split and fetched via import('./spatial/renderer3d') on 3D entry
 // (ROADMAP D10 / PR3). Never import its values statically here.
@@ -89,11 +89,13 @@ export default function MapView({
   const splatLayerRef = useRef<SplatRenderLayer | null>(null)
   const intersectorRef = useRef<SpatialIntersector | null>(null)
   const modeRef = useRef<ViewMode>(mode)
-  modeRef.current = mode
   const groundRef = useRef<GroundMode>(ground)
-  groundRef.current = ground
   const onSpatialStatusRef = useRef(onSpatialStatus)
+  // Sync latest props into refs for event handlers/async callbacks. Declared
+  // before the mount effect so first-render consumers observe current values.
   useEffect(() => {
+    modeRef.current = mode
+    groundRef.current = ground
     onSpatialStatusRef.current = onSpatialStatus
   })
   // cached promise for the code-split renderer chunk (cleared on failure so
@@ -345,7 +347,7 @@ export default function MapView({
         map.setLayoutProperty(id, 'visibility', ground === 'sat' ? 'visible' : 'none')
       }
     }
-    // over imagery the score fills read better slightly lighter
+    // over imagery the evidence fills read better slightly lighter
     if (map.getLayer('parcel-fill')) {
       map.setPaintProperty('parcel-fill', 'fill-opacity', [
         'case',
@@ -373,7 +375,7 @@ export default function MapView({
         type: 'fill',
         source: 'parcels',
         paint: {
-          'fill-color': scorePaintExpression() as never,
+          'fill-color': evidencePaintExpression() as never,
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
@@ -387,7 +389,7 @@ export default function MapView({
         type: 'line',
         source: 'parcels',
         paint: {
-          'line-color': scorePaintExpression() as never,
+          'line-color': evidencePaintExpression() as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
           'line-opacity': 0.9,
         },

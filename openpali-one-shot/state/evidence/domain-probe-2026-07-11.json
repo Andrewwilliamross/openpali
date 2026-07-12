@@ -1,0 +1,1286 @@
+{
+ "ladbs_meta": {
+  "name": "LADBS_WF_Fire_Data_Palisades_Recovery_Area",
+  "lastEditDate": 1783817351668,
+  "dataLastEditDate": 1783817349216,
+  "maxRecordCount": 1000,
+  "fields": {
+   "AutoID": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "AutoID"
+   },
+   "PERMIT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PERMIT"
+   },
+   "ADDRESS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ADDRESS"
+   },
+   "PERMIT_TYPE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PERMIT_TYPE"
+   },
+   "PERMIT_SUBTYPE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PERMIT_SUBTYPE"
+   },
+   "USE_DESCRIPTION": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "USE_DESCRIPTION"
+   },
+   "ZONE_USE_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ZONE_USE_DESC"
+   },
+   "SUBMIT_DATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "SUBMIT_DATE"
+   },
+   "PC_APPROVED_DATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "PC_APPROVED_DATE"
+   },
+   "CORRECTIONS_ISSUED_DATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "CORRECTIONS_ISSUED_DATE"
+   },
+   "ISSUE_DATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "ISSUE_DATE"
+   },
+   "TYPE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TYPE"
+   },
+   "COFO_DATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "COFO_DATE"
+   },
+   "PERMIT_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PERMIT_STATUS"
+   },
+   "STATUS_DATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "STATUS_DATE"
+   },
+   "OFFICE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "OFFICE"
+   },
+   "TAG_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TAG_STATUS"
+   },
+   "LAT": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "LAT"
+   },
+   "LON": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "LON"
+   },
+   "APN": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "APN"
+   },
+   "WORK_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "WORK_DESC"
+   },
+   "PROJECT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PROJECT"
+   },
+   "PALISADES_WF_REBUILD": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PALISADES_WF_REBUILD"
+   },
+   "ELIGIBLE_CODE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ELIGIBLE_CODE"
+   },
+   "INELIGIBLE_CODE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INELIGIBLE_CODE"
+   },
+   "ELIGIBILITY": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ELIGIBILITY"
+   },
+   "ELIGIBILITY_DETAIL": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ELIGIBILITY_DETAIL"
+   },
+   "ELIGIBILITY_ORDER": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "ELIGIBILITY_ORDER"
+   },
+   "DAYS_TO_PC_APPROVED": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "DAYS_TO_PC_APPROVED"
+   },
+   "DAYS_TO_PERMIT_ISSUE": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "DAYS_TO_PERMIT_ISSUE"
+   },
+   "DAYS_TO_CORRECTIONS_ISSUED": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "DAYS_TO_CORRECTIONS_ISSUED"
+   },
+   "Imported_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "Imported_DT"
+   },
+   "Imported_DT_txt": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Imported_DT_txt"
+   },
+   "OBJECTID": {
+    "type": "esriFieldTypeOID",
+    "domain": null,
+    "alias": "OBJECTID"
+   },
+   "PERMIT_STATUS_SORT_CODE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "PERMIT_STATUS_SORT_CODE"
+   }
+  },
+  "error": null
+ },
+ "ladbs_PALISADES_WF_REBUILD": [
+  {
+   "PALISADES_WF_REBUILD": "No",
+   "n": 3392
+  },
+  {
+   "PALISADES_WF_REBUILD": "Rebuild",
+   "n": 1939
+  }
+ ],
+ "ladbs_PERMIT_TYPE": [
+  {
+   "PERMIT_TYPE": "Bldg-New",
+   "n": 1885
+  },
+  {
+   "PERMIT_TYPE": "Grading",
+   "n": 1188
+  },
+  {
+   "PERMIT_TYPE": "Nonbldg-New",
+   "n": 587
+  },
+  {
+   "PERMIT_TYPE": "Bldg-Alter/Repair",
+   "n": 541
+  },
+  {
+   "PERMIT_TYPE": "Fire Sprinkler",
+   "n": 467
+  },
+  {
+   "PERMIT_TYPE": "Swimming-Pool/Spa",
+   "n": 250
+  },
+  {
+   "PERMIT_TYPE": "Plumbing",
+   "n": 137
+  },
+  {
+   "PERMIT_TYPE": "Bldg-Addition",
+   "n": 126
+  },
+  {
+   "PERMIT_TYPE": "Electrical",
+   "n": 70
+  },
+  {
+   "PERMIT_TYPE": "Bldg-Demolition",
+   "n": 30
+  },
+  {
+   "PERMIT_TYPE": "Nonbldg-Alter/Repair",
+   "n": 26
+  },
+  {
+   "PERMIT_TYPE": "HVAC",
+   "n": 11
+  },
+  {
+   "PERMIT_TYPE": "Elevator",
+   "n": 9
+  },
+  {
+   "PERMIT_TYPE": "Sign",
+   "n": 2
+  },
+  {
+   "PERMIT_TYPE": "Nonbldg-Addition",
+   "n": 1
+  },
+  {
+   "PERMIT_TYPE": "Nonbldg-Demolition",
+   "n": 1
+  }
+ ],
+ "ladbs_PERMIT_STATUS": [
+  {
+   "PERMIT_STATUS": "Plans Approved & Permit Issued",
+   "n": 3372
+  },
+  {
+   "PERMIT_STATUS": "Corrections Issued",
+   "n": 1088
+  },
+  {
+   "PERMIT_STATUS": "Plans Approved & Permit Not Issued",
+   "n": 618
+  },
+  {
+   "PERMIT_STATUS": "Application Pending Fees",
+   "n": 150
+  },
+  {
+   "PERMIT_STATUS": "Plan Check in Progress",
+   "n": 85
+  },
+  {
+   "PERMIT_STATUS": "Plans Submitted",
+   "n": 18
+  }
+ ],
+ "ladbs_rebuild_by_type": [
+  {
+   "error": {
+    "code": 400,
+    "message": "",
+    "details": [
+     "'PERMIT_TYPE,PALISADES_WF_REBUILD' parameter is invalid"
+    ]
+   }
+  }
+ ],
+ "insp_meta_lahub": {
+  "name": "LADBS_WF_Inspection_Data_tbl",
+  "lastEditDate": null,
+  "dataLastEditDate": null,
+  "maxRecordCount": 10000,
+  "fields": {
+   "AutoID": {
+    "type": "esriFieldTypeOID",
+    "domain": null,
+    "alias": "AutoID"
+   },
+   "PERMIT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PERMIT"
+   },
+   "ADDRESS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ADDRESS"
+   },
+   "TAG_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TAG_STATUS"
+   },
+   "GRP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "GRP"
+   },
+   "TYP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TYP"
+   },
+   "SUB_TYP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SUB_TYP"
+   },
+   "ZONE_USE_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ZONE_USE_DESC"
+   },
+   "USE_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "USE_DESC"
+   },
+   "SUBMIT_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "SUBMIT_DT"
+   },
+   "ISSUE_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "ISSUE_DT"
+   },
+   "CRNT_STAT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "CRNT_STAT"
+   },
+   "OFFICE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "OFFICE"
+   },
+   "PALISADES_WF_REBUILD": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PALISADES_WF_REBUILD"
+   },
+   "PROJECT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PROJECT"
+   },
+   "ELIGIBILITY_DETAIL": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ELIGIBILITY_DETAIL"
+   },
+   "INSP_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "INSP_DT"
+   },
+   "INSP_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INSP_STATUS"
+   },
+   "INSP_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INSP_DESC"
+   },
+   "INSPECTOR": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INSPECTOR"
+   },
+   "Imported_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "Imported_DT"
+   },
+   "Imported_DT_txt": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Imported_DT_txt"
+   }
+  },
+  "error": null
+ },
+ "insp_INSP_STATUS_lahub": [
+  {
+   "INSP_STATUS": "Insp Scheduled",
+   "n": 1014
+  }
+ ],
+ "insp_meta_s5": {
+  "name": "LADBS_WF_Inspection_Data_tbl_Palisades_Recovery_Area",
+  "lastEditDate": 1783817365965,
+  "dataLastEditDate": 1783817365965,
+  "maxRecordCount": 1000,
+  "fields": {
+   "AutoID": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "AutoID"
+   },
+   "PERMIT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PERMIT"
+   },
+   "ADDRESS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ADDRESS"
+   },
+   "TAG_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TAG_STATUS"
+   },
+   "GRP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "GRP"
+   },
+   "TYP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TYP"
+   },
+   "SUB_TYP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SUB_TYP"
+   },
+   "ZONE_USE_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ZONE_USE_DESC"
+   },
+   "USE_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "USE_DESC"
+   },
+   "SUBMIT_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "SUBMIT_DT"
+   },
+   "ISSUE_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "ISSUE_DT"
+   },
+   "CRNT_STAT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "CRNT_STAT"
+   },
+   "OFFICE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "OFFICE"
+   },
+   "PALISADES_WF_REBUILD": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PALISADES_WF_REBUILD"
+   },
+   "PROJECT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "PROJECT"
+   },
+   "ELIGIBILITY_DETAIL": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ELIGIBILITY_DETAIL"
+   },
+   "INSP_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "INSP_DT"
+   },
+   "INSP_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INSP_STATUS"
+   },
+   "INSP_DESC": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INSP_DESC"
+   },
+   "INSPECTOR": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "INSPECTOR"
+   },
+   "Imported_DT": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "Imported_DT"
+   },
+   "Imported_DT_txt": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Imported_DT_txt"
+   },
+   "OBJECTID": {
+    "type": "esriFieldTypeOID",
+    "domain": null,
+    "alias": "OBJECTID"
+   }
+  },
+  "error": null
+ },
+ "insp_INSP_STATUS_s5": [
+  {
+   "INSP_STATUS": "Insp Scheduled",
+   "n": 1014
+  }
+ ],
+ "county_meta": {
+  "name": "Parcels Debris Removal",
+  "lastEditDate": 1783696838847,
+  "dataLastEditDate": 1783696838847,
+  "maxRecordCount": 2000,
+  "fields": {
+   "OBJECTID": {
+    "type": "esriFieldTypeOID",
+    "domain": null,
+    "alias": "OBJECTID"
+   },
+   "AIN": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "AIN"
+   },
+   "APN": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "APN"
+   },
+   "SITUSHOUSENO": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusHouseNo"
+   },
+   "SITUSFRACTION": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusFraction"
+   },
+   "SITUSDIRECTION": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusDirection"
+   },
+   "SITUSUNIT": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusUnit"
+   },
+   "SITUSSTREET": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusStreet"
+   },
+   "SITUSADDRESS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusAddress"
+   },
+   "SITUSCITY": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusCity"
+   },
+   "SITUSZIP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusZIP"
+   },
+   "SITUSFULLADDRESS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SitusFullAddress"
+   },
+   "TAXRATEAREA": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TaxRateArea"
+   },
+   "TAXRATECITY": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TaxRateCity"
+   },
+   "AGENCYCLASSNO": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "AgencyClassNo"
+   },
+   "AGENCYNAME": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "AgencyName"
+   },
+   "AGENCYTYPE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "AgencyType"
+   },
+   "USECODE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "UseCode"
+   },
+   "USECODE_2": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "UseCode_2"
+   },
+   "USETYPE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "UseType"
+   },
+   "USEDESCRIPTION": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "UseDescription"
+   },
+   "DESIGNTYPE1": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "DesignType1"
+   },
+   "YEARBUILT1": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "YearBuilt1"
+   },
+   "EFFECTIVEYEAR1": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "EffectiveYear1"
+   },
+   "UNITS1": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Units1"
+   },
+   "BEDROOMS1": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bedrooms1"
+   },
+   "BATHROOMS1": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bathrooms1"
+   },
+   "SQFTMAIN1": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "SQFTmain1"
+   },
+   "DESIGNTYPE2": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "DesignType2"
+   },
+   "YEARBUILT2": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "YearBuilt2"
+   },
+   "EFFECTIVEYEAR2": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "EffectiveYear2"
+   },
+   "UNITS2": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Units2"
+   },
+   "BEDROOMS2": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bedrooms2"
+   },
+   "BATHROOMS2": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bathrooms2"
+   },
+   "SQFTMAIN2": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "SQFTmain2"
+   },
+   "DESIGNTYPE3": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "DesignType3"
+   },
+   "YEARBUILT3": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "YearBuilt3"
+   },
+   "EFFECTIVEYEAR3": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "EffectiveYear3"
+   },
+   "UNITS3": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Units3"
+   },
+   "BEDROOMS3": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bedrooms3"
+   },
+   "BATHROOMS3": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bathrooms3"
+   },
+   "SQFTMAIN3": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "SQFTmain3"
+   },
+   "DESIGNTYPE4": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "DesignType4"
+   },
+   "YEARBUILT4": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "YearBuilt4"
+   },
+   "EFFECTIVEYEAR4": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "EffectiveYear4"
+   },
+   "UNITS4": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Units4"
+   },
+   "BEDROOMS4": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bedrooms4"
+   },
+   "BATHROOMS4": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bathrooms4"
+   },
+   "SQFTMAIN4": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "SQFTmain4"
+   },
+   "DESIGNTYPE5": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "DesignType5"
+   },
+   "YEARBUILT5": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "YearBuilt5"
+   },
+   "EFFECTIVEYEAR5": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "EffectiveYear5"
+   },
+   "UNITS5": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Units5"
+   },
+   "BEDROOMS5": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bedrooms5"
+   },
+   "BATHROOMS5": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Bathrooms5"
+   },
+   "SQFTMAIN5": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "SQFTmain5"
+   },
+   "RECDATE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "RecDate"
+   },
+   "RECDOCNO": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "RecDocNo"
+   },
+   "ROLL_YEAR": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Roll_Year"
+   },
+   "ROLL_LANDVALUE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_LandValue"
+   },
+   "ROLL_IMPVALUE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_ImpValue"
+   },
+   "ROLL_PERSPROPVALUE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_PersPropValue"
+   },
+   "ROLL_FIXTUREVALUE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_FixtureValue"
+   },
+   "ROLL_HOMEOWNERSEXEMP": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_HomeOwnersExemp"
+   },
+   "ROLL_REALESTATEEXEMP": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_RealEstateExemp"
+   },
+   "ROLL_PERSPROPEXEMP": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_PersPropExemp"
+   },
+   "ROLL_FIXTUREEXEMP": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Roll_FixtureExemp"
+   },
+   "ROLL_LANDBASEYEAR": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Roll_LandBaseYear"
+   },
+   "ROLL_IMPBASEYEAR": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Roll_ImpBaseYear"
+   },
+   "LASTSALEDATE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LastSaleDate"
+   },
+   "LASTSALEAMOUNT": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "LastSaleAmount"
+   },
+   "QUALITYCLASS1": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "QualityClass1"
+   },
+   "QUALITYCLASS2": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "QualityClass2"
+   },
+   "QUALITYCLASS3": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "QualityClass3"
+   },
+   "QUALITYCLASS4": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "QualityClass4"
+   },
+   "QUALITYCLASS5": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "QualityClass5"
+   },
+   "LEGALDESCLINE1": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescLine1"
+   },
+   "LEGALDESCLINE2": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescLine2"
+   },
+   "LEGALDESCLINE3": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescLine3"
+   },
+   "LEGALDESCLINE4": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescLine4"
+   },
+   "LEGALDESCLINE5": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescLine5"
+   },
+   "LEGALDESCLINELAST": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescLineLast"
+   },
+   "LEGALDESCRIPTION": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LegalDescription"
+   },
+   "SPATIALCHANGEDATE": {
+    "type": "esriFieldTypeDate",
+    "domain": null,
+    "alias": "SpatialChangeDate"
+   },
+   "PARCELCREATEDATE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "ParcelCreateDate"
+   },
+   "PARCELTYPECODE": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "ParcelTypeCode"
+   },
+   "ASSR_MAP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Assr_Map"
+   },
+   "ASSR_INDEX_MAP": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Assr_Index_Map"
+   },
+   "CENTER_LAT": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "CENTER_LAT"
+   },
+   "CENTER_LON": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "CENTER_LON"
+   },
+   "CENTER_X": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "CENTER_X"
+   },
+   "CENTER_Y": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "CENTER_Y"
+   },
+   "LAT_LON": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LAT_LON"
+   },
+   "FIRE_NAME": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Fire_Name"
+   },
+   "DAMAGE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "* Damage"
+   },
+   "STRUCTURECATEGORY": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Structure Category"
+   },
+   "TOTAL_UNITS": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "Total_Units"
+   },
+   "GLOBALID": {
+    "type": "esriFieldTypeGlobalID",
+    "domain": null,
+    "alias": "GlobalID"
+   },
+   "TOT_SQFT": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "Tot_SqFt"
+   },
+   "DINS_COUNT": {
+    "type": "esriFieldTypeSmallInteger",
+    "domain": null,
+    "alias": "DINS_Count"
+   },
+   "LCITY": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "LCITY"
+   },
+   "COMMUNITY": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "COMMUNITY"
+   },
+   "STATUS_EPA": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "STATUS_EPA"
+   },
+   "STATUS_ROE_TETRATECH": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "STATUS_ROE_TETRATECH"
+   },
+   "STATUS_ROE_USACE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "STATUS_ROE_USACE"
+   },
+   "STATUS_HSA_USACE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "STATUS_HSA_USACE"
+   },
+   "BSD_TAG": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "BSD_TAG"
+   },
+   "ROE_ACCEPTED_USACE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ROE_ACCEPTED_USACE"
+   },
+   "ROE_SUBMITTED_USACE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ROE_SUBMITTED_USACE"
+   },
+   "FSO_PKG_APPROVED_USACE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "FSO_PKG_APPROVED_USACE"
+   },
+   "DEBRIS_REMOVAL_EPICLA": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "DEBRIS_REMOVAL_EPICLA"
+   },
+   "SWIMMING_POOL": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "SWIMMING_POOL"
+   },
+   "TT_ELIGIBLE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TT_Eligible"
+   },
+   "DEBRIS_CLEARED": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Debris_Cleared"
+   },
+   "ROE_NUMBER": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ROE_Number"
+   },
+   "FSO_URL": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "FSO_URL"
+   },
+   "ROE_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "ROE_Status"
+   },
+   "PERMIT_STATUS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "Permit_Status"
+   },
+   "EVENT_SUB_NAME_USACE": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "EVENT_SUB_NAME_USACE"
+   },
+   "REBUILD_PERMIT_EPICLA": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "REBUILD_PERMIT_EPICLA"
+   },
+   "TEMPHOUSING_PERMIT_EPICLA": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "TEMPHOUSING_PERMIT_EPICLA"
+   },
+   "REBUILD_APP_RECEIVED": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "REBUILD_APP_RECEIVED"
+   },
+   "BUILD_PLAN_APPROVED": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "BUILD_PLAN_APPROVED"
+   },
+   "BUILD_PERMIT_ISSUED": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "BUILD_PERMIT_ISSUED"
+   },
+   "CONS_COMPLETED": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "CONS_COMPLETED"
+   },
+   "REBUILD_PROGRESS": {
+    "type": "esriFieldTypeString",
+    "domain": null,
+    "alias": "REBUILD_PROGRESS"
+   },
+   "REBUILD_PROGRESS_NUM": {
+    "type": "esriFieldTypeInteger",
+    "domain": null,
+    "alias": "REBUILD_PROGRESS_NUM"
+   },
+   "Shape__Area": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "Shape__Area"
+   },
+   "Shape__Length": {
+    "type": "esriFieldTypeDouble",
+    "domain": null,
+    "alias": "Shape__Length"
+   }
+  },
+  "error": null
+ },
+ "county_ROE_STATUS": [
+  {
+   "ROE_STATUS": "No ROE",
+   "n": 6488
+  },
+  {
+   "ROE_STATUS": "Final Sign Off - Complete",
+   "n": 4027
+  },
+  {
+   "ROE_STATUS": "Opt-Out and Manage Cleanup Independently",
+   "n": 1622
+  },
+  {
+   "ROE_STATUS": "Final Sign Off - Ineligible",
+   "n": 203
+  },
+  {
+   "ROE_STATUS": "FEMA Ineligible",
+   "n": 38
+  },
+  {
+   "ROE_STATUS": "Non-responsive Opt-out",
+   "n": 6
+  },
+  {
+   "ROE_STATUS": null,
+   "n": 0
+  }
+ ],
+ "county_REBUILD_PROGRESS": [
+  {
+   "REBUILD_PROGRESS": "Rebuild Applications Received",
+   "n": 154
+  },
+  {
+   "REBUILD_PROGRESS": "Building Permits Issued",
+   "n": 108
+  },
+  {
+   "REBUILD_PROGRESS": "Building Plans Approved",
+   "n": 12
+  },
+  {
+   "REBUILD_PROGRESS": "Construction Completed",
+   "n": 1
+  },
+  {
+   "REBUILD_PROGRESS": null,
+   "n": 0
+  }
+ ],
+ "county_DAMAGE": [
+  {
+   "DAMAGE": "Destroyed (>50%)",
+   "n": 5877
+  },
+  {
+   "DAMAGE": "No Damage",
+   "n": 3835
+  },
+  {
+   "DAMAGE": "No Data/Vacant",
+   "n": 1486
+  },
+  {
+   "DAMAGE": "Affected (1-9%)",
+   "n": 858
+  },
+  {
+   "DAMAGE": "Minor (10-25%)",
+   "n": 266
+  },
+  {
+   "DAMAGE": "Major (26-50%)",
+   "n": 65
+  }
+ ]
+}

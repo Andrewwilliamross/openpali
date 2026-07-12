@@ -138,7 +138,13 @@ void main() {
   if (alpha < 0.0039) { cull(); return; }  // < 1/255
 
   v_uv = corner;
-  v_color = vec4(a_color.rgb, alpha);
+  // TRUTH-001: the committed tile corpus was exported with civic-score tint
+  // baked into a_color.rgb. A score may never drive spatial presentation, so
+  // walls render in a luminance-preserving neutral until the asset pipeline
+  // re-exports untinted tiles (spatial platform track).
+  float lum = dot(a_color.rgb, vec3(0.299, 0.587, 0.114));
+  vec3 neutral = vec3(0.62, 0.60, 0.58) * (0.55 + 0.9 * lum);
+  v_color = vec4(neutral, alpha);
 
   // corners share the center's z and w → coherent depth vs terrain
   float cz = clamp(clip.z, -abs(w), abs(w));
@@ -164,7 +170,8 @@ void main() {
   // 1/(1 - e^-4) = 1.0186574
   float falloff = (exp(-4.0 * r2) - 0.0183156) * 1.0186574;
   float alpha = v_color.a * max(falloff, 0.0);
-  // projective texture: photo on horizontal surfaces, score tint on walls
+  // projective texture: photo on horizontal surfaces, neutral tone on walls
+  // (score tint neutralized in the vertex stage — see SPLAT_VERT)
   vec3 photo = texture(u_tex, v_texUv).rgb;
   vec3 rgb = mix(v_color.rgb, photo, v_texW);
   fragColor = vec4(rgb * alpha, alpha);  // premultiplied

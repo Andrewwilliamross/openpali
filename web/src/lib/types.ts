@@ -1,8 +1,25 @@
-// Mirrors Docs/initialbuild_docs/ARTIFACTS.md — the prototype pipeline/frontend contract.
+// Mirrors the corrected pipeline artifact contract (lane signals + milestone
+// facts + typed observations). The retired 0-100 score / 0-5 stage ladder /
+// heuristic ETA are gone and must not reappear in any public surface.
 import type { Polygon, MultiPolygon } from 'geojson'
 
 export type Jurisdiction = 'LA' | 'COUNTY' | 'MALIBU'
 export type StructType = 'SFR' | 'MFR' | 'COM' | 'OTH'
+
+export type LaneSignal =
+  | 'no_public_evidence'
+  | 'activity_scheduled'
+  | 'activity_attempted'
+  | 'in_progress'
+  | 'milestone_reached'
+  | 'conflicting'
+
+export type LaneName =
+  | 'cleanup'
+  | 'design_review'
+  | 'permitting'
+  | 'construction'
+  | 'occupancy'
 
 export interface ParcelProps {
   apn: string
@@ -10,23 +27,73 @@ export interface ParcelProps {
   neighborhood: string
   jurisdiction: Jurisdiction
   struct: StructType
-  stage: 0 | 1 | 2 | 3 | 4 | 5
-  stage_label: string
-  score: number
-  last_event: string | null
+  last_evidence: string | null
+  lane_cleanup: LaneSignal
+  lane_design: LaneSignal
+  lane_permit: LaneSignal
+  lane_constr: LaneSignal
+  lane_occup: LaneSignal
+  cleanup_complete: boolean
+  plan_check_approved: boolean
+  application_submitted: boolean
+  permit_issued: boolean
+  construction_evidence: boolean
+  cofo_issued: boolean
 }
 
-export interface TimelineEvent {
-  date: string
-  kind:
-    | 'destroyed'
-    | 'debris_cleared'
-    | 'permit_submitted'
-    | 'permit_issued'
-    | 'inspection'
-    | 'cofo'
+export type ObservationStatus =
+  | 'scheduled'
+  | 'attempted'
+  | 'failed'
+  | 'passed'
+  | 'canceled'
+  | 'issued'
+  | 'accepted'
+  | 'observed'
+  | 'agency_reported'
+  | 'inferred'
+  | 'retracted'
+  | 'conflicting'
+  | 'unavailable'
+  | 'unknown'
+
+export interface OccurrenceTime {
+  kind: 'exact' | 'interval' | 'unknown'
+  date?: string
+  earliest?: string | null
+  latest?: string | null
+}
+
+export interface Observation {
+  observation_id: string
+  subject: { type: string; id: string }
+  lane: LaneName | null
+  event_type: string
+  status: ObservationStatus
+  occurred: OccurrenceTime
+  observed_at: string
+  source_record: { source_id: string; native_key: string; payload_sha256?: string | null }
+  policy_version: string
   label: string
-  ref?: string
+  related_subjects: { type: string; id: string }[]
+  detail: Record<string, string>
+}
+
+export interface LaneProjection {
+  lane: LaneName
+  signal: LaneSignal
+  reached_milestones: string[]
+  evidence: string[]
+  in_progress: string[]
+  scheduled_or_attempted: string[]
+  conflicting: string[]
+  policy_version: string
+}
+
+export interface ParcelLanes {
+  policy_version: string
+  lanes: LaneProjection[]
+  context: string[]
 }
 
 export interface PermitRecord {
@@ -37,6 +104,12 @@ export interface PermitRecord {
   issued: string | null
   valuation: number | null
   url: string | null
+  qualification:
+    | 'qualifying_rebuild_application'
+    | 'rebuild_related_ancillary'
+    | 'not_fire_rebuild'
+    | 'flag_missing'
+    | 'undocumented'
 }
 
 export interface ParcelDetail {
@@ -49,11 +122,9 @@ export interface ParcelDetail {
     baths: number | null
     units: number | null
   }
-  events: TimelineEvent[]
+  observations: Observation[]
+  lanes: ParcelLanes | null
   permits: PermitRecord[]
-  est_completion: string | null
-  score: number
-  score_explain: string
   lat?: number | null
   lon?: number | null
 }
@@ -63,11 +134,14 @@ export interface Summary {
   snapshot_id?: string
   totals: {
     destroyed: number
-    cleared: number
-    plan_check: number
-    permitted: number
-    under_construction: number
-    complete: number
+    cleanup_complete: number
+    cleanup_opt_out: number
+    application_submitted: number
+    plan_check_approved: number
+    permit_issued: number
+    construction_evidence: number
+    construction_inspection_scheduled_only: number
+    cofo_issued: number
   }
   weekly: { w: string; submitted: number; issued: number }[]
   baselines: {
@@ -84,10 +158,12 @@ export interface Summary {
     center: [number, number]
     zoom: number
     destroyed: number
-    permitted: number
-    under_construction: number
-    complete: number
+    cleanup_complete: number
+    application_submitted: number
+    permit_issued: number
+    cofo_issued: number
   }[]
+  policy_versions?: Record<string, string>
 }
 
 export type DetailsIndex = Record<string, ParcelDetail>

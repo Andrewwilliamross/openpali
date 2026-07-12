@@ -1,11 +1,19 @@
-// Floating structural-intelligence card — replaces the docked sidebar.
-// Context-aware overlay: slides in on selection, score header with a
-// stage-matched glow, scannable construction-milestone timeline, grouped
-// pre-fire metadata, and public-record validation links.
+// Floating property-evidence card. Shows parallel milestone lanes, the typed
+// observation timeline (with per-observation status and source), pre-fire
+// metadata, and public-record validation links.
+//
+// Deliberately absent (TRUTH-001): the retired 0-100 score, heuristic ETA,
+// and forced stage ladder. "No public evidence" is always worded as absence
+// from covered public sources — never as resident inactivity.
 
 import { useEffect, useState } from 'react'
-import type { ParcelDetail, ParcelProps } from '../../lib/types'
-import { STAGE_INFO, scoreColor } from '../../lib/colors'
+import type {
+  LaneName,
+  Observation,
+  ParcelDetail,
+  ParcelProps,
+} from '../../lib/types'
+import { LANE_SIGNAL_INFO, evidenceCategory } from '../../lib/colors'
 import {
   fetchCoverage,
   GEOMETRY_SOURCE_LABELS,
@@ -21,42 +29,73 @@ interface Props {
   onClose: () => void
 }
 
-// LADBS inspection sequence rendered as explicit named milestones
-const MILESTONE_LABELS: Record<string, string> = {
-  destroyed: 'Structure Lost',
-  debris_cleared: 'Site Cleared',
-  permit_submitted: 'Plans Submitted',
-  permit_issued: 'Building Permit Issued',
-  inspection: 'Construction Inspection',
-  cofo: 'Certificate of Occupancy',
+const LANE_LABELS: Record<LaneName, string> = {
+  cleanup: 'Cleanup',
+  design_review: 'Design review',
+  permitting: 'Permitting',
+  construction: 'Construction',
+  occupancy: 'Occupancy',
 }
 
-const MILESTONE_GLYPHS: Record<string, string> = {
-  destroyed: '◆',
-  debris_cleared: '▣',
-  permit_submitted: '✎',
-  permit_issued: '✓',
-  inspection: '⚙',
-  cofo: '⌂',
+const EVENT_GLYPHS: Record<string, string> = {
+  structure_destroyed: '◆',
+  debris_removal_complete: '▣',
+  cleanup_opt_out_selected: '⇄',
+  cleanup_program_ineligible: '⊘',
+  rebuild_application_submitted: '✎',
+  plan_check_approved: '✔',
+  rebuild_permit_issued: '✓',
+  certificate_of_occupancy_issued: '⌂',
+  construction_inspection_activity: '⚙',
+  construction_inspection_passed: '⚙',
+  ancillary_permit_activity: '·',
+  non_rebuild_permit_activity: '·',
+  inspection_activity: '·',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  scheduled: 'scheduled',
+  attempted: 'attempted',
+  failed: 'failed',
+  passed: 'passed',
+  canceled: 'canceled',
+  issued: 'issued',
+  accepted: 'accepted',
+  observed: 'observed',
+  agency_reported: 'agency-reported',
+  inferred: 'inferred',
+  retracted: 'retracted',
+  conflicting: 'conflicting sources',
+  unavailable: 'unavailable',
+  unknown: 'unknown',
+}
+
+function occurrenceText(o: Observation): string {
+  if (o.occurred.kind === 'exact' && o.occurred.date) return fmtDate(o.occurred.date)
+  if (o.occurred.kind === 'interval') {
+    const from = o.occurred.earliest ? fmtDate(o.occurred.earliest) : null
+    const to = o.occurred.latest ? fmtDate(o.occurred.latest) : null
+    if (from && to) return `between ${from} and ${to}`
+    if (from) return `on or after ${from}`
+    if (to) return `by ${to}`
+  }
+  if (o.event_type.includes('inspection') && o.detail?.scheduled_for) {
+    return `for ${fmtDate(o.detail.scheduled_for)}`
+  }
+  return 'date unknown'
 }
 
 export default function ParcelDetailCard({ apn, props, detail, onClose }: Props) {
-  const [entered, setEntered] = useState(false)
+  // The parent keys this component by APN, so selecting a different parcel
+  // remounts it: entry animation is pure CSS and per-parcel state resets
+  // without effect-driven setState churn.
   const [imgFailed, setImgFailed] = useState(false)
   const [coverage, setCoverage] = useState<CoverageEntry | null | undefined>(undefined)
-
-  useEffect(() => {
-    setEntered(false)
-    setImgFailed(false)
-    const t = requestAnimationFrame(() => setEntered(true))
-    return () => cancelAnimationFrame(t)
-  }, [apn])
 
   // geometry-source badge (coverage.json): every 3D parcel carries its
   // provenance label — placeholders must never read as observations
   useEffect(() => {
     let alive = true
-    setCoverage(undefined)
     void fetchCoverage().then((c) => {
       if (alive) setCoverage(c[apn] ?? null)
     })
@@ -65,41 +104,39 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
     }
   }, [apn])
 
-  const stage = props ? STAGE_INFO[props.stage] : null
-  const score = props?.score ?? detail?.score ?? 0
-  const glow = scoreColor(score)
+  const category = props ? evidenceCategory(props) : null
   const apnFmt = `${apn.slice(0, 4)}-${apn.slice(4, 7)}-${apn.slice(7)}`
-  const events = detail ? [...detail.events].reverse() : []
-  const primaryPermit = detail?.permits.find((p) => p.url) ?? detail?.permits[0]
+  const observations = detail ? [...detail.observations].reverse() : []
+  const primaryPermit =
+    detail?.permits.find((p) => p.qualification === 'qualifying_rebuild_application' && p.url) ??
+    detail?.permits.find((p) => p.url) ??
+    detail?.permits[0]
   const tileUrl = detail?.lat && detail?.lon ? preFireTileUrl(detail.lon, detail.lat) : null
 
   return (
-    <aside className={`spatial-card ${entered ? 'spatial-card-in' : ''}`}
-           aria-label="Structural intelligence">
+    <aside className="spatial-card" aria-label="Property recovery evidence">
       <button className="spatial-card-close" onClick={onClose} aria-label="Close">×</button>
 
       {tileUrl && !imgFailed ? (
         <figure className="spatial-card-media">
-          <img src={tileUrl} alt="Pre-fire aerial" loading="lazy"
-               onError={() => setImgFailed(true)} />
+          <img src={tileUrl} alt="Pre-fire aerial (historical context, not current conditions)"
+               loading="lazy" onError={() => setImgFailed(true)} />
           <figcaption>Pre-fire · {WAYBACK_ATTRIBUTION}</figcaption>
         </figure>
       ) : null}
 
-      {/* ---- rebuild metrics header ---- */}
+      {/* ---- identity header ---- */}
       <header className="spatial-card-head">
-        <div className="spatial-score" style={{ color: glow, textShadow: `0 0 18px ${glow}88, 0 0 4px ${glow}55` }}>
-          {Math.round(score)}
-        </div>
         <div className="spatial-head-text">
           <h2>{titleCase(detail?.address ?? props?.address ?? 'Unknown address')}</h2>
           <div className="spatial-sub">
             APN {apnFmt}
             {props?.neighborhood ? ` · ${props.neighborhood}` : ''}
+            {props?.jurisdiction ? ` · ${props.jurisdiction === 'LA' ? 'City of LA' : props.jurisdiction === 'MALIBU' ? 'Malibu' : 'LA County'}` : ''}
           </div>
-          {stage && (
-            <span className="spatial-stage" style={{ background: stage.color }}>
-              {stage.label}
+          {category && (
+            <span className="spatial-stage" style={{ background: category.color }}>
+              {category.label}
             </span>
           )}
           {coverage !== undefined && (
@@ -119,26 +156,47 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
         </div>
       </header>
 
-      {detail?.score_explain && <p className="spatial-explain">{detail.score_explain}</p>}
-      {detail?.est_completion && (
-        <div className="spatial-eta">
-          Estimated completion <strong>{detail.est_completion}</strong>
-        </div>
+      {/* ---- parallel milestone lanes ---- */}
+      {detail?.lanes && (
+        <section>
+          <h3 className="spatial-h">Recovery lanes</h3>
+          <ul className="lane-strip">
+            {detail.lanes.lanes.map((lane) => {
+              const info = LANE_SIGNAL_INFO[lane.signal]
+              return (
+                <li key={lane.lane}>
+                  <span className="lane-name">{LANE_LABELS[lane.lane]}</span>
+                  <span className="lane-signal">
+                    <span className="lane-dot" style={{ background: info.color }} aria-hidden />
+                    {info.label}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="spatial-unknown-note">
+            “No public evidence” means no event appears in the public sources
+            OpenPali covers — it does not mean nothing is happening.
+          </p>
+        </section>
       )}
 
-      {/* ---- administrative inspection timeline ---- */}
-      {events.length > 0 && (
+      {/* ---- typed evidence timeline ---- */}
+      {observations.length > 0 && (
         <section>
-          <h3 className="spatial-h">Inspection timeline</h3>
+          <h3 className="spatial-h">Public evidence</h3>
           <ol className="spatial-timeline">
-            {events.map((e, i) => (
-              <li key={i} className={i === 0 ? 'tl-now' : ''}>
+            {observations.map((o) => (
+              <li key={o.observation_id}>
                 <span className="tl-glyph" aria-hidden>
-                  {MILESTONE_GLYPHS[e.kind] ?? '•'}
+                  {EVENT_GLYPHS[o.event_type] ?? '•'}
                 </span>
                 <div className="tl-body">
-                  <span className="tl-name">{e.label || MILESTONE_LABELS[e.kind]}</span>
-                  <span className="tl-when">{fmtDate(e.date)}</span>
+                  <span className="tl-name">
+                    {o.label || o.event_type}
+                    <span className="tl-status">{STATUS_LABELS[o.status] ?? o.status}</span>
+                  </span>
+                  <span className="tl-when">{occurrenceText(o)}</span>
                 </div>
               </li>
             ))}
@@ -175,7 +233,13 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
                   <em>{p.status}</em>
                 </div>
                 <div className="permit-line-sub">
-                  {p.type} · filed {fmtDate(p.submitted)}
+                  {p.type}
+                  {p.qualification === 'qualifying_rebuild_application'
+                    ? ' · qualifying rebuild'
+                    : p.qualification === 'rebuild_related_ancillary'
+                      ? ' · rebuild-related'
+                      : ''}
+                  {p.submitted ? ` · filed ${fmtDate(p.submitted)}` : ''}
                   {p.issued ? ` · issued ${fmtDate(p.issued)}` : ''}
                   {p.valuation ? ` · ${fmtMoney(p.valuation)}` : ''}
                 </div>

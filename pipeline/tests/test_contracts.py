@@ -7,10 +7,19 @@ import json
 
 import pytest
 
+from openpali.domain.lanes import project_lanes
+
 from palisades import checks, http, provenance
 from palisades.emit import emit_all
 from palisades.model import Parcel
 from palisades.validate import reconcile
+
+
+def _projected(apn: str) -> Parcel:
+    """Parcel with an (empty) lane projection, as build_parcels guarantees."""
+    p = Parcel(apn)
+    p.lane_state = project_lanes([])
+    return p
 
 
 @pytest.fixture(autouse=True)
@@ -86,7 +95,7 @@ def _recon_ok():
 
 
 def test_gates_clean_run_has_no_incidents():
-    out = checks.run_gates([Parcel("1")], [_health()], _recon_ok())
+    out = checks.run_gates([_projected("1")], [_health()], _recon_ok())
     assert out == []
 
 
@@ -96,58 +105,63 @@ def test_gate_universe_empty_is_error():
 
 
 def test_gate_apn_parse_rate():
-    out = checks.run_gates([Parcel("1")], [_health(unparseable=20)], _recon_ok())
+    out = checks.run_gates([_projected("1")], [_health(unparseable=20)], _recon_ok())
     assert any(i["code"] == "apn_parse_rate" and i["level"] == "error" for i in out)
-    out = checks.run_gates([Parcel("1")], [_health(unparseable=5)], _recon_ok())
+    out = checks.run_gates([_projected("1")], [_health(unparseable=5)], _recon_ok())
     assert not any(i["code"] == "apn_parse_rate" for i in out)
 
 
 def test_gate_duplicates_error_vs_info():
-    err = checks.run_gates([Parcel("1")], [_health(duplicates=30)], _recon_ok())
+    err = checks.run_gates([_projected("1")], [_health(duplicates=30)], _recon_ok())
     assert any(i["code"] == "duplicate_apns" and i["level"] == "error" for i in err)
-    info = checks.run_gates([Parcel("1")], [_health(duplicates=3)], _recon_ok())
+    info = checks.run_gates([_projected("1")], [_health(duplicates=3)], _recon_ok())
     assert any(i["code"] == "duplicate_apns" and i["level"] == "info" for i in info)
     assert not checks.has_errors(info)
 
 
 def test_gate_missing_geometry_warns():
-    out = checks.run_gates([Parcel("1")], [_health(no_geometry=2)], _recon_ok())
+    out = checks.run_gates([_projected("1")], [_health(no_geometry=2)], _recon_ok())
     assert any(i["code"] == "missing_geometry" and i["level"] == "warn" for i in out)
 
 
 def test_gate_source_failed_warns():
     out = checks.run_gates(
-        [Parcel("1")], [_health(), _health(sid="malibu_dash", ok=False, error="boom", records=0)],
+        [_projected("1")], [_health(), _health(sid="malibu_dash", ok=False, error="boom", records=0)],
         _recon_ok())
     assert any(i["code"] == "source_failed" and "malibu_dash" in i["message"] for i in out)
 
 
-def test_gate_stage_taxonomy_error():
-    p = Parcel("1")
-    p.stage = 7
-    out = checks.run_gates([p], [_health()], _recon_ok())
-    assert any(i["code"] == "stage_taxonomy" and i["level"] == "error" for i in out)
+def test_gate_undocumented_taxonomy_fails_closed():
+    out = checks.run_gates([_projected("1")], [_health()], _recon_ok(),
+                           undocumented_values=["Insp Completed"])
+    assert any(i["code"] == "undocumented_taxonomy" and i["level"] == "error" for i in out)
+    assert checks.has_errors(out)
+
+
+def test_gate_missing_lane_projection_is_error():
+    out = checks.run_gates([Parcel("1")], [_health()], _recon_ok())
+    assert any(i["code"] == "lane_projection_missing" and i["level"] == "error" for i in out)
 
 
 def test_gate_unknown_labels_warn():
     out = checks.run_gates(
-        [Parcel("1")], [_health(unknown_labels=["mystery phase"])], _recon_ok())
+        [_projected("1")], [_health(unknown_labels=["mystery phase"])], _recon_ok())
     assert any(i["code"] == "label_taxonomy" for i in out)
 
 
 def test_gate_universe_delta():
     prev = {"totals": {"destroyed": 1000}}
-    shrunk = checks.run_gates([Parcel(str(i)) for i in range(900)], [_health()], _recon_ok(), prev)
+    shrunk = checks.run_gates([_projected(str(i)) for i in range(900)], [_health()], _recon_ok(), prev)
     assert any(i["code"] == "universe_shrank" and i["level"] == "error" for i in shrunk)
-    moved = checks.run_gates([Parcel(str(i)) for i in range(999)], [_health()], _recon_ok(), prev)
+    moved = checks.run_gates([_projected(str(i)) for i in range(999)], [_health()], _recon_ok(), prev)
     assert any(i["code"] == "universe_changed" and i["level"] == "info" for i in moved)
 
 
 def test_gate_reconciliation_missing_and_drift():
-    missing = checks.run_gates([Parcel("1")], [_health()], [])
+    missing = checks.run_gates([_projected("1")], [_health()], [])
     assert any(i["code"] == "reconciliation_unavailable" for i in missing)
     drift = checks.run_gates(
-        [Parcel("1")], [_health()],
+        [_projected("1")], [_health()],
         [{"metric": "m", "official": 100, "ours": 80, "drift_pct": 20.0, "ok": False}])
     assert any(i["code"] == "official_drift" and i["level"] == "warn" for i in drift)
 
@@ -155,10 +169,10 @@ def test_gate_reconciliation_missing_and_drift():
 def test_gate_schema_drift_vs_previous_meta():
     prev_meta = {"sources": [{"id": "county_base", "schema_fingerprint": "aaaa"}]}
     out = checks.run_gates(
-        [Parcel("1")], [_health(schema_fingerprint="bbbb")], _recon_ok(), None, prev_meta)
+        [_projected("1")], [_health(schema_fingerprint="bbbb")], _recon_ok(), None, prev_meta)
     assert any(i["code"] == "schema_drift" for i in out)
     same = checks.run_gates(
-        [Parcel("1")], [_health(schema_fingerprint="aaaa")], _recon_ok(), None, prev_meta)
+        [_projected("1")], [_health(schema_fingerprint="aaaa")], _recon_ok(), None, prev_meta)
     assert not any(i["code"] == "schema_drift" for i in same)
 
 
@@ -198,14 +212,19 @@ def test_emit_stamps_one_snapshot_across_all_artifacts(tmp_path):
 # ---------- reconcile math ----------
 
 def test_reconcile_flags_drift_over_5pct():
-    parcels = [{"apn": "1", "jurisdiction": "LA", "stage": 3},
-               {"apn": "2", "jurisdiction": "LA", "stage": 2},
-               {"apn": "3", "jurisdiction": "MALIBU", "stage": 0}]
+    parcels = [
+        {"apn": "1", "jurisdiction": "LA",
+         "application_submitted": True, "permit_issued": True, "cofo_issued": False},
+        {"apn": "2", "jurisdiction": "LA",
+         "application_submitted": True, "permit_issued": False, "cofo_issued": False},
+        {"apn": "3", "jurisdiction": "MALIBU",
+         "application_submitted": False, "permit_issued": False, "cofo_issued": False},
+    ]
     rows = reconcile(parcels, [
         {"source": "LA County", "metric": "destroyed_parcels", "official": 3},
-        {"source": "LADBS", "metric": "parcels_bldgnew_application", "official": 4},
+        {"source": "LADBS", "metric": "parcels_qualifying_application", "official": 4},
     ])
     by = {r["metric"]: r for r in rows}
     assert by["destroyed_parcels"]["ok"] and by["destroyed_parcels"]["drift_pct"] == 0.0
-    assert by["parcels_bldgnew_application"]["ours"] == 2
-    assert not by["parcels_bldgnew_application"]["ok"]  # 50% drift
+    assert by["parcels_qualifying_application"]["ours"] == 2
+    assert not by["parcels_qualifying_application"]["ok"]  # 50% drift

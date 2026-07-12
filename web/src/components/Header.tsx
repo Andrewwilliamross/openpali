@@ -40,21 +40,19 @@ export default function Header({ summary }: { summary: Summary | null }) {
         <div className="metrics">
           <div className="metric">
             <span className="metric-num">{fmtNumber(t.destroyed)}</span>
-            <span className="metric-label">structures lost</span>
+            <span className="metric-label">parcels destroyed</span>
           </div>
           <div className="metric">
-            <span className="metric-num">
-              {fmtPct(t.plan_check + t.permitted + t.under_construction + t.complete, t.destroyed)}
-            </span>
-            <span className="metric-label">permits filed</span>
+            <span className="metric-num">{fmtPct(t.application_submitted, t.destroyed)}</span>
+            <span className="metric-label">rebuild applications</span>
           </div>
           <div className="metric">
-            <span className="metric-num">{fmtPct(t.under_construction, t.destroyed)}</span>
-            <span className="metric-label">under construction</span>
+            <span className="metric-num">{fmtPct(t.permit_issued, t.destroyed)}</span>
+            <span className="metric-label">permits issued</span>
           </div>
-          <div className="metric">
-            <span className="metric-num">{fmtNumber(t.complete)}</span>
-            <span className="metric-label">completed</span>
+          <div className="metric" title="Certificates of Occupancy issued">
+            <span className="metric-num">{fmtNumber(t.cofo_issued)}</span>
+            <span className="metric-label">CofO issued</span>
           </div>
           <Sparkline weekly={summary.weekly} />
         </div>
