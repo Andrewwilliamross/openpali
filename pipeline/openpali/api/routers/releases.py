@@ -678,3 +678,85 @@ def spatial_asset_file(
         media_type=media,
         headers={"ETag": etag, "Cache-Control": IMMUTABLE_CACHE},
     )
+
+
+# ---------------------------------------------------------------------------
+# corrections (FRONTEND-001): rate-limited public submission; contact stored
+# separately under restricted retention; moderation is human, append-only
+# ---------------------------------------------------------------------------
+
+from collections import deque as _deque
+from time import monotonic as _monotonic
+
+from pydantic import BaseModel, Field
+
+_CORRECTION_WINDOW_S = 3600
+_CORRECTION_MAX_PER_WINDOW = 5
+_correction_buckets: dict[str, _deque] = {}
+
+
+class CorrectionIn(BaseModel):
+    claim_ref: str = Field(min_length=1, max_length=200,
+                           description="which shown claim is wrong (e.g. lane/event id)")
+    message: str = Field(min_length=10, max_length=4000)
+    contact: str | None = Field(default=None, max_length=200,
+                                description="optional; stored separately, never published")
+
+
+@router.post("/releases/{release_id}/properties/{property_id}/corrections", status_code=202)
+def submit_correction(
+    property_id: str,
+    body: CorrectionIn,
+    request: Request,
+    publication: Publication = Depends(get_release),
+    session: Session = Depends(get_session),
+) -> dict:
+    _state_for_property(session, publication, property_id)  # 404 unknown property
+
+    # per-client sliding window (single-process deployment; a shared limiter
+    # belongs to the reverse proxy in multi-instance setups)
+    client = request.client.host if request.client else "unknown"
+    now = _monotonic()
+    bucket = _correction_buckets.setdefault(client, _deque())
+    while bucket and now - bucket[0] > _CORRECTION_WINDOW_S:
+        bucket.popleft()
+    if len(bucket) >= _CORRECTION_MAX_PER_WINDOW:
+        raise HTTPException(429, "correction rate limit reached; please try again later")
+    bucket.append(now)
+
+    from openpali.storage.models import CorrectionContact, CorrectionSubmission
+
+    idempotency = hashlib.sha256(
+        f"{publication.release_id}:{property_id}:{body.claim_ref}:{body.message}".encode()
+    ).hexdigest()
+    existing = session.execute(
+        select(CorrectionSubmission).where(
+            CorrectionSubmission.idempotency_key == idempotency
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        return {"submission_id": existing.submission_id, "state": existing.moderation_state,
+                "note": "already received"}
+
+    submission_id = "corr-" + idempotency[:20]
+    session.add(
+        CorrectionSubmission(
+            submission_id=submission_id,
+            release_id=publication.release_id,
+            property_id=property_id,
+            claim_ref=body.claim_ref,
+            message=body.message,
+            idempotency_key=idempotency,
+        )
+    )
+    if body.contact:
+        session.add(CorrectionContact(submission_id=submission_id, contact=body.contact))
+    session.commit()
+    return {
+        "submission_id": submission_id,
+        "state": "pending",
+        "note": (
+            "Thank you. A human reviews every correction; accepted corrections "
+            "become append-only revisions with the original preserved."
+        ),
+    }
