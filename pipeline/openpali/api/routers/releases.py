@@ -828,3 +828,58 @@ def list_releases(
             for p in rows
         ]
     }
+
+
+@router.get("/releases/{release_id}/model-status")
+def model_status(
+    request: Request,
+    response: Response,
+    publication: Publication = Depends(get_release),
+    session: Session = Depends(get_session),
+) -> dict:
+    """The learning system's state for THIS release: the champion (if any),
+    the latest prediction set for the release's snapshot, and the typed
+    reason when nothing is served (ML-003 user-facing status)."""
+
+    from openpali.ml.serving import current_champion
+    from openpali.storage.models import PredictionSet
+
+    etag = _etag(publication.release_id, "model-status", publication.manifest_sha256)
+    _maybe_304(request, response, etag, IMMUTABLE_CACHE)
+
+    champion = current_champion(session)
+    latest_set = session.execute(
+        select(PredictionSet)
+        .where(PredictionSet.snapshot_id == publication.snapshot_id)
+        .order_by(PredictionSet.created_at.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+    return {
+        "release_id": publication.release_id,
+        "snapshot_id": publication.snapshot_id,
+        "champion": (
+            {
+                "model_id": champion.model_id,
+                "target": champion.target,
+                "training_cutoff": champion.training_cutoff.isoformat(),
+                "limitations": champion.limitations,
+            }
+            if champion
+            else None
+        ),
+        "prediction_set": (
+            {
+                "prediction_set_id": latest_set.prediction_set_id,
+                "status": latest_set.status,
+                "rows": latest_set.row_count,
+                "insufficiency_reason": latest_set.insufficiency_reason,
+            }
+            if latest_set
+            else None
+        ),
+        "note": (
+            "Estimates are computed at application submission from a reviewed "
+            "batch model; when the evidence base is insufficient the system "
+            "says so with a typed reason instead of guessing."
+        ),
+    }

@@ -134,6 +134,8 @@ test('deterministic renderer benchmark (report-only)', async ({ page }, testInfo
     return gl && ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : 'unknown'
   })
   await page.waitForFunction(() => window.__mapReady === true)
+  await page.getByRole('button', { name: 'Toggle 3D view' }).click()
+  await page.getByRole('button', { name: 'Toggle pre-fire county model' }).click()
   await page.waitForFunction(() => window.__splats !== undefined, undefined, { timeout: 60_000 })
   await page.waitForFunction(() => window.__usgsSplats !== undefined, undefined, { timeout: 60_000 })
 

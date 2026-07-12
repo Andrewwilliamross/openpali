@@ -64,6 +64,8 @@ test('USGS post-fire surfels: tile requests, draw calls, picking, labels', async
   await page.waitForFunction(() => window.__mapReady === true).catch((e) => {
     throw new Error(`map load: ${e}; page errors: ${pageErrors.join(' | ')}`)
   })
+  // 2D-first product: 3D loads ONLY on request (SPATIAL-002)
+  await page.getByRole('button', { name: 'Toggle 3D view' }).click()
   await page.waitForFunction(() => window.__usgsSplats !== undefined, undefined, {
     timeout: 60_000,
   })
@@ -122,9 +124,7 @@ test('USGS post-fire surfels: tile requests, draw calls, picking, labels', async
 test('2D journey stays usable and the post-fire hillshade is present', async ({ page }) => {
   await page.goto('/')
   await page.waitForFunction(() => window.__mapReady === true)
-  // leave 3D (the toggle's accessible name is its aria-label)
-  await page.getByRole('button', { name: 'Toggle 3D view' }).click()
-  // parcels remain interactive in 2D: legend + evidence categories visible
+  // 2D is the default now — no toggle needed
   await expect(page.locator('.legend')).toContainText('Evidenced milestone')
   // release-served post-fire DEM is queryable where the AOI sits
   const hasSource = await page.evaluate(

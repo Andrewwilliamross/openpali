@@ -67,8 +67,8 @@ test('keyboard: mode toggle and nav are reachable and operable', async ({ page }
   const toggle = page.getByRole('button', { name: 'Toggle 3D view' })
   await toggle.focus()
   await expect(toggle).toBeFocused()
-  await page.keyboard.press('Enter') // 3D -> 2D without a pointer
-  await expect(toggle).toHaveText('3D')
+  await page.keyboard.press('Enter') // 2D -> 3D without a pointer
+  await expect(toggle).toHaveText(/2D|3D…/)
   const methods = page.locator('.app-nav a', { hasText: 'Methods' })
   await methods.focus()
   await page.keyboard.press('Enter')

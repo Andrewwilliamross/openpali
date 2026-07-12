@@ -707,6 +707,40 @@ export type MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses = {
     200: unknown;
 };
 
+export type ModelStatusV1ReleasesReleaseIdModelStatusGetData = {
+    body?: never;
+    path: {
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/model-status';
+};
+
+export type ModelStatusV1ReleasesReleaseIdModelStatusGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ModelStatusV1ReleasesReleaseIdModelStatusGetError = ModelStatusV1ReleasesReleaseIdModelStatusGetErrors[keyof ModelStatusV1ReleasesReleaseIdModelStatusGetErrors];
+
+export type ModelStatusV1ReleasesReleaseIdModelStatusGetResponses = {
+    /**
+     * Response Model Status V1 Releases  Release Id  Model Status Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type ModelStatusV1ReleasesReleaseIdModelStatusGetResponse = ModelStatusV1ReleasesReleaseIdModelStatusGetResponses[keyof ModelStatusV1ReleasesReleaseIdModelStatusGetResponses];
+
 export type SearchPropertiesV1ReleasesReleaseIdPropertiesGetData = {
     body?: never;
     path: {

@@ -101,6 +101,8 @@ export class SplatRenderLayer implements CustomLayerInterface {
   // per-frame instanced-splat ceiling (SPATIAL-002): wide views coarsen to
   // faithful LOD representatives instead of unbounded overdraw
   private static readonly FRAME_SPLAT_BUDGET = 150_000
+  // hysteresis state for the budget (adjusted between frames, never mid-frame)
+  private adaptiveSse = SSE_THRESHOLD_PX
 
   // Per-source presentation: the committed LARIAC corpus carries a baked
   // civic-score tint (neutralized in-shader, TRUTH-001) and projects pre-fire
@@ -481,10 +483,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
     // ---- adaptive splat budget (SPATIAL-002, profiling-selected) ----
     // Wide views select hundreds of small nodes at a fixed 14px threshold:
     // the measured far scene drew MORE instances (217k/frame) than a close-up
-    // (180k). When the selected cut exceeds the budget, the traversal reruns
-    // with a scaled threshold so wide views resolve to the coarser,
-    // energy-conserving LOD representatives instead of maximal overdraw.
-    let sseThreshold = SSE_THRESHOLD_PX
+    // (180k). HYSTERESIS across frames (not same-frame retraversal — that
+    // cost 1-3 extra CPU passes per frame and regressed software-raster p50):
+    // when the last cut exceeded the budget, the threshold eases up next
+    // frame; when comfortably under, it decays back toward the base.
+    const sseThreshold = this.adaptiveSse
 
     const visit = (node: SplatNode): void => {
       const radius = Math.hypot(node.hx, node.hy, node.hz)
@@ -534,14 +537,19 @@ export class SplatRenderLayer implements CustomLayerInterface {
       }
     }
     visit(this.tileset.root)
-    // budget pass: rerun with a coarser cut until within budget (pure-CPU
-    // retraversal over ~10^2..10^3 resident nodes; at most 3 extra passes)
-    for (let pass = 0; pass < 3; pass++) {
+    // budget feedback for the NEXT frame (single traversal per frame)
+    {
       const selected = drawList.reduce((s, d) => s + d.node.splatCount, 0)
-      if (selected <= SplatRenderLayer.FRAME_SPLAT_BUDGET) break
-      sseThreshold *= 1.7
-      drawList.length = 0
-      visit(this.tileset.root)
+      if (selected > SplatRenderLayer.FRAME_SPLAT_BUDGET) {
+        this.adaptiveSse = Math.min(this.adaptiveSse * 1.5, SSE_THRESHOLD_PX * 8)
+        map.triggerRepaint() // converge within a frame or two
+      } else if (
+        selected < SplatRenderLayer.FRAME_SPLAT_BUDGET * 0.6
+        && this.adaptiveSse > SSE_THRESHOLD_PX
+      ) {
+        this.adaptiveSse = Math.max(this.adaptiveSse * 0.85, SSE_THRESHOLD_PX)
+        map.triggerRepaint()
+      }
     }
 
     if (drawList.length === 0) {

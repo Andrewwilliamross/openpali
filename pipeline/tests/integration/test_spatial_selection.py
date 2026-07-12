@@ -149,3 +149,35 @@ def test_live_usgs_assets_reconcile_coverage(session):
     assert newest.observation_kind == "post_fire_observation"
     assert newest.acquisition_start.date().isoformat() == "2025-01-21"
     assert newest.processed_at > newest.acquisition_end
+
+
+def test_rights_withdrawal_drill(session):
+    """GOV-001: a previously selected asset whose rights become unresolved is
+    excluded from the NEXT selection with a recorded reason — the slot goes
+    absent (never an error, never a stale tile)."""
+
+    from sqlalchemy import select as sa_select
+
+    from openpali.spatial.registry import select_release_assets
+    from openpali.storage.models import SpatialAsset
+
+    now = datetime.now(timezone.utc)
+    _register(session, slot=f"withdraw-{RUN_TAG}", version="v-w", processed_at=now)
+    before = select_release_assets(session)
+    assert any(a["vintage_slot"] == f"withdraw-{RUN_TAG}" for a in _mine(before))
+
+    asset = session.execute(
+        sa_select(SpatialAsset).where(
+            SpatialAsset.asset_id == f"test-{RUN_TAG}-withdraw-{RUN_TAG}"
+        )
+    ).scalar_one()
+    asset.rights_state = "unresolved"  # the withdrawal decision
+    session.flush()
+
+    after = select_release_assets(session)
+    assert not any(a["vintage_slot"] == f"withdraw-{RUN_TAG}" for a in _mine(after))
+    reasons = [
+        e["reason"] for e in after["excluded"] if RUN_TAG in e["asset_id"]
+        and e["vintage_slot"] == f"withdraw-{RUN_TAG}"
+    ]
+    assert reasons and "rights_state=unresolved" in reasons[0]

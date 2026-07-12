@@ -11,4 +11,4 @@ COPY e2e ./e2e
 ENV E2E_BASE_URL=http://web:80
 # correctness + accessibility gates by default; the report-only renderer
 # benchmark runs via the dedicated compose job (command override)
-CMD ["npx", "playwright", "test", "e2e/spatial-usgs.spec.ts", "e2e/a11y.spec.ts", "--reporter=list"]
+CMD ["npx", "playwright", "test", "e2e/spatial-usgs.spec.ts", "e2e/a11y.spec.ts", "e2e/journeys.spec.ts", "--reporter=list"]

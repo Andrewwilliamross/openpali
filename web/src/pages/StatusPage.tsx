@@ -15,6 +15,17 @@ interface ReleaseInfo {
   lkg_release_id: string | null
 }
 
+interface ModelStatus {
+  champion: { model_id: string; training_cutoff: string; limitations: string } | null
+  prediction_set: {
+    prediction_set_id: string
+    status: string
+    rows: number
+    insufficiency_reason: string | null
+  } | null
+  note: string
+}
+
 interface SourceHealth {
   source_id: string
   title: string | null
@@ -27,6 +38,7 @@ interface SourceHealth {
 export default function StatusPage() {
   const [release, setRelease] = useState<ReleaseInfo | null>(null)
   const [sources, setSources] = useState<SourceHealth[] | null>(null)
+  const [model, setModel] = useState<ModelStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -38,6 +50,8 @@ export default function StatusPage() {
         setRelease(rel)
         const src = await (await fetch(`/v1/releases/${rel.release_id}/sources`)).json()
         if (alive) setSources(src.sources ?? [])
+        const ms = await (await fetch(`/v1/releases/${rel.release_id}/model-status`)).json()
+        if (alive) setModel(ms)
       } catch {
         if (alive) setError('The release API is unreachable. The map may be serving cached data.')
       }
@@ -77,6 +91,35 @@ export default function StatusPage() {
                 <ul>{release.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
               </>
             )}
+          </section>
+          <section data-testid="model-status">
+            <h2>Permit-timing model</h2>
+            {model?.champion && model?.prediction_set?.status === 'served' ? (
+              <p>
+                Reviewed champion <code>{model.champion.model_id.slice(0, 18)}</code>{' '}
+                (trained through {model.champion.training_cutoff.slice(0, 10)}) serves{' '}
+                {model.prediction_set.rows} submission-time estimates for this release.
+              </p>
+            ) : (
+              <p>
+                No public forecast is served for this release
+                {model?.prediction_set?.insufficiency_reason ? (
+                  <>
+                    : <code>{model.prediction_set.insufficiency_reason}</code>
+                  </>
+                ) : (
+                  ' (no prediction set exists yet)'
+                )}
+                . {model?.note}
+              </p>
+            )}
+            <p className="page-note">
+              Research export:{' '}
+              <a href={`/v1/releases/${release.release_id}/metrics/export.csv`}>
+                snapshot-addressed metrics CSV
+              </a>{' '}
+              — every row carries the release and snapshot identifiers.
+            </p>
           </section>
           <section>
             <h2>Sources frozen into this release</h2>
