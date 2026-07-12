@@ -307,6 +307,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("schedule-drill", help="prove scheduler-created runs execute")
     p.set_defaults(func=cmd_schedule_drill)
 
+    p = sub.add_parser("flow-reap", help="mark zombie Running flow runs Crashed")
+    p.set_defaults(func=cmd_flow_reap)
+
     p = sub.add_parser("export-openapi", help="print the OpenAPI schema")
     p.set_defaults(func=cmd_export_openapi)
 
@@ -1142,3 +1145,48 @@ def cmd_schedule_drill(args: argparse.Namespace) -> int:
             return 0
 
     return asyncio.run(drill())
+
+
+def cmd_flow_reap(args: argparse.Namespace) -> int:
+    """OPS remediation: force zombie flow runs (Running, but their worker
+    process died) into CRASHED so their failure is VISIBLE and reruns can
+    proceed. Process workers have no heartbeat reaper — a mid-run worker
+    restart otherwise leaves runs hanging in Running forever (found by the
+    worker kill/resume drill)."""
+
+    import asyncio
+
+    from prefect.client.orchestration import get_client
+    from prefect.client.schemas.filters import (
+        FlowRunFilter,
+        FlowRunFilterState,
+        FlowRunFilterStateName,
+    )
+    from prefect.client.schemas.objects import StateType
+    from prefect.states import Crashed
+
+    async def reap() -> int:
+        async with get_client() as client:
+            runs = await client.read_flow_runs(
+                flow_run_filter=FlowRunFilter(
+                    state=FlowRunFilterState(
+                        name=FlowRunFilterStateName(any_=["Running", "Cancelling"])
+                    )
+                )
+            )
+            if not runs:
+                print("no running flow runs to inspect")
+                return 0
+            reaped = 0
+            for run in runs:
+                await client.set_flow_run_state(
+                    run.id,
+                    Crashed(message="operator reap: worker process died mid-run"),
+                    force=True,
+                )
+                print(f"reaped {run.id} ({run.name}) Running -> Crashed")
+                reaped += 1
+            print(f"FLOW REAP: {reaped} zombie run(s) marked Crashed (visible failure)")
+            return 0
+
+    return asyncio.run(reap())

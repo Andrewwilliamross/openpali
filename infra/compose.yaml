@@ -551,6 +551,19 @@ services:
     networks: [internal]
     profiles: [jobs]
 
+  flow-reap:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "flow-reap"]
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
   schedule-drill:
     image: openpali-pipeline:local
     build:
