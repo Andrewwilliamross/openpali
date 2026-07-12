@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetData, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetData, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses, LiveHealthLiveGetData, LiveHealthLiveGetResponses, LiveSourcesV1StatusSourcesGetData, LiveSourcesV1StatusSourcesGetResponses, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetData, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetData, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetErrors, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetResponses, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetData, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetErrors, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetData, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetErrors, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetResponses, ReadyHealthReadyGetData, ReadyHealthReadyGetResponses, ReleaseInfoV1ReleasesReleaseIdGetData, ReleaseInfoV1ReleasesReleaseIdGetErrors, ReleaseInfoV1ReleasesReleaseIdGetResponses, ReleaseSourcesV1ReleasesReleaseIdSourcesGetData, ReleaseSourcesV1ReleasesReleaseIdSourcesGetErrors, ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses, ResolveCurrentV1ReleasesCurrentGetData, ResolveCurrentV1ReleasesCurrentGetResponses, SearchPropertiesV1ReleasesReleaseIdPropertiesGetData, SearchPropertiesV1ReleasesReleaseIdPropertiesGetErrors, SearchPropertiesV1ReleasesReleaseIdPropertiesGetResponses } from './types.gen';
+import type { BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetData, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetData, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses, ListReleasesV1ReleasesGetData, ListReleasesV1ReleasesGetErrors, ListReleasesV1ReleasesGetResponses, LiveHealthLiveGetData, LiveHealthLiveGetResponses, LiveSourcesV1StatusSourcesGetData, LiveSourcesV1StatusSourcesGetResponses, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetData, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetData, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetErrors, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetResponses, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetData, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetErrors, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses, PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetData, PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetErrors, PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponses, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetData, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetErrors, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetResponses, ReadyHealthReadyGetData, ReadyHealthReadyGetResponses, ReleaseInfoV1ReleasesReleaseIdGetData, ReleaseInfoV1ReleasesReleaseIdGetErrors, ReleaseInfoV1ReleasesReleaseIdGetResponses, ReleaseSourcesV1ReleasesReleaseIdSourcesGetData, ReleaseSourcesV1ReleasesReleaseIdSourcesGetErrors, ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses, ResolveCurrentV1ReleasesCurrentGetData, ResolveCurrentV1ReleasesCurrentGetResponses, SearchPropertiesV1ReleasesReleaseIdPropertiesGetData, SearchPropertiesV1ReleasesReleaseIdPropertiesGetErrors, SearchPropertiesV1ReleasesReleaseIdPropertiesGetResponses, SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetData, SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetErrors, SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetResponses, SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetData, SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetErrors, SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponses, SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostData, SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostErrors, SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -27,6 +27,14 @@ export const liveHealthLiveGet = <ThrowOnError extends boolean = false>(options?
  * Ready
  */
 export const readyHealthReadyGet = <ThrowOnError extends boolean = false>(options?: Options<ReadyHealthReadyGetData, ThrowOnError>): RequestResult<ReadyHealthReadyGetResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadyHealthReadyGetResponses, unknown, ThrowOnError>({ url: '/health/ready', ...options });
+
+/**
+ * List Releases
+ *
+ * Recent publications (all kinds/states) — operational visibility for
+ * /status and the evaluator; current authority remains /releases/current.
+ */
+export const listReleasesV1ReleasesGet = <ThrowOnError extends boolean = false>(options?: Options<ListReleasesV1ReleasesGetData, ThrowOnError>): RequestResult<ListReleasesV1ReleasesGetResponses, ListReleasesV1ReleasesGetErrors, ThrowOnError> => (options?.client ?? client).get<ListReleasesV1ReleasesGetResponses, ListReleasesV1ReleasesGetErrors, ThrowOnError>({ url: '/v1/releases', ...options });
 
 /**
  * Resolve Current
@@ -64,6 +72,23 @@ export const searchPropertiesV1ReleasesReleaseIdPropertiesGet = <ThrowOnError ex
 export const propertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGet = <ThrowOnError extends boolean = false>(options: Options<PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetData, ThrowOnError>): RequestResult<PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetErrors, ThrowOnError> => (options.client ?? client).get<PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/properties/{property_id}', ...options });
 
 /**
+ * Submit Correction
+ */
+export const submitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPost = <ThrowOnError extends boolean = false>(options: Options<SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostData, ThrowOnError>): RequestResult<SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponses, SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostErrors, ThrowOnError> => (options.client ?? client).post<SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponses, SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostErrors, ThrowOnError>({
+    url: '/v1/releases/{release_id}/properties/{property_id}/corrections',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Property Forecast
+ */
+export const propertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGet = <ThrowOnError extends boolean = false>(options: Options<PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetData, ThrowOnError>): RequestResult<PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponses, PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetErrors, ThrowOnError> => (options.client ?? client).get<PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponses, PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/properties/{property_id}/forecast', ...options });
+
+/**
  * Property Observations
  */
 export const propertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGet = <ThrowOnError extends boolean = false>(options: Options<PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetData, ThrowOnError>): RequestResult<PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetResponses, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetErrors, ThrowOnError> => (options.client ?? client).get<PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetResponses, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/properties/{property_id}/observations', ...options });
@@ -72,6 +97,16 @@ export const propertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservat
  * Release Sources
  */
 export const releaseSourcesV1ReleasesReleaseIdSourcesGet = <ThrowOnError extends boolean = false>(options: Options<ReleaseSourcesV1ReleasesReleaseIdSourcesGetData, ThrowOnError>): RequestResult<ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses, ReleaseSourcesV1ReleasesReleaseIdSourcesGetErrors, ThrowOnError> => (options.client ?? client).get<ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses, ReleaseSourcesV1ReleasesReleaseIdSourcesGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/sources', ...options });
+
+/**
+ * Spatial Assets
+ */
+export const spatialAssetsV1ReleasesReleaseIdSpatialAssetsGet = <ThrowOnError extends boolean = false>(options: Options<SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetData, ThrowOnError>): RequestResult<SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponses, SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetErrors, ThrowOnError> => (options.client ?? client).get<SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponses, SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/spatial/assets', ...options });
+
+/**
+ * Spatial Asset File
+ */
+export const spatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGet = <ThrowOnError extends boolean = false>(options: Options<SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetData, ThrowOnError>): RequestResult<SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetResponses, SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetErrors, ThrowOnError> => (options.client ?? client).get<SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetResponses, SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/spatial/{asset_id}/{version_id}/{path}', ...options });
 
 /**
  * Parcel Tile

@@ -638,6 +638,36 @@ services:
     networks: [internal]
     profiles: [jobs]
 
+  restore-verify:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "restore-verify"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  api-bench:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["python", "-m", "openpali.ops_bench", "http://api:8000"]
+    depends_on:
+      - api
+    networks: [internal]
+    profiles: [jobs]
+
   flow-reap:
     image: openpali-pipeline:local
     build:
@@ -679,20 +709,27 @@ services:
       - |
         export PGPASSWORD=openpali-local-fixture-db
         H="-h postgres -U openpali"
-        echo "== dump live database =="
-        pg_dump $$H -Fc openpali > /tmp/openpali.dump
-        ls -la /tmp/openpali.dump
-        echo "== destructive restore into clean namespace =="
-        dropdb $$H --if-exists openpali_restore
-        createdb $$H openpali_restore
-        pg_restore $$H -d openpali_restore --no-owner /tmp/openpali.dump
-        echo "== verify restored state matches live =="
+        echo "== dump ALL live databases (civic + prefect + mlflow) =="
+        for db in openpali prefect mlflow; do
+          pg_dump $$H -Fc "$$db" > "/tmp/$$db.dump"
+          ls -la "/tmp/$$db.dump"
+        done
+        echo "== destructive restore into clean namespaces =="
+        for db in openpali prefect mlflow; do
+          dropdb $$H --if-exists "$${db}_restore"
+          createdb $$H "$${db}_restore"
+          pg_restore $$H -d "$${db}_restore" --no-owner "/tmp/$$db.dump"
+        done
+        echo "== verify restored civic state matches live =="
         for q in \
           "SELECT count(*) FROM civic.recovery_observation" \
           "SELECT count(*) FROM civic.snapshot" \
           "SELECT count(*) FROM ops.publication WHERE status='published'" \
           "SELECT current_release_id FROM ops.current_release WHERE id=1" \
-          "SELECT count(*) FROM spatial.spatial_asset"; do
+          "SELECT manifest_sha256 FROM ops.publication WHERE release_id=(SELECT current_release_id FROM ops.current_release WHERE id=1)" \
+          "SELECT count(*) FROM spatial.spatial_asset" \
+          "SELECT count(*) FROM ml.model_version" \
+          "SELECT count(*) FROM ml.promotion_decision"; do
           a=$$(psql $$H -tA openpali -c "$$q")
           b=$$(psql $$H -tA openpali_restore -c "$$q")
           if [ "$$a" != "$$b" ]; then
@@ -700,9 +737,18 @@ services:
           fi
           echo "  match: [$$q] = $$a"
         done
-        echo "== drop restore namespace =="
-        dropdb $$H openpali_restore
-        echo "RESTORE DRILL OK"
+        echo "== verify restored orchestration/tracking metadata =="
+        pa=$$(psql $$H -tA prefect -c "SELECT count(*) FROM flow_run")
+        pb=$$(psql $$H -tA prefect_restore -c "SELECT count(*) FROM flow_run")
+        [ "$$pa" = "$$pb" ] || { echo "MISMATCH prefect flow_run $$pa != $$pb"; exit 5; }
+        echo "  match: prefect flow_run = $$pa"
+        ma=$$(psql $$H -tA mlflow -c "SELECT count(*) FROM runs")
+        mb=$$(psql $$H -tA mlflow_restore -c "SELECT count(*) FROM runs")
+        [ "$$ma" = "$$mb" ] || { echo "MISMATCH mlflow runs $$ma != $$mb"; exit 5; }
+        echo "  match: mlflow runs = $$ma"
+        echo "== drop restore namespaces =="
+        for db in openpali prefect mlflow; do dropdb $$H "$${db}_restore"; done
+        echo "RESTORE DRILL OK (db half; object/API half = restore-verify job)"
     depends_on:
       postgres:
         condition: service_healthy

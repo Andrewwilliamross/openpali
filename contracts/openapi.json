@@ -1,6 +1,42 @@
 {
  "components": {
   "schemas": {
+   "CorrectionIn": {
+    "properties": {
+     "claim_ref": {
+      "description": "which shown claim is wrong (e.g. lane/event id)",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Claim Ref",
+      "type": "string"
+     },
+     "contact": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "optional; stored separately, never published",
+      "title": "Contact"
+     },
+     "message": {
+      "maxLength": 4000,
+      "minLength": 10,
+      "title": "Message",
+      "type": "string"
+     }
+    },
+    "required": [
+     "claim_ref",
+     "message"
+    ],
+    "title": "CorrectionIn",
+    "type": "object"
+   },
    "HTTPValidationError": {
     "properties": {
      "detail": {
@@ -881,6 +917,70 @@
     ]
    }
   },
+  "/v1/releases": {
+   "get": {
+    "description": "Recent publications (all kinds/states) \u2014 operational visibility for\n/status and the evaluator; current authority remains /releases/current.",
+    "operationId": "list_releases_v1_releases_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "kind",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Kind"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Releases V1 Releases Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List Releases",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
   "/v1/releases/current": {
    "get": {
     "operationId": "resolve_current_v1_releases_current_get",
@@ -1230,6 +1330,122 @@
     ]
    }
   },
+  "/v1/releases/{release_id}/properties/{property_id}/corrections": {
+   "post": {
+    "operationId": "submit_correction_v1_releases__release_id__properties__property_id__corrections_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "property_id",
+      "required": true,
+      "schema": {
+       "title": "Property Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CorrectionIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Submit Correction V1 Releases  Release Id  Properties  Property Id  Corrections Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Submit Correction",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/properties/{property_id}/forecast": {
+   "get": {
+    "operationId": "property_forecast_v1_releases__release_id__properties__property_id__forecast_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "property_id",
+      "required": true,
+      "schema": {
+       "title": "Property Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Property Forecast V1 Releases  Release Id  Properties  Property Id  Forecast Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Property Forecast",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
   "/v1/releases/{release_id}/properties/{property_id}/observations": {
    "get": {
     "operationId": "property_observations_v1_releases__release_id__properties__property_id__observations_get",
@@ -1346,6 +1562,117 @@
      }
     },
     "summary": "Release Sources",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/spatial/assets": {
+   "get": {
+    "operationId": "spatial_assets_v1_releases__release_id__spatial_assets_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Spatial Assets V1 Releases  Release Id  Spatial Assets Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Spatial Assets",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/spatial/{asset_id}/{version_id}/{path}": {
+   "get": {
+    "operationId": "spatial_asset_file_v1_releases__release_id__spatial__asset_id___version_id___path__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "title": "Asset Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "version_id",
+      "required": true,
+      "schema": {
+       "title": "Version Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "path",
+      "required": true,
+      "schema": {
+       "title": "Path",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Spatial Asset File",
     "tags": [
      "releases"
     ]

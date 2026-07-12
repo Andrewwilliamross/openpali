@@ -32,6 +32,7 @@ run_step pipeline-tests pipeline/.venv/bin/python -m pytest pipeline/tests -q --
 run_step web-tests sh -c 'cd web && npm test -- --run'
 run_step web-lint sh -c 'cd web && npm run lint'
 run_step web-typecheck sh -c 'cd web && npx tsc -b'
+run_step openapi-drift sh -c 'pipeline/.venv/bin/openpali export-openapi > "${TMPDIR:-/tmp}/openapi-live.json" && diff "${TMPDIR:-/tmp}/openapi-live.json" contracts/openapi.json'
 
 echo "== fast gate: $FAILURES failure(s) =="
 [ "$FAILURES" -eq 0 ]

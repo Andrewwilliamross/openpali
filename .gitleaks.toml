@@ -1,0 +1,17 @@
+# Repo-scoped gitleaks config: default rules + TRIAGED false positives only.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Triaged non-secrets"
+regexes = [
+  # PowerBI PUBLIC dashboard embed links (base64 'eyJr...' report ids) in a
+  # historical research artifact — public URLs, not credentials. Trips the
+  # grafana-api-key rule ('eyJrIjo' prefix). Triaged 2026-07-12.
+  '''https://app\.powerbi(gov)?\.(us|com)/view\?r=eyJr[0-9A-Za-z+/=]+''',
+]
+paths = [
+  # research snapshot artifacts (historical commit 690220d1) — public source
+  # inventories, no credentials
+  '''data/research/research-output-.*\.json''',
+]

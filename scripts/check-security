@@ -1,0 +1,96 @@
+#!/bin/sh
+# Executable security gate (OPS-001/GOV-001): dependency audits, SBOMs, and a
+# full-history secret scan — run LOCALLY with artifacts, not just CI YAML.
+# Artifacts land in data/out/security/.
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+OUT="$ROOT/data/out/security"
+mkdir -p "$OUT"
+STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+FAILURES=0
+
+step() {
+  name="$1"; shift
+  log="$OUT/$STAMP-$name.log"
+  if "$@" >"$log" 2>&1; then
+    printf '  PASS %-28s %s\n' "$name" "$log"
+  else
+    printf '  FAIL %-28s %s\n' "$name" "$log"
+    tail -5 "$log" | sed 's/^/       /'
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+echo "== OpenPali security gate ($STAMP) =="
+
+# ---- tool bootstrap (idempotent; pinned) ----
+TOOLS="$ROOT/.tools"
+mkdir -p "$TOOLS"
+if [ ! -x "$TOOLS/gitleaks" ]; then
+  echo "  fetching gitleaks 8.24.3 (pinned sha256)..."
+  case "$(uname -s)-$(uname -m)" in
+    # pins from the RELEASE'S OWN gitleaks_8.24.3_checksums.txt
+    Darwin-arm64) GL_URL="https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_darwin_arm64.tar.gz"
+                  GL_SHA="b90f13bb8c90ab72083d9b0c842e39dafb82c0e5c3f872f407366b7a58909013" ;;
+    Linux-x86_64) GL_URL="https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz"
+                  GL_SHA="9991e0b2903da4c8f6122b5c3186448b927a5da4deef1fe45271c3793f4ee29c" ;;
+    Linux-aarch64) GL_URL="https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_arm64.tar.gz"
+                  GL_SHA="5f2edbe1f49f7b920f9e06e90759947d3c5dfc16f752fb93aaafc17e9d14cf07" ;;
+    *) GL_URL=""; GL_SHA="" ;;
+  esac
+  if [ -n "$GL_URL" ]; then
+    pipeline/.venv/bin/python - "$GL_URL" "$GL_SHA" "$TOOLS" <<'PYEOF'
+import hashlib, io, sys, tarfile
+import httpx
+url, want, dest = sys.argv[1], sys.argv[2], sys.argv[3]
+body = httpx.get(url, follow_redirects=True, timeout=120).content
+got = hashlib.sha256(body).hexdigest()
+if got != want:
+    sys.exit(f"gitleaks download hash mismatch: {got} != {want}")
+with tarfile.open(fileobj=io.BytesIO(body)) as tf:
+    tf.extract("gitleaks", dest, filter="data")
+print("gitleaks fetched + verified")
+PYEOF
+    chmod +x "$TOOLS/gitleaks" 2>/dev/null || true
+  fi
+fi
+
+# ---- python dependency audit (locked requirements) ----
+if [ ! -x pipeline/.venv/bin/pip-audit ]; then
+  # legacy-certs: pip >=24.2 truststore SSL is blocked under the macOS sandbox
+  PIP_USE_DEPRECATED=legacy-certs pipeline/.venv/bin/pip install -q pip-audit || true
+fi
+# --no-deps: the lock file is already fully resolved (pip freeze of the env)
+step pip-audit pipeline/.venv/bin/pip-audit -r pipeline/requirements-lock.txt --disable-pip --no-deps --cache-dir "$OUT/.pip-audit-cache"
+
+# ---- SBOMs (CycloneDX) ----
+step sbom-python sh -c "pipeline/.venv/bin/pip-audit -r pipeline/requirements-lock.txt --disable-pip --no-deps --cache-dir '$OUT/.pip-audit-cache' -f cyclonedx-json -o '$OUT/sbom-pipeline.cdx.json' && test -s '$OUT/sbom-pipeline.cdx.json'"
+step sbom-web sh -c "cd web && npm sbom --sbom-format cyclonedx --omit dev > '$OUT/sbom-web.cdx.json' && test -s '$OUT/sbom-web.cdx.json'"
+
+# ---- npm production audit ----
+step npm-audit sh -c 'cd web && npm audit --omit=dev --audit-level=high'
+
+# ---- secret scan: full git history ----
+if [ -x "$TOOLS/gitleaks" ]; then
+  step gitleaks-history "$TOOLS/gitleaks" git --no-banner --redact \
+    --config .gitleaks.toml --report-path "$OUT/$STAMP-gitleaks.json" .
+  # NEGATIVE control: the scanner must actually detect a planted secret.
+  # The token is assembled at runtime (github-pat shape) so this script never
+  # contains a matchable literal itself.
+  step gitleaks-negative-control sh -c "
+    F=\"\${TMPDIR:-/tmp}/planted.txt\";
+    printf 'token = \"ghp_%s%s\"\n' 'A7fKq2mXe91LuTz4Rc0v' 'Bd35HnWs68PgYjkm' > \"\$F\";
+    if '$TOOLS/gitleaks' stdin --no-banner < \"\$F\"; then
+      echo 'scanner FAILED to detect the planted secret'; exit 1;
+    else
+      echo 'planted secret detected (scanner works)'; exit 0;
+    fi"
+else
+  echo "  SKIP gitleaks (unsupported platform for pinned binary)"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "== security gate: $FAILURES failure(s) =="
+[ "$FAILURES" -eq 0 ]

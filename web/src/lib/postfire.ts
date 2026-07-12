@@ -36,14 +36,19 @@ let sourcesPromise: Promise<PostfireSources | null> | null = null
 export function fetchPostfireSources(): Promise<PostfireSources | null> {
   sourcesPromise ??= (async () => {
     try {
-      const releaseResp = await fetch(`${API_BASE}/releases/current`)
-      if (!releaseResp.ok) return null
-      const release = (await releaseResp.json()) as { release_id: string }
-      const assetsResp = await fetch(
-        `${API_BASE}/releases/${release.release_id}/spatial/assets`,
-      )
-      if (!assetsResp.ok) return null
-      const spatial = (await assetsResp.json()) as { assets: PostfireAsset[] }
+      // generated, contract-checked client (BACKEND-001): the shapes here are
+      // regenerated from contracts/openapi.json, which check-fast diffs
+      // against the live app schema
+      const { resolveCurrentV1ReleasesCurrentGet, spatialAssetsV1ReleasesReleaseIdSpatialAssetsGet } =
+        await import('../api/generated/sdk.gen')
+      const releaseResp = await resolveCurrentV1ReleasesCurrentGet()
+      if (!releaseResp.data) return null
+      const release = releaseResp.data as { release_id: string }
+      const assetsResp = await spatialAssetsV1ReleasesReleaseIdSpatialAssetsGet({
+        path: { release_id: release.release_id },
+      })
+      if (!assetsResp.data) return null
+      const spatial = assetsResp.data as unknown as { assets: PostfireAsset[] }
       const find = (id: string): PostfireAsset | null =>
         spatial.assets.find((a) => a.asset_id === id) ?? null
       const surfel = find('usgs-surfel-aoi')

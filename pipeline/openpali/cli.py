@@ -310,6 +310,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("flow-reap", help="mark zombie Running flow runs Crashed")
     p.set_defaults(func=cmd_flow_reap)
 
+    p = sub.add_parser("restore-verify", help="object/API half of the restore drill")
+    p.set_defaults(func=cmd_restore_verify)
+
     p = sub.add_parser("export-openapi", help="print the OpenAPI schema")
     p.set_defaults(func=cmd_export_openapi)
 
@@ -1190,3 +1193,107 @@ def cmd_flow_reap(args: argparse.Namespace) -> int:
             return 0
 
     return asyncio.run(reap())
+
+
+def cmd_restore_verify(args: argparse.Namespace) -> int:
+    """OPS restore drill, object/API half: prove the object plane and the
+    serving path survive alongside the database restore — the current
+    release's mirrored manifest hash matches the DB, one raw page, one model
+    artifact, and one spatial file verify BY DIGEST, and the API serves the
+    release, a property, and an MVT tile."""
+
+    import hashlib as _hashlib
+    import urllib.request
+
+    from openpali.storage.models import (
+        AcquisitionPage,
+        CivicSnapshot,
+        CurrentRelease,
+        ModelVersion,
+        Publication,
+        RawObject,
+        SpatialAsset,
+    )
+    from openpali.storage.objects import (
+        ARTIFACT_BUCKET,
+        PUBLICATION_BUCKET,
+        RAW_BUCKET,
+        SPATIAL_BUCKET,
+    )
+
+    checks: list[tuple[str, bool, str]] = []
+
+    def check(name: str, ok: bool, detail: str = "") -> None:
+        checks.append((name, ok, detail))
+        print(f"  [{'PASS' if ok else 'FAIL'}] {name} {detail}")
+
+    store = ObjectStore()
+    with session_scope() as session:
+        current = session.get(CurrentRelease, 1)
+        publication = session.execute(
+            select(Publication).where(
+                Publication.release_id == current.current_release_id
+            )
+        ).scalar_one()
+        rid = publication.release_id
+
+        mirrored = store.client.get_object(
+            Bucket=PUBLICATION_BUCKET, Key=f"publications/{rid}/manifest.json"
+        )["Body"].read()
+        check(
+            "mirrored manifest hash matches DB",
+            _hashlib.sha256(mirrored).hexdigest() == publication.manifest_sha256,
+            rid,
+        )
+
+        snapshot = session.execute(
+            select(CivicSnapshot).where(
+                CivicSnapshot.snapshot_id == publication.snapshot_id
+            )
+        ).scalar_one()
+        page = session.execute(
+            select(RawObject)
+            .join(AcquisitionPage, AcquisitionPage.raw_object_id == RawObject.id)
+            .limit(1)
+        ).scalar_one()
+        key = page.object_uri.split("/", 3)[3]
+        store.get_verified(RAW_BUCKET, key, page.sha256, page.byte_size)
+        check("raw page verifies by digest", True, page.sha256[:16])
+        assert snapshot  # release-bound snapshot exists
+
+        model = session.execute(select(ModelVersion).limit(1)).scalar_one_or_none()
+        if model is not None:
+            mkey = model.artifact_uri.split("/", 3)[3]
+            store.get_verified(ARTIFACT_BUCKET, mkey, model.artifact_sha256)
+            check("model artifact verifies by digest", True, model.artifact_sha256[:16])
+        else:
+            check("model artifact verifies by digest", False, "no model rows")
+
+        spatial = session.execute(
+            select(SpatialAsset).where(
+                SpatialAsset.asset_id == "usgs-surfel-aoi",
+                SpatialAsset.status == "ready",
+            ).order_by(SpatialAsset.ingested_at.desc()).limit(1)
+        ).scalar_one_or_none()
+        if spatial is not None:
+            skey = f"assets/{spatial.asset_id}/{spatial.version_id}/tileset.json"
+            ok = store.exists(SPATIAL_BUCKET, skey)
+            check("spatial tileset object present", ok, spatial.version_id[:14])
+        else:
+            check("spatial tileset object present", False, "no ready asset")
+
+    base = "http://api:8000"
+    for path, name in (
+        ("/v1/releases/current", "API serves current release"),
+        (f"/v1/releases/{rid}/properties?page_size=1", "API serves a property page"),
+        (f"/v1/releases/{rid}/tiles/parcels/14/2797/6542.mvt", "API serves an MVT tile"),
+    ):
+        try:
+            with urllib.request.urlopen(base + path, timeout=20) as r:
+                check(name, r.status == 200, f"HTTP {r.status}")
+        except Exception as exc:  # noqa: BLE001
+            check(name, False, str(exc)[:80])
+
+    failures = [c for c in checks if not c[1]]
+    print(f"== restore-verify: {len(checks) - len(failures)}/{len(checks)} checks passed ==")
+    return 0 if not failures else 5

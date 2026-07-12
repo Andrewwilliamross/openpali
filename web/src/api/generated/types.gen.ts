@@ -5,6 +5,28 @@ export type ClientOptions = {
 };
 
 /**
+ * CorrectionIn
+ */
+export type CorrectionIn = {
+    /**
+     * Claim Ref
+     *
+     * which shown claim is wrong (e.g. lane/event id)
+     */
+    claim_ref: string;
+    /**
+     * Contact
+     *
+     * optional; stored separately, never published
+     */
+    contact?: string | null;
+    /**
+     * Message
+     */
+    message: string;
+};
+
+/**
  * HTTPValidationError
  */
 export type HttpValidationError = {
@@ -505,6 +527,44 @@ export type ReadyHealthReadyGetResponses = {
 
 export type ReadyHealthReadyGetResponse = ReadyHealthReadyGetResponses[keyof ReadyHealthReadyGetResponses];
 
+export type ListReleasesV1ReleasesGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Kind
+         */
+        kind?: string | null;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/v1/releases';
+};
+
+export type ListReleasesV1ReleasesGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ListReleasesV1ReleasesGetError = ListReleasesV1ReleasesGetErrors[keyof ListReleasesV1ReleasesGetErrors];
+
+export type ListReleasesV1ReleasesGetResponses = {
+    /**
+     * Response List Releases V1 Releases Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type ListReleasesV1ReleasesGetResponse = ListReleasesV1ReleasesGetResponses[keyof ListReleasesV1ReleasesGetResponses];
+
 export type ResolveCurrentV1ReleasesCurrentGetData = {
     body?: never;
     path?: never;
@@ -732,6 +792,82 @@ export type PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses = 
 
 export type PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponse = PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses[keyof PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses];
 
+export type SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostData = {
+    body: CorrectionIn;
+    path: {
+        /**
+         * Property Id
+         */
+        property_id: string;
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/properties/{property_id}/corrections';
+};
+
+export type SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostError = SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostErrors[keyof SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostErrors];
+
+export type SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponses = {
+    /**
+     * Response Submit Correction V1 Releases  Release Id  Properties  Property Id  Corrections Post
+     *
+     * Successful Response
+     */
+    202: {
+        [key: string]: unknown;
+    };
+};
+
+export type SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponse = SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponses[keyof SubmitCorrectionV1ReleasesReleaseIdPropertiesPropertyIdCorrectionsPostResponses];
+
+export type PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetData = {
+    body?: never;
+    path: {
+        /**
+         * Property Id
+         */
+        property_id: string;
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/properties/{property_id}/forecast';
+};
+
+export type PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetError = PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetErrors[keyof PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetErrors];
+
+export type PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponses = {
+    /**
+     * Response Property Forecast V1 Releases  Release Id  Properties  Property Id  Forecast Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponse = PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponses[keyof PropertyForecastV1ReleasesReleaseIdPropertiesPropertyIdForecastGetResponses];
+
 export type PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetData = {
     body?: never;
     path: {
@@ -804,6 +940,80 @@ export type ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses = {
 };
 
 export type ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponse = ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses[keyof ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses];
+
+export type SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetData = {
+    body?: never;
+    path: {
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/spatial/assets';
+};
+
+export type SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetError = SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetErrors[keyof SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetErrors];
+
+export type SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponses = {
+    /**
+     * Response Spatial Assets V1 Releases  Release Id  Spatial Assets Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponse = SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponses[keyof SpatialAssetsV1ReleasesReleaseIdSpatialAssetsGetResponses];
+
+export type SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetData = {
+    body?: never;
+    path: {
+        /**
+         * Asset Id
+         */
+        asset_id: string;
+        /**
+         * Version Id
+         */
+        version_id: string;
+        /**
+         * Path
+         */
+        path: string;
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/spatial/{asset_id}/{version_id}/{path}';
+};
+
+export type SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetError = SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetErrors[keyof SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetErrors];
+
+export type SpatialAssetFileV1ReleasesReleaseIdSpatialAssetIdVersionIdPathGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetData = {
     body?: never;

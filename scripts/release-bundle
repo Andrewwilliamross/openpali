@@ -1,0 +1,56 @@
+#!/bin/sh
+# Release bundle (OPS-001): one machine-readable record of WHAT a deployment
+# is — commit, images, gate artifacts, known risks, operator commands.
+set -eu
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+OUT="$ROOT/data/out"
+mkdir -p "$OUT"
+COMMIT=$(git rev-parse HEAD)
+SHORT=$(git rev-parse --short HEAD)
+pipeline/.venv/bin/python - "$COMMIT" > "$OUT/release-bundle-$SHORT.json" <<'PYEOF'
+import glob
+import json
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+commit = sys.argv[1]
+compose = Path("infra/compose.yaml").read_text()
+images = sorted(set(re.findall(r"image:\s*(\S+)", compose)))
+
+def latest(pattern):
+    hits = sorted(glob.glob(pattern))
+    return hits[-1] if hits else None
+
+wrapper = "python3 " + "openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml"
+bundle = {
+    "bundle_version": "1.0.0",
+    "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    "commit": commit,
+    "dirty": bool(subprocess.run(["git", "status", "--porcelain"],
+                                 capture_output=True, text=True).stdout.strip()),
+    "images": images,
+    "gate_artifacts": {
+        "fast": latest("data/out/checks/fast-*-pipeline-tests.log"),
+        "security_sbom_pipeline": latest("data/out/security/sbom-pipeline.cdx.json"),
+        "security_sbom_web": latest("data/out/security/sbom-web.cdx.json"),
+        "secret_scan": latest("data/out/security/*gitleaks.json"),
+    },
+    "known_risks": [
+        "local fixture credentials in compose (single-host trust model; see SECURITY.md)",
+        "LARIAC-derived pre-fire corpus: rights unresolved; excluded from release manifests; UI opt-in only",
+        "point-in-time ML gate honestly insufficient until >=3 acquisition dates span >=60 days",
+        "headless renderer numbers are SwiftShader correctness evidence, not GPU performance",
+    ],
+    "operator_entrypoints": {
+        "gates": ["sh scripts/check-fast", "sh scripts/check-security", "sh scripts/check-full"],
+        "service_actions": wrapper + " <cmd>",
+        "runbooks": "infra/observability/RUNBOOKS.md",
+    },
+}
+print(json.dumps(bundle, indent=1))
+PYEOF
+echo "wrote $OUT/release-bundle-$SHORT.json"

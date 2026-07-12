@@ -76,6 +76,7 @@ echo "commit: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
 
 echo "-- host half --"
 run_step fast-gate sh scripts/check-fast
+run_step security-gate sh scripts/check-security
 run_step web-build sh -c 'cd web && npm run build'
 
 echo "-- service half (wrapper-launched compose jobs) --"
