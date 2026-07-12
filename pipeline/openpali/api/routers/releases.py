@@ -773,3 +773,33 @@ def submit_correction(
             "become append-only revisions with the original preserved."
         ),
     }
+
+
+@router.get("/releases")
+def list_releases(
+    response: Response,
+    session: Session = Depends(get_session),
+    kind: str | None = Query(default=None),
+    limit: int = Query(default=20, ge=1, le=100),
+) -> dict:
+    """Recent publications (all kinds/states) — operational visibility for
+    /status and the evaluator; current authority remains /releases/current."""
+
+    query = select(Publication).order_by(Publication.created_at.desc()).limit(limit)
+    if kind:
+        query = query.where(Publication.kind == kind)
+    rows = list(session.execute(query).scalars())
+    response.headers["Cache-Control"] = CURRENT_CACHE
+    return {
+        "releases": [
+            {
+                "release_id": p.release_id,
+                "snapshot_id": p.snapshot_id,
+                "kind": p.kind,
+                "status": p.status,
+                "promoted_at": p.promoted_at.isoformat() if p.promoted_at else None,
+                "manifest_sha256": p.manifest_sha256,
+            }
+            for p in rows
+        ]
+    }
