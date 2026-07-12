@@ -1006,3 +1006,8 @@ body,
   font-size: 0.85rem;
   z-index: 5;
 }
+
+.app-nav a {
+  /* WCAG 1.4.1: links must not rely on color alone */
+  text-decoration: underline;
+}

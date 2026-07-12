@@ -104,10 +104,11 @@ export default function MethodsPage() {
             <dt>Release</dt>
             <dd><code>{release.release_id}</code></dd>
             {Object.entries(release.policy_versions ?? {}).map(([k, v]) => (
-              <span key={k} style={{ display: 'contents' }}>
+              // div is the only wrapper the dl content model permits
+              <div key={k} style={{ display: 'contents' }}>
                 <dt>{k}</dt>
                 <dd><code>{v}</code></dd>
-              </span>
+              </div>
             ))}
           </dl>
         </section>
