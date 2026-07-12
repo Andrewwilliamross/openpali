@@ -32,7 +32,21 @@ CP6 terminal protocol REMAINING (openpali-one-shot/state/README.md governs):
    changing only state/evaluator-latest.md + state/evaluator-attestation.json.
 5. `python3 openpali-one-shot/scripts/verify_completion.py` must exit 0.
 
-NOTE for the evaluator run: the zero-network replay job validates the
-CURRENT release — rerun `replay` job against rel-3b1f5b45 first (its raw
-pages are new); ml-representative + spatial selection also reference the
-current release and may warrant a re-run for coherence.
+POST-CP5 COHERENCE (all verified on the NEW release):
+- replay job: REPLAY OK against rel-3b1f5b45 (32,459 observations, exact
+  hashes, zero network).
+- ml-representative: typed INSUFFICIENT on the new snapshot
+  (pset-7d369401); two acquisition dates now exist but the 60d span gate
+  still honestly fails.
+- FIXTURE RELEASE via the worker: rel-464d5ce8 (kind=fixture, published,
+  promote=false — current pointer untouched, verified) with 321 fixture
+  properties; its manifest includes recon-fixture-scene (fixture-kind
+  selection) while representative manifests exclude it. /v1/releases
+  listing added (18 API paths).
+- publish_release(promote=false) added; pointer MIRROR also gated on
+  promote (a fixture publish before the fix may have touched the
+  non-authoritative mirror; healed by the subsequent promoting republish).
+
+EVALUATOR PRE-FLIGHT REMAINING: restart prefect-worker on the final image;
+scripts/check-fast green; commit candidate (FINAL_REPORT.md present at
+root); then the CP6 protocol in state/README.md.
