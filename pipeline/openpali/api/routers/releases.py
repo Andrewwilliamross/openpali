@@ -711,6 +711,11 @@ def submit_correction(
     publication: Publication = Depends(get_release),
     session: Session = Depends(get_session),
 ) -> dict:
+    # the public map identifies parcels by APN; accept it and resolve
+    if property_id.isdigit() and len(property_id) == 10:
+        from openpali.identity.ids import property_id_from_apn
+
+        property_id = property_id_from_apn(property_id)
     _state_for_property(session, publication, property_id)  # 404 unknown property
 
     # per-client sliding window (single-process deployment; a shared limiter

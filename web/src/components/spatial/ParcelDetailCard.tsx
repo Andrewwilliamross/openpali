@@ -21,6 +21,7 @@ import {
 } from '../../lib/coverage'
 import { fmtDate, fmtMoney, fmtNumber, titleCase } from '../../lib/format'
 import { preFireTileUrl, WAYBACK_ATTRIBUTION } from '../../lib/imagery'
+import CorrectionForm from './CorrectionForm'
 import {
   fetchPostfirePicking,
   fetchPostfireSources,
@@ -285,6 +286,8 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
           Verify on LA City open data ↗
         </a>
       )}
+
+      <CorrectionForm apn={apn} />
     </aside>
   )
 }

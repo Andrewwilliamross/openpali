@@ -1030,3 +1030,27 @@ body,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- correction form ---------- */
+.correction {
+  margin: 14px 16px 18px;
+  font-size: 12.5px;
+}
+.correction summary { cursor: pointer; color: var(--ink-soft); }
+.correction form { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.correction label { display: flex; flex-direction: column; gap: 3px; }
+.correction textarea, .correction input {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font: inherit;
+}
+.correction button {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper-dim);
+  cursor: pointer;
+}
+.correction button:disabled { opacity: 0.5; cursor: default; }
