@@ -42,6 +42,29 @@ def session_factory():
     return get_session_factory(get_engine())
 
 
+@pytest.fixture(scope="module", autouse=True)
+def restore_current_release_pointer(session_factory):
+    """Isolation (CP5): these fault drills legitimately promote/rollback
+    throwaway releases, but the shared cluster's CURRENT pointer must come
+    back exactly as found — the drills prove semantics, they don't get to
+    change what users see."""
+
+    from openpali.storage.models import CurrentRelease
+
+    with session_factory() as session:
+        row = session.get(CurrentRelease, 1)
+        before = (row.current_release_id, row.lkg_release_id) if row else None
+    yield
+    if before is None:
+        return
+    with session_factory() as session:
+        row = session.get(CurrentRelease, 1, with_for_update=True)
+        row.current_release_id, row.lkg_release_id = before
+        # the fault releases stay in ops.publication history (append-only);
+        # only the pointer is restored
+        session.commit()
+
+
 @pytest.fixture(scope="module")
 def store():
     from openpali.storage.objects import ALL_BUCKETS, ObjectStore
