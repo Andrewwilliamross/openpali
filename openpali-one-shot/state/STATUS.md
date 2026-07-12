@@ -1,20 +1,25 @@
 # Run status
 
-State: `NOT_STARTED`
+State: `CP0_BASELINE_VERIFIED`
 
-Verified checkpoint: none.
+Verified checkpoint: CP0 (environment + baseline reproduction) — evidence in
+`state/evidence/env-manifest-2026-07-11.md`.
 
-Technical criteria: 20 `MUST` items begin `FAIL`.
+- Starting commit `aa51c93`, clean tree, branch `codex/openpali-one-shot-harness`.
+- Baseline commands reproduced: pipeline 69 pass; web 24 pass; build OK;
+  lint 6 errors. Docker Compose v2.40.3 via wrapper. Apple M4 Pro, no CUDA.
+- uv panics under sandbox → use `pipeline/.venv/bin/python` directly;
+  ensurepip when new deps are needed.
 
-Human release gate: `APPROVAL-001` begins `UNRESOLVED`; safe defaults must keep
-the rights-safe technical MVP functional.
+Technical criteria: all 20 MUST remain `FAIL`. APPROVAL-001 `UNRESOLVED`.
 
-Immediate next action: validate the task package and run preflight from the
-clean, committed, intentionally reconciled local starting branch; then launch
-the single `/goal` prompt in this same checkout.
+In flight:
+- Research agents running: repo-audit (archaeology), source-research (official
+  INSP_STATUS / PALISADES_WF_REBUILD / DINS / USGS semantics), platform-research
+  (image pins, Prefect/MLflow/survival/Playwright specifics).
 
-The first Fable status update must record actual local versions/capabilities,
-the baseline commands, current data/artifact state, the reconciled starting
-commit, parallel research tasks, and the first production-code checkpoint.
-
-This file is mutable during the run. Rewrite it to remain short and current.
+Immediate next action: CP1 semantic truth gate — build
+`pipeline/openpali/domain/` taxonomy + repair `pipeline/palisades/sources.py`
+defects (scheduled inspections, ancillary permits, cleanup fabrication,
+PALISADES_WF_REBUILD) behind golden fixtures; block on source-research evidence
+for official domain values before finalizing taxonomy constants.
