@@ -551,6 +551,8 @@ services:
         openpali spatial-acquire
         echo "== derive surfel tileset + terrain pyramid =="
         openpali spatial-derive
+        echo "== rights registration: tracked pre-fire corpus (unresolved) =="
+        openpali spatial-register-prefire
     environment:
       OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
       OPENPALI_S3_ENDPOINT: http://object-store:8333
