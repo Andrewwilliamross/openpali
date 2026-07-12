@@ -43,3 +43,20 @@ The instance/vertex/sort-side win this targets applies to hardware GPUs;
 claiming a frame-time improvement requires a HEADED run on real hardware,
 recorded as a human-runnable follow-up — per the acceptance rule that
 headless/software supports correctness, never GPU-performance claims.
+
+## AFTER v2 (repair round 4: cross-frame hysteresis replaces the same-frame
+## re-traversal; single traversal per frame; e2e gate 13/13 green)
+
+    scene            frames p50_ms  p95_ms  splats/frame nodes/frame resident_mb
+    top-down-far     11     2316.5  2866.6  199,790      104         18.2
+    usgs-aoi-medium  15     1600.0  1666.6  156,934      87          31.6
+
+Measured effect vs the same-frame retraversal version: the double traversal
+is gone; the MEDIUM scene now runs BELOW the pre-budget baseline on both
+splats/frame (156,934 vs 180,160, -13%) and SwiftShader p50 (1600.0 vs
+1866.6, -14%; p95 1666.6 vs 2366.6). The WIDE scene converges toward the
+budget across frames by design (x1.5 threshold steps): 11 slow SwiftShader
+frames only reach 199,790 splats/frame (-8% vs pre-budget; the retraversal
+version reached 164k instantly but paid a p50 penalty every frame). Same
+honest scoping as above: SwiftShader timings support relative regression
+evidence only, never GPU claims.

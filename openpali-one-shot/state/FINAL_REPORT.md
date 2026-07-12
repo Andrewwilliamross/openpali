@@ -101,8 +101,14 @@ command, container exit code, API response, or browser assertion recorded in
   fixed), keyboard operability, reduced motion.
 
 ### Operations (drilled, not asserted)
-- Restore: destructive clean-namespace restore with row-count + release-
-  pointer verification — PASS.
+- Publication authority hardening from a drill finding: an integration run
+  promoted a synthetic fixture release to the public pointer. The publisher
+  now structurally refuses to promote fixture-kind releases (they stay
+  release-qualified and API-addressable, never current), the republish and
+  batch-model jobs fail closed unless the current release is representative,
+  and the integration suite restores the pointer it found.
+- Restore: destructive clean-namespace restore (all three databases) with
+  dump-time reference verification — PASS.
 - Scheduling: a scheduler-created run executed by the worker — PASS.
 - Worker kill: a mid-run worker restart was injected; the REAL finding
   (zombie Running runs are never marked failed) was remediated with

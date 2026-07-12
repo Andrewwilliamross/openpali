@@ -129,6 +129,7 @@ def cmd_release_publish(args: argparse.Namespace) -> int:
             result = publish_release(
                 session, store, args.snapshot, kind=args.kind,
                 undocumented_values=sorted(set(undocumented)),
+                promote=not getattr(args, "no_promote", False),
             )
         except PublicationGateError as exc:
             print(f"PUBLICATION BLOCKED: {exc}", file=sys.stderr)
@@ -232,6 +233,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--snapshot", required=True)
     p.add_argument("--kind", default="fixture",
                    choices=["fixture", "representative", "dev"])
+    p.add_argument("--no-promote", action="store_true",
+                   help="publish release-qualified without moving the current "
+                        "pointer (required for fixture releases)")
     p.set_defaults(func=cmd_release_publish)
 
     p = sub.add_parser("dev-slice", help="county acquisition -> snapshot -> release")

@@ -146,6 +146,15 @@ def publish_release(
     promoted_by: str = "openpali-cli",
     promote: bool = True,
 ) -> ReleaseResult:
+    # Synthetic corpora are release-qualified and API-addressable, but the
+    # public CURRENT pointer only ever serves real-source releases — the same
+    # invariant that bars synthetic spatial assets from representative
+    # manifests. Fixture releases must publish with promote=False.
+    if promote and kind == "fixture":
+        raise PublicationGateError(
+            "fixture releases are never promoted to the current pointer; "
+            "publish with promote=False"
+        )
     manifest = build_manifest(
         session,
         snapshot_id,

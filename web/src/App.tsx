@@ -16,7 +16,24 @@ const BASE = import.meta.env.BASE_URL
 export default function App() {
   const [parcels, setParcels] = useState<ParcelCollection | null>(null)
   const [details, setDetails] = useState<DetailsIndex | null>(null)
-  const [summary, setSummary] = useState<Summary | null>(null)
+  // one snapshot everywhere (PUB-001): the static bundle is the base (and the
+  // last-known-good when the API is down); release-manifest numbers overlay it
+  const [staticSummary, setStaticSummary] = useState<Summary | null>(null)
+  const [releaseSummary, setReleaseSummary] = useState<{
+    as_of: string
+    snapshot_id: string
+    totals: Partial<Summary['totals']>
+  } | null>(null)
+  const summary = useMemo<Summary | null>(() => {
+    if (!staticSummary) return null
+    if (!releaseSummary) return staticSummary
+    return {
+      ...staticSummary,
+      as_of: releaseSummary.as_of || staticSummary.as_of,
+      snapshot_id: releaseSummary.snapshot_id,
+      totals: { ...staticSummary.totals, ...releaseSummary.totals },
+    }
+  }, [staticSummary, releaseSummary])
   // property selection lives in the URL: /property/:apn is a shareable,
   // reload-safe journey; closing the card returns to /map
   const { apn: routeApn } = useParams<{ apn: string }>()
@@ -71,7 +88,7 @@ export default function App() {
     ])
       .then(([p, s]) => {
         setParcels(p)
-        setSummary((prev) => prev ?? s) // release-derived summary wins
+        setStaticSummary(s)
       })
       .catch(() => setLoadError('Could not load rebuild data. Try refreshing.'))
     // details are big-ish; load after first paint
@@ -92,23 +109,19 @@ export default function App() {
           publishedAt: rel.published_at ?? null,
         })
         const c = rel.coverage ?? {}
-        setSummary((prev) => ({
-          as_of: rel.published_at ?? prev?.as_of ?? '',
+        const totals: Partial<Summary['totals']> = {}
+        if (c.properties != null) totals.destroyed = c.properties
+        if (c.cleanup_complete != null) totals.cleanup_complete = c.cleanup_complete
+        if (c.application_submitted != null) totals.application_submitted = c.application_submitted
+        if (c.plan_check_approved != null) totals.plan_check_approved = c.plan_check_approved
+        if (c.permit_issued != null) totals.permit_issued = c.permit_issued
+        if (c.construction_evidence != null) totals.construction_evidence = c.construction_evidence
+        if (c.cofo_issued != null) totals.cofo_issued = c.cofo_issued
+        setReleaseSummary({
+          as_of: rel.published_at ?? '',
           snapshot_id: rel.snapshot_id,
-          totals: {
-            destroyed: c.properties ?? prev?.totals.destroyed ?? 0,
-            cleanup_complete: c.cleanup_complete ?? 0,
-            cleanup_opt_out: prev?.totals.cleanup_opt_out ?? 0,
-            application_submitted: c.application_submitted ?? 0,
-            plan_check_approved: c.plan_check_approved ?? 0,
-            permit_issued: c.permit_issued ?? 0,
-            construction_evidence: c.construction_evidence ?? 0,
-            construction_inspection_scheduled_only:
-              prev?.totals.construction_inspection_scheduled_only ?? 0,
-            cofo_issued: c.cofo_issued ?? 0,
-          },
-          neighborhoods: prev?.neighborhoods ?? [],
-        }) as Summary)
+          totals,
+        })
       } catch {
         /* static summary remains the LKG */
       }

@@ -26,9 +26,16 @@ export default function SearchBar({ parcels, neighborhoods, onPick, onGoto }: Pr
   const hits = useMemo(() => {
     const needle = q.trim().toLowerCase()
     if (needle.length < 2) return []
-    const starts = index.filter((r) => r.lc.startsWith(needle))
+    // addresses match by text; APNs (how county records cite parcels) by digits
+    const digits = needle.replace(/[^0-9]/g, '')
+    const apnNeedle = digits.length >= 4 ? digits : null
+    const matchStart = (r: { lc: string; apn: string }) =>
+      r.lc.startsWith(needle) || (apnNeedle !== null && r.apn.startsWith(apnNeedle))
+    const starts = index.filter(matchStart)
     const contains =
-      starts.length >= 8 ? [] : index.filter((r) => !r.lc.startsWith(needle) && r.lc.includes(needle))
+      starts.length >= 8
+        ? []
+        : index.filter((r) => !matchStart(r) && r.lc.includes(needle))
     return [...starts, ...contains].slice(0, 8)
   }, [q, index])
 
@@ -37,7 +44,7 @@ export default function SearchBar({ parcels, neighborhoods, onPick, onGoto }: Pr
       <div className="search-box">
         <input
           type="search"
-          placeholder="Search an address…"
+          placeholder="Search an address or APN…"
           value={q}
           onChange={(e) => {
             setQ(e.target.value)

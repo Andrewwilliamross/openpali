@@ -237,7 +237,13 @@ class TestPublicationAuthority:
             observed_at=OBSERVED_T0,
         )
         snap = build_snapshot(session, [run.run_id], OBSERVED_T0 + timedelta(hours=3))
-        result = publish_release(session, store, snap.snapshot_id)
+
+        # synthetic corpora never take the public pointer (PUB-001); the gate
+        # refuses before any session work, so no rollback is needed
+        with pytest.raises(PublicationGateError):
+            publish_release(session, store, snap.snapshot_id, kind="fixture")
+
+        result = publish_release(session, store, snap.snapshot_id, kind="dev")
         assert result.status == "published"
         current = session.get(CurrentRelease, 1)
         assert current.current_release_id == result.release_id

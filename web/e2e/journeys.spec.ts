@@ -20,9 +20,10 @@ test('deep link renders the property card with API-served evidence', async ({ pa
   const card = page.locator('.spatial-card')
   await expect(card).toBeVisible()
   await expect(card).toContainText('APN 4409-012-016')
-  // the DINS damage assessment observation, source-attributed, in the timeline
+  // the DINS damage assessment observation in the evidence timeline, under
+  // its source-naming label (the card shows human labels, not raw source ids)
   await expect(card).toContainText(/damage/i)
-  await expect(card).toContainText(/calfire_dins/)
+  await expect(card).toContainText(/DINS damage assessment/)
 })
 
 test('one snapshot everywhere: badge, card data, and header numbers match the API', async ({ page }) => {
@@ -44,10 +45,17 @@ test('one snapshot everywhere: badge, card data, and header numbers match the AP
   await expect(badge).toContainText(release.release_id.slice(0, 16))
   await expect(badge).toContainText(release.snapshot_id.slice(0, 17))
 
-  // a real fixed community number in the header equals the release value
-  const header = page.locator('.header')
-  await expect(header).toContainText(release.properties.toLocaleString('en-US'))
-  await expect(header).toContainText(release.permit_issued.toLocaleString('en-US'))
+  // real community numbers in the header equal the release values: the
+  // destroyed-parcels count verbatim, and the permit rate derived from the
+  // same release coverage the header uses
+  const nums = page.locator('.header .metric-num')
+  await expect(
+    nums.filter({ hasText: release.properties.toLocaleString('en-US') }).first(),
+  ).toBeVisible()
+  const pct = release.properties
+    ? `${Math.round((release.permit_issued / release.properties) * 100)}%`
+    : '–'
+  await expect(nums.filter({ hasText: pct }).first()).toBeVisible()
 
   // and the parcel MAP itself requests this release's tiles
   const tileReq = page.waitForRequest(
@@ -73,6 +81,8 @@ test('search finds an address and opens its card', async ({ page }) => {
 })
 
 test('forecast surface shows the typed insufficiency for a qualifying property', async ({ page }) => {
+  // land on the app first so relative /v1 fetches resolve against the web host
+  await page.goto('/map')
   // find a qualifying property THROUGH the API (same source the card uses)
   const apn = await page.evaluate(async () => {
     const rel = await (await fetch('/v1/releases/current')).json()
