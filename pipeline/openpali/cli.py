@@ -294,6 +294,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("spatial-derive", help="derive surfel tileset + terrain from raw DEM")
     p.set_defaults(func=cmd_spatial_derive)
 
+    p = sub.add_parser("spatial-register-prefire",
+                       help="register the tracked LARIAC corpus (rights unresolved)")
+    p.set_defaults(func=cmd_spatial_register_prefire)
+
     p = sub.add_parser("recon-drill", help="two-view reconstruction fixture + review drill")
     p.set_defaults(func=cmd_recon_drill)
 
@@ -1011,4 +1015,54 @@ def cmd_recon_gpu_probe(args: argparse.Namespace) -> int:
 
     result = gpu_probe()
     print(json.dumps(result, indent=1))
+    return 0
+
+
+def cmd_spatial_register_prefire(args: argparse.Namespace) -> int:
+    """Register the tracked pre-fire LARIAC-derived corpus with UNRESOLVED
+    rights so every release manifest documents its exclusion (rights gate:
+    the asset is excluded, the spatial path stays enabled)."""
+
+    from datetime import datetime, timezone
+
+    from openpali.spatial.registry import register_asset_version
+
+    with session_scope() as session:
+        created = register_asset_version(
+            session,
+            asset_id="lariac-prefire-scene",
+            version_id="sv-tracked-corpus-v1",
+            subject_type="aoi",
+            subject_id="palisades-fire-footprint",
+            asset_kind="surfel_tiles",
+            vintage_slot="pre_fire_lariac",
+            source_id="lariac_derived",
+            observation_kind="pre_fire_model",
+            rights_state="unresolved",
+            horizontal_crs="WGS84 ECEF (tileset ENU origin)",
+            vertical_datum="WGS84 ellipsoidal (EGM96-derived offset)",
+            units="meters",
+            transform={"note": "committed web/public/tiles/palisades corpus"},
+            acquisition_start=datetime(2020, 1, 1, tzinfo=timezone.utc),
+            acquisition_end=datetime(2023, 12, 31, tzinfo=timezone.utc),
+            processed_at=None,
+            resolution_m=None,
+            coverage={"note": "full fire footprint; per-parcel provenance in coverage.json"},
+            quality={
+                "content_units": 1,
+                "rights_note": (
+                    "LARIAC-derived product; county license terms for public "
+                    "redistribution and model training are UNRESOLVED — a "
+                    "sponsor-owned decision. Excluded from all release "
+                    "manifests until resolved; the rights-safe USGS post-fire "
+                    "path remains enabled."
+                ),
+            },
+            lineage=[{"kind": "tracked_repo_path", "path": "web/public/tiles/palisades"}],
+            object_uri="repo://web/public/tiles/palisades/tileset.json",
+            object_sha256=None,
+            format_version="3dtiles-splat-v1",
+            status="ready",
+        )
+        print(f"lariac-prefire-scene registered created={created} rights=unresolved")
     return 0
