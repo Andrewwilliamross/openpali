@@ -1,6 +1,21 @@
 # Run status
 
-State: `CP4B_NEARLY_COMPLETE__METHODS_REPAIRS_LANDED`
+State: `CP4B_COMPLETE_EXCEPT_RENDERER_IMPROVEMENT`
+
+Latest verified (commits through b82ac3a + bench-budget commit):
+- Browser evidence PASSED in-cluster (2/2 specs, evidence
+  cp4b-browser-evidence-2026-07-12.md): release-qualified USGS tile
+  requests, instanced draw calls, AOI picking -> post-fire badge, legend
+  flight-date label, 2D journey + release-served hillshade.
+- ml-drill 12/12 with ALL methods repairs; representative rerun: typed
+  insufficiency at dataset/challenger/serving; fixture-champion domain
+  refusal verified live.
+- Rights gate LIVE in the public manifest: release rel-970232d7 lists
+  lariac-prefire-scene (rights_state=unresolved) and recon-fixture-scene
+  (synthetic) under `excluded` with reasons.
+- SECURITY.md committed. renderer-bench job exists; budgeted v2 run in
+  flight — its numbers pick the SPATIAL-002 improvement (before/after still
+  owed).
 
 Verified checkpoints: CP0 (`edde389`), CP1 (`9c24e27`), CP2 (`0310c98`),
 CP3 (`691ea8c`), CP4A+CP4B-core (`d85793e`), methods repairs + web wiring
