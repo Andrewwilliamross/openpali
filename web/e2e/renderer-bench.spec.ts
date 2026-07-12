@@ -27,18 +27,19 @@ declare global {
 }
 
 // Fixed reference scenes: LARIAC corpus core, USGS AOI, wide oblique, far out.
+// Headless SwiftShader sustains only LIGHT/MEDIUM scenes (seconds/frame on
+// dense splat fills). These two are the deterministic regression pair; heavy
+// GPU scenes belong to a headed run and are recorded as such.
 const SCENES = [
-  { name: 'lariac-core', center: [-118.5525, 34.049] as [number, number], zoom: 16.5, pitch: 60, bearing: 20 },
-  { name: 'usgs-aoi', center: [-118.5248, 34.0432] as [number, number], zoom: 16.5, pitch: 60, bearing: 0 },
-  { name: 'oblique-wide', center: [-118.54, 34.046] as [number, number], zoom: 14.5, pitch: 70, bearing: 45 },
   { name: 'top-down-far', center: [-118.53, 34.045] as [number, number], zoom: 13.2, pitch: 0, bearing: 0 },
+  { name: 'usgs-aoi-medium', center: [-118.5248, 34.0432] as [number, number], zoom: 15.0, pitch: 45, bearing: 0 },
 ]
 
 // SwiftShader software rasterization: small viewport + bounded frame-count
 // sampling keep the run inside the budget while staying deterministic
-const SETTLE_MS = 5_000
-const SAMPLE_FRAMES = 30
-const SAMPLE_MAX_MS = 25_000
+const SETTLE_MS = 8_000
+const SAMPLE_FRAMES = 12
+const SAMPLE_MAX_MS = 20_000
 
 function percentile(sorted: number[], p: number): number {
   if (!sorted.length) return NaN
@@ -122,7 +123,7 @@ async function sampleScene(page: Page, scene: (typeof SCENES)[number]) {
   }
 }
 
-test.use({ viewport: { width: 800, height: 500 } })
+test.use({ viewport: { width: 640, height: 400 } })
 
 test('deterministic renderer benchmark (report-only)', async ({ page }, testInfo) => {
   test.setTimeout(300_000)
