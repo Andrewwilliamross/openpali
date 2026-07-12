@@ -1011,3 +1011,9 @@ body,
   /* WCAG 1.4.1: links must not rely on color alone */
   text-decoration: underline;
 }
+
+/* MapLibre's attribution links sit inline in a text block; give them a
+   non-color distinction too */
+.maplibregl-ctrl-attrib a {
+  text-decoration: underline;
+}

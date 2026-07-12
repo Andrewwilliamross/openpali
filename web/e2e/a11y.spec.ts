@@ -18,9 +18,13 @@ async function scan(page: Page, ready: () => Promise<void>, path: string) {
     // everything overlaid on it (legend, cards, nav) is NOT
     .exclude('.map-container canvas')
     .analyze()
-  const severe = results.violations.filter(
-    (v) => v.impact === 'critical' || v.impact === 'serious',
-  )
+  const severe = results.violations
+    .filter((v) => v.impact === 'critical' || v.impact === 'serious')
+    .map((v) => ({
+      ...v,
+      // name the offending nodes so a failure is actionable from the log
+      help: `${v.help} [${v.nodes.map((n) => n.target.join(' ')).join('; ')}]`,
+    }))
   return { all: results.violations, severe }
 }
 
