@@ -19,6 +19,7 @@ interface SplatStats {
 
 declare global {
   interface Window {
+    __mapReady?: boolean
     __map?: {
       loaded: () => boolean
       jumpTo: (o: { center: [number, number]; zoom: number; pitch: number }) => void
@@ -51,8 +52,18 @@ test('USGS post-fire surfels: tile requests, draw calls, picking, labels', async
   await page.goto('/')
   testInfo.annotations.push({ type: 'gl-renderer', description: await glRenderer(page) })
 
-  // map up + release-pinned USGS layer installed (default mode is 3D)
-  await page.waitForFunction(() => window.__map?.loaded() === true)
+  // surface page errors into the report (headless diagnosis)
+  const pageErrors: string[] = []
+  page.on('pageerror', (e) => pageErrors.push(String(e)))
+  page.on('console', (m) => {
+    if (m.type() === 'error') pageErrors.push(m.text())
+  })
+  // map up + release-pinned USGS layer installed (default mode is 3D).
+  // __mapReady is a one-shot 'load' signal; map.loaded() polls false
+  // whenever the custom layers keep the render loop warm.
+  await page.waitForFunction(() => window.__mapReady === true).catch((e) => {
+    throw new Error(`map load: ${e}; page errors: ${pageErrors.join(' | ')}`)
+  })
   await page.waitForFunction(() => window.__usgsSplats !== undefined, undefined, {
     timeout: 60_000,
   })
@@ -110,7 +121,7 @@ test('USGS post-fire surfels: tile requests, draw calls, picking, labels', async
 
 test('2D journey stays usable and the post-fire hillshade is present', async ({ page }) => {
   await page.goto('/')
-  await page.waitForFunction(() => window.__map?.loaded() === true)
+  await page.waitForFunction(() => window.__mapReady === true)
   // leave 3D
   await page.getByRole('button', { name: /2D/i }).click()
   // parcels remain interactive in 2D: legend + evidence categories visible

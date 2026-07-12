@@ -243,6 +243,9 @@ export default function MapView({
 
     map.on('load', () => {
       loadedRef.current = true
+      // deterministic E2E signal: fires once; map.loaded() polling is false
+      // whenever custom layers keep the render loop warm
+      ;(window as unknown as { __mapReady?: boolean }).__mapReady = true
 
       // ---- hillshade DEM (2D feature too; terrain-dem is added lazily on
       // 3D entry — separate source instances, per ML guidance) ----
