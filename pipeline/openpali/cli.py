@@ -304,6 +304,9 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("recon-gpu-probe", help="typed GPU worker hardware boundary")
     p.set_defaults(func=cmd_recon_gpu_probe)
 
+    p = sub.add_parser("schedule-drill", help="prove scheduler-created runs execute")
+    p.set_defaults(func=cmd_schedule_drill)
+
     p = sub.add_parser("export-openapi", help="print the OpenAPI schema")
     p.set_defaults(func=cmd_export_openapi)
 
@@ -1066,3 +1069,76 @@ def cmd_spatial_register_prefire(args: argparse.Namespace) -> int:
         )
         print(f"lariac-prefire-scene registered created={created} rights=unresolved")
     return 0
+
+
+def cmd_schedule_drill(args: argparse.Namespace) -> int:
+    """OPS: prove scheduling works end-to-end — attach a short interval
+    schedule to the county source-refresh deployment, watch the SCHEDULER
+    (not us) create a run, watch the WORKER complete it, then detach."""
+
+    import asyncio
+    from datetime import timedelta
+
+    from prefect.client.orchestration import get_client
+    from prefect.client.schemas.actions import DeploymentScheduleCreate
+    from prefect.client.schemas.filters import (
+        DeploymentFilter,
+        DeploymentFilterId,
+        FlowRunFilter,
+        FlowRunFilterExpectedStartTime,
+    )
+    from prefect.client.schemas.schedules import IntervalSchedule
+
+    async def drill() -> int:
+        async with get_client() as client:
+            deployment = await client.read_deployment_by_name("source-refresh/default")
+            print(f"deployment: {deployment.id}")
+            schedules = await client.create_deployment_schedules(
+                deployment.id,
+                [DeploymentScheduleCreate(
+                    schedule=IntervalSchedule(interval=timedelta(seconds=45)),
+                    active=True,
+                    parameters={"source_id": "county_base", "online": True},
+                )],
+            )
+            schedule_id = schedules[0].id
+            print(f"schedule attached: {schedule_id} (45s interval)")
+            try:
+                from datetime import datetime, timezone
+
+                started = datetime.now(timezone.utc)
+                completed_run = None
+                for _ in range(40):  # up to ~7 min
+                    await asyncio.sleep(10)
+                    runs = await client.read_flow_runs(
+                        deployment_filter=DeploymentFilter(
+                            id=DeploymentFilterId(any_=[deployment.id])
+                        ),
+                        flow_run_filter=FlowRunFilter(
+                            expected_start_time=FlowRunFilterExpectedStartTime(
+                                after_=started
+                            )
+                        ),
+                    )
+                    scheduled = [
+                        r for r in runs
+                        if (r.state_name or "") in {"Scheduled", "Pending", "Running",
+                                                    "Completed", "Failed", "Crashed"}
+                    ]
+                    done = [r for r in scheduled if r.state_name == "Completed"]
+                    print(f"  scheduler-created runs: {len(scheduled)} "
+                          f"(completed: {len(done)})")
+                    if done:
+                        completed_run = done[0]
+                        break
+            finally:
+                await client.delete_deployment_schedule(deployment.id, schedule_id)
+                print("schedule detached")
+            if completed_run is None:
+                print("FAIL: no scheduler-created run completed in time")
+                return 5
+            print(f"SCHEDULE DRILL OK: run {completed_run.id} completed "
+                  f"(created by the scheduler, executed by the worker)")
+            return 0
+
+    return asyncio.run(drill())

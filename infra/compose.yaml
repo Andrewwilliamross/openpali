@@ -467,6 +467,64 @@ services:
     networks: [internal]
     profiles: [jobs]
 
+  schedule-drill:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "schedule-drill"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  # OPS restore drill: dump the live civic database and DESTRUCTIVELY restore
+  # it into a clean namespace (a fresh database in the same instance), verify
+  # row counts + the current-release pointer match, then drop the namespace.
+  # Uses the same pinned postgis image as the primary (client tools included).
+  restore-drill:
+    image: ghcr.io/baosystems/postgis:17-3.5@sha256:d63ea2f9c038b80bb30cc4f4fb41e11cf6fc9dedfd16b1c6a0095dddc1c22785
+    entrypoint: ["sh", "-ceu"]
+    command:
+      - |
+        export PGPASSWORD=openpali-local-fixture-db
+        H="-h postgres -U openpali"
+        echo "== dump live database =="
+        pg_dump $$H -Fc openpali > /tmp/openpali.dump
+        ls -la /tmp/openpali.dump
+        echo "== destructive restore into clean namespace =="
+        dropdb $$H --if-exists openpali_restore
+        createdb $$H openpali_restore
+        pg_restore $$H -d openpali_restore --no-owner /tmp/openpali.dump
+        echo "== verify restored state matches live =="
+        for q in \
+          "SELECT count(*) FROM civic.recovery_observation" \
+          "SELECT count(*) FROM civic.snapshot" \
+          "SELECT count(*) FROM ops.publication WHERE status='published'" \
+          "SELECT current_release_id FROM ops.current_release WHERE id=1" \
+          "SELECT count(*) FROM spatial.spatial_asset"; do
+          a=$$(psql $$H -tA openpali -c "$$q")
+          b=$$(psql $$H -tA openpali_restore -c "$$q")
+          if [ "$$a" != "$$b" ]; then
+            echo "MISMATCH: [$$q] live=$$a restored=$$b"; exit 5
+          fi
+          echo "  match: [$$q] = $$a"
+        done
+        echo "== drop restore namespace =="
+        dropdb $$H openpali_restore
+        echo "RESTORE DRILL OK"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
   release-republish:
     # Re-promote the CURRENT release's snapshot through the registered
     # release-candidate deployment (worker-executed): the rebuilt manifest
