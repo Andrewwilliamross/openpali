@@ -58,6 +58,9 @@ interface Props {
   selectedApn: string | null
   mode: ViewMode
   ground: GroundMode
+  // rights gate (GOV-001): the LARIAC-derived pre-fire corpus renders ONLY
+  // on explicit opt-in; nothing fetches its tiles until then
+  prefire: boolean
   onSelect: (apn: string | null) => void
   onMapReady: (map: MLMap) => void
   onSpatialStatus?: (status: SpatialStatus) => void
@@ -80,6 +83,7 @@ export default function MapView({
   selectedApn,
   mode,
   ground,
+  prefire,
   onSelect,
   onMapReady,
   onSpatialStatus,
@@ -87,6 +91,7 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
   const hoveredRef = useRef<string | number | null>(null)
+  const fsSourceRef = useRef<((id: string | number) => { source: string; sourceLayer?: string; id: string | number }) | null>(null)
   const loadedRef = useRef(false)
   const splatLayerRef = useRef<SplatRenderLayer | null>(null)
   const intersectorRef = useRef<SpatialIntersector | null>(null)
@@ -96,12 +101,14 @@ export default function MapView({
   const usgsIntersectorRef = useRef<SpatialIntersector | null>(null)
   const modeRef = useRef<ViewMode>(mode)
   const groundRef = useRef<GroundMode>(ground)
+  const prefireRef = useRef<boolean>(prefire)
   const onSpatialStatusRef = useRef(onSpatialStatus)
   // Sync latest props into refs for event handlers/async callbacks. Declared
   // before the mount effect so first-render consumers observe current values.
   useEffect(() => {
     modeRef.current = mode
     groundRef.current = ground
+    prefireRef.current = prefire
     onSpatialStatusRef.current = onSpatialStatus
   })
   // cached promise for the code-split renderer chunk (cleared on failure so
@@ -166,7 +173,7 @@ export default function MapView({
             const splats = new mod.SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
             splatLayerRef.current = splats
             map.addLayer(splats)
-            splats.setEnabled(modeRef.current === '3d')
+            splats.setEnabled(modeRef.current === '3d' && prefireRef.current)
             // E2E/debug handle (custom layers are invisible to map.getLayer in v5)
             ;(window as unknown as { __splats?: SplatRenderLayer }).__splats = splats
           } catch (e) {
@@ -244,6 +251,12 @@ export default function MapView({
 
     map.on('load', () => {
       loadedRef.current = true
+      // WebGL context loss: drop 3D work and keep the 2D journey usable
+      map.getCanvas().addEventListener('webglcontextlost', () => {
+        splatLayerRef.current?.setEnabled(false)
+        usgsLayerRef.current?.setEnabled(false)
+        onSpatialStatusRef.current?.('error')
+      })
       // deterministic E2E signal: fires once; map.loaded() polling is false
       // whenever custom layers keep the render loop warm
       ;(window as unknown as { __mapReady?: boolean }).__mapReady = true
@@ -396,7 +409,7 @@ export default function MapView({
       // first entry kicks off the chunk fetch; once installed it's a no-op
       // and setEnabled below drives the already-resident layer
       ensureSpatial(map)
-      splatLayerRef.current?.setEnabled(true)
+      splatLayerRef.current?.setEnabled(prefire)
       usgsLayerRef.current?.setEnabled(true)
       map.easeTo({ pitch: 62, duration: motionMs(900) })
     } else {
@@ -405,7 +418,7 @@ export default function MapView({
       usgsLayerRef.current?.setEnabled(false)
       map.easeTo({ pitch: 0, bearing: 0, duration: motionMs(900) })
     }
-  }, [mode, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
+  }, [mode, prefire, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
 
   // ---- ground mode: map ↔ current-conditions imagery ----
   useEffect(() => {
@@ -432,17 +445,47 @@ export default function MapView({
     const map = mapRef.current
     if (!map || !parcels) return
 
-    const install = () => {
+    const install = async () => {
       hoveredRef.current = null
       if (map.getSource('parcels')) {
-        ;(map.getSource('parcels') as maplibregl.GeoJSONSource).setData(parcels)
+        const src = map.getSource('parcels')
+        if (src?.type === 'geojson') {
+          ;(src as maplibregl.GeoJSONSource).setData(parcels)
+        }
         return
       }
-      map.addSource('parcels', { type: 'geojson', data: parcels, promoteId: 'apn' })
+      // ONE snapshot everywhere (PUB-001): parcels come from the pinned
+      // release's MVT tiles, whose properties are the same milestone booleans
+      // the paint expression reads. The static geojson remains the offline/
+      // LKG fallback when the API is unreachable.
+      const pf = await fetchPostfireSources()
+      if (map.getSource('parcels')) return // raced a concurrent install
+      const releaseTiles = pf
+        ? `${window.location.origin}/v1/releases/${pf.releaseId}/tiles/parcels/{z}/{x}/{y}.mvt`
+        : null
+      const vector = releaseTiles !== null
+      if (vector) {
+        map.addSource('parcels', {
+          type: 'vector',
+          tiles: [releaseTiles as string],
+          minzoom: 10,
+          maxzoom: 16,
+          promoteId: { parcels: 'apn' },
+        })
+      } else {
+        map.addSource('parcels', { type: 'geojson', data: parcels, promoteId: 'apn' })
+      }
+      const sl = vector ? { 'source-layer': 'parcels' } : {}
+      const fsSource = (id: string | number) =>
+        vector
+          ? { source: 'parcels', sourceLayer: 'parcels', id }
+          : { source: 'parcels', id }
+      fsSourceRef.current = fsSource
       map.addLayer({
         id: 'parcel-fill',
         type: 'fill',
         source: 'parcels',
+        ...sl,
         paint: {
           'fill-color': evidencePaintExpression() as never,
           'fill-opacity': [
@@ -457,6 +500,7 @@ export default function MapView({
         id: 'parcel-line',
         type: 'line',
         source: 'parcels',
+        ...sl,
         paint: {
           'line-color': evidencePaintExpression() as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
@@ -467,6 +511,7 @@ export default function MapView({
         id: 'parcel-selected',
         type: 'line',
         source: 'parcels',
+        ...sl,
         filter: ['==', ['get', 'apn'], ''],
         paint: { 'line-color': '#1d4ed8', 'line-width': 3.5 },
       })
@@ -477,15 +522,15 @@ export default function MapView({
           .features?.[0]
         if (!f || f.id === hoveredRef.current) return
         if (hoveredRef.current != null)
-          map.setFeatureState({ source: 'parcels', id: hoveredRef.current }, { hover: false })
+          map.setFeatureState(fsSource(hoveredRef.current), { hover: false })
         hoveredRef.current = f.id ?? null
         if (f.id != null)
-          map.setFeatureState({ source: 'parcels', id: f.id }, { hover: true })
+          map.setFeatureState(fsSource(f.id), { hover: true })
       })
       map.on('mouseleave', 'parcel-fill', () => {
         map.getCanvas().style.cursor = ''
         if (hoveredRef.current != null)
-          map.setFeatureState({ source: 'parcels', id: hoveredRef.current }, { hover: false })
+          map.setFeatureState(fsSource(hoveredRef.current), { hover: false })
         hoveredRef.current = null
       })
 
@@ -509,8 +554,8 @@ export default function MapView({
       })
     }
 
-    if (loadedRef.current) install()
-    else map.once('load', install)
+    if (loadedRef.current) void install()
+    else map.once('load', () => void install())
   }, [parcels, onSelect])
 
   // selection highlight

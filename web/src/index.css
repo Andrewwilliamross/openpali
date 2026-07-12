@@ -1054,3 +1054,26 @@ body,
   cursor: pointer;
 }
 .correction button:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------- forecast panel ---------- */
+.forecast-panel { margin: 10px 16px 0; font-size: 12.5px; }
+.forecast-apps { margin: 4px 0; padding-left: 18px; }
+.forecast-insufficient { color: var(--ink-soft); }
+.forecast-model-line, .forecast-disclaimer {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin: 4px 0 0;
+}
+
+.release-badge {
+  position: absolute;
+  left: 14px;
+  bottom: 2px;
+  font-size: 10px;
+  color: var(--ink-soft);
+  background: rgba(255,255,255,0.82);
+  border-radius: 6px;
+  padding: 1px 7px;
+  z-index: 5;
+  font-variant-numeric: tabular-nums;
+}

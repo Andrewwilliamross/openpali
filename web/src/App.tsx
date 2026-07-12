@@ -9,6 +9,7 @@ import Legend from './components/Legend'
 import DebugHud from './components/DebugHud'
 import type { DetailsIndex, ParcelCollection, Summary } from './lib/types'
 import { centroid, motionMs } from './lib/format'
+import { fetchPostfireSources } from './lib/postfire'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -28,8 +29,21 @@ export default function App() {
     [navigate],
   )
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [mode, setMode] = useState<ViewMode>('3d')
-  const [ground, setGround] = useState<GroundMode>('sat')
+  // 2D-first: 3D loads ONLY on request (SPATIAL-002), and the vendor ground
+  // imagery is opt-in (GOV-001 safe default — EagleView WMTS rights are
+  // county-account terms, not ours to presume)
+  const [mode, setMode] = useState<ViewMode>('2d')
+  const [ground, setGround] = useState<GroundMode>('map')
+  // LARIAC-derived pre-fire 3D corpus: rights unresolved -> explicit opt-in
+  const [prefire, setPrefire] = useState(false)
+  // capability probe: never offer 3D where WebGL2 does not exist
+  const webglOk = useMemo(() => {
+    try {
+      return document.createElement('canvas').getContext('webgl2') !== null
+    } catch {
+      return false
+    }
+  }, [])
   // lifecycle of the code-split 3D renderer chunk (MapView reports it)
   const [spatialStatus, setSpatialStatus] = useState<SpatialStatus>('idle')
   const mapRef = useRef<MLMap | null>(null)
@@ -41,6 +55,15 @@ export default function App() {
     if (status === 'error') setMode('2d')
   }, [])
 
+  // visible release identity: everything on screen belongs to ONE pinned
+  // release/snapshot; when the API is unreachable the static bundle serves
+  // as clearly-labeled last-known-good
+  const [releaseInfo, setReleaseInfo] = useState<{
+    releaseId: string
+    snapshotId: string
+    publishedAt: string | null
+  } | null>(null)
+
   useEffect(() => {
     Promise.all([
       fetch(`${BASE}data/parcels.geojson`).then((r) => r.json()),
@@ -48,7 +71,7 @@ export default function App() {
     ])
       .then(([p, s]) => {
         setParcels(p)
-        setSummary(s)
+        setSummary((prev) => prev ?? s) // release-derived summary wins
       })
       .catch(() => setLoadError('Could not load rebuild data. Try refreshing.'))
     // details are big-ish; load after first paint
@@ -56,6 +79,40 @@ export default function App() {
       .then((r) => r.json())
       .then(setDetails)
       .catch(() => {})
+    // release-pinned header numbers (PUB-001/FRONTEND-002): coverage counts
+    // straight from the current release manifest
+    void (async () => {
+      const pf = await fetchPostfireSources()
+      if (!pf) return
+      try {
+        const rel = await (await fetch(`/v1/releases/${pf.releaseId}`)).json()
+        setReleaseInfo({
+          releaseId: rel.release_id,
+          snapshotId: rel.snapshot_id,
+          publishedAt: rel.published_at ?? null,
+        })
+        const c = rel.coverage ?? {}
+        setSummary((prev) => ({
+          as_of: rel.published_at ?? prev?.as_of ?? '',
+          snapshot_id: rel.snapshot_id,
+          totals: {
+            destroyed: c.properties ?? prev?.totals.destroyed ?? 0,
+            cleanup_complete: c.cleanup_complete ?? 0,
+            cleanup_opt_out: prev?.totals.cleanup_opt_out ?? 0,
+            application_submitted: c.application_submitted ?? 0,
+            plan_check_approved: c.plan_check_approved ?? 0,
+            permit_issued: c.permit_issued ?? 0,
+            construction_evidence: c.construction_evidence ?? 0,
+            construction_inspection_scheduled_only:
+              prev?.totals.construction_inspection_scheduled_only ?? 0,
+            cofo_issued: c.cofo_issued ?? 0,
+          },
+          neighborhoods: prev?.neighborhoods ?? [],
+        }) as Summary)
+      } catch {
+        /* static summary remains the LKG */
+      }
+    })()
   }, [])
 
   const selectedProps = useMemo(() => {
@@ -91,6 +148,7 @@ export default function App() {
           selectedApn={selectedApn}
           mode={mode}
           ground={ground}
+          prefire={prefire}
           onSelect={setSelectedApn}
           onMapReady={(m) => {
             mapRef.current = m
@@ -108,9 +166,22 @@ export default function App() {
           onClick={() => setMode((m) => (m === '3d' ? '2d' : '3d'))}
           aria-label="Toggle 3D view"
           aria-busy={spatialStatus === 'loading'}
+          disabled={!webglOk}
+          title={webglOk ? undefined : '3D is unavailable on this device (no WebGL2); the 2D tracker has every capability'}
         >
           {spatialStatus === 'loading' ? '3D…' : mode === '3d' ? '2D' : '3D'}
         </button>
+        {mode === '3d' && (
+          <button
+            className="mode-toggle prefire-toggle"
+            onClick={() => setPrefire((p) => !p)}
+            aria-pressed={prefire}
+            aria-label="Toggle pre-fire county model"
+            title="LARIAC-derived pre-fire structures; county license terms pending — off by default"
+          >
+            {prefire ? 'Hide pre-fire model' : 'Pre-fire model (rights pending)'}
+          </button>
+        )}
         <button
           className="mode-toggle ground-toggle"
           onClick={() => setGround((g) => (g === 'sat' ? 'map' : 'sat'))}
@@ -124,6 +195,19 @@ export default function App() {
           <a href="/methods">Methods</a>
           <a href="/status">Status</a>
         </nav>
+        <div
+          className="release-badge"
+          data-testid="release-badge"
+          title={
+            releaseInfo
+              ? `Every number, color, and timeline on this page comes from this one release`
+              : 'The data API is unreachable; showing the bundled last-known-good data'
+          }
+        >
+          {releaseInfo
+            ? `release ${releaseInfo.releaseId.slice(0, 16)} · snapshot ${releaseInfo.snapshotId.slice(0, 17)}`
+            : 'offline · last-known-good data'}
+        </div>
         <DebugHud />
         {loadError && <div className="load-error">{loadError}</div>}
         {spatialStatus === 'error' && (

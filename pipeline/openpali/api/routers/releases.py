@@ -509,19 +509,44 @@ def property_forecast(
     _maybe_304(request, response, etag, IMMUTABLE_CACHE)
     state = _state_for_property(session, publication, property_id)
 
+    # Eligibility comes from THIS RELEASE'S OBSERVATIONS: an application with
+    # a rebuild_application_submitted observation in the snapshot related to
+    # this parcel. CaseLink qualification refines (disqualifies) when the
+    # civic loader recorded it, but its absence (e.g. the fixture ledger)
+    # must never hide an eligible application from the forecast surface.
+    member_ids = select(SnapshotMember.member_id).where(
+        SnapshotMember.snapshot_id == publication.snapshot_id,
+        SnapshotMember.member_type == "observation",
+    )
+    submitted_rows = list(
+        session.execute(
+            select(RecoveryObservationRow).where(
+                RecoveryObservationRow.observation_id.in_(member_ids),
+                RecoveryObservationRow.subject_type == "permit_application",
+                RecoveryObservationRow.event_type == "rebuild_application_submitted",
+                RecoveryObservationRow.related_subjects.contains(
+                    [{"type": "parcel", "id": state.apn}]
+                ),
+            )
+        ).scalars()
+    )
+    observed_apps = sorted({row.subject_id for row in submitted_rows})
+
     links = list(
         session.execute(
             select(CaseLink).where(
                 CaseLink.object_type == "property",
-                CaseLink.object_id == property_id,
+                CaseLink.object_id == state.property_id,
                 CaseLink.link_type == "permit_on_property",
             )
         ).scalars()
     )
-    qualifying = [
+    disqualified = {
         link.subject_id for link in links
-        if (link.detail or {}).get("qualification") == "qualifying_rebuild_application"
-    ]
+        if (link.detail or {}).get("qualification")
+        in {"not_fire_rebuild", "undocumented"}
+    }
+    qualifying = [app for app in observed_apps if app not in disqualified]
 
     prediction_sets = list(
         session.execute(
@@ -533,7 +558,7 @@ def property_forecast(
     base = {
         "release_id": publication.release_id,
         "snapshot_id": publication.snapshot_id,
-        "property_id": property_id,
+        "property_id": state.property_id,
         "qualifying_applications": qualifying,
         "disclaimer": (
             "Any estimate is computed at application submission time from a "

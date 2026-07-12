@@ -23,6 +23,7 @@ import { fetchApiDetail } from '../../lib/apiDetail'
 import { fmtDate, fmtMoney, fmtNumber, titleCase } from '../../lib/format'
 import { preFireTileUrl, WAYBACK_ATTRIBUTION } from '../../lib/imagery'
 import CorrectionForm from './CorrectionForm'
+import ForecastPanel from './ForecastPanel'
 import {
   fetchPostfirePicking,
   fetchPostfireSources,
@@ -299,6 +300,8 @@ export default function ParcelDetailCard({ apn, props, detail: staticDetail, onC
           Verify on LA City open data ↗
         </a>
       )}
+
+      <ForecastPanel apn={apn} />
 
       <CorrectionForm apn={apn} />
     </aside>
