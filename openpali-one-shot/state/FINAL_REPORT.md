@@ -78,11 +78,23 @@ command, container exit code, API response, or browser assertion recorded in
   require a headed run (below).
 
 ### Product journeys
+- ONE snapshot everywhere: the parcel map paints from the pinned release's
+  MVT tiles, the header counts come from the release manifest, the card's
+  lanes/timeline come from the release API, and a visible badge names the
+  release + snapshot (or says "offline · last-known-good" explicitly when
+  the API is unreachable and the bundled fallback serves).
 - Routed, shareable journeys: `/map`, `/property/:apn` (URL-synced),
   `/methods` (definitions + claim boundaries + release-pinned policy
-  versions), `/status` (release, LKG, per-source retrieved-vs-upstream
-  freshness). Property lanes + evidence timeline come from the
-  release-qualified API with the static bundle as offline fallback.
+  versions), `/status` (release, LKG, per-source freshness, the learning
+  system's typed status, and the snapshot-addressed research export).
+- Forecast-or-insufficiency is inspectable in the product: the property
+  card shows the submission-time estimate from the reviewed champion or the
+  typed reason none is served; /status shows the model state for the
+  release.
+- 2D-first: 3D loads only on explicit request, a WebGL2 probe disables the
+  toggle where unsupported, and context loss falls back to the full 2D
+  journey. The rights-pending pre-fire county model renders only behind its
+  own labeled opt-in; vendor ground imagery is opt-in too.
 - Corrections: rate-limited POST verified live (202, idempotent resubmit,
   429, 404), contact stored in a restricted table, human moderation only.
 - Accessibility: axe gate over every route (three real violations found and
@@ -98,9 +110,15 @@ command, container exit code, API response, or browser assertion recorded in
   idempotent acquisition + atomic promotion.
 - Observability: pinned Prometheus/blackbox profile; injected mlflow outage
   fired `ServiceDown` and resolved after restoration.
-- CI runs the same gates + SBOM/vuln/secret scans. SECURITY.md documents the
-  threat model. Failed independent cross-checks ride as disclosures ON the
-  affected public metrics.
+- Security gates EXECUTE locally with artifacts (scripts/check-security):
+  locked-dependency audits, CycloneDX SBOMs for both stacks, a
+  checksum-pinned gitleaks scan of the full git history (findings triaged —
+  PowerBI public embed URLs, not credentials) and a planted-secret negative
+  control proving the scanner works. CI runs the same gates. SECURITY.md
+  documents the threat model; RUNBOOKS.md ties every alert to wrapper
+  commands; release-bundle records commit/images/artifacts/risks. Failed
+  independent cross-checks ride as disclosures ON the affected public
+  metrics, and the OpenAPI contract is drift-gated on every fast-gate run.
 
 ## 2. Limitations (known, deliberate, disclosed)
 
@@ -113,8 +131,8 @@ command, container exit code, API response, or browser assertion recorded in
   headed benchmark run on real hardware (one command: the renderer-bench job
   against a headed browser) is required before any GPU frame-time claim.
 - **Permit enrichment (portal links/valuations) in the card** still comes
-  from the pipeline's static bundle; the evidence timeline itself is
-  API-served.
+  from the pipeline's static bundle; the evidence timeline, lanes, map
+  paint, and header counts are all release-API-served.
 - **Single-host trust model**: fixture credentials, loopback HTTP accel,
   in-process rate limiting — documented in SECURITY.md; multi-instance
   deployments need a shared limiter and real secrets.
