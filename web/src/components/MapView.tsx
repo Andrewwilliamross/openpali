@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
 import { evidencePaintExpression } from '../lib/colors'
 import { fetchPostfireSources } from '../lib/postfire'
+import { motionMs } from '../lib/format'
 // Type-only imports are erased at build time: the renderer subsystem itself
 // is code-split and fetched via import('./spatial/renderer3d') on 3D entry
 // (ROADMAP D10 / PR3). Never import its values statically here.
@@ -397,12 +398,12 @@ export default function MapView({
       ensureSpatial(map)
       splatLayerRef.current?.setEnabled(true)
       usgsLayerRef.current?.setEnabled(true)
-      map.easeTo({ pitch: 62, duration: 900 })
+      map.easeTo({ pitch: 62, duration: motionMs(900) })
     } else {
       map.setTerrain(null)
       splatLayerRef.current?.setEnabled(false)
       usgsLayerRef.current?.setEnabled(false)
-      map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
+      map.easeTo({ pitch: 0, bearing: 0, duration: motionMs(900) })
     }
   }, [mode, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
 

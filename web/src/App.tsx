@@ -8,7 +8,7 @@ import SearchBar from './components/SearchBar'
 import Legend from './components/Legend'
 import DebugHud from './components/DebugHud'
 import type { DetailsIndex, ParcelCollection, Summary } from './lib/types'
-import { centroid } from './lib/format'
+import { centroid, motionMs } from './lib/format'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -72,14 +72,14 @@ export default function App() {
           center: centroid(f.geometry),
           zoom: 17.4,
           pitch: mode === '3d' ? 58 : 0,
-          duration: 1400,
+          duration: motionMs(1400),
         })
     },
     [parcels, mode, setSelectedApn],
   )
 
   const handleGoto = useCallback((center: [number, number], zoom: number) => {
-    mapRef.current?.flyTo({ center, zoom, duration: 1200 })
+    mapRef.current?.flyTo({ center, zoom, duration: motionMs(1200) })
   }, [])
 
   return (
