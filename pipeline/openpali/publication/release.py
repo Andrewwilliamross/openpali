@@ -240,10 +240,11 @@ def publish_release(
             f"publications/{release_id}/manifest.json",
             manifest_bytes,
         )
-        pointer = canonical_json(
-            {"release_id": release_id, "manifest_sha256": manifest_sha}
-        ).encode()
-        store.put_manifest(PUBLICATION_BUCKET, "pointers/current.json", pointer)
+        if promote:  # only an authority-pointer move updates the pointer mirror
+            pointer = canonical_json(
+                {"release_id": release_id, "manifest_sha256": manifest_sha}
+            ).encode()
+            store.put_manifest(PUBLICATION_BUCKET, "pointers/current.json", pointer)
     except Exception:  # noqa: BLE001 - mirror failure must not fail promotion
         mirror_ok = False
 
