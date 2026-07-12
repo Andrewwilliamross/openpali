@@ -976,3 +976,33 @@ body,
   font-family: inherit;
   opacity: 0.9;
 }
+
+/* ---------- routed pages (/methods, /status) ---------- */
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+  line-height: 1.55;
+}
+.page h1 { margin: 8px 0 16px; }
+.page h2 { margin: 22px 0 8px; font-size: 1.15rem; }
+.page-nav { display: flex; gap: 16px; font-size: 0.95rem; }
+.page-note { font-size: 0.85rem; color: #555; }
+.status-dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; }
+.status-dl dt { font-weight: 600; }
+.status-dl dd { margin: 0; }
+.table-scroll { overflow-x: auto; }
+.page table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.page th, .page td { text-align: left; padding: 5px 10px; border-bottom: 1px solid rgba(0,0,0,0.12); }
+.app-nav {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 10px;
+  background: rgba(255,255,255,0.88);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  z-index: 5;
+}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import type { Map as MLMap } from 'maplibre-gl'
 import MapView, { type GroundMode, type SpatialStatus, type ViewMode } from './components/MapView'
 import Header from './components/Header'
@@ -15,7 +16,17 @@ export default function App() {
   const [parcels, setParcels] = useState<ParcelCollection | null>(null)
   const [details, setDetails] = useState<DetailsIndex | null>(null)
   const [summary, setSummary] = useState<Summary | null>(null)
-  const [selectedApn, setSelectedApn] = useState<string | null>(null)
+  // property selection lives in the URL: /property/:apn is a shareable,
+  // reload-safe journey; closing the card returns to /map
+  const { apn: routeApn } = useParams<{ apn: string }>()
+  const navigate = useNavigate()
+  const selectedApn = routeApn && /^\d{10}$/.test(routeApn) ? routeApn : null
+  const setSelectedApn = useCallback(
+    (next: string | null) => {
+      navigate(next ? `/property/${next}` : '/map')
+    },
+    [navigate],
+  )
   const [loadError, setLoadError] = useState<string | null>(null)
   const [mode, setMode] = useState<ViewMode>('3d')
   const [ground, setGround] = useState<GroundMode>('sat')
@@ -64,7 +75,7 @@ export default function App() {
           duration: 1400,
         })
     },
-    [parcels, mode],
+    [parcels, mode, setSelectedApn],
   )
 
   const handleGoto = useCallback((center: [number, number], zoom: number) => {
@@ -109,6 +120,10 @@ export default function App() {
           {ground === 'sat' ? 'Map' : 'Sat'}
         </button>
         <Legend mode={mode} />
+        <nav className="app-nav" aria-label="Site">
+          <a href="/methods">Methods</a>
+          <a href="/status">Status</a>
+        </nav>
         <DebugHud />
         {loadError && <div className="load-error">{loadError}</div>}
         {spatialStatus === 'error' && (
