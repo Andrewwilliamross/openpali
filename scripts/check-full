@@ -1,0 +1,109 @@
+#!/bin/sh
+# Full gate: everything check-fast covers PLUS the service-backed proofs.
+#
+# Docker is host-equivalent authority and may only be driven through
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml ...
+# so this script separates the two halves the evaluator needs:
+#   1. host half (here, directly): lint/type/unit + web build
+#   2. service half: launches each proof as a Compose JOB via the wrapper,
+#      waits for the container to exit, and fails on nonzero exit codes.
+#
+# Usage:  scripts/check-full            (stack must already be up: postgres,
+#         object-store, prefect-server/worker, mlflow, api, web, proxy)
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+WRAPPER="python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml"
+LOG_DIR="${OPENPALI_CHECK_LOGS:-$ROOT/data/out/checks}"
+mkdir -p "$LOG_DIR"
+STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+FAILURES=0
+
+run_step() {
+  name="$1"; shift
+  log="$LOG_DIR/full-$STAMP-$name.log"
+  start=$(date +%s)
+  if "$@" >"$log" 2>&1; then
+    end=$(date +%s)
+    printf '  PASS %-24s %4ss  %s\n' "$name" "$((end - start))" "$log"
+  else
+    end=$(date +%s)
+    printf '  FAIL %-24s %4ss  %s\n' "$name" "$((end - start))" "$log"
+    tail -8 "$log" | sed 's/^/       /'
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+# Launch a compose job service, wait for its container to exit, propagate its
+# exit code, and capture its logs.
+run_job() {
+  name="$1"
+  service="$2"
+  profile_args="${3:-}"
+  log="$LOG_DIR/full-$STAMP-$name.log"
+  start=$(date +%s)
+  # shellcheck disable=SC2086
+  if ! $WRAPPER $profile_args up -d "$service" >"$log" 2>&1; then
+    printf '  FAIL %-24s (launch)  %s\n' "$name" "$log"
+    FAILURES=$((FAILURES + 1))
+    return
+  fi
+  code=""
+  i=0
+  while [ $i -lt 240 ]; do  # up to 80 min per job
+    state=$($WRAPPER ps -a --format '{{.Name}} {{.State}} {{.ExitCode}}' 2>/dev/null \
+      | grep -- "-${service}-1 " || true)
+    case "$state" in
+      *" exited "*) code="${state##* }"; break ;;
+    esac
+    i=$((i + 1))
+    sleep 20
+  done
+  $WRAPPER logs --no-log-prefix "$service" >>"$log" 2>&1
+  end=$(date +%s)
+  if [ "$code" = "0" ]; then
+    printf '  PASS %-24s %4ss  %s\n' "$name" "$((end - start))" "$log"
+  else
+    printf '  FAIL %-24s %4ss  exit=%s  %s\n' "$name" "$((end - start))" "${code:-timeout}" "$log"
+    tail -8 "$log" | sed 's/^/       /'
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+echo "== OpenPali full gate ($STAMP) =="
+echo "commit: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+
+echo "-- host half --"
+run_step fast-gate sh scripts/check-fast
+run_step web-build sh -c 'cd web && npm run build'
+
+echo "-- service half (wrapper-launched compose jobs) --"
+if $WRAPPER ps >/dev/null 2>&1; then
+  run_job integration-tests test-integration
+  run_job ml-drill ml-drill
+  run_job ml-representative ml-representative
+  run_job recon-drill recon-drill
+  run_job recon-gpu-boundary recon-gpu "--profile gpu"
+  run_job spatial-refresh spatial-refresh
+  run_job zero-network-replay replay
+  run_job browser-gate e2e-browser
+  run_job renderer-bench renderer-bench
+else
+  # Sandboxed shells cannot reach Docker: only top-level wrapper commands are
+  # unsandboxed by the launch hook. Emit the exact commands so the operator/
+  # evaluator runs each one directly and checks its container exits 0.
+  echo "  Docker unreachable from this shell. Run each job as its OWN command:"
+  for svc in "test-integration" "ml-drill" "ml-representative" "recon-drill" \
+             "spatial-refresh" "replay" "e2e-browser" "renderer-bench"; do
+    echo "    $WRAPPER up -d $svc"
+  done
+  echo "    $WRAPPER --profile gpu up -d recon-gpu"
+  echo "  then verify exits with:"
+  echo "    $WRAPPER ps -a --format '{{.Name}} {{.Status}}'"
+  echo "  and read failures with:  $WRAPPER logs --no-log-prefix <service>"
+  FAILURES=$((FAILURES + 1))
+fi
+
+echo "== full gate: $FAILURES failure(s) =="
+[ "$FAILURES" -eq 0 ]
