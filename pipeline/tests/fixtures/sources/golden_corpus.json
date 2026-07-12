@@ -392,7 +392,7 @@
             "lanes": {
               "permitting": "no_public_evidence"
             },
-            "context_event_types": ["non_rebuild_permit_activity", "structure_destroyed"]
+            "context_event_types": ["permit_activity_flag_missing", "structure_destroyed"]
           }
         },
         "qualifying_applications": 0,

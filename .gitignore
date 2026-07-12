@@ -8,3 +8,5 @@ __pycache__/
 data/raw/
 .DS_Store
 data/spatial/
+.npm-cache/
+data/out/

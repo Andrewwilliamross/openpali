@@ -1,0 +1,270 @@
+# OpenPali local production-equivalent stack.
+#
+# Invoke ONLY through the validated wrapper:
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d --wait
+#
+# Topology constraints enforced by the wrapper:
+# - every runtime network is internal; the single labeled squid proxy owns the
+#   egress network and is the only ingress (loopback-published ports) and
+#   egress (CONNECT allowlist) path;
+# - third-party images are digest-pinned (docker.io/ghcr.io);
+# - all credentials are explicit local-only fixtures (openpali-local-*);
+# - jobs (migrations, bucket init, releases, drills) are Compose services run
+#   via `up -d <svc>` + `wait <svc>`, never `docker run`/`exec`.
+
+networks:
+  internal:
+    internal: true
+  egress: {}
+
+volumes:
+  pgdata: {}
+  seaweed-data: {}
+  prefect-data: {}
+
+configs:
+  postgres-init:
+    file: postgres/init-databases.sql
+  seaweed-s3:
+    file: seaweedfs/s3.json
+
+services:
+  postgres:
+    image: ghcr.io/baosystems/postgis:17-3.5@sha256:d63ea2f9c038b80bb30cc4f4fb41e11cf6fc9dedfd16b1c6a0095dddc1c22785
+    environment:
+      POSTGRES_USER: openpali
+      POSTGRES_PASSWORD: openpali-local-fixture-db
+      POSTGRES_DB: openpali
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    configs:
+      - source: postgres-init
+        target: /docker-entrypoint-initdb.d/00-init-databases.sql
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openpali -d openpali"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  object-store:
+    image: chrislusf/seaweedfs:4.39@sha256:c7d6c721b30ae711db766bbbfd40192776e263d4e51e22f57baef7bef93c12c6
+    command: >-
+      server -dir=/data -master.volumeSizeLimitMB=256
+      -s3 -s3.config=/etc/seaweedfs/s3.json
+      -ip=object-store -master.peers=object-store:9333
+    volumes:
+      - seaweed-data:/data
+    configs:
+      - source: seaweed-s3
+        target: /etc/seaweedfs/s3.json
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/healthz || wget -q -O /dev/null http://127.0.0.1:9333/cluster/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  prefect-server:
+    image: prefecthq/prefect:3.7.8-python3.12@sha256:a1a789339d6176bf4ba37e0e7658ad8a4b021e14a63912f00afcd3e8e75d1863
+    command: ["prefect", "server", "start", "--host", "0.0.0.0", "--port", "4200"]
+    environment:
+      PREFECT_HOME: /data
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://openpali:openpali-local-fixture-db@postgres:5432/prefect
+      PREFECT_SERVER_DATABASE_CONNECTION_URL: postgresql+asyncpg://openpali:openpali-local-fixture-db@postgres:5432/prefect
+      PREFECT_UI_API_URL: http://127.0.0.1:54200/api
+    volumes:
+      - prefect-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:4200/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  prefect-worker:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["prefect", "worker", "start", "--pool", "openpali-process", "--type", "process"]
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,postgres,object-store,prefect-server,mlflow,api,proxy
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+
+  mlflow:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: >-
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/mlflow
+      --default-artifact-root s3://openpali-mlflow/
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  api:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["uvicorn", "openpali.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  web:
+    image: openpali-web:local
+    build:
+      context: ../web
+    depends_on:
+      - api
+    networks: [internal]
+
+  proxy:
+    image: openpali-proxy:local
+    build:
+      context: ../infra/proxy
+    labels:
+      org.openpali.egress-proxy: "true"
+    networks: [internal, egress]
+    ports:
+      - "127.0.0.1:58000:8000"   # api
+      - "127.0.0.1:58080:8080"   # web
+      - "127.0.0.1:54200:4200"   # prefect ui/api
+      - "127.0.0.1:55000:5000"   # mlflow ui/api
+      - "127.0.0.1:58333:8333"   # object-store S3
+    depends_on:
+      - api
+      - web
+
+  # ---- job services (run with: up -d <name> && wait <name>) ----
+
+  migrate:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["alembic", "upgrade", "head"]
+    working_dir: /app
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  migrate-reset:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["sh", "-c", "alembic downgrade base && alembic upgrade head"]
+    working_dir: /app
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  bucket-init:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["python", "-m", "openpali.ops.bucket_init"]
+    environment:
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  test-integration:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["python", "-m", "pytest", "tests/integration", "-q", "--no-header"]
+    working_dir: /app
+    environment:
+      OPENPALI_INTEGRATION: "1"
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  slice-dev:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "dev-slice"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,postgres,object-store,prefect-server,mlflow,api,proxy
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]

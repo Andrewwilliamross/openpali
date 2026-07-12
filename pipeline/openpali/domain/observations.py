@@ -139,6 +139,10 @@ class RecoveryObservation:
     label: str = ""
     related_subjects: tuple[SubjectRef, ...] = field(default_factory=tuple)
     detail: tuple[tuple[str, str], ...] = field(default_factory=tuple)
+    #: Distinguishes multiple same-typed assertions about one subject from one
+    #: source record family (e.g. two scheduled inspections on one permit with
+    #: different descriptions/dates). Enters the deterministic ID.
+    discriminator: str | None = None
 
     @property
     def observation_id(self) -> str:
@@ -154,6 +158,7 @@ class RecoveryObservation:
                     "native_key": self.source_record.native_key,
                 },
                 "policy_version": self.policy_version,
+                "discriminator": self.discriminator,
             },
             sort_keys=True,
             separators=(",", ":"),

@@ -1,0 +1,14 @@
+{
+  "identities": [
+    {
+      "name": "openpali-local",
+      "credentials": [
+        {
+          "accessKey": "openpali-local-fixture-access",
+          "secretKey": "openpali-local-fixture-secret"
+        }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

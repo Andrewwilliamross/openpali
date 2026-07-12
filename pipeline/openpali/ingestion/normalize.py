@@ -115,9 +115,11 @@ def normalize_county_parcel(
                 lane=None,
                 event_type="structure_destroyed",
                 status=ObservationStatus.AGENCY_REPORTED,
-                # Interval-censored: destroyed on or after the fire start; the
-                # county row asserts no per-parcel destruction date.
-                occurred=DateInterval(PALISADES_FIRE_START, None),
+                # Interval-censored: destroyed on or after the fire start and,
+                # like every status-based assertion, no later than the time we
+                # observed the assertion. The county row asserts no per-parcel
+                # destruction date.
+                occurred=DateInterval(PALISADES_FIRE_START, observed_at.date()),
                 observed_at=observed_at,
                 source_record=source_record,
                 policy_version=DERIVATION,
@@ -396,10 +398,7 @@ def normalize_ladbs_permit(
                 f"Rebuild-related {classification.permit_type.raw} permit activity",
             )
         )
-    elif qualification in (
-        PermitQualification.NOT_FIRE_REBUILD,
-        PermitQualification.FLAG_MISSING,
-    ):
+    elif qualification is PermitQualification.NOT_FIRE_REBUILD:
         earliest = min((d for d in (submit, issue) if d is not None), default=None)
         result.observations.append(
             observation(
@@ -408,6 +407,19 @@ def normalize_ladbs_permit(
                 ObservationStatus.AGENCY_REPORTED,
                 occurrence_from_source_date(earliest),
                 f"{classification.permit_type.raw} permit activity (not flagged as fire rebuild)",
+            )
+        )
+    elif qualification is PermitQualification.FLAG_MISSING:
+        # Distinct event type: "the rebuild flag is absent" is surfaced as its
+        # own fact, never silently merged with an explicit 'No'.
+        earliest = min((d for d in (submit, issue) if d is not None), default=None)
+        result.observations.append(
+            observation(
+                None,
+                "permit_activity_flag_missing",
+                ObservationStatus.AGENCY_REPORTED,
+                occurrence_from_source_date(earliest),
+                f"{classification.permit_type.raw} permit activity (rebuild flag missing from source)",
             )
         )
     # UNDOCUMENTED: no observations; the interpretations fail publication closed.
@@ -508,6 +520,10 @@ def normalize_ladbs_inspection(
             label=label,
             related_subjects=related,
             detail=detail,
+            # One permit can carry several same-typed inspection assertions
+            # (e.g. Foundation and Frame both scheduled): the description and
+            # source date discriminate their deterministic IDs.
+            discriminator=f"{insp_desc}|{insp_date.isoformat() if insp_date else ''}",
         )
     )
     return result

@@ -87,6 +87,7 @@ NON_ADVANCING_EVENT_TYPES = frozenset(
         "cleanup_program_ineligible",
         "ancillary_permit_activity",
         "non_rebuild_permit_activity",
+        "permit_activity_flag_missing",
         "inspection_activity",
     }
 )
@@ -136,6 +137,49 @@ class ParcelLaneState:
             "lanes": [p.to_json() for p in self.lanes],
             "context": list(self.context_observation_ids),
         }
+
+
+#: Public milestone facts derived from a lane state (booleans, not a ranking).
+def milestone_facts(state: "ParcelLaneState | None") -> dict[str, bool]:
+    if state is None:
+        return {
+            "cleanup_complete": False,
+            "plan_check_approved": False,
+            "application_submitted": False,
+            "permit_issued": False,
+            "construction_evidence": False,
+            "cofo_issued": False,
+        }
+    reached = {
+        projection.lane: projection.reached_milestones for projection in state.lanes
+    }
+    return {
+        "cleanup_complete": "debris_removal_complete" in reached[MilestoneLane.CLEANUP],
+        "plan_check_approved": "plan_check_approved" in reached[MilestoneLane.DESIGN_REVIEW],
+        "application_submitted": "rebuild_application_submitted" in reached[MilestoneLane.PERMITTING],
+        "permit_issued": "rebuild_permit_issued" in reached[MilestoneLane.PERMITTING],
+        "construction_evidence": bool(reached[MilestoneLane.CONSTRUCTION]),
+        "cofo_issued": "certificate_of_occupancy_issued" in reached[MilestoneLane.OCCUPANCY],
+    }
+
+
+#: Compact per-lane keys shared by artifacts, DB projections, and the API.
+LANE_SIGNAL_KEYS: dict[MilestoneLane, str] = {
+    MilestoneLane.CLEANUP: "lane_cleanup",
+    MilestoneLane.DESIGN_REVIEW: "lane_design",
+    MilestoneLane.PERMITTING: "lane_permit",
+    MilestoneLane.CONSTRUCTION: "lane_constr",
+    MilestoneLane.OCCUPANCY: "lane_occup",
+}
+
+
+def lane_signal_map(state: "ParcelLaneState | None") -> dict[str, str]:
+    if state is None:
+        return {key: LaneSignal.NO_PUBLIC_EVIDENCE.value for key in LANE_SIGNAL_KEYS.values()}
+    return {
+        LANE_SIGNAL_KEYS[projection.lane]: projection.signal.value
+        for projection in state.lanes
+    }
 
 
 def filter_parcel_universe(

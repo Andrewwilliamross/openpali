@@ -1,0 +1,37 @@
+#!/bin/sh
+# Fast local gate: lint/typecheck/unit/semantic fixtures. No services needed.
+# Exit nonzero on any failing subsystem; concise summary; full logs preserved.
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+LOG_DIR="${OPENPALI_CHECK_LOGS:-$ROOT/data/out/checks}"
+mkdir -p "$LOG_DIR"
+STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+FAILURES=0
+
+run_step() {
+  name="$1"; shift
+  log="$LOG_DIR/fast-$STAMP-$name.log"
+  start=$(date +%s)
+  if "$@" >"$log" 2>&1; then
+    end=$(date +%s)
+    printf '  PASS %-24s %3ss  %s\n' "$name" "$((end - start))" "$log"
+  else
+    end=$(date +%s)
+    printf '  FAIL %-24s %3ss  %s\n' "$name" "$((end - start))" "$log"
+    tail -5 "$log" | sed 's/^/       /'
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
+echo "== OpenPali fast gate ($STAMP) =="
+echo "commit: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+
+run_step pipeline-tests pipeline/.venv/bin/python -m pytest pipeline/tests -q --no-header -p no:cacheprovider --rootdir=pipeline -c pipeline/pyproject.toml
+run_step web-tests sh -c 'cd web && npm test -- --run'
+run_step web-lint sh -c 'cd web && npm run lint'
+run_step web-typecheck sh -c 'cd web && npx tsc -b'
+
+echo "== fast gate: $FAILURES failure(s) =="
+[ "$FAILURES" -eq 0 ]

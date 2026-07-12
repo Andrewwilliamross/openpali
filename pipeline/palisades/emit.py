@@ -21,6 +21,8 @@ from openpali.domain.lanes import (
     LaneSignal,
     PROJECTION_POLICY_VERSION,
     ParcelLaneState,
+    lane_signal_map,
+    milestone_facts,
 )
 from openpali.domain.observations import MilestoneLane
 from openpali.domain.policy import QUALIFYING_REBUILD_POLICY_VERSION
@@ -32,52 +34,13 @@ from .neighborhoods import NEIGHBORHOODS
 
 OUT_DIR = Path(__file__).resolve().parents[2] / "web" / "public" / "data"
 
-#: Compact per-lane property keys for parcels.geojson.
-_LANE_KEYS = {
-    MilestoneLane.CLEANUP: "lane_cleanup",
-    MilestoneLane.DESIGN_REVIEW: "lane_design",
-    MilestoneLane.PERMITTING: "lane_permit",
-    MilestoneLane.CONSTRUCTION: "lane_constr",
-    MilestoneLane.OCCUPANCY: "lane_occup",
-}
-
-
 def _week_start(d: date) -> date:
     return d - timedelta(days=d.weekday())
 
 
-def _lane_signals(state: ParcelLaneState | None) -> dict[str, str]:
-    if state is None:
-        return {key: LaneSignal.NO_PUBLIC_EVIDENCE.value for key in _LANE_KEYS.values()}
-    return {
-        _LANE_KEYS[projection.lane]: projection.signal.value
-        for projection in state.lanes
-    }
-
-
-def _milestones(state: ParcelLaneState | None) -> dict[str, bool]:
-    """Evidence-backed milestone facts (booleans, not a ranking)."""
-
-    if state is None:
-        return {
-            "cleanup_complete": False,
-            "plan_check_approved": False,
-            "application_submitted": False,
-            "permit_issued": False,
-            "construction_evidence": False,
-            "cofo_issued": False,
-        }
-    reached: dict[MilestoneLane, tuple[str, ...]] = {
-        projection.lane: projection.reached_milestones for projection in state.lanes
-    }
-    return {
-        "cleanup_complete": "debris_removal_complete" in reached[MilestoneLane.CLEANUP],
-        "plan_check_approved": "plan_check_approved" in reached[MilestoneLane.DESIGN_REVIEW],
-        "application_submitted": "rebuild_application_submitted" in reached[MilestoneLane.PERMITTING],
-        "permit_issued": "rebuild_permit_issued" in reached[MilestoneLane.PERMITTING],
-        "construction_evidence": bool(reached[MilestoneLane.CONSTRUCTION]),
-        "cofo_issued": "certificate_of_occupancy_issued" in reached[MilestoneLane.OCCUPANCY],
-    }
+# Shared with the platform snapshot builder (openpali.domain.lanes).
+_lane_signals = lane_signal_map
+_milestones = milestone_facts
 
 
 def emit_all(
@@ -209,6 +172,7 @@ def emit_all(
         if milestones["cleanup_complete"]:
             c["cleanup_complete"] += 1
     neighborhoods = []
+    named = {n["name"] for n in NEIGHBORHOODS}
     for n in NEIGHBORHOODS:
         s = hood_stats.get(n["name"])
         if not s:
@@ -223,6 +187,25 @@ def emit_all(
                 "application_submitted": s["application_submitted"],
                 "permit_issued": s["permit_issued"],
                 "cofo_issued": s["cofo_issued"],
+            }
+        )
+    # Parcels outside every named neighborhood stay visible in the rollup —
+    # totals must always equal the sum of the breakdown.
+    other = Counter()
+    for name, s in hood_stats.items():
+        if name not in named:
+            other.update(s)
+    if other:
+        neighborhoods.append(
+            {
+                "name": "Other / unassigned",
+                "center": None,
+                "zoom": None,
+                "destroyed": other["destroyed"],
+                "cleanup_complete": other["cleanup_complete"],
+                "application_submitted": other["application_submitted"],
+                "permit_issued": other["permit_issued"],
+                "cofo_issued": other["cofo_issued"],
             }
         )
 

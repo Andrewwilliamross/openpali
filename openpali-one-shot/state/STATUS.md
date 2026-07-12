@@ -1,46 +1,52 @@
 # Run status
 
-State: `CP1_TRUTH_GATE_COMPLETE`
+State: `CP2_PLATFORM_SPINE_COMPLETE`
 
-Verified checkpoints:
-- CP0 environment/baseline (`edde389`), evidence `state/evidence/env-manifest-2026-07-11.md`.
-- CP1 semantic truth gate — this commit.
+Verified checkpoints: CP0 (`edde389`), CP1 (`9c24e27`), CP2 (this commit).
 
-CP1 outcomes (all executed, evidence in `state/evidence/`):
-- New production domain layer `pipeline/openpali/{domain,ingestion}`: evidence-
-  backed taxonomy (fail-closed on undocumented values), occurred/observed split
-  with interval censoring, parallel-lane projection (`lanes-v1`), qualifying
-  policy `Bldg-New ∧ PALISADES_WF_REBUILD='Rebuild'` (`qualifying-rebuild-v1`),
-  conflict detection, retractions.
-- Live domain probes 2026-07-11 (`domain-probe-2026-07-11.json` + supplement):
-  INSP_STATUS is 100% 'Insp Scheduled' (1,014 rows, both endpoints); WF_REBUILD
-  ∈ {Rebuild,No}; full PERMIT_TYPE/STATUS/ROE/REBUILD_PROGRESS/Malibu domains.
-- Golden corpus (15 cases: positive/negative/scheduled/ancillary/opt-out/
-  missing-date/future/non-rebuild/flag-missing/undocumented/conflicting/
-  corrected/multi-structure/cross-jurisdiction/ambiguous) + independent
-  differential implementation; 120 pipeline tests pass.
-- Legacy pipeline rewired through the new layer; score/stage/ETA removed from
-  all artifacts and map styling (score.py retained deprecated, uncalled).
-- Live corrected run (`truth-gate-live-run-2026-07-11.log`): 5,877 destroyed;
-  qualifying applications 1,126; reconciliation drift ≤0.7% (CofO 27 vs 27 =
-  0.0%, was 23.8% FAIL); invalid 489 under-construction → 1 evidenced + 436
-  scheduled-only; 1,595 opt-outs no longer fabricated as fire-date cleanups.
-- Web migrated to lane/milestone artifacts; categorical evidence legend; splat
-  score-tint neutralized in shader; lint 0 errors (baseline: 6), 24 tests, build OK.
+CP2 outcomes (all behavior exercised on the running stack; evidence in
+`state/evidence/cp2-api-verification-2026-07-12.log`):
+- Compose stack via `docker_safe.py` wrapper: PostGIS 17/3.5 + SeaweedFS 4.39 +
+  Prefect 3.7.8 server/worker + MLflow 3.14 + FastAPI + web nginx, all healthy;
+  single squid proxy = only non-internal service (loopback ingress accel
+  58000/58080/54200/55000/58333 + CONNECT egress allowlist on 3128 — Docker
+  Desktop cannot publish ports from internal networks, verified empirically).
+- Alembic migration 0001 creates the full canonical schema (source/civic/
+  analytics/ml/spatial/ops) on empty PostGIS; migrate/migrate-reset/bucket-init/
+  test-integration/slice-dev run as Compose job services (wrapper blocks
+  run/exec).
+- Content-addressed ObjectStore: dedup, different-byte overwrite rejection,
+  digest-verified reads (integration-tested on real SeaweedFS).
+- ArcGIS adapter: stable OID ordering, metadata snapshot page, count-before/
+  after mutation detection, repeated-page detection, typed failures; true
+  offline replay constructs no network client (unit-tested).
+- LIVE slice through the worker egress proxy: county acquisition (5,877
+  records, 7 raw pages), ledger load (11,741 observations, deterministic IDs,
+  idempotent reload = 0 new), snapshot snap-10ca317c (5,877 property states,
+  point-in-time correct — late-arriving earlier-occurrence excluded before its
+  observed_at), release rel-ee79a630 published atomically with LKG pointer +
+  non-authoritative mirror.
+- API verified end-to-end from host: ready checks (migrations+release+S3),
+  /v1/releases/current resolver, release-qualified search/detail/observations/
+  sources, PostGIS MVT tiles (z13 338KB/z14 227KB/z15 98KB), strong ETag +
+  bodyless 304, cross-release cursor rejection (400 problem+json), unknown
+  release 404, live /v1/status/sources, same-origin web→api /v1 proxy.
+- OpenAPI exported to contracts/openapi.json; TS client generated
+  (web/src/api/generated via @hey-api/openapi-ts).
+- Methods review (CP1) returned 1 BLOCKER + 6 SHOULD-FIX: ALL fixed
+  (observation discriminator enters deterministic ID; interval-aware conflict
+  intersection; destruction interval capped at observed date; distinct
+  flag-missing event type; outcome-branch unit tests; 'Other' neighborhood
+  bucket). 141 pipeline tests + 5 in-cluster integration tests pass.
+- check-fast green (pipeline-tests, web-tests, web-lint, web-typecheck).
 
-Technical criteria: TRUTH-001 substantially implemented (pending methods review
-+ evaluator). Remaining 19 MUST items FAIL. APPROVAL-001 UNRESOLVED.
+Technical criteria progress: TRUTH-001 implemented+reviewed; DATA-002 core
+proven (deterministic IDs, bitemporal point-in-time, idempotency, real PostGIS
+constraints); BACKEND-001 core routes+budget-scale tiles live; DATA-001/PUB-001
+partial (county source only; full gates/fault-injection in CP3).
 
-Research inputs received: source-research (DINS endpoint verified: services1
-POSTFIRE_MASTER_DATA_SHARE, 12,137 Palisades records; USGS prd-tnm staged
-tiles; county metric-definitions PDF; Socrata CC0), platform-research (pins:
-baosystems/postgis:17-3.5 arm64, SeaweedFS 4.39, Prefect 3.7.8 process worker,
-MLflow 3.14 aliases, lifelines/rasterio/laspy arm64 OK, no PDAL, Playwright
-1.61 + --enable-unsafe-swiftshader, @hey-api/openapi-ts), repo-audit (409 MB
-tracked splat tiles need object policy; registration.py dead; renderer lacks
-workers/BVH picking — CP4B targets).
-
-Immediate next action: CP2 platform spine — infra/compose.yaml via docker_safe
-wrapper (postgres/PostGIS + SeaweedFS + Prefect + MLflow + api), Alembic
-canonical schema, object store client, County source end-to-end to FastAPI +
-browser. Methods review of CP1 semantics runs in parallel.
+Immediate next action: CP3 — remaining adapters (LADBS permits/inspections,
+Socrata cross-checks, Malibu, CAL FIRE DINS with APN/spatial join + ambiguity
+counts), Prefect flows/deployments through the worker, metric catalog +
+independent reconciliation, staged→gated→promoted publication with rollback +
+fault injection, representative release + zero-network replay.
