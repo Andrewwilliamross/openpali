@@ -91,13 +91,33 @@ def community_metrics(
             )
         ).scalars()
     )
+    # metric-level disclosure: a FAILED independent reconciliation must ride
+    # ON the affected values, not only in a side list a consumer can skip
+    failed_by_metric: dict[str, str] = {}
+    for r in reconciliations:
+        if not str(r.verdict).upper().startswith("PASS"):
+            failed_by_metric[r.metric_id] = (
+                f"Independent cross-check against {r.reference_source} "
+                f"disagrees beyond the predeclared {r.tolerance_pct}% tolerance "
+                f"(drift {r.drift_pct}%). Treat this metric as provisional."
+            )
+
+    def value_with_disclosure(v) -> dict:
+        payload = _value_payload(v)
+        if v.metric_id in failed_by_metric:
+            payload["reconciliation_disclosure"] = failed_by_metric[v.metric_id]
+        return payload
+
     return {
         "release_id": publication.release_id,
         "snapshot_id": publication.snapshot_id,
+        "data_quality_warnings": sorted(
+            f"{metric}: {text}" for metric, text in failed_by_metric.items()
+        ),
         "definitions": [
             _definition_payload(definitions[key]) for key in used if key in definitions
         ],
-        "values": [_value_payload(v) for v in values],
+        "values": [value_with_disclosure(v) for v in values],
         "reconciliations": [
             {
                 "metric_id": r.metric_id,
