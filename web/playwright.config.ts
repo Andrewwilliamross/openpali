@@ -8,6 +8,9 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 30_000 },
   retries: 0,
+  // one worker: two Chromium instances contend for CPU under SwiftShader and
+  // starve tile fetch/render timing in the map specs
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:58080',

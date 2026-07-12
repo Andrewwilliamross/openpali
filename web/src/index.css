@@ -1013,7 +1013,9 @@ body,
 }
 
 /* MapLibre's attribution links sit inline in a text block; give them a
-   non-color distinction too */
-.maplibregl-ctrl-attrib a {
+   non-color distinction too. The extra ancestor outweighs maplibre-gl.css's
+   own `.maplibregl-ctrl-attrib a { text-decoration: none }`, which is
+   imported after this file. */
+.map-wrap .maplibregl-ctrl-attrib a {
   text-decoration: underline;
 }
