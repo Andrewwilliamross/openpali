@@ -174,7 +174,12 @@ def run_acquisition(
     run_row.response_sha256 = combined
     run_row.schema_fingerprint = raw.schema_fingerprint
     run_row.status = "succeeded"
-    run_row.health = adapter.health(raw)
+    health = adapter.health(raw)
+    # Persist server-side counts for independent universe reconciliation.
+    for key in ("count_before", "count_after", "oid_field"):
+        if key in raw.metadata:
+            health[key] = raw.metadata[key]
+    run_row.health = health
     session.flush()
 
     return AcquisitionResult(

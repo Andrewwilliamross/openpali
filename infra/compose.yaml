@@ -15,6 +15,9 @@
 networks:
   internal:
     internal: true
+    ipam:
+      config:
+        - subnet: 172.28.100.0/24
   egress: {}
 
 volumes:
@@ -40,7 +43,9 @@ services:
     configs:
       - source: postgres-init
         target: /docker-entrypoint-initdb.d/00-init-databases.sql
-    networks: [internal]
+    networks:
+      internal:
+        ipv4_address: 172.28.100.10
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U openpali -d openpali"]
       interval: 5s
@@ -58,7 +63,9 @@ services:
     configs:
       - source: seaweed-s3
         target: /etc/seaweedfs/s3.json
-    networks: [internal]
+    networks:
+      internal:
+        ipv4_address: 172.28.100.11
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/healthz || wget -q -O /dev/null http://127.0.0.1:9333/cluster/status"]
       interval: 5s
@@ -78,7 +85,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [internal]
+    networks:
+      internal:
+        ipv4_address: 172.28.100.12
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:4200/api/health', timeout=3)"]
       interval: 5s
@@ -129,7 +138,9 @@ services:
         condition: service_healthy
       object-store:
         condition: service_healthy
-    networks: [internal]
+    networks:
+      internal:
+        ipv4_address: 172.28.100.13
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"]
       interval: 10s
@@ -151,7 +162,9 @@ services:
         condition: service_healthy
       object-store:
         condition: service_healthy
-    networks: [internal]
+    networks:
+      internal:
+        ipv4_address: 172.28.100.14
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=3)"]
       interval: 5s
@@ -164,7 +177,9 @@ services:
       context: ../web
     depends_on:
       - api
-    networks: [internal]
+    networks:
+      internal:
+        ipv4_address: 172.28.100.15
 
   proxy:
     image: openpali-proxy:local
@@ -236,6 +251,105 @@ services:
     working_dir: /app
     environment:
       OPENPALI_INTEGRATION: "1"
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  db-stats:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - python
+      - -c
+      - |
+        from sqlalchemy import text
+        from openpali.storage.db import get_engine
+        engine = get_engine()
+        with engine.connect() as connection:
+            print("observations by source:")
+            for row in connection.execute(text(
+                "SELECT source_id, count(*) FROM civic.recovery_observation GROUP BY 1 ORDER BY 1"
+            )):
+                print(" ", row)
+            print("observations by event_type (top 20):")
+            for row in connection.execute(text(
+                "SELECT event_type, count(*) FROM civic.recovery_observation GROUP BY 1 ORDER BY 2 DESC LIMIT 20"
+            )):
+                print(" ", row)
+            print("record versions by source:")
+            for row in connection.execute(text(
+                "SELECT source_id, count(*) FROM source.source_record_version GROUP BY 1 ORDER BY 1"
+            )):
+                print(" ", row)
+            print("snapshot members by type (latest snapshot):")
+            for row in connection.execute(text(
+                "SELECT member_type, count(*) FROM civic.snapshot_member WHERE snapshot_id = "
+                "(SELECT snapshot_id FROM civic.snapshot ORDER BY created_at DESC LIMIT 1) GROUP BY 1"
+            )):
+                print(" ", row)
+            print("current release snapshot vs latest snapshot:")
+            for row in connection.execute(text(
+                "SELECT p.release_id, p.snapshot_id, s.created_at FROM ops.publication p "
+                "JOIN civic.snapshot s ON s.snapshot_id = p.snapshot_id "
+                "ORDER BY s.created_at DESC LIMIT 3"
+            )):
+                print(" ", row)
+            print("missingness metric event types for current-release snapshot:")
+            for row in connection.execute(text(
+                "SELECT DISTINCT cohort->>'event_type' FROM analytics.metric_value "
+                "WHERE metric_id='evidence_missingness' AND snapshot_id = "
+                "(SELECT p.snapshot_id FROM ops.current_release c JOIN ops.publication p "
+                " ON p.release_id = c.current_release_id WHERE c.id=1) ORDER BY 1"
+            )):
+                print(" ", row)
+            print("member observation sources for current-release snapshot:")
+            for row in connection.execute(text(
+                "SELECT o.source_id, count(*) FROM civic.snapshot_member m "
+                "JOIN civic.recovery_observation o ON o.observation_id = m.member_id "
+                "WHERE m.member_type='observation' AND m.snapshot_id = "
+                "(SELECT p.snapshot_id FROM ops.current_release c JOIN ops.publication p "
+                " ON p.release_id = c.current_release_id WHERE c.id=1) GROUP BY 1 ORDER BY 1"
+            )):
+                print(" ", row)
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  prefect-deploy:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "orchestrate-deploy"]
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  replay:
+    # Zero-network proof: internal network only, NO proxy environment — the
+    # process is physically incapable of egress while it re-reads and
+    # re-derives the current release from verified raw bytes.
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "replay", "--release", "current"]
+    environment:
       OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
       OPENPALI_S3_ENDPOINT: http://object-store:8333
       OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access

@@ -1,0 +1,67 @@
+# CP3 representative multi-source release verification — 2026-07-12T06:30:23Z
+CURRENT: rel-c0e14bf943e78f61d108077d kind: representative snapshot: snap-c643690afad36e6f7ffc66c1
+COVERAGE: {"properties": 5877, "cofo_issued": 27, "permit_issued": 965, "cleanup_complete": 3964, "plan_check_approved": 878, "application_submitted": 1205, "construction_evidence": 1}
+LKG: rel-ee79a630f5c01d429f8d7a3a
+SOURCE calfire_dins       ok=True records=12137 retrieved=2026-07-12T06:21:24Z
+SOURCE ladbs_permits      ok=True records=5331 retrieved=2026-07-12T06:21:08Z
+SOURCE socrata_permits    ok=True records=9881 retrieved=2026-07-12T06:21:43Z
+SOURCE county_base        ok=True records=5877 retrieved=2026-07-12T06:20:57Z
+SOURCE ladbs_inspections  ok=True records=1014 retrieved=2026-07-12T06:21:15Z
+SOURCE socrata_cofo       ok=True records=2957 retrieved=2026-07-12T06:21:50Z
+SOURCE malibu_dash        ok=True records=269 retrieved=2026-07-12T06:21:16Z
+TARGET PROPERTY: 4409012016 14370 W SUNSET BLVD {"cofo_issued": false, "permit_issued": true, "cleanup_complete": true, "plan_check_approved": true, "application_submitted": true, "construction_evidence": false}
+OBSERVATIONS: 8
+  county_base: ['debris_removal_complete', 'structure_destroyed']
+  ladbs_permits: ['non_rebuild_permit_activity', 'plan_check_approved', 'rebuild_application_submitted', 'rebuild_permit_issued']
+COMMUNITY METRICS: definitions: 5 values: 232
+  RECON universe_destroyed_parcels             ref=5877.0 ours=5877.0 drift=0.0% verdict=pass
+        [county_base server-side count]
+  RECON milestone_prevalence.permit_issued     ref=100.0 ours=99.8766954377312 drift=0.12% verdict=pass
+        [socrata gwh9-jnip (independent portal)]
+  RECON milestone_prevalence.cofo_issued       ref=100.0 ours=13.793103448275861 drift=86.21% verdict=fail
+        [socrata 3f9m-afei (CC0 CofO dataset)]
+  BOTTLENECK permitting_backlog_flow {"measure": "backlog"} = 315.0 (n=1126, status=computed, ci=[None,None])
+  BOTTLENECK permitting_backlog_flow {"measure": "inflow"} = 46.0 (n=1126, status=computed, ci=[None,None])
+  BOTTLENECK permitting_backlog_flow {"measure": "net_flow"} = -3.0 (n=1126, status=computed, ci=[None,None])
+  BOTTLENECK permitting_backlog_flow {"measure": "outflow"} = 49.0 (n=1126, status=computed, ci=[None,None])
+  BOTTLENECK permitting_backlog_flow {"measure": "throughput_per_day"} = 1.75 (n=1126, status=computed, ci=[None,None])
+  BOTTLENECK time_to_issuance_km {"estimate": "median_days"} = 99.0 (n=1126, status=computed, ci=[96.0,104.0])
+  BOTTLENECK time_to_issuance_km {"estimate": "p_issued_180d"} = 0.8217709689488039 (n=1126, status=computed, ci=[None,None])
+EXPORT CSV: 200 240 rows
+DINS JOIN STATS: {'ambiguous': 0.0, 'matched_apn': 7324.0, 'matched_spatial': 16.0, 'records_without_apn': 5.0, 'unmatched': 4797.0}
+DINS damage-assessment occurrence kinds: {}
+
+# After adapter fix — 2026-07-12T06:35:32Z
+CURRENT: rel-f6ddd1b99d023b355787ef97 kind: representative | LKG: rel-c0e14bf943e78f61d108077d
+DINS + inspections in snapshot: {
+ "dins_join": {
+  "ambiguous": 0.0,
+  "matched_apn": 7324.0,
+  "matched_spatial": 16.0,
+  "records_without_apn": 5.0,
+  "unmatched": 4797.0
+ }
+}
+RECON universe_destroyed_parcels             ours=5877.0 drift=0.0% verdict=pass
+RECON milestone_prevalence.permit_issued     ours=99.88 drift=0.12% verdict=pass
+RECON milestone_prevalence.cofo_issued       ours=13.79 drift=86.21% verdict=fail
+
+# Final representative release (stored-ID membership fix) — 2026-07-12T09:52:07Z
+CURRENT: rel-f6ddd1b99d023b355787ef97 kind: representative snapshot: snap-b3390ca54a35050fee490019 | LKG: rel-c0e14bf943e78f61d108077d
+COVERAGE: {"properties": 5877, "cofo_issued": 27, "permit_issued": 965, "cleanup_complete": 3964, "plan_check_approved": 878, "application_submitted": 1205, "construction_evidence": 1}
+missingness event types: 14
+  structure_damage_assessed: null
+  construction_inspection_activity: null
+  inspection_activity: null
+  dins_join: {"ambiguous": 0.0, "matched_apn": 7324.0, "matched_spatial": 16.0, "records_without_apn": 5.0, "unmatched": 4797.0}
+RECON universe_destroyed_parcels             ours=5877.0 drift=0.0% verdict=pass
+RECON milestone_prevalence.permit_issued     ours=99.88 drift=0.12% verdict=pass
+RECON milestone_prevalence.cofo_issued       ours=13.79 drift=86.21% verdict=fail
+KM {"estimate": "median_days"} = 99.0 n=1126 ci=[96.0,104.0] status=computed
+KM {"estimate": "p_issued_180d"} = 0.8217709689488039 n=1126 ci=[None,None] status=computed
+
+# Final representative release (stored-ID membership) — 2026-07-12T09:55:16Z
+CURRENT: rel-27386c5fa5ab8620f95e22ab snapshot: snap-839abf837b0bd0ad8f5878a8 | LKG: rel-f6ddd1b99d023b355787ef97
+  structure_damage_assessed: {"interval": 7340.0}
+  construction_inspection_activity: {"unknown": 439.0}
+  inspection_activity: {"unknown": 465.0}

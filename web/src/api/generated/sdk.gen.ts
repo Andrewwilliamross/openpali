@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { LiveHealthLiveGetData, LiveHealthLiveGetResponses, LiveSourcesV1StatusSourcesGetData, LiveSourcesV1StatusSourcesGetResponses, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetData, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetErrors, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetResponses, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetData, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetErrors, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetData, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetErrors, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetResponses, ReadyHealthReadyGetData, ReadyHealthReadyGetResponses, ReleaseInfoV1ReleasesReleaseIdGetData, ReleaseInfoV1ReleasesReleaseIdGetErrors, ReleaseInfoV1ReleasesReleaseIdGetResponses, ReleaseSourcesV1ReleasesReleaseIdSourcesGetData, ReleaseSourcesV1ReleasesReleaseIdSourcesGetErrors, ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses, ResolveCurrentV1ReleasesCurrentGetData, ResolveCurrentV1ReleasesCurrentGetResponses, SearchPropertiesV1ReleasesReleaseIdPropertiesGetData, SearchPropertiesV1ReleasesReleaseIdPropertiesGetErrors, SearchPropertiesV1ReleasesReleaseIdPropertiesGetResponses } from './types.gen';
+import type { BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetData, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetData, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses, LiveHealthLiveGetData, LiveHealthLiveGetResponses, LiveSourcesV1StatusSourcesGetData, LiveSourcesV1StatusSourcesGetResponses, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetData, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetData, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetErrors, ParcelTileV1ReleasesReleaseIdTilesParcelsZxyMvtGetResponses, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetData, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetErrors, PropertyDetailV1ReleasesReleaseIdPropertiesPropertyIdGetResponses, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetData, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetErrors, PropertyObservationsV1ReleasesReleaseIdPropertiesPropertyIdObservationsGetResponses, ReadyHealthReadyGetData, ReadyHealthReadyGetResponses, ReleaseInfoV1ReleasesReleaseIdGetData, ReleaseInfoV1ReleasesReleaseIdGetErrors, ReleaseInfoV1ReleasesReleaseIdGetResponses, ReleaseSourcesV1ReleasesReleaseIdSourcesGetData, ReleaseSourcesV1ReleasesReleaseIdSourcesGetErrors, ReleaseSourcesV1ReleasesReleaseIdSourcesGetResponses, ResolveCurrentV1ReleasesCurrentGetData, ResolveCurrentV1ReleasesCurrentGetResponses, SearchPropertiesV1ReleasesReleaseIdPropertiesGetData, SearchPropertiesV1ReleasesReleaseIdPropertiesGetErrors, SearchPropertiesV1ReleasesReleaseIdPropertiesGetResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -37,6 +37,21 @@ export const resolveCurrentV1ReleasesCurrentGet = <ThrowOnError extends boolean 
  * Release Info
  */
 export const releaseInfoV1ReleasesReleaseIdGet = <ThrowOnError extends boolean = false>(options: Options<ReleaseInfoV1ReleasesReleaseIdGetData, ThrowOnError>): RequestResult<ReleaseInfoV1ReleasesReleaseIdGetResponses, ReleaseInfoV1ReleasesReleaseIdGetErrors, ThrowOnError> => (options.client ?? client).get<ReleaseInfoV1ReleasesReleaseIdGetResponses, ReleaseInfoV1ReleasesReleaseIdGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}', ...options });
+
+/**
+ * Bottleneck Metrics
+ */
+export const bottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGet = <ThrowOnError extends boolean = false>(options: Options<BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetData, ThrowOnError>): RequestResult<BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors, ThrowOnError> => (options.client ?? client).get<BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses, BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/metrics/bottlenecks', ...options });
+
+/**
+ * Community Metrics
+ */
+export const communityMetricsV1ReleasesReleaseIdMetricsCommunityGet = <ThrowOnError extends boolean = false>(options: Options<CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetData, ThrowOnError>): RequestResult<CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors, ThrowOnError> => (options.client ?? client).get<CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses, CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/metrics/community', ...options });
+
+/**
+ * Metrics Export
+ */
+export const metricsExportV1ReleasesReleaseIdMetricsExportCsvGet = <ThrowOnError extends boolean = false>(options: Options<MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetData, ThrowOnError>): RequestResult<MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors, ThrowOnError> => (options.client ?? client).get<MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses, MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors, ThrowOnError>({ url: '/v1/releases/{release_id}/metrics/export.csv', ...options });
 
 /**
  * Search Properties

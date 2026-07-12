@@ -249,6 +249,20 @@ DAMAGE_DOMAIN: dict[str, str] = {
     "no data/vacant": "no_data",
 }
 
+#: CAL FIRE DINS DAMAGE classes (full documented domain, live groupBy
+#: 2026-07-11: Destroyed 6,845 / No Damage 4,261 / Affected 732 / Minor 171 /
+#: Major 72 / Inaccessible 56 for INCIDENTNAME='Palisades'). NOTE: the DINS
+#: 'Affected (>0-10%)' band differs from the county's 'Affected (1-9%)' —
+#: the two damage taxonomies are never merged silently.
+DINS_DAMAGE_DOMAIN: dict[str, str] = {
+    "destroyed (>50%)": "destroyed",
+    "major (25-50%)": "major",
+    "minor (10-25%)": "minor",
+    "affected (>0-10%)": "affected",
+    "no damage": "no_damage",
+    "inaccessible": "inaccessible",
+}
+
 
 def _norm(value: object) -> str | None:
     if value is None:
@@ -346,6 +360,16 @@ def interpret_damage(value: object) -> Interpretation:
     if normalized is None:
         return Interpretation(raw=None, documented=False, category="undocumented")
     category = DAMAGE_DOMAIN.get(normalized)
+    if category is None:
+        return Interpretation(raw=str(value), documented=False, category="undocumented")
+    return Interpretation(raw=str(value), documented=True, category=category)
+
+
+def interpret_dins_damage(value: object) -> Interpretation:
+    normalized = _norm(value)
+    if normalized is None:
+        return Interpretation(raw=None, documented=False, category="undocumented")
+    category = DINS_DAMAGE_DOMAIN.get(normalized)
     if category is None:
         return Interpretation(raw=str(value), documented=False, category="undocumented")
     return Interpretation(raw=str(value), documented=True, category=category)

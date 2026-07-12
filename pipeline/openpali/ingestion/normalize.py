@@ -42,6 +42,7 @@ from openpali.domain.taxonomy import (
     PermitStatusCategory,
     interpret_county_progress,
     interpret_damage,
+    interpret_dins_damage,
     interpret_inspection_status,
     interpret_malibu_marker,
     interpret_permit_status,
@@ -524,6 +525,74 @@ def normalize_ladbs_inspection(
             # (e.g. Foundation and Frame both scheduled): the description and
             # source date discriminate their deterministic IDs.
             discriminator=f"{insp_desc}|{insp_date.isoformat() if insp_date else ''}",
+        )
+    )
+    return result
+
+
+# ---------------------------------------------------------------------------
+# CAL FIRE DINS structure damage assessments
+# ---------------------------------------------------------------------------
+
+
+def normalize_dins_structure(
+    attrs: dict,
+    *,
+    observed_at: datetime,
+    source_record: SourceRecordRef,
+) -> NormalizedRecord:
+    """One DINS record -> a structure-level damage assessment observation.
+
+    DINS is structure-level, never parcel-level: a parcel can carry several
+    assessed structures, and DINS counts are never compared directly with
+    parcel counts. The public layer exposes no per-structure assessment date,
+    so the occurrence is interval-censored [incident start, observed].
+    """
+
+    result = NormalizedRecord()
+    global_id = str(attrs.get("GLOBALID") or "").strip()
+    if not global_id:
+        return result
+    damage = interpret_dins_damage(attrs.get("DAMAGE"))
+    result.interpretations.append(damage)
+    if not damage.documented:
+        return result
+
+    incident_start = from_epoch_ms(attrs.get("INCIDENTSTARTDATE"))
+    subject = SubjectRef(SubjectType.STRUCTURE, f"dins-{global_id}")
+    apn = normalize_apn(attrs.get("APN"))
+    related = (_parcel_subject(apn),) if apn else ()
+
+    occurred: OccurrenceTime
+    if incident_start is not None:
+        occurred = DateInterval(incident_start, observed_at.date())
+    else:
+        occurred = DateInterval(None, observed_at.date())
+
+    result.observations.append(
+        RecoveryObservation(
+            subject=subject,
+            lane=None,
+            event_type="structure_damage_assessed",
+            status=ObservationStatus.AGENCY_REPORTED,
+            occurred=occurred,
+            observed_at=observed_at,
+            source_record=source_record,
+            policy_version=DERIVATION,
+            label=(
+                f"DINS damage assessment: {damage.raw} "
+                f"({attrs.get('STRUCTURETYPE') or 'structure'})"
+            ),
+            related_subjects=related,
+            detail=(
+                ("damage_raw", damage.raw or ""),
+                ("damage_category", damage.category),
+                ("structure_type", str(attrs.get("STRUCTURETYPE") or "")),
+                ("structure_category", str(attrs.get("STRUCTURECATEGORY") or "")),
+                ("site_address", str(attrs.get("SITEADDRESS") or "")),
+                ("city", str(attrs.get("CITY") or "")),
+            ),
+            discriminator=global_id,
         )
     )
     return result

@@ -1,52 +1,52 @@
 # Run status
 
-State: `CP2_PLATFORM_SPINE_COMPLETE`
+State: `CP3_ORCHESTRATION_PUBLICATION_COMPLETE`
 
-Verified checkpoints: CP0 (`edde389`), CP1 (`9c24e27`), CP2 (this commit).
+Verified checkpoints: CP0 (`edde389`), CP1 (`9c24e27`), CP2 (`0310c98`),
+CP3 (this commit).
 
-CP2 outcomes (all behavior exercised on the running stack; evidence in
-`state/evidence/cp2-api-verification-2026-07-12.log`):
-- Compose stack via `docker_safe.py` wrapper: PostGIS 17/3.5 + SeaweedFS 4.39 +
-  Prefect 3.7.8 server/worker + MLflow 3.14 + FastAPI + web nginx, all healthy;
-  single squid proxy = only non-internal service (loopback ingress accel
-  58000/58080/54200/55000/58333 + CONNECT egress allowlist on 3128 — Docker
-  Desktop cannot publish ports from internal networks, verified empirically).
-- Alembic migration 0001 creates the full canonical schema (source/civic/
-  analytics/ml/spatial/ops) on empty PostGIS; migrate/migrate-reset/bucket-init/
-  test-integration/slice-dev run as Compose job services (wrapper blocks
-  run/exec).
-- Content-addressed ObjectStore: dedup, different-byte overwrite rejection,
-  digest-verified reads (integration-tested on real SeaweedFS).
-- ArcGIS adapter: stable OID ordering, metadata snapshot page, count-before/
-  after mutation detection, repeated-page detection, typed failures; true
-  offline replay constructs no network client (unit-tested).
-- LIVE slice through the worker egress proxy: county acquisition (5,877
-  records, 7 raw pages), ledger load (11,741 observations, deterministic IDs,
-  idempotent reload = 0 new), snapshot snap-10ca317c (5,877 property states,
-  point-in-time correct — late-arriving earlier-occurrence excluded before its
-  observed_at), release rel-ee79a630 published atomically with LKG pointer +
-  non-authoritative mirror.
-- API verified end-to-end from host: ready checks (migrations+release+S3),
-  /v1/releases/current resolver, release-qualified search/detail/observations/
-  sources, PostGIS MVT tiles (z13 338KB/z14 227KB/z15 98KB), strong ETag +
-  bodyless 304, cross-release cursor rejection (400 problem+json), unknown
-  release 404, live /v1/status/sources, same-origin web→api /v1 proxy.
-- OpenAPI exported to contracts/openapi.json; TS client generated
-  (web/src/api/generated via @hey-api/openapi-ts).
-- Methods review (CP1) returned 1 BLOCKER + 6 SHOULD-FIX: ALL fixed
-  (observation discriminator enters deterministic ID; interval-aware conflict
-  intersection; destruction interval capped at observed date; distinct
-  flag-missing event type; outcome-branch unit tests; 'Other' neighborhood
-  bucket). 141 pipeline tests + 5 in-cluster integration tests pass.
-- check-fast green (pipeline-tests, web-tests, web-lint, web-typecheck).
+CP3 outcomes (all worker-executed and host-verified; evidence in
+`state/evidence/cp3-representative-release-2026-07-12.log` and
+`cp3-replay-and-faults-2026-07-12.md`):
+- All 7 named sources through ONE production contract via registered Prefect
+  deployments on the process worker: county (5,877), LADBS permits (5,339),
+  LADBS inspections (1,014), Malibu (269), CAL FIRE DINS (12,137 — 7,340
+  APN/spatial-joined, 0 ambiguous, 5 without APN, damage distribution
+  recorded), Socrata permits bbox (9,881) + CofO (2,957) cross-checks.
+- Representative release rel-27386c5f: snapshot with 27,266 observation
+  members incl. 7,340 DINS damage assessments (interval-censored) and 904
+  inspection observations; coverage matches corrected CP1 statics (5,877 /
+  3,964 cleanup / 1,205 apps / 965 issued / 27 CofO).
+- ZERO-NETWORK replay job (internal network, no proxy env): 35 raw pages
+  digest-verified; 32,459 observations recomputed byte-deterministically, all
+  in ledger; REPLAY OK.
+- Analytics engine: versioned catalog (universe, lane/milestone prevalence,
+  weekly incidence, censoring-aware KM time-to-issuance median 99d [96,104]
+  n=1,126, P(issue≤180d)=0.822, backlog 315/inflow 46/outflow 49/net −3,
+  missingness incl. 140 undated applications) + independent reconciliation:
+  county server count 0.0% drift PASS; Socrata portal presence of our issued
+  qualifying permits 99.88% PASS; CofO cross-portal 13.8% vs predeclared 30%
+  tolerance FAIL (honestly recorded; investigate pcis_permit format/lag —
+  metric-level disclosure wiring in CP5).
+- Publication: gates fail closed; two-pinned-sessions, mirror-failure drift,
+  rollback drills pass (9 in-cluster integration tests); ops.job_run rows
+  reconcile Prefect flow-run IDs; release-rollback CLI.
+- Metrics/bottlenecks/export.csv API routes (13 paths total), TS client
+  regenerated.
+- Squid peers pinned to static compose IPs (stale-DNS eliminated); db-stats
+  ops probe job.
 
-Technical criteria progress: TRUTH-001 implemented+reviewed; DATA-002 core
-proven (deterministic IDs, bitemporal point-in-time, idempotency, real PostGIS
-constraints); BACKEND-001 core routes+budget-scale tiles live; DATA-001/PUB-001
-partial (county source only; full gates/fault-injection in CP3).
+Repairs this checkpoint: inspections/DINS adapter out_fields (missing
+OBJECTID/GLOBALID keys), snapshot membership now uses STORED observation IDs
+(recomputed-vs-stored divergence class removed), psycopg 65k-param chunking,
+replay verdict bitemporality semantics.
 
-Immediate next action: CP3 — remaining adapters (LADBS permits/inspections,
-Socrata cross-checks, Malibu, CAL FIRE DINS with APN/spatial join + ambiguity
-counts), Prefect flows/deployments through the worker, metric catalog +
-independent reconciliation, staged→gated→promoted publication with rollback +
-fault injection, representative release + zero-network replay.
+CP4A groundwork already written (not yet exercised): point-in-time dataset
+builder with precommitted history gate, experiments ladder (naive/KM/Cox +
+MLflow + IPCW Brier + calibration/cohorts), registry with predeclared
+promotion gates, gated batch serving, temporal fixture + N→N+1 drill.
+
+Immediate next action: exercise CP4A end-to-end in-cluster (fixture ledger →
+dataset → experiments → promotion → serving → drill; representative dataset →
+INSUFFICIENT_POINT_IN_TIME_HISTORY), forecast API route, methods-review of the
+experiment protocol; then CP4B spatial.

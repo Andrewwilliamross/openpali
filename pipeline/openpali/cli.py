@@ -238,6 +238,28 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--offline", action="store_true")
     p.set_defaults(func=cmd_dev_slice)
 
+    p = sub.add_parser("refresh-all", help="all sources -> snapshot -> analytics -> release (direct)")
+    p.add_argument("--offline", action="store_true")
+    p.add_argument("--kind", default="representative",
+                   choices=["fixture", "representative", "dev"])
+    p.set_defaults(func=cmd_refresh_all)
+
+    p = sub.add_parser("orchestrate-deploy", help="register Prefect work pool + deployments")
+    p.set_defaults(func=cmd_orchestrate_deploy)
+
+    p = sub.add_parser("orchestrate-run", help="trigger a deployment and wait")
+    p.add_argument("deployment", help="e.g. full-refresh-release/default")
+    p.add_argument("--params", help="JSON parameters")
+    p.add_argument("--timeout", type=float, default=3600)
+    p.set_defaults(func=cmd_orchestrate_run)
+
+    p = sub.add_parser("release-rollback", help="promote LKG back to current")
+    p.set_defaults(func=cmd_release_rollback)
+
+    p = sub.add_parser("replay", help="zero-network semantic replay of a release")
+    p.add_argument("--release", default="current")
+    p.set_defaults(func=cmd_replay)
+
     p = sub.add_parser("export-openapi", help="print the OpenAPI schema")
     p.set_defaults(func=cmd_export_openapi)
 
@@ -247,3 +269,304 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def cmd_refresh_all(args: argparse.Namespace) -> int:
+    """Direct (non-Prefect) full refresh -> snapshot -> analytics -> release."""
+
+    from openpali.ingestion.pipeline import full_refresh
+    from openpali.ingestion.snapshot import build_snapshot
+    from openpali.metrics.compute import compute_all
+
+    store = ObjectStore()
+    with session_scope() as session:
+        outcome = full_refresh(session, store, online=not args.offline)
+        for result in outcome.results:
+            print(f"  {result.source_id:18s} {result.status:9s} records={result.record_count}")
+        if outcome.blocking_failures:
+            print(f"BLOCKING FAILURES: {outcome.blocking_failures}", file=sys.stderr)
+            return 3
+        cutoff = datetime.now(timezone.utc).replace(microsecond=0)
+        snapshot = build_snapshot(session, outcome.run_ids, cutoff)
+        print(f"snapshot {snapshot.snapshot_id} properties={snapshot.properties} "
+              f"observations={snapshot.observations} conflicts={snapshot.conflicts}")
+        analytics = compute_all(session, snapshot.snapshot_id)
+        print(f"analytics: {analytics['metrics']} metric values, "
+              f"{analytics['reconciliations']} reconciliations")
+        try:
+            release = publish_release(
+                session, store, snapshot.snapshot_id, kind=args.kind,
+                undocumented_values=outcome.undocumented,
+            )
+        except PublicationGateError as exc:
+            print(f"PUBLICATION BLOCKED: {exc}", file=sys.stderr)
+            return 4
+    print(f"release {release.release_id} mirror_ok={release.mirror_ok}")
+    print(f"RELEASE_ID={release.release_id}")
+    return 0
+
+
+def cmd_orchestrate_deploy(args: argparse.Namespace) -> int:
+    from openpali.orchestration.deploy import register_deployments
+
+    registered = register_deployments()
+    print(f"{len(registered)} deployments registered")
+    return 0
+
+
+def cmd_orchestrate_run(args: argparse.Namespace) -> int:
+    """Trigger a registered deployment and wait for its terminal state."""
+
+    from prefect.deployments import run_deployment
+
+    parameters = json.loads(args.params) if args.params else {}
+    flow_run = run_deployment(
+        name=args.deployment, parameters=parameters,
+        timeout=args.timeout,
+    )
+    state = flow_run.state
+    print(f"flow_run {flow_run.id} state={state.name if state else 'UNKNOWN'}")
+    if state is None or not state.is_completed():
+        return 5
+    return 0
+
+
+def cmd_release_rollback(args: argparse.Namespace) -> int:
+    """Atomically demote current and promote the last known good release."""
+
+    from sqlalchemy import select as sa_select
+
+    from openpali.identity.ids import canonical_json as cj
+    from openpali.storage.models import CurrentRelease, Publication
+
+    store = ObjectStore()
+    with session_scope() as session:
+        current = session.get(CurrentRelease, 1, with_for_update=True)
+        if current is None or not current.lkg_release_id:
+            print("no LKG release to roll back to", file=sys.stderr)
+            return 6
+        if current.current_release_id == current.lkg_release_id:
+            print("current already equals LKG; nothing to do")
+            return 0
+        demoted = current.current_release_id
+        promoted = current.lkg_release_id
+        lkg_pub = session.execute(
+            sa_select(Publication).where(Publication.release_id == promoted)
+        ).scalar_one()
+        if demoted:
+            demoted_pub = session.execute(
+                sa_select(Publication).where(Publication.release_id == demoted)
+            ).scalar_one_or_none()
+            if demoted_pub is not None:
+                demoted_pub.status = "rolled_back"
+        lkg_pub.status = "published"
+        current.current_release_id = promoted
+        current.lkg_release_id = demoted
+        session.commit()
+        manifest_sha = lkg_pub.manifest_sha256
+    # repair the non-authoritative mirror afterwards
+    try:
+        pointer = cj({"release_id": promoted, "manifest_sha256": manifest_sha}).encode()
+        from openpali.storage.objects import PUBLICATION_BUCKET
+
+        store.put_manifest(PUBLICATION_BUCKET, "pointers/current.json", pointer)
+        mirror_ok = True
+    except Exception:  # noqa: BLE001
+        mirror_ok = False
+    print(f"rolled back: current={promoted} (was {demoted}) mirror_ok={mirror_ok}")
+    return 0
+
+
+def cmd_replay(args: argparse.Namespace) -> int:
+    """Zero-network semantic replay of a release's exact raw hashes.
+
+    Runs on the internal Compose network with NO proxy environment: the
+    process is physically incapable of egress. Every raw page is re-read
+    through digest+size verification; normalization and observation-ID
+    derivation are recomputed in memory and compared against the release's
+    stored membership.
+    """
+
+    from sqlalchemy import select as sa_select
+
+    from palisades.apn import normalize_apn as _napn
+
+    from openpali.domain.observations import SourceRecordRef as SRR
+    from openpali.domain.policy import classify_permit
+    from openpali.ingestion import normalize as norm
+    from openpali.ingestion.load import _payload_sha
+    from openpali.storage.models import (
+        CurrentRelease,
+        Publication,
+        RecoveryObservationRow,
+        SnapshotMember,
+    )
+
+    store = ObjectStore()
+    failures: list[str] = []
+    with session_scope() as session:
+        if args.release == "current":
+            current = session.get(CurrentRelease, 1)
+            release_id = current.current_release_id if current else None
+        else:
+            release_id = args.release
+        if not release_id:
+            print("no release to replay", file=sys.stderr)
+            return 6
+        publication = session.execute(
+            sa_select(Publication).where(Publication.release_id == release_id)
+        ).scalar_one()
+        manifest = publication.manifest
+        input_runs = manifest["input_runs"]
+        print(f"replaying release {release_id} ({len(input_runs)} input runs), "
+              f"snapshot {publication.snapshot_id}")
+
+        recomputed: set[str] = set()
+        permit_classifications: dict[str, object] = {}
+        permit_to_apn: dict[str, str] = {}
+
+        ordered = sorted(input_runs, key=lambda rid: _replay_order(session, rid))
+        for run_id in ordered:
+            run_row = session.execute(
+                sa_select(AcquisitionRun).where(AcquisitionRun.run_id == run_id)
+            ).scalar_one()
+            source_id = run_row.source_id
+            adapter = ADAPTERS[source_id]()
+            raw = rehydrate(session, store, adapter, run_id)  # digest-verified
+            observed_at = raw.retrieved_at or raw.requested_at
+            records = list(adapter.normalize(raw))
+            if run_row.record_count is not None and len(records) != run_row.record_count:
+                failures.append(
+                    f"{source_id}: replayed {len(records)} records, "
+                    f"acquisition recorded {run_row.record_count}"
+                )
+
+            if source_id == "county_base":
+                for record in records:
+                    normalized = norm.normalize_county_parcel(
+                        record.payload, observed_at=observed_at,
+                        source_record=SRR("county_base", record.native_key,
+                                          _payload_sha(record.payload)),
+                    )
+                    recomputed.update(o.observation_id for o in normalized.observations)
+            elif source_id == "ladbs_permits":
+                for record in records:
+                    payload = record.payload
+                    permit_no = str(payload.get("PERMIT") or "").strip() or record.native_key
+                    permit_classifications[permit_no] = classify_permit(
+                        payload.get("PERMIT_TYPE"), payload.get("PALISADES_WF_REBUILD")
+                    )
+                    apn = _napn(payload.get("APN"))
+                    if apn:
+                        permit_to_apn[permit_no] = apn
+                    normalized = norm.normalize_ladbs_permit(
+                        payload, observed_at=observed_at,
+                        source_record=SRR("ladbs_permits", permit_no, _payload_sha(payload)),
+                    )
+                    recomputed.update(o.observation_id for o in normalized.observations)
+            elif source_id == "ladbs_inspections":
+                for record in records:
+                    payload = record.payload
+                    normalized = norm.normalize_ladbs_inspection(
+                        payload, observed_at=observed_at,
+                        source_record=SRR(
+                            "ladbs_inspections",
+                            str(payload.get("PERMIT") or record.native_key),
+                            _payload_sha(payload),
+                        ),
+                        permit_classifications=permit_classifications,
+                        permit_to_apn=permit_to_apn,
+                    )
+                    recomputed.update(o.observation_id for o in normalized.observations)
+            elif source_id == "malibu_dash":
+                for record in records:
+                    normalized = norm.normalize_malibu_marker(
+                        record.payload, observed_at=observed_at,
+                        source_record=SRR("malibu_dash", record.native_key,
+                                          _payload_sha(record.payload)),
+                    )
+                    recomputed.update(o.observation_id for o in normalized.observations)
+            elif source_id == "calfire_dins":
+                for record in records:
+                    payload = record.payload
+                    global_id = str(payload.get("GLOBALID") or "").strip() or record.native_key
+                    normalized = norm.normalize_dins_structure(
+                        payload, observed_at=observed_at,
+                        source_record=SRR("calfire_dins", global_id, _payload_sha(payload)),
+                    )
+                    recomputed.update(o.observation_id for o in normalized.observations)
+            print(f"  replayed {source_id}: {len(records)} records "
+                  f"({len(raw.pages)} verified raw pages)")
+
+        # The replay guarantee: the release's exact raw bytes deterministically
+        # reproduce every observation derived from them, and every reproduced
+        # observation exists in the append-only ledger. Membership can also
+        # contain assertions first observed in EARLIER acquisitions of the
+        # same sources (each replayable from its own pages) — correct
+        # bitemporality, reported but never a failure.
+        source_ids = {
+            session.execute(
+                sa_select(AcquisitionRun.source_id).where(
+                    AcquisitionRun.run_id == run_id
+                )
+            ).scalar_one()
+            for run_id in input_runs
+        }
+        stored_all = set(
+            session.execute(
+                sa_select(RecoveryObservationRow.observation_id).where(
+                    RecoveryObservationRow.source_id.in_(source_ids)
+                )
+            ).scalars()
+        )
+        member_ids = set(
+            session.execute(
+                sa_select(SnapshotMember.member_id).where(
+                    SnapshotMember.snapshot_id == publication.snapshot_id,
+                    SnapshotMember.member_type == "observation",
+                )
+            ).scalars()
+        )
+        derived_ids = set(
+            session.execute(
+                sa_select(RecoveryObservationRow.observation_id).where(
+                    RecoveryObservationRow.observation_id.in_(member_ids),
+                    RecoveryObservationRow.source_id == "openpali_conflict_detection",
+                )
+            ).scalars()
+        )
+        members = member_ids - derived_ids
+        not_in_ledger = recomputed - stored_all
+        members_reproduced = members & recomputed
+        members_from_earlier_runs = members - recomputed - derived_ids
+        print(f"recomputed observations: {len(recomputed)}; in ledger: "
+              f"{len(recomputed & stored_all)}")
+        print(f"membership (non-derived): {len(members)}; reproduced from this "
+              f"release's bytes: {len(members_reproduced)}; from earlier "
+              f"acquisitions of the same sources: {len(members_from_earlier_runs)}")
+        if not_in_ledger:
+            failures.append(
+                f"{len(not_in_ledger)} recomputed observation IDs are NOT in the "
+                f"ledger — raw bytes no longer reproduce stored semantics "
+                f"(sample: {sorted(not_in_ledger)[:3]})"
+            )
+
+    if failures:
+        print("REPLAY FAILED:", file=sys.stderr)
+        for failure in failures:
+            print(f"  - {failure}", file=sys.stderr)
+        return 7
+    print("REPLAY OK: exact raw hashes reproduced the release's semantic observations")
+    return 0
+
+
+def _replay_order(session, run_id: str) -> int:
+    from openpali.ingestion.pipeline import FULL_REFRESH_ORDER
+
+    row = session.execute(
+        select(AcquisitionRun).where(AcquisitionRun.run_id == run_id)
+    ).scalar_one()
+    try:
+        return FULL_REFRESH_ORDER.index(row.source_id)
+    except ValueError:
+        return 99

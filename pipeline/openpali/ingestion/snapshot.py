@@ -160,17 +160,24 @@ def build_snapshot(
     )
 
     active_rows = [r for r in observation_rows if r.observation_id not in retracted_ids]
-    domain_observations = [_row_to_domain(r) for r in active_rows]
+    # IMPORTANT: membership always references the STORED observation_id.
+    # Domain objects are reconstructed only for projection/conflict logic —
+    # their recomputed IDs can differ from stored IDs (e.g. the discriminator
+    # is part of the deterministic ID but not a persisted column).
+    pairs: list[tuple[str, RecoveryObservation]] = [
+        (r.observation_id, _row_to_domain(r)) for r in active_rows
+    ]
 
     # Same-snapshot contradiction detection; derived conflicts are persisted
     # (deterministic IDs; detection time = cutoff) and join the membership.
-    conflicts = detect_conflicts(domain_observations, detected_at=cutoff)
+    conflicts = detect_conflicts([obs for _, obs in pairs], detected_at=cutoff)
     if conflicts:
         insert_observations(session, conflicts, record_version=None)
+    pairs.extend((conflict.observation_id, conflict) for conflict in conflicts)
 
     # Group observations by parcel APN (subject or related parcel).
-    by_apn: dict[str, list[RecoveryObservation]] = {}
-    for observation in domain_observations + conflicts:
+    by_apn: dict[str, list[tuple[str, RecoveryObservation]]] = {}
+    for stored_id, observation in pairs:
         apns = set()
         if observation.subject.type is SubjectType.PARCEL:
             apns.add(observation.subject.id)
@@ -178,7 +185,7 @@ def build_snapshot(
             if ref.type is SubjectType.PARCEL:
                 apns.add(ref.id)
         for apn in apns:
-            by_apn.setdefault(apn, []).append(observation)
+            by_apn.setdefault(apn, []).append((stored_id, observation))
 
     # Current parcel versions as of the cutoff.
     parcel_rows = list(
@@ -199,7 +206,8 @@ def build_snapshot(
     members: list[dict] = []
     state_rows: list[dict] = []
     for apn, parcel in latest_parcel.items():
-        observations = by_apn.get(apn, [])
+        parcel_pairs = by_apn.get(apn, [])
+        observations = [obs for _, obs in parcel_pairs]
         state = project_lanes(observations)
         milestones = milestone_facts(state)
         signals = lane_signal_map(state)
@@ -210,7 +218,6 @@ def build_snapshot(
             o.occurred.value for o in observations
             if isinstance(o.occurred, ExactDate)
         ]
-        identity = parcel.property_identity_id
         from openpali.identity.ids import property_id_from_apn
 
         property_id = property_id_from_apn(apn)
@@ -234,10 +241,10 @@ def build_snapshot(
             {"snapshot_id": snapshot_id, "member_type": "parcel_version",
              "member_id": parcel.record_version_id}
         )
-        for observation in observations:
+        for stored_id, _ in parcel_pairs:
             members.append(
                 {"snapshot_id": snapshot_id, "member_type": "observation",
-                 "member_id": observation.observation_id}
+                 "member_id": stored_id}
             )
 
     # Chunked bulk inserts: psycopg allows at most 65,535 bound parameters
@@ -269,6 +276,6 @@ def build_snapshot(
         snapshot_id=snapshot_id,
         created=True,
         properties=len(state_rows),
-        observations=len(domain_observations),
+        observations=len(pairs) - len(conflicts),
         conflicts=len(conflicts),
     )

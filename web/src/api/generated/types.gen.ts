@@ -551,6 +551,102 @@ export type ReleaseInfoV1ReleasesReleaseIdGetResponses = {
 
 export type ReleaseInfoV1ReleasesReleaseIdGetResponse = ReleaseInfoV1ReleasesReleaseIdGetResponses[keyof ReleaseInfoV1ReleasesReleaseIdGetResponses];
 
+export type BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetData = {
+    body?: never;
+    path: {
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/metrics/bottlenecks';
+};
+
+export type BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetError = BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors[keyof BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetErrors];
+
+export type BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses = {
+    /**
+     * Response Bottleneck Metrics V1 Releases  Release Id  Metrics Bottlenecks Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponse = BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses[keyof BottleneckMetricsV1ReleasesReleaseIdMetricsBottlenecksGetResponses];
+
+export type CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetData = {
+    body?: never;
+    path: {
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/metrics/community';
+};
+
+export type CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetError = CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors[keyof CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetErrors];
+
+export type CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses = {
+    /**
+     * Response Community Metrics V1 Releases  Release Id  Metrics Community Get
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: unknown;
+    };
+};
+
+export type CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponse = CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses[keyof CommunityMetricsV1ReleasesReleaseIdMetricsCommunityGetResponses];
+
+export type MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetData = {
+    body?: never;
+    path: {
+        /**
+         * Release Id
+         */
+        release_id: string;
+    };
+    query?: never;
+    url: '/v1/releases/{release_id}/metrics/export.csv';
+};
+
+export type MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetError = MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors[keyof MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetErrors];
+
+export type MetricsExportV1ReleasesReleaseIdMetricsExportCsvGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type SearchPropertiesV1ReleasesReleaseIdPropertiesGetData = {
     body?: never;
     path: {

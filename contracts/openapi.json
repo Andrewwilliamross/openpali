@@ -944,6 +944,134 @@
     ]
    }
   },
+  "/v1/releases/{release_id}/metrics/bottlenecks": {
+   "get": {
+    "operationId": "bottleneck_metrics_v1_releases__release_id__metrics_bottlenecks_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Bottleneck Metrics V1 Releases  Release Id  Metrics Bottlenecks Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Bottleneck Metrics",
+    "tags": [
+     "metrics"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/metrics/community": {
+   "get": {
+    "operationId": "community_metrics_v1_releases__release_id__metrics_community_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Community Metrics V1 Releases  Release Id  Metrics Community Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Community Metrics",
+    "tags": [
+     "metrics"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/metrics/export.csv": {
+   "get": {
+    "operationId": "metrics_export_v1_releases__release_id__metrics_export_csv_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Metrics Export",
+    "tags": [
+     "metrics"
+    ]
+   }
+  },
   "/v1/releases/{release_id}/properties": {
    "get": {
     "operationId": "search_properties_v1_releases__release_id__properties_get",
