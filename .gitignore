@@ -10,3 +10,6 @@ data/raw/
 data/spatial/
 .npm-cache/
 data/out/
+.playwright-browsers/
+web/test-results/
+web/playwright-report/

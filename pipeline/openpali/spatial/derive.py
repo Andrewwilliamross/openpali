@@ -53,7 +53,8 @@ from openpali.spatial.usgs import (
 )
 from openpali.storage.objects import ObjectStore, RAW_BUCKET, SPATIAL_BUCKET
 
-PROCESS_VERSION = "usgs-derive-v1"
+# v2: picking entries carry per-parcel lon/lat centers (renderer pick contract)
+PROCESS_VERSION = "usgs-derive-v2"
 SURFEL_ASSET_ID = "usgs-surfel-aoi"
 TERRAIN_ASSET_ID = "usgs-terrain-aoi"
 SURFEL_STRIDE = 3  # 0.5 m px * 3 = 1.5 m surfel spacing
@@ -482,6 +483,8 @@ def derive_usgs_products(session: Session, store: ObjectStore) -> dict:
             np.array(lon0), np.array(lat0), np.array(tiling.origin_alt_m)
         )
         enu = ecef_to_enu(batch.xyz_ecef, origin_ecef, lon0, lat0)
+        from core.spatial.geodesy import ecef_to_wgs84
+
         picking: dict[str, dict] = {}
         order = np.argsort(batch.apn, kind="stable")
         sorted_apn = batch.apn[order]
@@ -492,11 +495,23 @@ def derive_usgs_products(session: Session, store: ObjectStore) -> dict:
                 continue
             pts = enu[g]
             lo, hi = pts.min(axis=0), pts.max(axis=0)
+            clon, clat, _ = ecef_to_wgs84(batch.xyz_ecef[g].mean(axis=0)[None, :])
             picking[apn] = {
                 "bbox": [round(float(v), 2) for v in (*lo, *hi)],
+                "lon": round(float(clon[0]), 6),
+                "lat": round(float(clat[0]), 6),
                 "n": int(len(g)),
             }
         (tmp_path / "picking.json").write_text(json.dumps(picking))
+
+        # geoid offset at the tileset origin (renderer datum contract:
+        # AMSL = ellipsoidal - geoid_offset; ~ -36 m at the Palisades)
+        min_e, min_n, max_e, max_n = mosaic.utm_bounds
+        _, _, h_ell0 = navd88_geoid18_to_wgs84(
+            np.array([(min_e + max_e) / 2]), np.array([(min_n + max_n) / 2]),
+            np.array([0.0]),
+        )
+        geoid_offset_m = round(float(h_ell0[0]), 3)
 
         asset_manifest = {
             "asset_id": SURFEL_ASSET_ID,
@@ -504,6 +519,7 @@ def derive_usgs_products(session: Session, store: ObjectStore) -> dict:
             "tileset": "tileset.json",
             "picking": "picking.json",
             "origin": {"lon": lon0, "lat": lat0, "alt_ellipsoidal_m": tiling.origin_alt_m},
+            "geoid_offset_m": geoid_offset_m,
             "observation_kind": OBSERVATION_KIND,
             "acquired": aoi.acquisition_date,
             "vintage_slot": VINTAGE_SLOT,

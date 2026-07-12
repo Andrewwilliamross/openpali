@@ -108,7 +108,7 @@ export default function App() {
         >
           {ground === 'sat' ? 'Map' : 'Sat'}
         </button>
-        <Legend />
+        <Legend mode={mode} />
         <DebugHud />
         {loadError && <div className="load-error">{loadError}</div>}
         {spatialStatus === 'error' && (

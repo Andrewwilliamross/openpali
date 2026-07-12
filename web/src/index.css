@@ -224,6 +224,20 @@ body,
   border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
+.legend-sources {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.legend-swatch-hillshade {
+  background: linear-gradient(135deg, #ffffff 0%, #8a8177 100%);
+}
+
+.legend-swatch-prefire {
+  background: linear-gradient(135deg, #b8b2aa 0%, #6f6a63 100%);
+}
+
 /* ---------- lane strip (detail card) ---------- */
 .lane-strip {
   list-style: none;

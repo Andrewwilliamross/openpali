@@ -60,7 +60,10 @@ FIRE = date(2025, 1, 7)
 # silent mutation of immutable artifacts.
 # v2: issuance observed by the first acquisition at/after occurrence
 # (administrative censoring; PH-clean generator, no artificial cure class).
-FIXTURE_VERSION = "fixture-v2"
+# v3: submissions continue to near the last acquisition (realistic arrival
+# process; gives the final holdout real evaluation mass).
+FIXTURE_VERSION = "fixture-v3"
+SUBMISSION_MAX_DAY = 370
 
 
 def _fixture_record_version(session: Session, apn: str, run: AcquisitionRun) -> str:
@@ -134,8 +137,8 @@ def _monthly_runs(session: Session, months: int, start: date) -> list[Acquisitio
 def _application(rng: random.Random, index: int) -> dict:
     apn = f"{FIXTURE_APN_PREFIX}{index:08d}"
     permit_no = f"FX{index:05d}-10000-{index:05d}"
-    submitted = FIRE + timedelta(days=rng.randint(30, 330))
-    # Hazard improves with later submission: mean time drops from ~150d to ~70d.
+    submitted = FIRE + timedelta(days=rng.randint(30, SUBMISSION_MAX_DAY))
+    # Hazard improves with later submission: mean time drops ~150d -> ~60d.
     progress = (submitted - FIRE).days / 330
     mean_days = 150 - 80 * progress
     duration = max(int(rng.expovariate(1.0 / mean_days)), 7)

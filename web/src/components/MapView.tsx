@@ -3,6 +3,7 @@ import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
 import { evidencePaintExpression } from '../lib/colors'
+import { fetchPostfireSources } from '../lib/postfire'
 // Type-only imports are erased at build time: the renderer subsystem itself
 // is code-split and fetched via import('./spatial/renderer3d') on 3D entry
 // (ROADMAP D10 / PR3). Never import its values statically here.
@@ -88,6 +89,10 @@ export default function MapView({
   const loadedRef = useRef(false)
   const splatLayerRef = useRef<SplatRenderLayer | null>(null)
   const intersectorRef = useRef<SpatialIntersector | null>(null)
+  // release-served USGS post-fire surfel source (SPATIAL-001): its own layer
+  // instance + picking index; presentation flags differ from the LARIAC corpus
+  const usgsLayerRef = useRef<SplatRenderLayer | null>(null)
+  const usgsIntersectorRef = useRef<SpatialIntersector | null>(null)
   const modeRef = useRef<ViewMode>(mode)
   const groundRef = useRef<GroundMode>(ground)
   const onSpatialStatusRef = useRef(onSpatialStatus)
@@ -168,6 +173,29 @@ export default function MapView({
             // 3D still works, so this is not surfaced as a chunk failure
             console.error('splat layer failed to initialize:', e)
           }
+
+          // ---- USGS post-fire surfel source (release-qualified API URLs) ----
+          void fetchPostfireSources().then((pf) => {
+            if (!pf?.surfelBase) return // API absent — pre-fire corpus only
+            if (mapRef.current !== map || !loadedRef.current) return
+            const usgsIntersector = new mod.SpatialIntersector()
+            void usgsIntersector.load(pf.surfelBase)
+            usgsIntersectorRef.current = usgsIntersector
+            try {
+              const usgs = new mod.SplatRenderLayer(
+                'usgs-postfire-splats', pf.surfelBase, usgsIntersector,
+                // honest hillshade color baked at derivation; projecting the
+                // PRE-fire orthophoto onto a post-fire surface would lie
+                { bakedColor: true, textures: false },
+              )
+              usgsLayerRef.current = usgs
+              map.addLayer(usgs)
+              usgs.setEnabled(modeRef.current === '3d')
+              ;(window as unknown as { __usgsSplats?: SplatRenderLayer }).__usgsSplats = usgs
+            } catch (e) {
+              console.error('post-fire surfel layer failed to initialize:', e)
+            }
+          })
           onSpatialStatusRef.current?.('ready')
         })
         .catch((err: unknown) => {
@@ -274,6 +302,39 @@ export default function MapView({
         },
         firstSymbolLayerId(map),
       )
+      // release-served USGS post-fire DEM hillshade over the AOI (visible in
+      // 2D and 3D): actual post-fire ground detail at 0.5 m through the
+      // production asset path, layered above the coarse global hillshade
+      void fetchPostfireSources().then((pf) => {
+        if (!pf?.terrainTileUrl || mapRef.current !== map) return
+        if (map.getSource('postfire-dem')) return
+        const acquired = pf.terrain?.acquisition_start?.slice(0, 10) ?? ''
+        map.addSource('postfire-dem', {
+          type: 'raster-dem',
+          encoding: 'terrarium',
+          tiles: [pf.terrainTileUrl],
+          tileSize: 256,
+          minzoom: 13,
+          maxzoom: 18,
+          bounds: [-118.532835, 34.036386, -118.516832, 34.050111],
+          attribution: `Post-fire terrain: USGS 3DEP emergency lidar (${acquired}, preliminary)`,
+        })
+        map.addLayer(
+          {
+            id: 'postfire-hills',
+            type: 'hillshade',
+            source: 'postfire-dem',
+            paint: {
+              'hillshade-illumination-direction': 315,
+              'hillshade-exaggeration': 0.5,
+              'hillshade-shadow-color': '#4a4238',
+              'hillshade-highlight-color': '#ffffff',
+              'hillshade-accent-color': '#000000',
+            },
+          },
+          firstSymbolLayerId(map),
+        )
+      })
       // muted atmosphere for the deep-pitch horizon
       try {
         map.setSky({
@@ -310,6 +371,8 @@ export default function MapView({
       loadedRef.current = false
       splatLayerRef.current = null
       intersectorRef.current = null
+      usgsLayerRef.current = null
+      usgsIntersectorRef.current = null
       spatialInstalledRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -330,10 +393,12 @@ export default function MapView({
       // and setEnabled below drives the already-resident layer
       ensureSpatial(map)
       splatLayerRef.current?.setEnabled(true)
+      usgsLayerRef.current?.setEnabled(true)
       map.easeTo({ pitch: 62, duration: 900 })
     } else {
       map.setTerrain(null)
       splatLayerRef.current?.setEnabled(false)
+      usgsLayerRef.current?.setEnabled(false)
       map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
     }
   }, [mode, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
@@ -420,13 +485,18 @@ export default function MapView({
         hoveredRef.current = null
       })
 
-      // click routing: in 3D, ray-pick the building prisms first; the draped
-      // parcel polygons are the fallback (and the 2D path)
+      // click routing: in 3D, ray-pick BOTH sources' parcel prisms (nearest
+      // hit wins); the draped parcel polygons are the fallback (and 2D path)
       map.on('click', (e) => {
-        if (modeRef.current === '3d' && intersectorRef.current?.ready) {
-          const hit = intersectorRef.current.pick(map, e.point)
-          if (hit) {
-            onSelect(hit.apn)
+        if (modeRef.current === '3d') {
+          let best: { apn: string; distance: number } | null = null
+          for (const ref of [intersectorRef, usgsIntersectorRef]) {
+            if (!ref.current?.ready) continue
+            const hit = ref.current.pick(map, e.point)
+            if (hit && (best === null || hit.distance < best.distance)) best = hit
+          }
+          if (best) {
+            onSelect(best.apn)
             return
           }
         }

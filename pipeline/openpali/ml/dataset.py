@@ -46,7 +46,11 @@ COHORT_POLICY = "qualifying-rebuild-v1"
 # observation establishes point-in-time availability, not only county_base)
 FEATURE_SCHEMA_VERSION = "features-v2"
 LABEL_POLICY_VERSION = "labels-v1"
-SPLIT_POLICY = "rolling-origin-v1"
+# v2 (methods review): folds are CONTIGUOUS CHRONOLOGICAL blocks of the
+# origin-sorted training rows. v1 interleaved rows (index % k) — a stratified
+# split mislabeled rolling-origin, whose evaluation rows had temporal
+# neighbors on both sides in the fit set (optimistic for calendar covariates).
+SPLIT_POLICY = "rolling-origin-v2"
 HORIZON_DAYS = 180
 
 #: Competing-event policy, PREDECLARED: the public LADBS layer exposes no
@@ -122,7 +126,8 @@ def build_dataset(
     cutoff_date: date = cutoff.date()
 
     dataset_identifier = derive_dataset_id(
-        snapshot_id, COHORT_POLICY, TARGET_POLICY, FEATURE_SCHEMA_VERSION,
+        snapshot_id, COHORT_POLICY, TARGET_POLICY,
+        f"{FEATURE_SCHEMA_VERSION}+{SPLIT_POLICY}",  # split semantics are identity
         cutoff.isoformat(),
     )
     existing = session.execute(
@@ -204,14 +209,18 @@ def build_dataset(
     rows.sort(key=lambda r: (r["origin_date"], r["application_id"]))
 
     # --- deterministic rolling-origin splits + untouched final block --------
+    # Training rows (already origin-sorted) are cut into ROLLING_FOLDS
+    # contiguous chronological blocks: fold_0 earliest ... fold_{k-1} latest.
+    # Forward evaluation = fit on earlier blocks, evaluate on a later one.
     final_block_start = cutoff_date - timedelta(days=FINAL_BLOCK_DAYS)
     train_rows = [r for r in rows if date.fromisoformat(r["origin_date"]) < final_block_start]
-    for index, row in enumerate(rows):
-        origin = date.fromisoformat(row["origin_date"])
-        if origin >= final_block_start:
+    n_train = len(train_rows)
+    for index, row in enumerate(train_rows):
+        block = min(index * ROLLING_FOLDS // max(n_train, 1), ROLLING_FOLDS - 1)
+        row["split"] = f"fold_{block}"
+    for row in rows:
+        if date.fromisoformat(row["origin_date"]) >= final_block_start:
             row["split"] = "final_holdout"
-        else:
-            row["split"] = f"fold_{index % ROLLING_FOLDS}"
 
     # --- precommitted point-in-time history gate -----------------------------
     distinct_dates = sorted(

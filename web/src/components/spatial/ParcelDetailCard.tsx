@@ -21,6 +21,12 @@ import {
 } from '../../lib/coverage'
 import { fmtDate, fmtMoney, fmtNumber, titleCase } from '../../lib/format'
 import { preFireTileUrl, WAYBACK_ATTRIBUTION } from '../../lib/imagery'
+import {
+  fetchPostfirePicking,
+  fetchPostfireSources,
+  postfireSourceLabel,
+  type PostfireSources,
+} from '../../lib/postfire'
 
 interface Props {
   apn: string
@@ -91,6 +97,10 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
   // without effect-driven setState churn.
   const [imgFailed, setImgFailed] = useState(false)
   const [coverage, setCoverage] = useState<CoverageEntry | null | undefined>(undefined)
+  const [postfire, setPostfire] = useState<{
+    sources: PostfireSources
+    samples: number
+  } | null>(null)
 
   // geometry-source badge (coverage.json): every 3D parcel carries its
   // provenance label — placeholders must never read as observations
@@ -99,6 +109,14 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
     void fetchCoverage().then((c) => {
       if (alive) setCoverage(c[apn] ?? null)
     })
+    // post-fire surface coverage for THIS parcel (release-qualified asset)
+    void Promise.all([fetchPostfireSources(), fetchPostfirePicking()]).then(
+      ([sources, picking]) => {
+        if (!alive || !sources?.surfel || !picking) return
+        const entry = picking[apn]
+        if (entry) setPostfire({ sources, samples: entry.n })
+      },
+    )
     return () => {
       alive = false
     }
@@ -151,6 +169,18 @@ export default function ParcelDetailCard({ apn, props, detail, onClose }: Props)
               {coverage?.geometry_source
                 ? GEOMETRY_SOURCE_LABELS[coverage.geometry_source]
                 : 'No 3D geometry yet'}
+            </span>
+          )}
+          {postfire && postfire.sources.surfel && (
+            <span
+              className="spatial-geom-badge"
+              title={
+                `${postfireSourceLabel(postfire.sources.surfel)} · ` +
+                `${fmtNumber(postfire.samples)} ground samples on this parcel · ` +
+                'a post-fire terrain observation, never evidence of current construction'
+              }
+            >
+              Post-fire surface ({postfire.sources.surfel.acquisition_start?.slice(0, 10)})
             </span>
           )}
         </div>

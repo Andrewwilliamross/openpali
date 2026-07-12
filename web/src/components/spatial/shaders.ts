@@ -36,6 +36,8 @@ uniform float u_zOffset;    // terrain clamp, metres ENU up
 uniform float u_hasTex;     // 1.0 when an aerial texture is bound for this node
 uniform vec2 u_texOrigin;   // [west edge X, NORTH edge Y] of the texture rect
 uniform vec2 u_texInvSize;  // [1/widthM, 1/heightM]
+uniform float u_bakedColor; // 1.0: trust a_color.rgb (honest source color);
+                            // 0.0: neutralize the baked civic-score tint
 
 out vec2 v_uv;
 out vec4 v_color;
@@ -138,13 +140,13 @@ void main() {
   if (alpha < 0.0039) { cull(); return; }  // < 1/255
 
   v_uv = corner;
-  // TRUTH-001: the committed tile corpus was exported with civic-score tint
-  // baked into a_color.rgb. A score may never drive spatial presentation, so
-  // walls render in a luminance-preserving neutral until the asset pipeline
-  // re-exports untinted tiles (spatial platform track).
+  // TRUTH-001: the committed LARIAC tile corpus was exported with civic-score
+  // tint baked into a_color.rgb. A score may never drive spatial presentation,
+  // so those walls render in a luminance-preserving neutral. Sources whose
+  // baked color is honest (USGS hillshade surfels) set u_bakedColor = 1.
   float lum = dot(a_color.rgb, vec3(0.299, 0.587, 0.114));
   vec3 neutral = vec3(0.62, 0.60, 0.58) * (0.55 + 0.9 * lum);
-  v_color = vec4(neutral, alpha);
+  v_color = vec4(mix(neutral, a_color.rgb, u_bakedColor), alpha);
 
   // corners share the center's z and w → coherent depth vs terrain
   float cz = clamp(clip.z, -abs(w), abs(w));

@@ -21,7 +21,9 @@ from sqlalchemy.orm import Session
 from openpali.ml.dataset import HORIZON_DAYS, load_dataset_rows
 from openpali.ml.experiments import INSUFFICIENT, reload_model
 from openpali.storage.models import (
+    CivicSnapshot,
     DatasetVersion,
+    ExperimentRun,
     ModelVersion,
     Prediction,
     PredictionSet,
@@ -30,6 +32,36 @@ from openpali.storage.models import (
 from openpali.storage.objects import ObjectStore
 
 TARGET_SIGNATURE = "p_issued_180d@submission-v1"
+
+#: features derivable from the application row's own origin — available for
+#: every row by construction, independent of the parcel-history gate
+ORIGIN_DERIVED_FEATURES = {"submission_days_since_fire", "submission_month"}
+
+
+def _snapshot_is_fixture(session: Session, snapshot_id: str) -> bool:
+    snapshot = session.execute(
+        select(CivicSnapshot).where(CivicSnapshot.snapshot_id == snapshot_id)
+    ).scalar_one()
+    return all(str(r).startswith("run-fixture-") for r in snapshot.input_runs)
+
+
+def _champion_domain_compatible(
+    session: Session, champion: ModelVersion, snapshot_id: str
+) -> bool:
+    """A fixture-trained champion may never serve civic data (and vice
+    versa): synthetic lineage cannot become a public fact."""
+
+    experiment = session.execute(
+        select(ExperimentRun).where(
+            ExperimentRun.experiment_run_id == champion.experiment_run_id
+        )
+    ).scalar_one()
+    dataset = session.execute(
+        select(DatasetVersion).where(DatasetVersion.dataset_id == experiment.dataset_id)
+    ).scalar_one()
+    return _snapshot_is_fixture(session, dataset.snapshot_id) == _snapshot_is_fixture(
+        session, snapshot_id
+    )
 
 
 @dataclass(slots=True)
@@ -71,6 +103,23 @@ def build_prediction_set(
     gate_passed = bool((dataset.sufficiency or {}).get("gate", {}).get("passed"))
     champion = current_champion(session)
 
+    # domain gate: an incompatible (e.g. fixture-trained) champion is no
+    # champion at all for this snapshot
+    if champion is not None and not _champion_domain_compatible(
+        session, champion, snapshot_id
+    ):
+        champion = None
+
+    # feature-availability gate (methods review): the FULL history gate only
+    # blocks serving when the champion actually consumes gated (parcel)
+    # features. Origin-derived covariates are available for every row by
+    # construction, so a compatible reviewed champion using only those may
+    # serve even when parcel-history coverage dips.
+    features_ok = True
+    if champion is not None:
+        inputs = set((champion.signature or {}).get("inputs") or [])
+        features_ok = inputs <= ORIGIN_DERIVED_FEATURES or gate_passed
+
     set_id = "pset-" + hashlib.sha256(
         f"{snapshot_id}:{dataset_id}:{champion.model_id if champion else 'none'}".encode()
     ).hexdigest()[:20]
@@ -86,7 +135,7 @@ def build_prediction_set(
             insufficiency_reason=existing.insufficiency_reason,
         )
 
-    if champion is None or not gate_passed:
+    if champion is None or not features_ok:
         reason = INSUFFICIENT if not gate_passed else "no_reviewed_champion"
         session.execute(
             pg_insert(PredictionSet)
@@ -110,6 +159,7 @@ def build_prediction_set(
 
     model = reload_model(store, champion)  # fresh-process deserialization
     rows = load_dataset_rows(store, dataset)
+    training_range = (champion.signature or {}).get("training_range") or {}
     generated_at = datetime.now(timezone.utc)
     prediction_rows: list[dict] = []
     for row in rows:
@@ -122,6 +172,27 @@ def build_prediction_set(
         if followup_complete:
             continue
         estimate = 1.0 - model.survival(row, HORIZON_DAYS)
+        # extrapolation disclosure: covariates beyond the champion's training
+        # range are marked — an extrapolated estimate never masquerades as an
+        # interpolated one (methods review)
+        extrapolated = [
+            feature
+            for feature, bounds in training_range.items()
+            if feature in row
+            and not (bounds[0] <= float(row[feature]) <= bounds[1])
+        ]
+        basis = {
+            "origin_date": row["origin_date"],
+            "estimated_at": "submission",
+            "note": "estimated at submission, not a current ETA",
+            "features": {"submission_days_since_fire": row["submission_days_since_fire"]},
+        }
+        if extrapolated:
+            basis["extrapolated_features"] = extrapolated
+            basis["note"] += (
+                "; covariates outside the champion's training range — "
+                "treat with extra caution"
+            )
         prediction_rows.append(
             {
                 "prediction_set_id": set_id,
@@ -132,12 +203,7 @@ def build_prediction_set(
                 "estimate": float(estimate),
                 "interval_low": None,
                 "interval_high": None,
-                "basis": {
-                    "origin_date": row["origin_date"],
-                    "estimated_at": "submission",
-                    "note": "estimated at submission, not a current ETA",
-                    "features": {"submission_days_since_fire": row["submission_days_since_fire"]},
-                },
+                "basis": basis,
                 "generated_at": generated_at,
             }
         )

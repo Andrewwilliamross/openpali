@@ -99,11 +99,25 @@ export class SplatRenderLayer implements CustomLayerInterface {
   private static readonly UPLOAD_BUDGET_PER_FRAME = 6
   private static readonly TEX_PUBLISH_BUDGET_PER_FRAME = 4
 
-  constructor(id: string, baseUrl: string, intersector?: SpatialIntersector) {
+  // Per-source presentation: the committed LARIAC corpus carries a baked
+  // civic-score tint (neutralized in-shader, TRUTH-001) and projects pre-fire
+  // aerial imagery; a post-fire USGS surfel source carries honest hillshade
+  // color and must NOT get pre-fire photo texture projected onto it.
+  private bakedColor = false
+
+  // Render evidence for E2E/benchmarks (SPATIAL-001/002): cumulative frames
+  // with content, nodes drawn, and splat instances issued via
+  // drawArraysInstanced. Read through window.__splats / window.__usgsSplats.
+  readonly stats = { frames: 0, drawnNodes: 0, drawnSplats: 0, residentBytes: 0 }
+
+  constructor(id: string, baseUrl: string, intersector?: SpatialIntersector,
+              opts?: { bakedColor?: boolean; textures?: boolean }) {
     this.id = id
     this.baseUrl = baseUrl.replace(/\/$/, '')
     this.fetcher = new TileFetcher(this.baseUrl)
     this.intersector = intersector ?? null
+    this.bakedColor = opts?.bakedColor ?? false
+    this.texturesEnabled = opts?.textures ?? true
   }
 
   setEnabled(on: boolean): void {
@@ -122,7 +136,8 @@ export class SplatRenderLayer implements CustomLayerInterface {
     this.generation++
     this.program = compileProgram(gl, SPLAT_VERT, SPLAT_FRAG)
     for (const name of ['u_matrix', 'u_viewport', 'u_fade', 'u_zOffset',
-                        'u_hasTex', 'u_texOrigin', 'u_texInvSize', 'u_tex']) {
+                        'u_hasTex', 'u_texOrigin', 'u_texInvSize', 'u_tex',
+                        'u_bakedColor']) {
       this.uniforms[name] = gl.getUniformLocation(this.program, name)
     }
     this.pool = new BufferPool(gl, 16, 8)
@@ -522,6 +537,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     gl2.uniformMatrix4fv(this.uniforms.u_matrix, false, this.matrixF32)
     gl2.uniform2f(this.uniforms.u_viewport, vw, vh)
     gl2.uniform1i(this.uniforms.u_tex, 0)
+    gl2.uniform1f(this.uniforms.u_bakedColor, this.bakedColor ? 1 : 0)
     gl2.enable(gl2.BLEND)
     gl2.blendFunc(gl2.ONE, gl2.ONE_MINUS_SRC_ALPHA)
     gl2.depthMask(false) // depth TEST stays on (terrain occludes splats)
@@ -563,7 +579,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
       gl2.bindVertexArray(node.vao)
       gl2.drawArraysInstanced(gl2.TRIANGLE_STRIP, 0, 4, node.splatCount)
+      this.stats.drawnNodes++
+      this.stats.drawnSplats += node.splatCount
     }
+    this.stats.frames++
+    this.stats.residentBytes = this.residentBytes
     // ---- GPU maintenance still inside the envelope (binds buffers, deletes) ----
     this.resortPass(drawList, cam)
     this.evictPass()

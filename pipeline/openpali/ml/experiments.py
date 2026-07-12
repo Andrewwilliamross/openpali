@@ -31,7 +31,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from openpali.identity.ids import canonical_json
-from openpali.ml.dataset import HORIZON_DAYS, load_dataset_rows
+from openpali.ml.dataset import HORIZON_DAYS, ROLLING_FOLDS, load_dataset_rows
 from openpali.storage.models import DatasetVersion, ExperimentRun, ModelVersion
 from openpali.storage.objects import ARTIFACT_BUCKET, ObjectStore
 
@@ -78,12 +78,16 @@ class ExperimentOutcome:
 # ---------------------------------------------------------------------------
 
 
-def _ipcw_brier(rows: list[dict], horizon: int, survival_at) -> tuple[float | None, int]:
+def _ipcw_brier(rows: list[dict], horizon: int, survival_at) -> tuple[float | None, int, int]:
     """IPCW Brier score at ``horizon`` days.
 
     ``survival_at(row) -> S_hat(horizon | x)``. Censoring distribution G is a
-    KM fit on (duration, 1-event). Standard Graf et al. weighting:
-    event before t: w = 1/G(T_i); survivor past t: w = 1/G(t).
+    KM fit on (duration, 1-event). Graf et al. weighting with the LEFT LIMIT
+    G(T_i-) for events (durations are integer days, so t - 0.5 is exact):
+    event before t: w = 1/G(T_i-); survivor past t: w = 1/G(t).
+
+    Returns (score, evaluable_n, floor_hits) — floor_hits counts weights that
+    hit the 1e-4 G floor, a visible instability signal instead of a silent cap.
     """
 
     from lifelines import KaplanMeierFitter
@@ -91,12 +95,17 @@ def _ipcw_brier(rows: list[dict], horizon: int, survival_at) -> tuple[float | No
     durations = [r["duration_days"] for r in rows]
     events = [r["event_issued"] for r in rows]
     if not rows:
-        return None, 0
+        return None, 0, 0
     censor_km = KaplanMeierFitter()
     censor_km.fit(durations, [1 - e for e in events])
 
+    floor_hits = 0
+
     def g(t: float) -> float:
+        nonlocal floor_hits
         value = float(censor_km.predict(t))
+        if value < 1e-4:
+            floor_hits += 1
         return max(value, 1e-4)
 
     total = 0.0
@@ -105,7 +114,7 @@ def _ipcw_brier(rows: list[dict], horizon: int, survival_at) -> tuple[float | No
         t_i, d_i = row["duration_days"], row["event_issued"]
         s_hat = survival_at(row)
         if d_i == 1 and t_i <= horizon:
-            weight = 1.0 / g(t_i)
+            weight = 1.0 / g(t_i - 0.5)  # left limit: G just BEFORE the event
             total += weight * (s_hat - 0.0) ** 2
             n += 1
         elif t_i > horizon:
@@ -114,7 +123,7 @@ def _ipcw_brier(rows: list[dict], horizon: int, survival_at) -> tuple[float | No
             n += 1
         # censored before horizon: contributes 0 (weight handled by IPCW)
     denominator = len(rows)
-    return (total / denominator if denominator else None), n
+    return (total / denominator if denominator else None), n, floor_hits
 
 
 def _calibration_bins(rows: list[dict], horizon: int, risk_at) -> list[dict]:
@@ -134,9 +143,13 @@ def _calibration_bins(rows: list[dict], horizon: int, risk_at) -> list[dict]:
     bins = []
     if not scored:
         return bins
-    size = max(len(scored) // 10, 1)
+    # minimum bin mass (methods review): single-digit bins feeding a binary
+    # promotion gate are noise, not calibration evidence
+    size = max(len(scored) // 10, 15)
     for start in range(0, len(scored), size):
         chunk = scored[start:start + size]
+        if len(chunk) < 15:
+            continue  # tail remainder too small to be evidence
         bins.append(
             {
                 "n": len(chunk),
@@ -157,7 +170,7 @@ def _cohort_metrics(rows: list[dict], horizon: int, risk_at) -> dict:
     for name, cohort_rows in sorted(cohorts.items()):
         if len(cohort_rows) < 15:
             continue
-        brier, evaluable = _ipcw_brier(cohort_rows, horizon, lambda r: 1 - risk_at(r))
+        brier, evaluable, _ = _ipcw_brier(cohort_rows, horizon, lambda r: 1 - risk_at(r))
         out[name] = {"n": len(cohort_rows), "ipcw_brier_180": brier,
                      "evaluable": evaluable}
     return out
@@ -186,28 +199,38 @@ class KMBaseline:
 
 
 class NaiveBaseline:
-    """Empirical horizon fraction among fully-followed applications."""
+    """Empirical horizon fraction among fully-followed applications.
+
+    Deliberately weak (complete-case conditioning is a textbook length bias)
+    but at least TIME-HONEST: the rate is fit per queried horizon, so a
+    90-day query never silently reuses the 180-day rate.
+    """
 
     name = "baseline-naive"
 
     def fit(self, rows: list[dict]) -> None:
-        followed = [
-            r for r in rows
-            if (r["event_issued"] == 1 and r["duration_days"] <= HORIZON_DAYS)
-            or r["duration_days"] > HORIZON_DAYS
-        ]
-        issued = sum(
-            1 for r in followed
-            if r["event_issued"] == 1 and r["duration_days"] <= HORIZON_DAYS
-        )
-        self.rate = issued / len(followed) if followed else None
-        self.n_followed = len(followed)
+        self._rates: dict[int, float | None] = {}
+        for horizon in (90, HORIZON_DAYS):
+            followed = [
+                r for r in rows
+                if (r["event_issued"] == 1 and r["duration_days"] <= horizon)
+                or r["duration_days"] > horizon
+            ]
+            issued = sum(
+                1 for r in followed
+                if r["event_issued"] == 1 and r["duration_days"] <= horizon
+            )
+            self._rates[horizon] = issued / len(followed) if followed else None
+        self.rate = self._rates[HORIZON_DAYS]
+        self.n_followed = None
 
     def survival(self, row: dict, t: int) -> float:
-        return 1.0 - (self.rate or 0.0)
+        if t not in self._rates:
+            raise ValueError(f"naive baseline was not fit for horizon {t}")
+        return 1.0 - (self._rates[t] or 0.0)
 
     def risk(self, row: dict, t: int) -> float:
-        return self.rate or 0.0
+        return 1.0 - self.survival(row, t)
 
 
 class CoxChallenger:
@@ -231,6 +254,22 @@ class CoxChallenger:
         )
         self.cox = CoxPHFitter(penalizer=COX_PENALIZER)
         self.cox.fit(frame, duration_col="duration", event_col="event")
+        # training covariate range: persisted so serving can flag
+        # extrapolation beyond what the model ever saw
+        self.training_range = {
+            f: [float(frame[f].min()), float(frame[f].max())] for f in COX_FEATURES
+        }
+        # PH diagnostic for the human reviewer (gate 4): Schoenfeld-residual
+        # test p-values. Low p = evidence AGAINST proportional hazards.
+        try:
+            from lifelines.statistics import proportional_hazard_test
+
+            test = proportional_hazard_test(self.cox, frame, time_transform="rank")
+            self.ph_test_p = {
+                str(idx): float(p) for idx, p in test.summary["p"].items()
+            }
+        except Exception:  # noqa: BLE001 - diagnostic must not break training
+            self.ph_test_p = None
 
     def survival(self, row: dict, t: int) -> float:
         import pandas as pd
@@ -278,16 +317,20 @@ def run_experiments(
         outcome.challenger_status = "no_rows"
         return outcome
 
+    # FORWARD evaluation always: dev runs fit on the two EARLIEST
+    # chronological blocks and evaluate on the LATEST (fold_2); the final run
+    # fits on all train blocks and evaluates once on the untouched holdout.
     train = [r for r in rows if r["split"] != "final_holdout"]
+    dev_eval_fold = f"fold_{ROLLING_FOLDS - 1}"
     evaluation = (
         [r for r in rows if r["split"] == "final_holdout"]
         if include_final_holdout
-        else [r for r in train if r["split"] == "fold_0"]
+        else [r for r in train if r["split"] == dev_eval_fold]
     )
-    eval_label = "final_holdout" if include_final_holdout else "fold_0"
+    eval_label = "final_holdout" if include_final_holdout else dev_eval_fold
     fit_rows = (
         train if include_final_holdout
-        else [r for r in train if r["split"] != "fold_0"]
+        else [r for r in train if r["split"] != dev_eval_fold]
     )
 
     mlflow = _mlflow()
@@ -296,10 +339,10 @@ def run_experiments(
     def execute(model, extra_params: dict | None = None) -> RunRecord:
         with mlflow.start_run(run_name=f"{model.name}:{dataset_id[:12]}") as active:
             model.fit(fit_rows)
-            brier180, evaluable = _ipcw_brier(
+            brier180, evaluable, floor180 = _ipcw_brier(
                 evaluation, HORIZON_DAYS, lambda r: model.survival(r, HORIZON_DAYS)
             )
-            brier90, _ = _ipcw_brier(
+            brier90, _, _ = _ipcw_brier(
                 evaluation, 90, lambda r: model.survival(r, 90)
             )
             calibration = _calibration_bins(
@@ -316,11 +359,15 @@ def run_experiments(
             metrics = {
                 "ipcw_brier_180": brier180,
                 "ipcw_brier_90": brier90,
+                "ipcw_g_floor_hits_180": floor180,
                 "calibration_abs_error": calibration_error,
                 "n_fit": len(fit_rows),
                 "n_eval": len(evaluation),
                 "n_eval_definitive": evaluable,
                 "events_fit": sum(r["event_issued"] for r in fit_rows),
+                # persisted (not just MLflow) so the promotion gate can check
+                # per-cohort regressions
+                "cohorts": cohorts,
             }
             config = {
                 "model": model.name,
@@ -332,10 +379,20 @@ def run_experiments(
             }
             mlflow.log_params({**config, "dataset_id": dataset_id, "commit": commit})
             for key, value in metrics.items():
-                if value is not None:
+                if value is not None and not isinstance(value, dict):
                     mlflow.log_metric(key, float(value))
             mlflow.log_dict({"bins": calibration}, "calibration.json")
             mlflow.log_dict(cohorts, "cohorts.json")
+            if isinstance(model, CoxChallenger):
+                mlflow.log_dict(
+                    {
+                        # association, not a causal effect (claim boundary)
+                        "coefficients_log_hazard_ratio": model.coefficients(),
+                        "ph_schoenfeld_p": model.ph_test_p,
+                        "training_range": model.training_range,
+                    },
+                    "cox-diagnostics.json",
+                )
 
             artifact_uri = artifact_sha = None
             payload = pickle.dumps(model)
@@ -387,7 +444,8 @@ def run_experiments(
     outcome.runs.append(execute(KMBaseline()))
 
     if gate_passed:
-        challenger_record = execute(CoxChallenger())
+        challenger_model = CoxChallenger()
+        challenger_record = execute(challenger_model)
         outcome.runs.append(challenger_record)
         outcome.challenger_status = "completed"
         model_id = "model-" + hashlib.sha256(
@@ -403,6 +461,10 @@ def run_experiments(
                 signature={
                     "inputs": COX_FEATURES,
                     "output": "P(issued within 180 days of submission)",
+                    # serving flags rows whose covariates fall outside this
+                    "training_range": getattr(
+                        challenger_model, "training_range", None
+                    ),
                 },
                 training_cutoff=dataset.cutoff,
                 target=dataset.target_policy,

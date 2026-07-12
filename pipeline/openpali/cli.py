@@ -754,9 +754,25 @@ def cmd_ml_drill(args: argparse.Namespace) -> int:
         ds_n1 = build_dataset(session, store, fixture_result.snapshot_n1)
         check("N+1 dataset hash differs", ds_n1.object_sha256 != ds_n.object_sha256,
               f"{ds_n.object_sha256[:10]} -> {ds_n1.object_sha256[:10]}")
+        # N+1 gains the EXPLICIT late-arriving application plus any submission
+        # whose first observation naturally falls in the month-12 acquisition
+        # (fixture-v3 submissions continue past the N window) — bitemporal
+        # arrival is by observation time, never occurrence time
+        from openpali.ml.dataset import load_dataset_rows as _load_rows
+        from openpali.storage.models import DatasetVersion as _DV
+
+        ids_n = {r["application_id"] for r in _load_rows(
+            store, session.execute(
+                select(_DV).where(_DV.dataset_id == ds_n.dataset_id)
+            ).scalar_one())}
+        ids_n1 = {r["application_id"] for r in _load_rows(
+            store, session.execute(
+                select(_DV).where(_DV.dataset_id == ds_n1.dataset_id)
+            ).scalar_one())}
         check("late-arriving application enters N+1 only",
-              ds_n1.row_count == ds_n.row_count + 1,
-              f"rows {ds_n.row_count} -> {ds_n1.row_count}")
+              "FXLATE-10000-00001" in ids_n1 - ids_n and ids_n <= ids_n1,
+              f"rows {ds_n.row_count} -> {ds_n1.row_count} "
+              f"(+{len(ids_n1 - ids_n)} first-observed in month 12)")
 
         # no-op: same snapshot rebuilt => same dataset id, no new experiment data
         ds_noop = build_dataset(session, store, fixture_result.snapshot_n1)
@@ -786,14 +802,33 @@ def cmd_ml_drill(args: argparse.Namespace) -> int:
               (champion_before.model_id if champion_before else None)
               == (champion_after.model_id if champion_after else None))
 
-        print("== manual promotion (predeclared gates + named reviewer) ==")
-        promoted = False
+        print("== manual promotion (final-holdout evaluation + predeclared gates) ==")
+        # a fold-evaluated (dev) model may NEVER be promoted: the gates
+        # require the once-only final-holdout evaluation
+        fold_promotion_refused = False
         if outcome_n1.model_id:
             try:
                 record_promotion(
                     session, model_id=outcome_n1.model_id,
                     reviewer=args.reviewer, decision="promoted",
-                    reason="fixture drill: challenger beat KM under predeclared gates",
+                    reason="drill: attempting to promote a DEV (fold) evaluation",
+                )
+            except ValueError as exc:
+                fold_promotion_refused = True
+                print(f"  fold-eval promotion refused (correct): {exc}")
+        check("fold-evaluated model cannot be promoted", fold_promotion_refused)
+
+        outcome_final = run_experiments(
+            session, store, ds_n1.dataset_id, include_final_holdout=True
+        )
+        promoted = False
+        if outcome_final.model_id:
+            try:
+                record_promotion(
+                    session, model_id=outcome_final.model_id,
+                    reviewer=args.reviewer, decision="promoted",
+                    reason="fixture drill: challenger beat KM on the final holdout "
+                           "under predeclared gates",
                 )
                 promoted = True
             except ValueError as exc:
