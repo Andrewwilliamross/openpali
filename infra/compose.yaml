@@ -527,6 +527,30 @@ services:
     networks: [internal]
     profiles: [observability]
 
+  # Trigger the full multi-source refresh -> snapshot -> analytics -> release
+  # pipeline through the registered deployment and WAIT for its terminal
+  # state (exit 0 only on Completed). Used directly and by the worker
+  # kill/resume drill.
+  full-release:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - openpali
+      - orchestrate-run
+      - full-refresh-release/default
+      - --params
+      - '{"kind": "representative"}'
+      - --timeout
+      - "3600"
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
   schedule-drill:
     image: openpali-pipeline:local
     build:
