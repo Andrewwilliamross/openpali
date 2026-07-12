@@ -260,6 +260,46 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--release", default="current")
     p.set_defaults(func=cmd_replay)
 
+    p = sub.add_parser("ml-dataset", help="build the point-in-time dataset for a snapshot")
+    p.add_argument("--snapshot", default="current")
+    p.set_defaults(func=cmd_ml_dataset)
+
+    p = sub.add_parser("ml-experiments", help="run baseline+challenger experiments")
+    p.add_argument("--dataset", required=True)
+    p.add_argument("--final", action="store_true",
+                   help="the ONE final-holdout evaluation (spec frozen beforehand)")
+    p.set_defaults(func=cmd_ml_experiments)
+
+    p = sub.add_parser("ml-promote", help="manual champion promotion (gated)")
+    p.add_argument("--model", required=True)
+    p.add_argument("--reviewer", required=True)
+    p.add_argument("--decision", default="promoted", choices=["promoted", "rejected"])
+    p.add_argument("--reason", required=True)
+    p.add_argument("--evaluate-only", action="store_true")
+    p.set_defaults(func=cmd_ml_promote)
+
+    p = sub.add_parser("ml-serve", help="build the snapshot-bound batch prediction set")
+    p.add_argument("--snapshot", required=True)
+    p.add_argument("--dataset", required=True)
+    p.set_defaults(func=cmd_ml_serve)
+
+    p = sub.add_parser("ml-drill", help="temporal fixture + N->N+1 drill (full challenger path)")
+    p.add_argument("--reviewer", default="drill-independent-reviewer")
+    p.set_defaults(func=cmd_ml_drill)
+
+    p = sub.add_parser("spatial-acquire", help="acquire the frozen USGS AOI DEM tiles")
+    p.add_argument("--offline", action="store_true", help="replay from stored raw bytes")
+    p.set_defaults(func=cmd_spatial_acquire)
+
+    p = sub.add_parser("spatial-derive", help="derive surfel tileset + terrain from raw DEM")
+    p.set_defaults(func=cmd_spatial_derive)
+
+    p = sub.add_parser("recon-drill", help="two-view reconstruction fixture + review drill")
+    p.set_defaults(func=cmd_recon_drill)
+
+    p = sub.add_parser("recon-gpu-probe", help="typed GPU worker hardware boundary")
+    p.set_defaults(func=cmd_recon_gpu_probe)
+
     p = sub.add_parser("export-openapi", help="print the OpenAPI schema")
     p.set_defaults(func=cmd_export_openapi)
 
@@ -570,3 +610,370 @@ def _replay_order(session, run_id: str) -> int:
         return FULL_REFRESH_ORDER.index(row.source_id)
     except ValueError:
         return 99
+
+
+def cmd_ml_dataset(args: argparse.Namespace) -> int:
+    from openpali.ml.dataset import build_dataset
+    from openpali.storage.models import CurrentRelease, Publication
+
+    store = ObjectStore()
+    with session_scope() as session:
+        snapshot_id = args.snapshot
+        if snapshot_id == "current":
+            current = session.get(CurrentRelease, 1)
+            publication = session.execute(
+                select(Publication).where(
+                    Publication.release_id == current.current_release_id
+                )
+            ).scalar_one()
+            snapshot_id = publication.snapshot_id
+        result = build_dataset(session, store, snapshot_id)
+        print(json.dumps({
+            "dataset_id": result.dataset_id,
+            "rows": result.row_count,
+            "events": result.events,
+            "censored": result.censored,
+            "excluded_missing_submission": result.excluded_missing_submission,
+            "gate": result.gate,
+            "availability": result.availability,
+            "object_sha256": result.object_sha256,
+            "created": result.created,
+        }, indent=1))
+        print(f"DATASET_ID={result.dataset_id}")
+    return 0
+
+
+def cmd_ml_experiments(args: argparse.Namespace) -> int:
+    from openpali.ml.experiments import run_experiments
+
+    store = ObjectStore()
+    with session_scope() as session:
+        outcome = run_experiments(
+            session, store, args.dataset,
+            include_final_holdout=args.final,
+        )
+        print(f"gate_passed={outcome.gate_passed} challenger={outcome.challenger_status}")
+        for run in outcome.runs:
+            printable = {k: (round(v, 5) if isinstance(v, float) else v)
+                         for k, v in run.metrics.items() if v is not None}
+            print(f"  {run.name:16s} mlflow={run.mlflow_run_id} {json.dumps(printable)}")
+        if outcome.model_id:
+            print(f"MODEL_ID={outcome.model_id}")
+        print(f"CHALLENGER_STATUS={outcome.challenger_status}")
+    return 0
+
+
+def cmd_ml_promote(args: argparse.Namespace) -> int:
+    from openpali.ml.registry import evaluate_gates, record_promotion
+    from openpali.storage.models import ModelVersion
+
+    with session_scope() as session:
+        if args.evaluate_only:
+            model = session.execute(
+                select(ModelVersion).where(ModelVersion.model_id == args.model)
+            ).scalar_one()
+            gates = evaluate_gates(session, model.experiment_run_id)
+            print(json.dumps(gates, indent=1))
+            return 0 if gates.get("passed") else 4
+        try:
+            row = record_promotion(
+                session,
+                model_id=args.model,
+                reviewer=args.reviewer,
+                decision=args.decision,
+                reason=args.reason,
+            )
+        except ValueError as exc:
+            print(f"PROMOTION REFUSED: {exc}", file=sys.stderr)
+            return 4
+        print(f"decision {row.decision_id}: {row.decision} by {row.reviewer}")
+        print(json.dumps(row.gate_metrics, indent=1))
+    return 0
+
+
+def cmd_ml_serve(args: argparse.Namespace) -> int:
+    from openpali.ml.serving import build_prediction_set
+
+    store = ObjectStore()
+    with session_scope() as session:
+        result = build_prediction_set(session, store, args.snapshot, args.dataset)
+        print(json.dumps({
+            "prediction_set_id": result.prediction_set_id,
+            "status": result.status,
+            "rows": result.rows,
+            "model_id": result.model_id,
+            "insufficiency_reason": result.insufficiency_reason,
+        }, indent=1))
+    return 0
+
+
+def cmd_ml_drill(args: argparse.Namespace) -> int:
+    """Temporal fixture + full challenger path + the N -> N+1 drill (ML-003)."""
+
+    from openpali.ml.dataset import build_dataset
+    from openpali.ml.experiments import run_experiments
+    from openpali.ml.fixture import build_fixture_ledger
+    from openpali.ml.registry import record_promotion
+    from openpali.ml.serving import build_prediction_set, current_champion
+
+    store = ObjectStore()
+    checks: list[tuple[str, bool, str]] = []
+
+    def check(name: str, passed: bool, detail: str = "") -> None:
+        checks.append((name, passed, detail))
+        print(f"  [{'PASS' if passed else 'FAIL'}] {name} {detail}")
+
+    with session_scope() as session:
+        print("== resetting prior fixture state ==")
+        from openpali.ml.fixture import reset_fixture
+
+        reset_fixture(session)
+        print("== building temporal fixture ledger (staggered observed_at) ==")
+        fixture_result = build_fixture_ledger(session, store)
+        print(f"snapshot N   = {fixture_result.snapshot_n}")
+        print(f"snapshot N+1 = {fixture_result.snapshot_n1}")
+
+        print("== dataset N ==")
+        ds_n = build_dataset(session, store, fixture_result.snapshot_n)
+        print(f"  rows={ds_n.row_count} events={ds_n.events} gate={ds_n.gate['passed']}")
+        check("history gate passes on staggered fixture", ds_n.gate["passed"],
+              f"(dates={ds_n.gate['distinct_acquisition_dates']}, span={ds_n.gate['span_days']}d, coverage={ds_n.gate['origin_feature_coverage']})")
+
+        if not ds_n.gate["passed"] or not ds_n.object_sha256:
+            print("drill cannot proceed: fixture dataset empty or gate failed",
+                  file=sys.stderr)
+            return 5
+
+        # byte-identical rebuild of N
+        ds_n_again = build_dataset(session, store, fixture_result.snapshot_n)
+        check("N dataset rebuild is byte-identical",
+              ds_n_again.object_sha256 == ds_n.object_sha256 and not ds_n_again.created,
+              f"sha={ds_n.object_sha256[:12]}")
+
+        print("== dataset N+1 (late arrival + retraction) ==")
+        ds_n1 = build_dataset(session, store, fixture_result.snapshot_n1)
+        check("N+1 dataset hash differs", ds_n1.object_sha256 != ds_n.object_sha256,
+              f"{ds_n.object_sha256[:10]} -> {ds_n1.object_sha256[:10]}")
+        check("late-arriving application enters N+1 only",
+              ds_n1.row_count == ds_n.row_count + 1,
+              f"rows {ds_n.row_count} -> {ds_n1.row_count}")
+
+        # no-op: same snapshot rebuilt => same dataset id, no new experiment data
+        ds_noop = build_dataset(session, store, fixture_result.snapshot_n1)
+        check("semantic no-op creates no duplicate dataset",
+              ds_noop.dataset_id == ds_n1.dataset_id and not ds_noop.created)
+
+        print("== experiments on N (rolling folds; final block untouched) ==")
+        outcome_n = run_experiments(session, store, ds_n.dataset_id)
+        check("challenger executed on fixture", outcome_n.challenger_status == "completed")
+        by_name = {r.name: r for r in outcome_n.runs}
+        cox = by_name.get("challenger-cox")
+        km = by_name.get("baseline-km")
+        if cox and km:
+            check("challenger beats KM on IPCW Brier@180 (fold eval)",
+                  (cox.metrics.get("ipcw_brier_180") or 9) < (km.metrics.get("ipcw_brier_180") or 0),
+                  f"cox={cox.metrics.get('ipcw_brier_180'):.5f} km={km.metrics.get('ipcw_brier_180'):.5f}")
+
+        champion_before = current_champion(session)
+        print("== experiments on N+1 (snapshot-triggered reevaluation) ==")
+        outcome_n1 = run_experiments(session, store, ds_n1.dataset_id)
+        check("N+1 evaluation ran with distinct MLflow runs",
+              outcome_n1.challenger_status == "completed"
+              and {r.mlflow_run_id for r in outcome_n1.runs}.isdisjoint(
+                  {r.mlflow_run_id for r in outcome_n.runs}))
+        champion_after = current_champion(session)
+        check("champion unchanged without review",
+              (champion_before.model_id if champion_before else None)
+              == (champion_after.model_id if champion_after else None))
+
+        print("== manual promotion (predeclared gates + named reviewer) ==")
+        promoted = False
+        if outcome_n1.model_id:
+            try:
+                record_promotion(
+                    session, model_id=outcome_n1.model_id,
+                    reviewer=args.reviewer, decision="promoted",
+                    reason="fixture drill: challenger beat KM under predeclared gates",
+                )
+                promoted = True
+            except ValueError as exc:
+                print(f"  promotion refused: {exc}")
+        check("promotion recorded via append-only decision", promoted)
+
+        print("== fresh-process style serving from the immutable artifact ==")
+        served = build_prediction_set(
+            session, store, fixture_result.snapshot_n1, ds_n1.dataset_id
+        )
+        check("batch prediction set served",
+              served.status == "served" and served.rows > 0,
+              f"rows={served.rows} set={served.prediction_set_id}")
+        session.commit()
+
+    failures = [c for c in checks if not c[1]]
+    print(f"== drill: {len(checks) - len(failures)}/{len(checks)} checks passed ==")
+    return 0 if not failures else 5
+
+
+def cmd_spatial_acquire(args: argparse.Namespace) -> int:
+    """Acquire (or offline-replay) the frozen USGS AOI and register raw assets."""
+
+    from openpali.spatial.usgs import refresh_usgs
+
+    store = ObjectStore()
+    with session_scope() as session:
+        result = refresh_usgs(session, store, online=not args.offline)
+        print(
+            f"usgs acquisition {result.status}: run={result.run_id} "
+            f"tiles={result.tiles} raw_assets_registered={result.raw_assets_registered}"
+        )
+        for sha, size in result.page_hashes:
+            print(f"  page {sha[:16]} {size} bytes")
+        print(f"RUN_ID={result.run_id}")
+        return 0 if result.status == "succeeded" else 3
+
+
+def cmd_spatial_derive(args: argparse.Namespace) -> int:
+    """Derive + upload + register the surfel tileset and terrain pyramid."""
+
+    from openpali.spatial.derive import derive_usgs_products
+
+    store = ObjectStore()
+    with session_scope() as session:
+        results = derive_usgs_products(session, store)
+        print(json.dumps(results, indent=1, default=str))
+        recon = results["reconciliation"]
+        if recon["parcels_with_dem_coverage"] < 25:
+            print("FAIL: fewer than 25 parcels covered by the derived asset",
+                  file=sys.stderr)
+            return 4
+        print(f"SPATIAL_VERSION={results['version_id']}")
+    return 0
+
+
+def cmd_recon_drill(args: argparse.Namespace) -> int:
+    """MULTIMODAL-001 drill: withheld-transform estimation -> gates -> fused
+    fixture asset -> candidates -> accepted/rejected/retracted transitions."""
+
+    from openpali.spatial.reconstruction import (
+        CandidateReviewError,
+        build_fixture_scene,
+        fuse_and_register_asset,
+        propose_candidates,
+        review_candidate,
+        run_reconstruction,
+    )
+    from openpali.storage.models import ObservationCandidate, RecoveryObservationRow
+
+    checks: list[tuple[str, bool, str]] = []
+
+    def check(name: str, ok: bool, detail: str = "") -> None:
+        checks.append((name, ok, detail))
+        print(f"  [{'PASS' if ok else 'FAIL'}] {name} {detail}")
+
+    print("== deterministic two-view stress fixture (withheld ~1.5 m / 3 deg) ==")
+    scene = build_fixture_scene()
+    result = run_reconstruction(scene)
+    for key, gate in result.gates.items():
+        check(f"gate {key} <= {gate['max']}", gate["passed"], f"value={gate['value']}")
+
+    store = ObjectStore()
+    with session_scope() as session:
+        print("== fuse + tile + register (synthetic_fixture rights) ==")
+        asset = fuse_and_register_asset(session, store, scene, result)
+        check("fused asset tiled and registered", True, f"{asset[0]}@{asset[1][:14]}")
+
+        from openpali.spatial.registry import select_release_assets
+
+        public = select_release_assets(session, release_kind="representative")
+        barred = any(
+            e["asset_id"] == asset[0] for e in public["excluded"]
+        ) and not any(a["asset_id"] == asset[0] for a in public["assets"])
+        check("synthetic asset technically barred from public releases", barred)
+
+        print("== probabilistic candidates (residual/coverage-derived) ==")
+        candidate_ids = propose_candidates(session, scene, result, asset)
+        rows = [
+            session.execute(
+                select(ObservationCandidate).where(
+                    ObservationCandidate.candidate_id == cid
+                )
+            ).scalar_one()
+            for cid in candidate_ids
+        ]
+        check(
+            "change + control candidates proposed",
+            len(rows) == 2 and all(r.review_state == "pending" for r in rows),
+            f"confidences={[round(r.confidence, 3) for r in rows]}",
+        )
+        check(
+            "candidate carries full truth model",
+            all(
+                r.confidence_method and r.registration_residual_m is not None
+                and r.coverage_fraction is not None and r.occlusion
+                and r.process_version and r.rights_state == "synthetic_fixture"
+                for r in rows
+            ),
+        )
+
+        def observation_count() -> int:
+            return session.execute(
+                select(func.count()).select_from(RecoveryObservationRow).where(
+                    RecoveryObservationRow.source_id == "fixture_reconstruction"
+                )
+            ).scalar_one()
+
+        from sqlalchemy import func
+
+        before = observation_count()
+        check("no civic observation exists before review", before == 0, f"n={before}")
+
+        print("== review transitions ==")
+        change_id, control_id = candidate_ids[0], candidate_ids[1]
+        obs_id = review_candidate(
+            session, change_id, "accepted",
+            reviewer="drill-reviewer", reason="occupancy delta is decisive",
+        )
+        check("acceptance appends exactly one observation",
+              obs_id is not None and observation_count() == 1)
+
+        review_candidate(
+            session, control_id, "rejected",
+            reviewer="drill-reviewer", reason="control region: no change claimed",
+        )
+        check("rejection appends nothing", observation_count() == 1)
+
+        try:
+            review_candidate(session, control_id, "accepted",
+                             reviewer="x", reason="y")
+            check("rejected candidate cannot be accepted later", False)
+        except CandidateReviewError:
+            check("rejected candidate cannot be accepted later", True)
+
+        review_candidate(
+            session, change_id, "retracted",
+            reviewer="drill-reviewer", reason="drill: exercising retraction",
+        )
+        from openpali.storage.models import ObservationRevision
+
+        n_revisions = session.execute(
+            select(func.count()).select_from(ObservationRevision).where(
+                ObservationRevision.source_id == "fixture_reconstruction"
+            )
+        ).scalar_one()
+        check("retraction is an append-only revision (observation preserved)",
+              n_revisions == 1 and observation_count() == 1)
+        session.commit()
+
+    failures = [c for c in checks if not c[1]]
+    print(f"== recon drill: {len(checks) - len(failures)}/{len(checks)} checks passed ==")
+    return 0 if not failures else 5
+
+
+def cmd_recon_gpu_probe(args: argparse.Namespace) -> int:
+    """Typed hardware boundary for the optional GPU reconstruction worker."""
+
+    from openpali.spatial.reconstruction import gpu_probe
+
+    result = gpu_probe()
+    print(json.dumps(result, indent=1))
+    return 0

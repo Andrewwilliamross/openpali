@@ -478,3 +478,203 @@ def parcel_tile(
         media_type="application/vnd.mapbox-vector-tile",
         headers={"ETag": etag, "Cache-Control": IMMUTABLE_CACHE},
     )
+
+
+# ---------------------------------------------------------------------------
+# forecast (stored batch predictions or typed insufficiency; ML-003)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/releases/{release_id}/properties/{property_id}/forecast")
+def property_forecast(
+    property_id: str,
+    request: Request,
+    response: Response,
+    publication: Publication = Depends(get_release),
+    session: Session = Depends(get_session),
+) -> dict:
+    from openpali.storage.models import (
+        CaseLink,
+        ModelVersion,
+        Prediction,
+        PredictionSet,
+    )
+
+    etag = _etag(publication.release_id, "forecast", property_id)
+    _maybe_304(request, response, etag, IMMUTABLE_CACHE)
+    state = _state_for_property(session, publication, property_id)
+
+    links = list(
+        session.execute(
+            select(CaseLink).where(
+                CaseLink.object_type == "property",
+                CaseLink.object_id == property_id,
+                CaseLink.link_type == "permit_on_property",
+            )
+        ).scalars()
+    )
+    qualifying = [
+        link.subject_id for link in links
+        if (link.detail or {}).get("qualification") == "qualifying_rebuild_application"
+    ]
+
+    prediction_sets = list(
+        session.execute(
+            select(PredictionSet).where(
+                PredictionSet.snapshot_id == publication.snapshot_id
+            ).order_by(PredictionSet.created_at.desc())
+        ).scalars()
+    )
+    base = {
+        "release_id": publication.release_id,
+        "snapshot_id": publication.snapshot_id,
+        "property_id": property_id,
+        "qualifying_applications": qualifying,
+        "disclaimer": (
+            "Any estimate is computed at application submission time from a "
+            "versioned batch run — it is never a current ETA and never a "
+            "judgment of resident effort."
+        ),
+    }
+    if not qualifying:
+        return {
+            **base,
+            "status": "not_applicable",
+            "reason": "no qualifying rebuild application is on record for this property",
+        }
+    if not prediction_sets:
+        return {
+            **base,
+            "status": "insufficient_evidence",
+            "reason": "no prediction set exists for this release's snapshot",
+        }
+    active_set = prediction_sets[0]
+    if active_set.status == "insufficient" or active_set.model_id is None:
+        return {
+            **base,
+            "status": "insufficient_evidence",
+            "reason": active_set.insufficiency_reason,
+            "prediction_set_id": active_set.prediction_set_id,
+            "note": (
+                "The learning system ran and declined to fit a challenger: the "
+                "ledger cannot yet demonstrate point-in-time feature history. "
+                "Descriptive censoring-aware cohort estimates remain available "
+                "under /metrics/bottlenecks."
+            ),
+        }
+
+    model = session.execute(
+        select(ModelVersion).where(ModelVersion.model_id == active_set.model_id)
+    ).scalar_one_or_none()
+    applications = []
+    for permit_no in qualifying:
+        prediction = session.execute(
+            select(Prediction).where(
+                Prediction.prediction_set_id == active_set.prediction_set_id,
+                Prediction.subject_type == "permit_application",
+                Prediction.subject_id == permit_no,
+            )
+        ).scalar_one_or_none()
+        if prediction is not None:
+            applications.append(
+                {
+                    "application_id": permit_no,
+                    "status": "predicted",
+                    "target": prediction.target,
+                    "horizon_days": prediction.horizon_days,
+                    "estimate": prediction.estimate,
+                    "basis": prediction.basis,
+                    "generated_at": prediction.generated_at.isoformat(),
+                }
+            )
+        else:
+            applications.append(
+                {
+                    "application_id": permit_no,
+                    "status": "outcome_or_beyond_horizon",
+                    "note": (
+                        "the application's 180-day horizon has resolved or "
+                        "elapsed; see the observations timeline for the "
+                        "observed outcome"
+                    ),
+                }
+            )
+    return {
+        **base,
+        "status": "available",
+        "prediction_set_id": active_set.prediction_set_id,
+        "model": {
+            "model_id": model.model_id if model else active_set.model_id,
+            "target": model.target if model else None,
+            "training_cutoff": model.training_cutoff.isoformat() if model else None,
+            "limitations": model.limitations if model else None,
+        },
+        "applications": applications,
+    }
+
+
+# ---------------------------------------------------------------------------
+# spatial assets (release-selected versions; tiles streamed from the object
+# store with immutable caching; SPATIAL-001)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/releases/{release_id}/spatial/assets")
+def spatial_assets(
+    request: Request,
+    response: Response,
+    publication: Publication = Depends(get_release),
+) -> dict:
+    etag = _etag(publication.release_id, "spatial", publication.manifest_sha256)
+    _maybe_304(request, response, etag, IMMUTABLE_CACHE)
+    spatial = (publication.manifest or {}).get("spatial", {})
+    return {
+        "release_id": publication.release_id,
+        "selection_policy": spatial.get("selection_policy"),
+        "assets": spatial.get("assets", []),
+        "excluded": spatial.get("excluded", []),
+    }
+
+
+def _release_asset(publication: Publication, asset_id: str, version_id: str) -> dict:
+    for asset in (publication.manifest or {}).get("spatial", {}).get("assets", []):
+        if asset["asset_id"] == asset_id and asset["version_id"] == version_id:
+            return asset
+    raise HTTPException(
+        404,
+        f"asset {asset_id}@{version_id} is not selected by release "
+        f"{publication.release_id}; stale or foreign asset versions are not served",
+    )
+
+
+@router.get("/releases/{release_id}/spatial/{asset_id}/{version_id}/{path:path}")
+def spatial_asset_file(
+    asset_id: str,
+    version_id: str,
+    path: str,
+    request: Request,
+    response: Response,
+    publication: Publication = Depends(get_release),
+) -> Response:
+    from openpali.storage.objects import ObjectStore, SPATIAL_BUCKET
+
+    _release_asset(publication, asset_id, version_id)
+    if ".." in path or path.startswith("/") or not path:
+        raise HTTPException(400, "invalid asset path")
+    etag = _etag(publication.release_id, "spatial-file", asset_id, version_id, path)
+    _maybe_304(request, response, etag, IMMUTABLE_CACHE)
+    store = ObjectStore()
+    key = f"assets/{asset_id}/{version_id}/{path}"
+    if not store.exists(SPATIAL_BUCKET, key):
+        raise HTTPException(404, f"no such asset object: {path}")
+    body = store.client.get_object(Bucket=SPATIAL_BUCKET, Key=key)["Body"].read()
+    media = (
+        "image/png" if path.endswith(".png")
+        else "application/json" if path.endswith(".json")
+        else "application/octet-stream"
+    )
+    return Response(
+        content=body,
+        media_type=media,
+        headers={"ETag": etag, "Cache-Control": IMMUTABLE_CACHE},
+    )

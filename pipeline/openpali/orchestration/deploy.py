@@ -15,6 +15,7 @@ DEPLOYMENTS = {
     "analytics_snapshot_flow": ("default", {}),
     "release_candidate_flow": ("default", {}),
     "full_refresh_release_flow": ("default", {}),
+    "spatial_refresh_flow": ("default", {}),
 }
 
 

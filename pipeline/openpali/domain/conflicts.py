@@ -36,6 +36,7 @@ UNIQUE_MILESTONE_EVENTS: frozenset[str] = frozenset(
 )
 
 CONFLICT_POLICY_VERSION = "conflicts-v1"
+CONFLICT_SOURCE_ID = "openpali_conflict_detection"
 
 
 def _bounds(observation: RecoveryObservation) -> tuple[_date | None, _date | None]:
@@ -108,7 +109,7 @@ def detect_conflicts(
                     occurred=first.occurred,
                     observed_at=detected_at,
                     source_record=SourceRecordRef(
-                        source_id="openpali_conflict_detection",
+                        source_id=CONFLICT_SOURCE_ID,
                         native_key=f"{subject_id}:{event_type}",
                     ),
                     policy_version=CONFLICT_POLICY_VERSION,

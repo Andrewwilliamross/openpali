@@ -133,6 +133,9 @@ services:
       AWS_ACCESS_KEY_ID: openpali-local-fixture-access
       AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
       AWS_DEFAULT_REGION: us-east-1
+      # in-cluster clients address the service name; the browser reaches the
+      # UI through the squid accel port (Host localhost:55000)
+      MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow:5000,localhost:55000,127.0.0.1:55000,localhost,127.0.0.1"
     depends_on:
       postgres:
         condition: service_healthy
@@ -328,6 +331,77 @@ services:
     networks: [internal]
     profiles: [jobs]
 
+  ml-drill:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "ml-drill"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  ml-representative:
+    # Representative-ledger ML path: real dataset + availability audit +
+    # baselines; challenger gated by the precommitted point-in-time-history
+    # gate (expected: INSUFFICIENT_POINT_IN_TIME_HISTORY) + typed
+    # insufficiency prediction set.
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        openpali ml-dataset --snapshot current | tee /tmp/ds.out
+        DATASET_ID=$$(grep '^DATASET_ID=' /tmp/ds.out | cut -d= -f2)
+        openpali ml-experiments --dataset "$$DATASET_ID" | tee /tmp/exp.out
+        SNAPSHOT_ID=$$(python -c "
+        from openpali.storage.db import session_scope
+        from openpali.storage.models import CurrentRelease, Publication
+        from sqlalchemy import select
+        with session_scope() as s:
+            c = s.get(CurrentRelease, 1)
+            p = s.execute(select(Publication).where(Publication.release_id == c.current_release_id)).scalar_one()
+            print(p.snapshot_id)
+        ")
+        openpali ml-serve --snapshot "$$SNAPSHOT_ID" --dataset "$$DATASET_ID"
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
   prefect-deploy:
     image: openpali-pipeline:local
     build:
@@ -359,6 +433,111 @@ services:
         condition: service_healthy
       object-store:
         condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  release-republish:
+    # Re-promote the CURRENT release's snapshot through the registered
+    # release-candidate deployment (worker-executed): the rebuilt manifest
+    # picks up newly selected spatial assets and re-derives undocumented
+    # values from run health.
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -ceu
+      - |
+        SNAPSHOT_ID=$$(python -c "
+        from openpali.storage.db import session_scope
+        from openpali.storage.models import CurrentRelease, Publication
+        from sqlalchemy import select
+        with session_scope() as s:
+            c = s.get(CurrentRelease, 1)
+            p = s.execute(select(Publication).where(Publication.release_id == c.current_release_id)).scalar_one()
+            print(p.snapshot_id)
+        ")
+        echo "republishing snapshot $$SNAPSHOT_ID as representative"
+        openpali orchestrate-run release-candidate/default \
+          --params "{\"snapshot_id\": \"$$SNAPSHOT_ID\", \"kind\": \"representative\"}"
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  recon-drill:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "recon-drill"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  # Optional GPU reconstruction worker boundary: the pinned entrypoint probes
+  # hardware and, absent a qualifying GPU, emits a TYPED unsupported_hardware
+  # result instead of crashing or silently falling back.
+  recon-gpu:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "recon-gpu-probe"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    networks: [internal]
+    profiles: [gpu]
+
+  spatial-refresh:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -ceu
+      - |
+        echo "== USGS AOI acquisition (frozen tiles) =="
+        openpali spatial-acquire
+        echo "== derive surfel tileset + terrain pyramid =="
+        openpali spatial-derive
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,postgres,object-store,prefect-server,mlflow,api,proxy
+      # pyproj fetches the GEOID18 grid via the egress proxy and caches it in
+      # the writable container home (PROJ honors proxy env)
+      PROJ_NETWORK: "ON"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      proxy:
+        condition: service_started
     networks: [internal]
     profiles: [jobs]
 

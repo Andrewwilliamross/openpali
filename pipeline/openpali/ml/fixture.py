@@ -32,10 +32,22 @@ from openpali.domain.observations import (
     SubjectType,
 )
 from openpali.domain.temporal import ExactDate
+from openpali.identity.ids import (
+    IDENTITY_SEED_POLICY_VERSION,
+    identity_seed_for_apn,
+    property_id_from_apn,
+    record_version_id,
+)
 from openpali.ingestion.load import insert_observations
 from openpali.ingestion.snapshot import build_snapshot
 from openpali.ingestion.acquire import ensure_source
-from openpali.storage.models import AcquisitionRun, ObservationRevision, Source
+from openpali.storage.models import (
+    AcquisitionRun,
+    ObservationRevision,
+    ParcelVersion,
+    PropertyIdentity,
+    Source,
+)
 from openpali.storage.objects import ObjectStore
 
 FIXTURE_SOURCE = "fixture_civic"
@@ -43,6 +55,41 @@ FIXTURE_APN_PREFIX = "99"
 SEED = 424242
 N_APPLICATIONS = 320
 FIRE = date(2025, 1, 7)
+# Versioned generator: a change to the fixture's generative semantics is a new
+# acquisition lineage (new run ids -> new snapshot/dataset ids), never a
+# silent mutation of immutable artifacts.
+# v2: issuance observed by the first acquisition at/after occurrence
+# (administrative censoring; PH-clean generator, no artificial cure class).
+FIXTURE_VERSION = "fixture-v2"
+
+
+def _fixture_record_version(session: Session, apn: str, run: AcquisitionRun) -> str:
+    """Minimal source_record_version row backing a fixture parcel version."""
+
+    from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+    from openpali.storage.models import SourceRecordVersion
+
+    payload = {"APN": apn, "fixture": True}
+    import hashlib as _hashlib
+    from openpali.identity.ids import canonical_json
+
+    payload_sha = _hashlib.sha256(canonical_json(payload).encode()).hexdigest()
+    version_id = record_version_id(FIXTURE_SOURCE, apn, payload_sha)
+    session.execute(
+        pg_insert(SourceRecordVersion)
+        .values(
+            record_version_id=version_id,
+            source_id=FIXTURE_SOURCE,
+            native_key=apn,
+            acquisition_run_id=run.id,
+            payload_sha256=payload_sha,
+            payload=payload,
+            first_observed_at=run.retrieved_at,
+        )
+        .on_conflict_do_nothing(index_elements=["record_version_id"])
+    )
+    return version_id
 
 
 class _FixtureAdapterStub:
@@ -61,7 +108,7 @@ def _monthly_runs(session: Session, months: int, start: date) -> list[Acquisitio
             start.year, start.month, 15, 12, 0, tzinfo=timezone.utc
         ) + timedelta(days=31 * index)
         run_id = "run-fixture-" + hashlib.sha256(
-            f"{FIXTURE_SOURCE}:{acquired.isoformat()}".encode()
+            f"{FIXTURE_SOURCE}:{acquired.isoformat()}:{FIXTURE_VERSION}".encode()
         ).hexdigest()[:16]
         existing = session.execute(
             select(AcquisitionRun).where(AcquisitionRun.run_id == run_id)
@@ -146,15 +193,59 @@ def build_fixture_ledger(session: Session, store: ObjectStore) -> FixtureResult:
     runs = _monthly_runs(session, 12, FIRE + timedelta(days=40))
     applications = [_application(rng, i) for i in range(N_APPLICATIONS)]
 
-    def acquisition_for(when: date) -> AcquisitionRun:
-        for run in runs[:-1]:
+    def acquisition_for(when: date) -> AcquisitionRun | None:
+        """First acquisition run at/after the event date — an event is only
+        observable once a run has actually retrieved it. Events after the
+        final run are unobserved everywhere (honest right-censoring)."""
+
+        for run in runs:
             if run.retrieved_at.date() >= when:
                 return run
-        return runs[-2]  # last N-window run
+        return None
+
+    def ensure_fixture_parcel(apn: str, run: AcquisitionRun) -> None:
+        """Full parcel identity so snapshots project fixture properties."""
+
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+        property_id = property_id_from_apn(apn)
+        session.execute(
+            pg_insert(PropertyIdentity)
+            .values(
+                property_id=property_id,
+                identity_seed=identity_seed_for_apn(apn),
+                seed_policy_version=IDENTITY_SEED_POLICY_VERSION,
+            )
+            .on_conflict_do_nothing(index_elements=["identity_seed"])
+        )
+        session.flush()
+        identity = session.execute(
+            select(PropertyIdentity).where(PropertyIdentity.property_id == property_id)
+        ).scalar_one()
+        existing = session.execute(
+            select(ParcelVersion).where(
+                ParcelVersion.apn == apn, ParcelVersion.observed_to.is_(None)
+            ).limit(1)
+        ).scalar_one_or_none()
+        if existing is None:
+            session.add(
+                ParcelVersion(
+                    property_identity_id=identity.id,
+                    apn=apn,
+                    jurisdiction="FIXTURE",
+                    situs_address=f"{apn} FIXTURE ST",
+                    neighborhood="Fixtureland",
+                    damage_class="Destroyed (>50%)",
+                    record_version_id=_fixture_record_version(session, apn, run),
+                    observed_from=run.retrieved_at,
+                )
+            )
+            session.flush()
 
     observations: list[tuple[RecoveryObservation, AcquisitionRun]] = []
     for index, app in enumerate(applications):
         parcel = SubjectRef(SubjectType.PARCEL, app["apn"])
+        ensure_fixture_parcel(app["apn"], runs[0])
         permit = SubjectRef(SubjectType.PERMIT_APPLICATION, app["permit_no"])
         # Parcel context observed in the FIRST run at/after fire (guarantees
         # feature availability at origin for the history gate).
@@ -171,6 +262,7 @@ def build_fixture_ledger(session: Session, store: ObjectStore) -> FixtureResult:
             )
         )
         submit_run = acquisition_for(app["submitted"])
+        assert submit_run is not None  # submissions all precede the last run
         observations.append(
             (
                 _observation(
@@ -181,9 +273,13 @@ def build_fixture_ledger(session: Session, store: ObjectStore) -> FixtureResult:
                 submit_run,
             )
         )
-        # ~25% remain unissued by the N cutoff (right-censored)
-        if index % 4 != 0:
-            issue_run = acquisition_for(app["issued"])
+        # Issuance is observed by the first acquisition at/after it occurs;
+        # issuances past the acquisition window stay unobserved. Censoring is
+        # therefore ADMINISTRATIVE (bitemporal window), not an artificial
+        # "never issues" class — the generator remains proportional-hazards,
+        # which is what the interpretable Cox challenger is supposed to learn.
+        issue_run = acquisition_for(app["issued"])
+        if issue_run is not None:
             observations.append(
                 (
                     _observation(
@@ -200,6 +296,7 @@ def build_fixture_ledger(session: Session, store: ObjectStore) -> FixtureResult:
     late_parcel = SubjectRef(SubjectType.PARCEL, f"{FIXTURE_APN_PREFIX}99999901")
     late_permit = SubjectRef(SubjectType.PERMIT_APPLICATION, "FXLATE-10000-00001")
     month12 = runs[-1]
+    ensure_fixture_parcel(late_parcel.id, month12)
     observations.append(
         (
             _observation(
@@ -262,3 +359,82 @@ def build_fixture_ledger(session: Session, store: ObjectStore) -> FixtureResult:
         runs_n1=runs_n1,
         applications=N_APPLICATIONS,
     )
+
+
+def reset_fixture(session: Session) -> None:
+    """Remove ALL fixture-derived rows so the drill rebuilds from scratch.
+
+    Strictly scoped to fixture identifiers (fixture source, FX permits, the
+    reserved APN prefix, fixture-run snapshots); real civic evidence is
+    append-only and untouched.
+    """
+
+    from sqlalchemy import delete, text
+
+    fixture_snapshots = [
+        row[0]
+        for row in session.execute(text(
+            "SELECT snapshot_id FROM civic.snapshot "
+            "WHERE input_runs_sha256 IN ("
+            "  SELECT input_runs_sha256 FROM civic.snapshot s2 WHERE NOT EXISTS ("
+            "    SELECT 1 FROM jsonb_array_elements_text(s2.input_runs) r(run_id) "
+            "    WHERE r.run_id NOT LIKE 'run-fixture-%'))"
+        ))
+    ]
+    if fixture_snapshots:
+        session.execute(text(
+            "DELETE FROM ml.prediction WHERE prediction_set_id IN "
+            "(SELECT prediction_set_id FROM ml.prediction_set WHERE snapshot_id = ANY(:s))"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM ml.prediction_set WHERE snapshot_id = ANY(:s)"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM ml.promotion_decision WHERE proposed_model_id IN "
+            "(SELECT model_id FROM ml.model_version WHERE experiment_run_id IN "
+            " (SELECT experiment_run_id FROM ml.experiment_run WHERE dataset_id IN "
+            "  (SELECT dataset_id FROM ml.dataset_version WHERE snapshot_id = ANY(:s))))"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM ml.model_version WHERE experiment_run_id IN "
+            "(SELECT experiment_run_id FROM ml.experiment_run WHERE dataset_id IN "
+            " (SELECT dataset_id FROM ml.dataset_version WHERE snapshot_id = ANY(:s)))"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM ml.experiment_run WHERE dataset_id IN "
+            "(SELECT dataset_id FROM ml.dataset_version WHERE snapshot_id = ANY(:s))"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM ml.dataset_version WHERE snapshot_id = ANY(:s)"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM civic.snapshot_property_state WHERE snapshot_id = ANY(:s)"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM civic.snapshot_member WHERE snapshot_id = ANY(:s)"
+        ), {"s": fixture_snapshots})
+        session.execute(text(
+            "DELETE FROM civic.snapshot WHERE snapshot_id = ANY(:s)"
+        ), {"s": fixture_snapshots})
+    session.execute(text(
+        "DELETE FROM civic.observation_revision WHERE source_id = :src"
+    ), {"src": FIXTURE_SOURCE})
+    session.execute(text(
+        "DELETE FROM civic.recovery_observation WHERE source_id = :src"
+    ), {"src": FIXTURE_SOURCE})
+    session.execute(text(
+        "DELETE FROM civic.recovery_observation WHERE source_id = 'openpali_conflict_detection' "
+        "AND (subject_id LIKE 'FX%' OR subject_id LIKE :apn)"
+    ), {"apn": f"{FIXTURE_APN_PREFIX}%"})
+    session.execute(text(
+        "DELETE FROM civic.parcel_version WHERE jurisdiction = 'FIXTURE'"
+    ))
+    session.execute(text(
+        "DELETE FROM civic.property_identity WHERE identity_seed LIKE :seed "
+        "AND NOT EXISTS (SELECT 1 FROM civic.parcel_version pv "
+        "WHERE pv.property_identity_id = civic.property_identity.id)"
+    ), {"seed": f"county_apn:{FIXTURE_APN_PREFIX}%"})
+    session.execute(text(
+        "DELETE FROM source.source_record_version WHERE source_id = :src"
+    ), {"src": FIXTURE_SOURCE})
+    session.flush()

@@ -30,6 +30,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
+from openpali.domain.conflicts import CONFLICT_SOURCE_ID
 from openpali.identity.ids import canonical_json, dataset_id as derive_dataset_id
 from openpali.storage.models import (
     CivicSnapshot,
@@ -41,7 +42,9 @@ from openpali.storage.objects import ARTIFACT_BUCKET, ObjectStore
 
 TARGET_POLICY = "issuance-180d-v1"
 COHORT_POLICY = "qualifying-rebuild-v1"
-FEATURE_SCHEMA_VERSION = "features-v1"
+# v2: parcel-context availability is source-agnostic (any non-derived parcel
+# observation establishes point-in-time availability, not only county_base)
+FEATURE_SCHEMA_VERSION = "features-v2"
 LABEL_POLICY_VERSION = "labels-v1"
 SPLIT_POLICY = "rolling-origin-v1"
 HORIZON_DAYS = 180
@@ -143,10 +146,16 @@ def build_dataset(
         elif row.event_type == "rebuild_permit_issued" and row.occurred_kind == "exact":
             entry["issued"] = row.occurred_earliest
 
-    # county parcel attribute observations, for availability-checked features
+    # Parcel-context observations establish feature availability. Any SOURCE
+    # observation on the parcel counts (derived conflict markers do not) —
+    # the point-in-time discipline lives in the observed_at comparison below,
+    # not in which feed asserted the parcel.
     parcel_observed_at: dict[str, datetime] = {}
     for row in observations:
-        if row.source_id == "county_base" and row.subject_type == "parcel":
+        if (
+            row.subject_type == "parcel"
+            and row.source_id != CONFLICT_SOURCE_ID
+        ):
             when = parcel_observed_at.get(row.subject_id)
             if when is None or row.observed_at < when:
                 parcel_observed_at[row.subject_id] = row.observed_at

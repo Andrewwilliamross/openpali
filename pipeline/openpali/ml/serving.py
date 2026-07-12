@@ -18,8 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
-from openpali.ml.dataset import HORIZON_DAYS, INSUFFICIENT if False else HORIZON_DAYS  # noqa
-from openpali.ml.dataset import load_dataset_rows
+from openpali.ml.dataset import HORIZON_DAYS, load_dataset_rows
 from openpali.ml.experiments import INSUFFICIENT, reload_model
 from openpali.storage.models import (
     DatasetVersion,

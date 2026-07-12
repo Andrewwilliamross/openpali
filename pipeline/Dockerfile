@@ -6,6 +6,11 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
+# Runtime system libraries: rasterio's bundled GDAL dlopens libexpat, which
+# python:slim does not ship.
+RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Non-root runtime user (release requirement).
 RUN groupadd --gid 10001 openpali && \
     useradd --uid 10001 --gid 10001 --create-home openpali

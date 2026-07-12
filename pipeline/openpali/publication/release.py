@@ -78,6 +78,8 @@ def build_manifest(
     undocumented_values: list[str],
     limitations: list[str] | None = None,
 ) -> dict:
+    from openpali.spatial.registry import select_release_assets
+
     snapshot = session.execute(
         select(CivicSnapshot).where(CivicSnapshot.snapshot_id == snapshot_id)
     ).scalar_one()
@@ -95,6 +97,7 @@ def build_manifest(
         },
         "sources": sources,
         "coverage": _coverage(session, snapshot_id),
+        "spatial": select_release_assets(session, release_kind=kind),
         "undocumented_values": sorted(undocumented_values),
         "limitations": limitations or [],
     }
@@ -116,6 +119,18 @@ def run_gates(session: Session, snapshot_id: str, manifest: dict) -> dict:
     failed_sources = [s["source_id"] for s in manifest["sources"] if not s["ok"]]
     gates["required_sources"] = (
         "PASS" if not failed_sources else f"FAIL: {failed_sources}"
+    )
+    # spatial slots: selection already raised on an empty enabled slot; here we
+    # additionally refuse a manifest whose selected assets are not rights-safe
+    # or carry no verified object reference
+    spatial = manifest.get("spatial", {})
+    bad_assets = [
+        f"{a['asset_id']}@{a['version_id']}"
+        for a in spatial.get("assets", [])
+        if not a.get("object_sha256") or not a.get("object_uri")
+    ]
+    gates["spatial_assets_verified"] = (
+        "PASS" if not bad_assets else f"FAIL: missing object refs {bad_assets}"
     )
     return gates
 

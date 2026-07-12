@@ -125,6 +125,26 @@ def analytics_snapshot_flow(snapshot_id: str) -> dict:
     return outcome
 
 
+def _undocumented_from_runs(session, snapshot_id: str) -> list[str]:
+    """Frozen undocumented-taxonomy values from the snapshot's input runs —
+    derived from acquisition-run health, never trusted from a caller."""
+
+    from sqlalchemy import select as _select
+
+    from openpali.storage.models import AcquisitionRun, CivicSnapshot
+
+    snapshot = session.execute(
+        _select(CivicSnapshot).where(CivicSnapshot.snapshot_id == snapshot_id)
+    ).scalar_one()
+    values: set[str] = set()
+    for run_id in snapshot.input_runs:
+        run_row = session.execute(
+            _select(AcquisitionRun).where(AcquisitionRun.run_id == run_id)
+        ).scalar_one()
+        values.update((run_row.health or {}).get("load", {}).get("undocumented", []))
+    return sorted(values)
+
+
 @flow(name="release-candidate")
 def release_candidate_flow(
     snapshot_id: str,
@@ -133,6 +153,8 @@ def release_candidate_flow(
 ) -> dict:
     store = ObjectStore()
     with session_scope() as session:
+        if undocumented is None:
+            undocumented = _undocumented_from_runs(session, snapshot_id)
         job = start_job(
             session,
             flow_name="release-candidate",
@@ -255,3 +277,35 @@ ALL_FLOWS = {
     "release-candidate": release_candidate_flow,
     "full-refresh-release": full_refresh_release_flow,
 }
+
+
+@flow(name="spatial-refresh")
+def spatial_refresh_flow(online: bool = True) -> dict:
+    """USGS AOI acquisition -> raw asset registration -> derived products."""
+
+    from openpali.spatial.derive import derive_usgs_products
+    from openpali.spatial.usgs import refresh_usgs
+
+    store = ObjectStore()
+    with session_scope() as session:
+        job = start_job(
+            session,
+            flow_name="spatial-refresh",
+            idempotency_key=f"spatial:{_utcnow().date().isoformat()}",
+            inputs={"online": online},
+        )
+        acquisition = refresh_usgs(session, store, online=online)
+        if acquisition.status != "succeeded":
+            finish_job(session, job, status="failed", failure_class="acquisition",
+                       outputs={"run_id": acquisition.run_id})
+            raise RuntimeError(f"usgs acquisition failed: {acquisition.run_id}")
+        derived = derive_usgs_products(session, store)
+        outputs = {
+            "run_id": acquisition.run_id,
+            "tiles": acquisition.tiles,
+            "version_id": derived["version_id"],
+            "surfels": derived["surfels"],
+            "reconciliation": derived["reconciliation"],
+        }
+        finish_job(session, job, status="succeeded", outputs=outputs)
+    return outputs
