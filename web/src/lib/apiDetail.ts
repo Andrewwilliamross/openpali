@@ -105,11 +105,19 @@ export async function fetchApiDetail(apn: string): Promise<ParcelDetail | null> 
       if (!cursor) break
     }
 
+    // DB lane-signal keys -> the UI's lane names (order = display order)
+    const LANE_KEYS: [string, LaneName][] = [
+      ['lane_cleanup', 'cleanup'],
+      ['lane_design', 'design_review'],
+      ['lane_permit', 'permitting'],
+      ['lane_constr', 'construction'],
+      ['lane_occup', 'occupancy'],
+    ]
     const lanes: ParcelLanes = {
       policy_version: d.projection_policy_version,
-      lanes: Object.entries(d.lane_signals).map(([lane, signal]) => ({
-        lane: lane as LaneName,
-        signal: signal as LaneSignal,
+      lanes: LANE_KEYS.filter(([k]) => k in d.lane_signals).map(([k, lane]) => ({
+        lane,
+        signal: d.lane_signals[k] as LaneSignal,
         reached_milestones: [],
         evidence: [],
         in_progress: [],
