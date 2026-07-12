@@ -467,6 +467,66 @@ services:
     networks: [internal]
     profiles: [jobs]
 
+  # ---- observability profile (OPS-001): blackbox health probes + one alert
+  # rule; the drill stops a service, asserts ServiceDown fires, restores it,
+  # and asserts resolution via the alert-check job ----
+  prometheus:
+    image: openpali-prometheus:local
+    build:
+      context: ../infra/observability
+    networks: [internal]
+    profiles: [observability]
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.28.0@sha256:e753ff9f3fc458d02cca5eddab5a77e1c175eee484a8925ac7d524f04366c2fc
+    networks: [internal]
+    profiles: [observability]
+
+  alert-check:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    # EXPECT: "none" (no ServiceDown firing) or a substring the firing
+    # alert's probed target must contain (e.g. "api:8000")
+    environment:
+      EXPECT: ${ALERT_EXPECT:-none}
+    command:
+      - python
+      - -c
+      - |
+        import json, os, sys, time, urllib.request
+        expect = os.environ.get("EXPECT", "none")
+        deadline = time.time() + 240
+        last = None
+        while time.time() < deadline:
+            try:
+                with urllib.request.urlopen(
+                    "http://prometheus:9090/api/v1/alerts", timeout=10
+                ) as r:
+                    alerts = json.loads(r.read())["data"]["alerts"]
+            except Exception as exc:
+                last = f"prometheus unreachable: {exc}"
+                time.sleep(5)
+                continue
+            firing = [
+                a for a in alerts
+                if a.get("labels", {}).get("alertname") == "ServiceDown"
+                and a.get("state") == "firing"
+            ]
+            targets = [a["labels"].get("probed", "?") for a in firing]
+            last = f"firing={targets}"
+            if expect == "none" and not firing:
+                print(f"ALERT-CHECK OK: no ServiceDown firing ({last})")
+                sys.exit(0)
+            if expect != "none" and any(expect in t for t in targets):
+                print(f"ALERT-CHECK OK: ServiceDown firing for {expect} ({last})")
+                sys.exit(0)
+            time.sleep(10)
+        print(f"ALERT-CHECK FAIL: expected {expect}, last state {last}")
+        sys.exit(5)
+    networks: [internal]
+    profiles: [observability]
+
   schedule-drill:
     image: openpali-pipeline:local
     build:
