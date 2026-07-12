@@ -754,6 +754,9 @@ def submit_correction(
             idempotency_key=idempotency,
         )
     )
+    # the contact FK targets a non-PK unique column, which the ORM's insert
+    # ordering does not treat as a dependency — flush the parent first
+    session.flush()
     if body.contact:
         session.add(CorrectionContact(submission_id=submission_id, contact=body.contact))
     session.commit()
