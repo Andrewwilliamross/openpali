@@ -451,6 +451,22 @@ services:
     networks: [internal]
     profiles: [jobs]
 
+  renderer-bench:
+    image: openpali-e2e:local
+    build:
+      context: ../web
+      dockerfile: e2e.Dockerfile
+    command: ["npx", "playwright", "test", "e2e/renderer-bench.spec.ts", "--reporter=list"]
+    environment:
+      E2E_BASE_URL: http://web:80
+      E2E_PROXY: http://proxy:3128
+    depends_on:
+      - web
+      - api
+      - proxy
+    networks: [internal]
+    profiles: [jobs]
+
   release-republish:
     # Re-promote the CURRENT release's snapshot through the registered
     # release-candidate deployment (worker-executed): the rebuilt manifest

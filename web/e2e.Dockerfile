@@ -9,4 +9,6 @@ COPY playwright.config.ts ./
 COPY e2e ./e2e
 
 ENV E2E_BASE_URL=http://web:80
-CMD ["npx", "playwright", "test", "--reporter=list"]
+# correctness gate by default; the report-only renderer benchmark runs via
+# the dedicated compose job (command override)
+CMD ["npx", "playwright", "test", "e2e/spatial-usgs.spec.ts", "--reporter=list"]

@@ -122,8 +122,8 @@ test('USGS post-fire surfels: tile requests, draw calls, picking, labels', async
 test('2D journey stays usable and the post-fire hillshade is present', async ({ page }) => {
   await page.goto('/')
   await page.waitForFunction(() => window.__mapReady === true)
-  // leave 3D
-  await page.getByRole('button', { name: /2D/i }).click()
+  // leave 3D (the toggle's accessible name is its aria-label)
+  await page.getByRole('button', { name: 'Toggle 3D view' }).click()
   // parcels remain interactive in 2D: legend + evidence categories visible
   await expect(page.locator('.legend')).toContainText('Evidenced milestone')
   // release-served post-fire DEM is queryable where the AOI sits
