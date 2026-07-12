@@ -572,6 +572,48 @@ services:
     networks: [internal]
     profiles: [observability]
 
+  # Publish the CROSS-STACK FIXTURE release through the registered
+  # release-candidate deployment on the worker: release-qualified manifest,
+  # fixture spatial assets included (kind-aware selection), and the CURRENT
+  # pointer left untouched (promote=false — fixture data never displaces
+  # civic data). Uses the newest all-fixture-run snapshot (ml-drill output).
+  fixture-release:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -ceu
+      - |
+        SNAPSHOT_ID=$$(python -c "
+        from sqlalchemy import text
+        from openpali.storage.db import session_scope
+        with session_scope() as s:
+            row = s.execute(text(
+                \"SELECT snapshot_id FROM civic.snapshot s2 WHERE NOT EXISTS (\"
+                \" SELECT 1 FROM jsonb_array_elements_text(s2.input_runs) r(run_id)\"
+                \" WHERE r.run_id NOT LIKE 'run-fixture-%') \"
+                \"ORDER BY cutoff DESC LIMIT 1\")).first()
+            assert row, 'no fixture snapshot; run ml-drill first'
+            print(row[0])
+        ")
+        echo "publishing fixture snapshot $$SNAPSHOT_ID (promote=false)"
+        openpali orchestrate-run release-candidate/default \
+          --params "{\"snapshot_id\": \"$$SNAPSHOT_ID\", \"kind\": \"fixture\", \"promote\": false}"
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
   # Trigger the full multi-source refresh -> snapshot -> analytics -> release
   # pipeline through the registered deployment and WAIT for its terminal
   # state (exit 0 only on Completed). Used directly and by the worker

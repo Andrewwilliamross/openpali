@@ -150,6 +150,7 @@ def release_candidate_flow(
     snapshot_id: str,
     kind: str = "fixture",
     undocumented: list[str] | None = None,
+    promote: bool = True,
 ) -> dict:
     store = ObjectStore()
     with session_scope() as session:
@@ -159,13 +160,14 @@ def release_candidate_flow(
             session,
             flow_name="release-candidate",
             idempotency_key=f"release:{snapshot_id}:{kind}",
-            inputs={"snapshot_id": snapshot_id, "kind": kind},
+            inputs={"snapshot_id": snapshot_id, "kind": kind, "promote": promote},
         )
         try:
             result = publish_release(
                 session, store, snapshot_id, kind=kind,
                 undocumented_values=undocumented or [],
                 promoted_by="prefect-worker",
+                promote=promote,
             )
         except PublicationGateError as exc:
             finish_job(session, job, status="failed", failure_class="gate",

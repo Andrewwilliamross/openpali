@@ -144,6 +144,7 @@ def publish_release(
     undocumented_values: list[str] | None = None,
     limitations: list[str] | None = None,
     promoted_by: str = "openpali-cli",
+    promote: bool = True,
 ) -> ReleaseResult:
     manifest = build_manifest(
         session,
@@ -197,21 +198,30 @@ def publish_release(
             session.add(publication)
             session.flush()
 
-        # --- atomic promotion: one transaction moves the authority pointer ---
-        current = session.get(CurrentRelease, 1, with_for_update=True)
-        previous = current.current_release_id
-        publication.status = "published"
-        publication.promoted_at = now
-        publication.promoted_by = promoted_by
-        if previous and previous != release_id:
-            prior = session.execute(
-                select(Publication).where(Publication.release_id == previous)
-            ).scalar_one_or_none()
-            if prior is not None and prior.status == "published":
-                prior.status = "superseded"
-            current.lkg_release_id = previous
-        current.current_release_id = release_id
-        session.flush()
+        if promote:
+            # --- atomic promotion: one transaction moves the authority pointer ---
+            current = session.get(CurrentRelease, 1, with_for_update=True)
+            previous = current.current_release_id
+            publication.status = "published"
+            publication.promoted_at = now
+            publication.promoted_by = promoted_by
+            if previous and previous != release_id:
+                prior = session.execute(
+                    select(Publication).where(Publication.release_id == previous)
+                ).scalar_one_or_none()
+                if prior is not None and prior.status == "published":
+                    prior.status = "superseded"
+                current.lkg_release_id = previous
+            current.current_release_id = release_id
+            session.flush()
+        else:
+            # release-qualified and API-addressable, but the CURRENT authority
+            # pointer is untouched (e.g. the cross-stack FIXTURE release must
+            # never displace real civic data)
+            publication.status = "published"
+            publication.promoted_at = now
+            publication.promoted_by = promoted_by
+            session.flush()
 
     snapshot = session.execute(
         select(CivicSnapshot).where(CivicSnapshot.snapshot_id == snapshot_id)
