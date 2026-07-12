@@ -8,17 +8,21 @@ instances -24%, nodes -19%, resident -10%; e2e correctness gate 2/2 green
 after the change; SwiftShader frame-time honestly scoped — GPU frame-time
 claim reserved for a headed run).
 
-CP4C progress (commit ce73c5a, deployed + smoke-tested through the accel
-proxy): React Router journeys live — /map, /property/:apn (URL-synced
-shareable selection), /methods (semantics/claim boundaries/release-pinned
-policy versions from the API), /status (release, LKG, coverage, per-source
-retrieved-vs-upstream freshness). nginx SPA fallback verified on all 4
-routes. REMAINING CP4C: axe accessibility spec + keyboard/reduced-motion
-checks in the e2e job; correction POST (rate-limited, restricted contact
-table) + card UI; move map parcel data from static geojson to the
-release-pinned API (parcels.geojson/details.json still static); route e2e
-specs. Then CP5 (check-full, CI, SBOM, observability alert drill, schedule
-drill, worker kill/resume, restore drill, CofO disclosure wiring,
+CP4C progress: routed journeys live (/map, /property/:apn URL-synced,
+/methods, /status — all API-backed and smoke-tested); BROWSER GATE 6/6
+GREEN serialized (2 spatial correctness + 3 axe route scans + keyboard
+operability; three REAL a11y violations found and fixed: dl content model,
+nav link underlines, MapLibre attribution links needing ancestor
+specificity over maplibre-gl.css; 1 worker — SwiftShader CPU contention
+made 2-worker map specs flaky). Correction POST landed (202, rate-limited
+sliding window, idempotent, restricted ops.correction_contact; 17 API
+paths). scripts/check-full written (host half runs directly; service half
+launches wrapper jobs, with a printed-commands fallback when Docker is
+unreachable from sandboxed shells); fast gate 4/4 green (vitest now
+excludes Playwright specs). REMAINING CP4C: map parcel data still static
+geojson (release-pinned API migration), reduced-motion, correction-form UI
+in the detail card. Then CP5 (CI, SBOM, observability alert drill,
+schedule drill, worker kill/resume, restore drill, CofO disclosure wiring,
 fault-test isolation) and CP6 terminal protocol.
 
 Latest verified (commits through b82ac3a + bench-budget commit):
