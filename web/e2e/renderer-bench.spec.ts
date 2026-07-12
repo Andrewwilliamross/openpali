@@ -34,8 +34,11 @@ const SCENES = [
   { name: 'top-down-far', center: [-118.53, 34.045] as [number, number], zoom: 13.2, pitch: 0, bearing: 0 },
 ]
 
-const SETTLE_MS = 6_000
-const SAMPLE_MS = 4_000
+// SwiftShader software rasterization: small viewport + bounded frame-count
+// sampling keep the run inside the budget while staying deterministic
+const SETTLE_MS = 5_000
+const SAMPLE_FRAMES = 30
+const SAMPLE_MAX_MS = 25_000
 
 function percentile(sorted: number[], p: number): number {
   if (!sorted.length) return NaN
@@ -66,7 +69,15 @@ async function sampleScene(page: Page, scene: (typeof SCENES)[number]) {
     }
     requestAnimationFrame(tick)
   })
-  await page.waitForTimeout(SAMPLE_MS)
+  await page
+    .waitForFunction(
+      (n) => (window.__frameSamples?.length ?? 0) >= n,
+      SAMPLE_FRAMES,
+      { timeout: SAMPLE_MAX_MS },
+    )
+    .catch(() => {
+      /* slow software frames: report whatever accumulated */
+    })
   const samples = await page.evaluate(() => {
     window.__map!.repaint = false
     return window.__frameSamples!.slice(1)
@@ -110,6 +121,8 @@ async function sampleScene(page: Page, scene: (typeof SCENES)[number]) {
     js_heap_mb: after.memoryMB ? Number(after.memoryMB.toFixed(1)) : null,
   }
 }
+
+test.use({ viewport: { width: 800, height: 500 } })
 
 test('deterministic renderer benchmark (report-only)', async ({ page }, testInfo) => {
   test.setTimeout(300_000)
