@@ -98,6 +98,9 @@ export class SplatRenderLayer implements CustomLayerInterface {
   private pendingUploads: { node: SplatNode; gen: number }[] = []
   private static readonly UPLOAD_BUDGET_PER_FRAME = 6
   private static readonly TEX_PUBLISH_BUDGET_PER_FRAME = 4
+  // per-frame instanced-splat ceiling (SPATIAL-002): wide views coarsen to
+  // faithful LOD representatives instead of unbounded overdraw
+  private static readonly FRAME_SPLAT_BUDGET = 150_000
 
   // Per-source presentation: the committed LARIAC corpus carries a baked
   // civic-score tint (neutralized in-shader, TRUTH-001) and projects pre-fire
@@ -475,6 +478,14 @@ export class SplatRenderLayer implements CustomLayerInterface {
       drawList.push({ node, dist, fade })
     }
 
+    // ---- adaptive splat budget (SPATIAL-002, profiling-selected) ----
+    // Wide views select hundreds of small nodes at a fixed 14px threshold:
+    // the measured far scene drew MORE instances (217k/frame) than a close-up
+    // (180k). When the selected cut exceeds the budget, the traversal reruns
+    // with a scaled threshold so wide views resolve to the coarser,
+    // energy-conserving LOD representatives instead of maximal overdraw.
+    let sseThreshold = SSE_THRESHOLD_PX
+
     const visit = (node: SplatNode): void => {
       const radius = Math.hypot(node.hx, node.hy, node.hz)
       const zOff = Number.isNaN(node.zOffset) ? 0 : node.zOffset
@@ -487,7 +498,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
         node.cx + node.hx, node.cy + node.hy, node.cz + node.hz)
       const sse = screenSpaceError(node.geometricError, dist, vh, fov)
 
-      if (node.children.length > 0 && sse > SSE_THRESHOLD_PX) {
+      if (node.children.length > 0 && sse > sseThreshold) {
         let allReady = true
         for (const c of node.children) {
           if (c.state !== 'ready') {
@@ -523,6 +534,15 @@ export class SplatRenderLayer implements CustomLayerInterface {
       }
     }
     visit(this.tileset.root)
+    // budget pass: rerun with a coarser cut until within budget (pure-CPU
+    // retraversal over ~10^2..10^3 resident nodes; at most 3 extra passes)
+    for (let pass = 0; pass < 3; pass++) {
+      const selected = drawList.reduce((s, d) => s + d.node.splatCount, 0)
+      if (selected <= SplatRenderLayer.FRAME_SPLAT_BUDGET) break
+      sseThreshold *= 1.7
+      drawList.length = 0
+      visit(this.tileset.root)
+    }
 
     if (drawList.length === 0) {
       this.evictPass()
