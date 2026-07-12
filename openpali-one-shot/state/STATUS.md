@@ -1,6 +1,25 @@
 # Run status
 
-State: `CP4B_COMPLETE_EXCEPT_RENDERER_IMPROVEMENT`
+State: `CP4B_COMPLETE__CP4C_STARTED`
+
+CP4B CLOSED (evidence cp4b-renderer-bench-baseline + cp4b-browser-evidence):
+splat-budget improvement LANDED with measured before/after (wide-scene
+instances -24%, nodes -19%, resident -10%; e2e correctness gate 2/2 green
+after the change; SwiftShader frame-time honestly scoped — GPU frame-time
+claim reserved for a headed run).
+
+CP4C progress (commit ce73c5a, deployed + smoke-tested through the accel
+proxy): React Router journeys live — /map, /property/:apn (URL-synced
+shareable selection), /methods (semantics/claim boundaries/release-pinned
+policy versions from the API), /status (release, LKG, coverage, per-source
+retrieved-vs-upstream freshness). nginx SPA fallback verified on all 4
+routes. REMAINING CP4C: axe accessibility spec + keyboard/reduced-motion
+checks in the e2e job; correction POST (rate-limited, restricted contact
+table) + card UI; move map parcel data from static geojson to the
+release-pinned API (parcels.geojson/details.json still static); route e2e
+specs. Then CP5 (check-full, CI, SBOM, observability alert drill, schedule
+drill, worker kill/resume, restore drill, CofO disclosure wiring,
+fault-test isolation) and CP6 terminal protocol.
 
 Latest verified (commits through b82ac3a + bench-budget commit):
 - Browser evidence PASSED in-cluster (2/2 specs, evidence
