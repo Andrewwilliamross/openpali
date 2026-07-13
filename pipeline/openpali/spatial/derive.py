@@ -54,7 +54,7 @@ from openpali.spatial.usgs import (
 from openpali.storage.objects import ObjectStore, RAW_BUCKET, SPATIAL_BUCKET
 
 # v2: picking entries carry per-parcel lon/lat centers (renderer pick contract)
-PROCESS_VERSION = "usgs-derive-v2"
+PROCESS_VERSION = "usgs-derive-v3"  # v3: parcel-grid content joins the version id
 SURFEL_ASSET_ID = "usgs-surfel-aoi"
 TERRAIN_ASSET_ID = "usgs-terrain-aoi"
 SURFEL_STRIDE = 3  # 0.5 m px * 3 = 1.5 m surfel spacing
@@ -186,6 +186,17 @@ def _parcel_grid(session: Session, mosaic: Mosaic) -> tuple[np.ndarray, list[str
     destroyed = sum(
         1 for r in rows if (r.damage_class or "").startswith("Destroyed")
     )
+    # the parcel grid is a semantic INPUT to the derived products (labels,
+    # picking index, coverage): its content must join the version id so a
+    # changed county base yields a NEW version instead of colliding with the
+    # immutable bytes of an old one
+    parcel_content = hashlib.sha256(
+        "\n".join(
+            f"{r.apn}|{r.damage_class or ''}|"
+            + hashlib.sha256((r.geom or "").encode()).hexdigest()
+            for r in rows
+        ).encode()
+    ).hexdigest()
     min_e, _, _, max_n = mosaic.utm_bounds
     transform = from_origin(min_e, max_n, PIXEL_M, PIXEL_M)
     shapes = [
@@ -206,6 +217,7 @@ def _parcel_grid(session: Session, mosaic: Mosaic) -> tuple[np.ndarray, list[str
         "aoi_frozen_destroyed_expected": aoi.destroyed_parcels_inside,
         "parcels_with_dem_coverage": covered,
         "coverage_fraction": round(covered / len(rows), 4) if rows else 0.0,
+        "parcel_content_sha256": parcel_content,
     }
     return grid, apns, reconciliation
 
@@ -430,6 +442,7 @@ def derive_usgs_products(session: Session, store: ObjectStore) -> dict:
     version_id = version_id_from_hashes(
         *raw_shas, PROCESS_VERSION, f"stride={SURFEL_STRIDE}",
         f"zooms={TERRAIN_ZOOMS[0]}-{TERRAIN_ZOOMS[-1]}",
+        f"parcels={reconciliation['parcel_content_sha256']}",
     )
     acquisition_start = mosaic.raw_assets[0]["acquisition_start"]
     acquisition_end = mosaic.raw_assets[0]["acquisition_end"]

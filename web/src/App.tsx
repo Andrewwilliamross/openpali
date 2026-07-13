@@ -102,7 +102,17 @@ export default function App() {
       const pf = await fetchPostfireSources()
       if (!pf) return
       try {
-        const rel = await (await fetch(`/v1/releases/${pf.releaseId}`)).json()
+        const { releaseInfoV1ReleasesReleaseIdGet } = await import('./api/generated/sdk.gen')
+        const resp = await releaseInfoV1ReleasesReleaseIdGet({
+          path: { release_id: pf.releaseId },
+        })
+        if (!resp.data) return
+        const rel = resp.data as {
+          release_id: string
+          snapshot_id: string
+          published_at?: string | null
+          coverage?: Record<string, number | null>
+        }
         setReleaseInfo({
           releaseId: rel.release_id,
           snapshotId: rel.snapshot_id,

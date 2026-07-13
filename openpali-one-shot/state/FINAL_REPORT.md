@@ -106,7 +106,16 @@ command, container exit code, API response, or browser assertion recorded in
   now structurally refuses to promote fixture-kind releases (they stay
   release-qualified and API-addressable, never current), the republish and
   batch-model jobs fail closed unless the current release is representative,
-  and the integration suite restores the pointer it found.
+  and the integration suite restores the pointer AND publication statuses it
+  found.
+- Gate rerunnability from an independent-evaluation finding: the ML and
+  reconstruction drills are rerunnable on a cluster where the published
+  fixture release exists — the fixture reset preserves publication-pinned
+  snapshots (deterministic builders converge back onto identical content)
+  and the recon drill clears only its own unpublished review-state. The
+  entire service-half gate runs as ONE command via the compose gate chain
+  (`infra/compose.gate.yaml`, `up -d full-gate`), serialized with
+  fail-closed `service_completed_successfully` conditions.
 - Restore: destructive clean-namespace restore (all three databases) with
   dump-time reference verification — PASS.
 - Scheduling: a scheduler-created run executed by the worker — PASS.
@@ -154,8 +163,10 @@ command, container exit code, API response, or browser assertion recorded in
    model training is a county-license decision only the sponsor can make.
 2. **Public launch of forecasts**: even after the history gate passes,
    promotion requires a named human reviewer; no automatic path exists.
-3. **Repository license**: no LICENSE is claimed; releasing under any terms
-   is sponsor-owned.
+3. **Repository license**: no LICENSE is claimed; the README now states
+   licensing is an undecided, sponsor-owned decision (the baseline README's
+   "open source" claim and retired score/ETA prose were removed). Releasing
+   under any terms is sponsor-owned.
 4. **EagleView/Pictometry imagery**: consumed as county-published WMTS at
    display time only; any deeper use needs vendor terms review.
 5. **Resident-facing corrections policy**: the moderation queue exists;

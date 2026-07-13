@@ -911,6 +911,7 @@ def cmd_recon_drill(args: argparse.Namespace) -> int:
         build_fixture_scene,
         fuse_and_register_asset,
         propose_candidates,
+        reset_drill_state,
         review_candidate,
         run_reconstruction,
     )
@@ -930,6 +931,8 @@ def cmd_recon_drill(args: argparse.Namespace) -> int:
 
     store = ObjectStore()
     with session_scope() as session:
+        print("== resetting prior drill review-state (rerunnable) ==")
+        reset_drill_state(session)
         print("== fuse + tile + register (synthetic_fixture rights) ==")
         asset = fuse_and_register_asset(session, store, scene, result)
         check("fused asset tiled and registered", True, f"{asset[0]}@{asset[1][:14]}")

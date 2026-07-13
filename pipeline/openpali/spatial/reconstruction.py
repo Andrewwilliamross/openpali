@@ -442,6 +442,33 @@ def _region_wkt(region: tuple[float, float, float, float]) -> str:
     return f"SRID=4326;POLYGON(({ring}))"
 
 
+def reset_drill_state(session: Session) -> None:
+    """Remove prior drill review-state so the drill is rerunnable.
+
+    Candidates and drill-accepted observations are synthetic drill artifacts:
+    the fixture asset is barred from representative releases and these
+    observations belong to no snapshot membership or publication, so deleting
+    them never touches release-qualified state. The fused fixture ASSET rows
+    and objects are content-addressed get-or-create and survive — the fixture
+    release manifest may pin them.
+    """
+
+    from sqlalchemy import text
+
+    # candidates first: accepted candidates hold an FK to the observation
+    session.execute(text(
+        "DELETE FROM spatial.observation_candidate "
+        "WHERE rights_state = 'synthetic_fixture'"
+    ))
+    session.execute(text(
+        "DELETE FROM civic.observation_revision WHERE source_id = :src"
+    ), {"src": RECON_SOURCE})
+    session.execute(text(
+        "DELETE FROM civic.recovery_observation WHERE source_id = :src"
+    ), {"src": RECON_SOURCE})
+    session.flush()
+
+
 def propose_candidates(
     session: Session,
     scene: FixtureScene,

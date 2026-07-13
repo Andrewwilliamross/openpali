@@ -1,0 +1,62 @@
+# Full-gate chain overlay (OPS-001): serializes every service-half gate job
+# behind `service_completed_successfully` conditions so the ENTIRE service
+# half runs as ONE wrapper command with a real exit code:
+#
+#   python3 openpali-one-shot/scripts/docker_safe.py \
+#     -f infra/compose.yaml -f infra/compose.gate.yaml up -d full-gate
+#
+# The command blocks while each job runs, aborts on the first nonzero exit,
+# and exits 0 only when the whole chain is green. The optional GPU boundary
+# stays its own command: `... --profile gpu up -d recon-gpu`.
+#
+# Order is semantic, not arbitrary: test-integration legitimately flaps the
+# CURRENT pointer mid-suite (restoring it afterward), so it runs before
+# anything that reads the released surface; ml-representative follows
+# ml-drill; browser jobs come last against the settled stack.
+
+services:
+  ml-drill:
+    depends_on:
+      test-integration:
+        condition: service_completed_successfully
+
+  ml-representative:
+    depends_on:
+      ml-drill:
+        condition: service_completed_successfully
+
+  recon-drill:
+    depends_on:
+      ml-representative:
+        condition: service_completed_successfully
+
+  spatial-refresh:
+    depends_on:
+      recon-drill:
+        condition: service_completed_successfully
+
+  replay:
+    depends_on:
+      spatial-refresh:
+        condition: service_completed_successfully
+
+  e2e-browser:
+    depends_on:
+      replay:
+        condition: service_completed_successfully
+
+  renderer-bench:
+    depends_on:
+      e2e-browser:
+        condition: service_completed_successfully
+
+  full-gate:
+    image: openpali-pipeline:local
+    entrypoint: ["python", "-c"]
+    command:
+      - 'print("FULL GATE CHAIN COMPLETE: all service-half jobs exited 0")'
+    depends_on:
+      renderer-bench:
+        condition: service_completed_successfully
+    networks: [internal]
+    profiles: [jobs]

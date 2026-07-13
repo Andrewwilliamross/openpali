@@ -365,16 +365,23 @@ def build_fixture_ledger(session: Session, store: ObjectStore) -> FixtureResult:
 
 
 def reset_fixture(session: Session) -> None:
-    """Remove ALL fixture-derived rows so the drill rebuilds from scratch.
+    """Remove fixture-derived rows so the drill rebuilds from scratch.
 
     Strictly scoped to fixture identifiers (fixture source, FX permits, the
     reserved APN prefix, fixture-run snapshots); real civic evidence is
     append-only and untouched.
+
+    Snapshots pinned by a publication (the E2E fixture RELEASE) are
+    load-bearing for release-qualified reads and replay: they and their
+    civic rows survive the reset, and the drill's deterministic
+    get-or-create builders converge back onto the identical content. Only
+    unpinned drill state is deleted, so the drill stays rerunnable on a
+    cluster where the required fixture release exists.
     """
 
     from sqlalchemy import delete, text
 
-    fixture_snapshots = [
+    all_fixture_snapshots = [
         row[0]
         for row in session.execute(text(
             "SELECT snapshot_id FROM civic.snapshot "
@@ -384,6 +391,14 @@ def reset_fixture(session: Session) -> None:
             "    WHERE r.run_id NOT LIKE 'run-fixture-%'))"
         ))
     ]
+    pinned = {
+        row[0]
+        for row in session.execute(text(
+            "SELECT DISTINCT snapshot_id FROM ops.publication "
+            "WHERE snapshot_id = ANY(:s)"
+        ), {"s": all_fixture_snapshots})
+    } if all_fixture_snapshots else set()
+    fixture_snapshots = [s for s in all_fixture_snapshots if s not in pinned]
     if fixture_snapshots:
         session.execute(text(
             "DELETE FROM ml.prediction WHERE prediction_set_id IN "
@@ -419,25 +434,29 @@ def reset_fixture(session: Session) -> None:
         session.execute(text(
             "DELETE FROM civic.snapshot WHERE snapshot_id = ANY(:s)"
         ), {"s": fixture_snapshots})
-    session.execute(text(
-        "DELETE FROM civic.observation_revision WHERE source_id = :src"
-    ), {"src": FIXTURE_SOURCE})
-    session.execute(text(
-        "DELETE FROM civic.recovery_observation WHERE source_id = :src"
-    ), {"src": FIXTURE_SOURCE})
-    session.execute(text(
-        "DELETE FROM civic.recovery_observation WHERE source_id = 'openpali_conflict_detection' "
-        "AND (subject_id LIKE 'FX%' OR subject_id LIKE :apn)"
-    ), {"apn": f"{FIXTURE_APN_PREFIX}%"})
-    session.execute(text(
-        "DELETE FROM civic.parcel_version WHERE jurisdiction = 'FIXTURE'"
-    ))
-    session.execute(text(
-        "DELETE FROM civic.property_identity WHERE identity_seed LIKE :seed "
-        "AND NOT EXISTS (SELECT 1 FROM civic.parcel_version pv "
-        "WHERE pv.property_identity_id = civic.property_identity.id)"
-    ), {"seed": f"county_apn:{FIXTURE_APN_PREFIX}%"})
-    session.execute(text(
-        "DELETE FROM source.source_record_version WHERE source_id = :src"
-    ), {"src": FIXTURE_SOURCE})
+    if not pinned:
+        # deep clean of the fixture ledger itself — only when no published
+        # release depends on it; otherwise the pinned snapshots' membership
+        # keeps referencing these rows and the builders dedup against them
+        session.execute(text(
+            "DELETE FROM civic.observation_revision WHERE source_id = :src"
+        ), {"src": FIXTURE_SOURCE})
+        session.execute(text(
+            "DELETE FROM civic.recovery_observation WHERE source_id = :src"
+        ), {"src": FIXTURE_SOURCE})
+        session.execute(text(
+            "DELETE FROM civic.recovery_observation WHERE source_id = 'openpali_conflict_detection' "
+            "AND (subject_id LIKE 'FX%' OR subject_id LIKE :apn)"
+        ), {"apn": f"{FIXTURE_APN_PREFIX}%"})
+        session.execute(text(
+            "DELETE FROM civic.parcel_version WHERE jurisdiction = 'FIXTURE'"
+        ))
+        session.execute(text(
+            "DELETE FROM civic.property_identity WHERE identity_seed LIKE :seed "
+            "AND NOT EXISTS (SELECT 1 FROM civic.parcel_version pv "
+            "WHERE pv.property_identity_id = civic.property_identity.id)"
+        ), {"seed": f"county_apn:{FIXTURE_APN_PREFIX}%"})
+        session.execute(text(
+            "DELETE FROM source.source_record_version WHERE source_id = :src"
+        ), {"src": FIXTURE_SOURCE})
     session.flush()

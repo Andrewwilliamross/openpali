@@ -19,19 +19,36 @@ def restore_current_release_pointer():
         yield
         return
 
+    from sqlalchemy import select
+
     from openpali.storage.db import get_engine, get_session_factory
-    from openpali.storage.models import CurrentRelease
+    from openpali.storage.models import CurrentRelease, Publication
 
     factory = get_session_factory(get_engine())
     with factory() as session:
         row = session.get(CurrentRelease, 1)
         before = (row.current_release_id, row.lkg_release_id) if row else None
+        # the suite's throwaway promotions also flip pre-existing publication
+        # rows to "superseded"; capture their statuses so the release history
+        # reads exactly as found afterward
+        statuses_before = dict(
+            session.execute(
+                select(Publication.release_id, Publication.status)
+            ).all()
+        )
     yield
     if before is None:
         return
     with factory() as session:
         row = session.get(CurrentRelease, 1, with_for_update=True)
         row.current_release_id, row.lkg_release_id = before
-        # test releases stay in ops.publication history (append-only); only
-        # the pointer is restored
+        for pub in session.execute(
+            select(Publication).where(
+                Publication.release_id.in_(statuses_before)
+            )
+        ).scalars():
+            if pub.status != statuses_before[pub.release_id]:
+                pub.status = statuses_before[pub.release_id]
+        # releases the suite itself published stay in ops.publication
+        # history (append-only); only pre-existing state is restored
         session.commit()

@@ -92,13 +92,13 @@ if $WRAPPER ps >/dev/null 2>&1; then
   run_job renderer-bench renderer-bench
 else
   # Sandboxed shells cannot reach Docker: only top-level wrapper commands are
-  # unsandboxed by the launch hook. Emit the exact commands so the operator/
-  # evaluator runs each one directly and checks its container exits 0.
-  echo "  Docker unreachable from this shell. Run each job as its OWN command:"
-  for svc in "test-integration" "ml-drill" "ml-representative" "recon-drill" \
-             "spatial-refresh" "replay" "e2e-browser" "renderer-bench"; do
-    echo "    $WRAPPER up -d $svc"
-  done
+  # unsandboxed by the launch hook. The ENTIRE service half still runs as ONE
+  # command via the gate-chain overlay (infra/compose.gate.yaml), which
+  # serializes every job behind service_completed_successfully conditions and
+  # exits 0 only when the whole chain is green:
+  echo "  Docker unreachable from this shell. Run the service half as ONE command:"
+  echo "    python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml -f infra/compose.gate.yaml up -d full-gate"
+  echo "  plus the typed GPU boundary as its own command:"
   echo "    $WRAPPER --profile gpu up -d recon-gpu"
   echo "  then verify exits with:"
   echo "    $WRAPPER ps -a --format '{{.Name}} {{.Status}}'"

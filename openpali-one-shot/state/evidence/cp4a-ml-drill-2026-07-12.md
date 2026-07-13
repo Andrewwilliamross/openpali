@@ -76,3 +76,13 @@ experiments/1 runs 5a76fdf3/cbb21019/8ff2dae4 (N) and be9aedd4/6e9c13b3/f4a9758f
   failing challenger was REFUSED promotion in an earlier run (recorded above).
 - Serving: snapshot-bound batch prediction set from the immutable artifact in
   a fresh process; horizon-resolved rows excluded; 48 open-horizon rows.
+
+## Addendum (2026-07-12, repair round 5)
+
+The drill recorded above had 11 checks; the current drill has 12 (the
+fold-eval promotion-refusal negative control was added during the repair
+rounds). The evaluator's noted 12/12-vs-11/11 discrepancy is this version
+difference, not a miscount. Fresh 12/12 runs at the round-5 candidate —
+executed TWICE back-to-back with the published fixture release pinned in
+place (reset now preserves publication-pinned snapshots) — are recorded in
+repair-round5-verification-2026-07-12.md.
