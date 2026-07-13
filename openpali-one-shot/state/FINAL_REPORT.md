@@ -155,7 +155,7 @@ command, container exit code, API response, or browser assertion recorded in
   failures surface as metric disclosures; the underlying portal lag/format
   question remains open and disclosed rather than hidden.
 
-## 3. APPROVAL-001 — decisions that remain the sponsor's (human gates)
+## 3. APPROVAL-001 — human release gates (decisions that remain the sponsor's)
 
 1. **LARIAC-derived pre-fire corpus rights**: registered `unresolved` and
    technically excluded from every public release manifest (visible in the
@@ -171,3 +171,18 @@ command, container exit code, API response, or browser assertion recorded in
    display time only; any deeper use needs vendor terms review.
 5. **Resident-facing corrections policy**: the moderation queue exists;
    staffing it and the response SLA are operational decisions.
+
+## 4. Next steps
+
+- Resolve the human release gates above (license, LARIAC rights, forecast
+  launch policy, corrections staffing) — every technical safe default is
+  already enforced, so each decision is a switch, not a build.
+- Run the renderer benchmark headed on real GPU hardware before making any
+  frame-time performance claim; SwiftShader evidence covers correctness and
+  relative regressions only.
+- Keep the daily source refresh scheduled and watch the disclosed CofO and
+  destroyed-universe reconciliation drifts; when the point-in-time history
+  gate eventually passes (three acquisition dates spanning 60 days), the
+  first public forecast still requires a named reviewer's promotion.
+- Multi-instance hardening (shared rate limiter, real secrets, external
+  object-store credentials) before any deployment beyond a single host.
