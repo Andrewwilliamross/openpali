@@ -1,95 +1,72 @@
-# Palisades Rebuild Tracker
+# Palisades Rebuild Tracker (OpenPali)
 
-By RE\SPRING (respring.ai) · open-source
+By RE\SPRING (respring.ai)
 
-A single web map of Pacific Palisades where **every lot destroyed in the January 2025
-Palisades Fire is color-coded by how far along its rebuild is** — from deep red ("no
-permit on file") through orange/yellow ("in plan check", "permitted") to green ("under
-construction", "complete"). It pulls live from city and county data systems and turns
-fragmented permit records into one glanceable picture of the recovery, lot by lot.
+A public evidence platform for the rebuild after the January 2025 Palisades
+Fire: one map of every destroyed property, each showing **what the public
+record actually documents** — cleanup, design review, permitting,
+construction, and occupancy as separate evidence lanes — plus the observation
+timeline behind every claim, down to the source record.
 
-> Run `make web` and open the app to see all 5,877 destroyed lots rendered live.
+The platform never scores, ranks, or guesses. Milestones appear only when a
+documented event supports them; "no public evidence" is displayed as exactly
+that, never as a judgment about the property or its owners. Permit-timing
+estimates come from a reviewed batch model and are suppressed with a typed
+reason whenever the evidence base is insufficient.
 
-## Why
+## Architecture
 
-The data exists — LADBS permits, LA County dashboards, CAL FIRE damage assessments,
-USACE debris records — but it's scattered across a dozen systems and presented as
-aggregate counts. No tool answers the simple question a returning resident actually has:
-*how far along is my block?* This does.
+A modular Python monolith with workers, serving a React/MapLibre/WebGL client:
 
-## How it works
+- `pipeline/openpali/` — domain semantics, source adapters (LA County, LADBS
+  permits + inspections, Socrata permits/CofO, Malibu, CAL FIRE DINS, USGS
+  3DEP), bitemporal PostGIS ledger, content-addressed object store,
+  censoring-aware analytics, the continual-ML platform (MLflow), the
+  spatial/3D pipeline, and the FastAPI release API.
+- `infra/compose.yaml` — PostgreSQL/PostGIS, SeaweedFS (S3), Prefect
+  orchestration, MLflow, API, web, observability, and the drill/gate jobs.
+- `web/` — the 2D-first map product with opt-in 3D (USGS post-fire lidar
+  surfels + terrain through release-qualified URLs), generated API client.
 
-```
-pipeline/ (Python)              web/ (React + MapLibre)
-  fetch live gov APIs   ──►  parcels.geojson   ──►  full-screen map, score gradient
-  normalize on APN           details.json           click → Zillow-style lot card
-  score each lot 0–100        summary.json           address search + neighborhood nav
-  emit static JSON            meta.json              headline metrics + permit sparkline
-```
+Everything a user sees is pinned to ONE published release/snapshot;
+publication is atomic with gates, last-known-good, and rollback. Raw source
+bytes are immutable and every release replays offline from exact hashes.
 
-No backend, no database — the pipeline emits static JSON that a static site serves.
-Cheap, durable, forkable. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-### The rebuild score
-
-Each lot gets a 0–100 score that blends its current permit/inspection **stage** with how
-it's **moving** relative to its cohort — so a lot permitted last week looks different from
-one permitted eight months ago with no inspection since. Full method:
-[docs/METHODOLOGY.md](docs/METHODOLOGY.md).
-
-### Data sources
-
-Built on LA County's and LA City's pre-joined parcel layers, enriched with the LADBS
-per-permit feed (the rich timeline), construction inspections, CofO records, USACE debris
-status, Malibu's rebuild dashboard, and Esri Wayback pre-fire imagery. Every endpoint is
-documented and was live-verified: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
-
-Pipeline output **reconciles against the official LADBS dashboard** every run (destroyed
-parcels and CofO count match exactly; permits-issued within ~2%).
-
-## Run it
+## Run it locally
 
 ```bash
-# 1. data pipeline  →  writes web/public/data/*.json
-cd pipeline
-uv run run.py                 # live fetch + score + emit + validate vs official numbers
-uv run run.py --offline       # rebuild artifacts from cache (fast, no network)
-uv run pytest                 # scoring engine unit tests
-
-# 2. web app
-cd ../web
-npm install
-npm run dev                   # http://localhost:5173
-npm run build                 # static site → web/dist/
+scripts/bootstrap        # toolchain + dependency setup (no services)
+scripts/check-fast       # unit suites, lint, typecheck, OpenAPI drift
+scripts/check-full       # full local gate: services, integration, ML,
+                         # spatial, browser, security, release packaging
 ```
 
-## Phase 2 — 4D spatial twin core
+Service lifecycle runs through Docker Compose (see `infra/compose.yaml`);
+`scripts/check-full` prints each wrapper command it needs when it cannot
+invoke Docker itself.
 
-`pipeline/core/spatial/` extends the tracker into a spatiotemporal 3D dataset:
-LARIAC 3D building extraction (I3S, no Draco), a unified Gaussian-splat-ready
-state model in partitioned GeoParquet keyed by H3 + APN, a full RANSAC+ICP
-registration engine for crowdsourced captures, and a 3D Tiles 1.1 LOD tiler
-for web-streamable splats. See [docs/SPATIAL_CORE.md](docs/SPATIAL_CORE.md).
+## Data honesty
 
-```bash
-cd pipeline && uv run run_spatial.py --limit 25   # nightly; drains the prior backlog
-```
+- Observation, source record, parcel, property, permit, and inspection are
+  distinct; unknown stays unknown, and missing dates are never replaced.
+- Analytics disclose denominators, censoring, and failed reconciliations on
+  the metric itself.
+- Corrections: every property card has a report path; contact details are
+  stored separately and never published.
 
-## Keeping data fresh
+## History
 
-The pipeline is idempotent and safe to run on a schedule (sources update daily). Run
-`uv run run.py` from cron / GitHub Actions and commit the regenerated `web/public/data/`;
-the git history of those artifacts doubles as a free time-series of the recovery.
-
-## Coverage & honesty
-
-- Covers the **full fire footprint**: City of LA (richest timeline), unincorporated LA
-  County, and Malibu (coarser status where only that's published — labeled as such).
-- A lot with no data shows **deep red, never hidden**.
-- Every lot card deep-links to its official LADBS permit record so any number is auditable.
-- Estimated-completion dates are model estimates, shown as ranges and labeled as such.
+The original static-site prototype (0–100 rebuild score, static JSON, no
+backend) is retired; its design docs remain in
+[Docs/initialbuild_docs/](Docs/initialbuild_docs/ARCHITECTURE.md) as history.
+Its scoring and estimated-completion semantics no longer exist anywhere in
+the product.
 
 ## License
 
-Open source. Government data is public record; imagery/basemaps are used under their
-respective attributions (shown in-app).
+Not yet decided. Licensing (and any open-source release) is a pending
+human decision for the project owner; no license is granted by this
+repository today. Government data remains public record; imagery, basemaps,
+and vendor-derived assets are used under their respective terms with
+attribution shown in-app, and rights-unresolved assets are excluded from
+public releases by default.

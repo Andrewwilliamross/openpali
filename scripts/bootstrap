@@ -1,0 +1,47 @@
+#!/bin/sh
+# OpenPali idempotent host bootstrap: locked Python dependencies + web deps.
+#
+# Service lifecycle and database/bucket initialization are separate explicit
+# wrapper commands (the one-shot guardrail requires the Docker wrapper to be
+# the ENTIRE command, so this script never invokes it). Full documented
+# sequence (also in infra/README.md):
+#
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml build api web proxy
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d --wait
+#   ./scripts/bootstrap
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d migrate
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d bucket-init
+#   ./scripts/check-fast
+set -eu
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+
+step() { printf '\n== %s ==\n' "$1"; }
+
+step "host python dependencies (pipeline/.venv)"
+if [ ! -x pipeline/.venv/bin/python ]; then
+  python3 -m venv pipeline/.venv
+fi
+pipeline/.venv/bin/python -m ensurepip --upgrade >/dev/null 2>&1 || true
+# pip >=24.2 defaults to the macOS system truststore, which sandboxed runs
+# cannot reach; certifi-based legacy certs work everywhere.
+export PIP_USE_DEPRECATED=legacy-certs
+pipeline/.venv/bin/python -m pip install -q --upgrade pip
+(cd pipeline && .venv/bin/python -m pip install -q -r requirements-lock.txt \
+  && .venv/bin/python -m pip install -q --no-deps -e . \
+  && .venv/bin/python -m pip install -q pytest)
+pipeline/.venv/bin/python -c "import openpali, palisades, fastapi, prefect, mlflow; print('python deps OK')"
+
+step "web dependencies"
+if [ ! -d web/node_modules ]; then
+  (cd web && npm ci)
+else
+  echo "web/node_modules present"
+fi
+
+step "host bootstrap complete"
+echo "Next (explicit wrapper commands; see infra/README.md):"
+echo "  python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d migrate"
+echo "  python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d bucket-init"
+echo "Then verify: http://127.0.0.1:58000/health/ready"

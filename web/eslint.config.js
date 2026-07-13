@@ -6,7 +6,9 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // src/api/generated is emitted by @hey-api/openapi-ts from the committed
+  // OpenAPI contract; generated code is drift-checked, not hand-linted.
+  globalIgnores(['dist', 'src/api/generated']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

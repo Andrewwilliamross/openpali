@@ -1,0 +1,718 @@
+{
+  "description": "Golden semantic-truth corpus (TRUTH-001). Raw-shaped source rows; ISO dates in *_iso fields are converted to ArcGIS epoch-ms transport encoding by the loader so production date parsing is exercised. observed_at is fixed for determinism.",
+  "observed_at": "2026-07-01T00:00:00+00:00",
+  "cases": {
+    "positive_full_journey": {
+      "county": [
+        {
+          "APN": "4400-001-001",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Final Sign Off - Complete",
+          "FSO_PKG_APPROVED_USACE": "22-MAR-25 09.37.30.000000 PM",
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00001",
+          "APN": "4400-001-001",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-03-01",
+          "PC_APPROVED_DATE_iso": "2025-06-10",
+          "ISSUE_DATE_iso": "2025-07-02",
+          "COFO_DATE_iso": "2026-05-20",
+          "STATUS_DATE_iso": "2025-07-02"
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "25010-10000-00001",
+          "INSP_DESC": "Foundation",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-06-15"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4400001001": {
+            "lanes": {
+              "cleanup": "milestone_reached",
+              "design_review": "milestone_reached",
+              "permitting": "milestone_reached",
+              "construction": "activity_scheduled",
+              "occupancy": "milestone_reached"
+            },
+            "permitting_milestones": ["rebuild_application_submitted", "rebuild_permit_issued"],
+            "occurred_kinds": {
+              "debris_removal_complete": "exact",
+              "rebuild_permit_issued": "exact"
+            }
+          }
+        },
+        "qualifying_applications": 1,
+        "undocumented": []
+      }
+    },
+    "negative_no_activity": {
+      "county": [
+        {
+          "APN": "4400-002-002",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400002002": {
+            "lanes": {
+              "cleanup": "no_public_evidence",
+              "design_review": "no_public_evidence",
+              "permitting": "no_public_evidence",
+              "construction": "no_public_evidence",
+              "occupancy": "no_public_evidence"
+            },
+            "context_event_types": ["structure_destroyed"]
+          }
+        },
+        "qualifying_applications": 0,
+        "undocumented": []
+      }
+    },
+    "scheduled_inspection_is_not_construction": {
+      "county": [
+        {
+          "APN": "4400-003-003",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Final Sign Off - Complete",
+          "FSO_PKG_APPROVED_USACE": "10-FEB-25 08.00.00.000000 AM",
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00003",
+          "APN": "4400-003-003",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-04-01",
+          "PC_APPROVED_DATE_iso": "2025-08-01",
+          "ISSUE_DATE_iso": "2025-09-01",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-09-01"
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "25010-10000-00003",
+          "INSP_DESC": "Foundation",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-06-20"
+        },
+        {
+          "PERMIT": "25010-10000-00003",
+          "INSP_DESC": "Frame",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-06-28"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4400003003": {
+            "lanes": {
+              "construction": "activity_scheduled",
+              "occupancy": "no_public_evidence"
+            },
+            "construction_reached": []
+          }
+        },
+        "qualifying_applications": 1,
+        "undocumented": []
+      }
+    },
+    "ancillary_permit_cannot_advance": {
+      "county": [
+        {
+          "APN": "4412-014-020",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25016-30000-00777",
+          "APN": "4412-014-020",
+          "PERMIT_TYPE": "Grading",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-05-05",
+          "PC_APPROVED_DATE_iso": "2025-07-15",
+          "ISSUE_DATE_iso": "2025-08-20",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-08-20"
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "25016-30000-00777",
+          "INSP_DESC": "Rough",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-05-01"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4412014020": {
+            "lanes": {
+              "cleanup": "no_public_evidence",
+              "design_review": "no_public_evidence",
+              "permitting": "no_public_evidence",
+              "construction": "no_public_evidence",
+              "occupancy": "no_public_evidence"
+            },
+            "context_event_types": [
+              "ancillary_permit_activity",
+              "inspection_activity",
+              "structure_destroyed"
+            ]
+          }
+        },
+        "qualifying_applications": 0,
+        "undocumented": []
+      }
+    },
+    "optout_is_not_completion": {
+      "county": [
+        {
+          "APN": "4400-005-005",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Opt-Out and Manage Cleanup Independently",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400005005": {
+            "lanes": {
+              "cleanup": "no_public_evidence"
+            },
+            "context_event_types": ["cleanup_opt_out_selected", "structure_destroyed"],
+            "occurred_kinds": {
+              "cleanup_opt_out_selected": "unknown"
+            }
+          }
+        },
+        "qualifying_applications": 0,
+        "undocumented": []
+      }
+    },
+    "missing_dates_stay_unknown_or_censored": {
+      "county": [
+        {
+          "APN": "4400-006-006",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Final Sign Off - Complete",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00006",
+          "APN": "4400-006-006",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-05-01",
+          "PC_APPROVED_DATE_iso": null,
+          "ISSUE_DATE_iso": null,
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": null
+        }
+      ],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400006006": {
+            "lanes": {
+              "cleanup": "milestone_reached",
+              "design_review": "milestone_reached",
+              "permitting": "milestone_reached"
+            },
+            "occurred_kinds": {
+              "debris_removal_complete": "unknown",
+              "rebuild_permit_issued": "interval",
+              "plan_check_approved": "interval"
+            }
+          }
+        },
+        "qualifying_applications": 1,
+        "undocumented": [],
+        "forbidden_occurrence_dates": ["2025-01-07", "2026-07-01"]
+      }
+    },
+    "future_scheduled_inspection": {
+      "county": [
+        {
+          "APN": "4400-007-007",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00007",
+          "APN": "4400-007-007",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-06-01",
+          "PC_APPROVED_DATE_iso": "2025-10-01",
+          "ISSUE_DATE_iso": "2025-11-01",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-11-01"
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "25010-10000-00007",
+          "INSP_DESC": "Final",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-09-15"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4400007007": {
+            "lanes": {
+              "construction": "activity_scheduled",
+              "occupancy": "no_public_evidence"
+            },
+            "scheduled_for": {
+              "construction_inspection_activity": "2026-09-15"
+            },
+            "occurred_kinds": {
+              "construction_inspection_activity": "unknown"
+            }
+          }
+        },
+        "qualifying_applications": 1,
+        "undocumented": []
+      }
+    },
+    "bldg_new_not_flagged_rebuild": {
+      "county": [
+        {
+          "APN": "4400-008-008",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00008",
+          "APN": "4400-008-008",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "No",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-02-01",
+          "PC_APPROVED_DATE_iso": "2025-03-01",
+          "ISSUE_DATE_iso": "2025-04-01",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-04-01"
+        }
+      ],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400008008": {
+            "lanes": {
+              "permitting": "no_public_evidence",
+              "design_review": "no_public_evidence"
+            },
+            "context_event_types": ["non_rebuild_permit_activity", "structure_destroyed"]
+          }
+        },
+        "qualifying_applications": 0,
+        "undocumented": []
+      }
+    },
+    "rebuild_flag_missing": {
+      "county": [
+        {
+          "APN": "4400-009-009",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00009",
+          "APN": "4400-009-009",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": null,
+          "PERMIT_STATUS": "Plan Check in Progress",
+          "SUBMIT_DATE_iso": "2025-06-15",
+          "PC_APPROVED_DATE_iso": null,
+          "ISSUE_DATE_iso": null,
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-06-20"
+        }
+      ],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400009009": {
+            "lanes": {
+              "permitting": "no_public_evidence"
+            },
+            "context_event_types": ["permit_activity_flag_missing", "structure_destroyed"]
+          }
+        },
+        "qualifying_applications": 0,
+        "undocumented": []
+      }
+    },
+    "undocumented_values_fail_closed": {
+      "county": [
+        {
+          "APN": "4400-010-010",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Mystery New Status",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00010",
+          "APN": "4400-010-010",
+          "PERMIT_TYPE": "Bldg-Moved",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-03-03",
+          "PC_APPROVED_DATE_iso": null,
+          "ISSUE_DATE_iso": null,
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": null
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "25010-10000-00010",
+          "INSP_DESC": "Foundation",
+          "INSP_STATUS": "Insp Completed",
+          "INSP_DT_iso": "2026-04-01"
+        }
+      ],
+      "expect": {
+        "qualifying_applications": 0,
+        "undocumented": ["Bldg-Moved", "Insp Completed", "Mystery New Status"],
+        "publication_must_fail": true
+      }
+    },
+    "conflicting_issue_dates": {
+      "county": [
+        {
+          "APN": "4400-011-011",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00011",
+          "APN": "4400-011-011",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-02-15",
+          "PC_APPROVED_DATE_iso": "2025-05-15",
+          "ISSUE_DATE_iso": "2025-08-01",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-08-01"
+        },
+        {
+          "PERMIT": "25010-10000-00011",
+          "APN": "4400-011-011",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-02-15",
+          "PC_APPROVED_DATE_iso": "2025-05-15",
+          "ISSUE_DATE_iso": "2025-09-01",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-09-01"
+        }
+      ],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400011011": {
+            "lanes": {
+              "permitting": "conflicting"
+            }
+          }
+        },
+        "qualifying_applications": 1,
+        "conflicts": 1,
+        "undocumented": []
+      }
+    },
+    "corrected_retraction": {
+      "county": [
+        {
+          "APN": "4400-012-012",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Final Sign Off - Complete",
+          "FSO_PKG_APPROVED_USACE": "05-APR-25 10.00.00.000000 AM",
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [],
+      "inspections": [],
+      "retractions": [
+        {
+          "target_event_type": "debris_removal_complete",
+          "target_subject": "4400012012",
+          "reason": "Upstream corrected the sign-off record: package rescinded",
+          "source": "county_base_revision"
+        },
+        {
+          "target_observation_id": "obs-000000000000000000000000",
+          "reason": "Dangling retraction (target unknown) must surface, not vanish",
+          "source": "test_fixture"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4400012012": {
+            "lanes": {
+              "cleanup": "no_public_evidence"
+            }
+          }
+        },
+        "retracted_count": 1,
+        "dangling_retractions": 1,
+        "qualifying_applications": 0,
+        "undocumented": []
+      }
+    },
+    "multi_structure_two_applications": {
+      "county": [
+        {
+          "APN": "4400-013-013",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Final Sign Off - Complete",
+          "FSO_PKG_APPROVED_USACE": "18-MAY-25 01.15.00.000000 PM",
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00013",
+          "APN": "4400-013-013",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-03-10",
+          "PC_APPROVED_DATE_iso": "2025-07-10",
+          "ISSUE_DATE_iso": "2025-08-10",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-08-10"
+        },
+        {
+          "PERMIT": "25011-10000-00014",
+          "APN": "4400-013-013",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Corrections Issued",
+          "SUBMIT_DATE_iso": "2025-04-20",
+          "PC_APPROVED_DATE_iso": null,
+          "ISSUE_DATE_iso": null,
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-06-01"
+        }
+      ],
+      "inspections": [],
+      "expect": {
+        "parcels": {
+          "4400013013": {
+            "lanes": {
+              "permitting": "milestone_reached",
+              "design_review": "milestone_reached"
+            }
+          }
+        },
+        "qualifying_applications": 2,
+        "distinct_permit_subjects": 2,
+        "undocumented": []
+      }
+    },
+    "cross_jurisdiction": {
+      "county": [
+        {
+          "APN": "4450-020-020",
+          "LCITY": "Malibu",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "Final Sign Off - Complete",
+          "FSO_PKG_APPROVED_USACE": "11-JUN-25 11.00.00.000000 AM",
+          "REBUILD_PROGRESS": null
+        },
+        {
+          "APN": "4460-021-021",
+          "LCITY": "Unincorporated",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": "Building Permits Issued"
+        },
+        {
+          "APN": "4400-014-014",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00014",
+          "APN": "4400-014-014",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Approved & Permit Issued",
+          "SUBMIT_DATE_iso": "2025-05-01",
+          "PC_APPROVED_DATE_iso": "2025-09-01",
+          "ISSUE_DATE_iso": "2025-10-01",
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-10-01"
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "25010-10000-00014",
+          "INSP_DESC": "Foundation",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-06-25"
+        }
+      ],
+      "malibu": [
+        {
+          "apn": "4450020020",
+          "iconShape": "PermitIssued"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4450020020": {
+            "lanes": {
+              "cleanup": "milestone_reached",
+              "permitting": "milestone_reached",
+              "construction": "no_public_evidence"
+            },
+            "occurred_kinds": {
+              "rebuild_permit_issued": "unknown"
+            }
+          },
+          "4460021021": {
+            "lanes": {
+              "permitting": "milestone_reached"
+            },
+            "occurred_kinds": {
+              "rebuild_permit_issued": "unknown"
+            }
+          },
+          "4400014014": {
+            "lanes": {
+              "construction": "activity_scheduled"
+            }
+          }
+        },
+        "qualifying_applications": 1,
+        "undocumented": []
+      }
+    },
+    "ambiguous_joins": {
+      "county": [
+        {
+          "APN": "4400-015-015",
+          "LCITY": "Los Angeles",
+          "DAMAGE": "Destroyed (>50%)",
+          "ROE_STATUS": "No ROE",
+          "FSO_PKG_APPROVED_USACE": null,
+          "REBUILD_PROGRESS": null
+        }
+      ],
+      "permits": [
+        {
+          "PERMIT": "25010-10000-00015",
+          "APN": "BAD-APN",
+          "PERMIT_TYPE": "Bldg-New",
+          "PALISADES_WF_REBUILD": "Rebuild",
+          "PERMIT_STATUS": "Plans Submitted",
+          "SUBMIT_DATE_iso": "2025-06-01",
+          "PC_APPROVED_DATE_iso": null,
+          "ISSUE_DATE_iso": null,
+          "COFO_DATE_iso": null,
+          "STATUS_DATE_iso": "2025-06-01"
+        }
+      ],
+      "inspections": [
+        {
+          "PERMIT": "99999-00000-99999",
+          "INSP_DESC": "Final",
+          "INSP_STATUS": "Insp Scheduled",
+          "INSP_DT_iso": "2026-06-01"
+        }
+      ],
+      "expect": {
+        "parcels": {
+          "4400015015": {
+            "lanes": {
+              "permitting": "no_public_evidence",
+              "construction": "no_public_evidence"
+            }
+          }
+        },
+        "qualifying_applications": 0,
+        "unjoined_permits": 1,
+        "orphan_inspections": 1,
+        "undocumented": []
+      }
+    }
+  }
+}

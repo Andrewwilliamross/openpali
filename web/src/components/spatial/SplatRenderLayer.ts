@@ -98,12 +98,31 @@ export class SplatRenderLayer implements CustomLayerInterface {
   private pendingUploads: { node: SplatNode; gen: number }[] = []
   private static readonly UPLOAD_BUDGET_PER_FRAME = 6
   private static readonly TEX_PUBLISH_BUDGET_PER_FRAME = 4
+  // per-frame instanced-splat ceiling (SPATIAL-002): wide views coarsen to
+  // faithful LOD representatives instead of unbounded overdraw
+  private static readonly FRAME_SPLAT_BUDGET = 150_000
+  // hysteresis state for the budget (adjusted between frames, never mid-frame)
+  private adaptiveSse = SSE_THRESHOLD_PX
 
-  constructor(id: string, baseUrl: string, intersector?: SpatialIntersector) {
+  // Per-source presentation: the committed LARIAC corpus carries a baked
+  // civic-score tint (neutralized in-shader, TRUTH-001) and projects pre-fire
+  // aerial imagery; a post-fire USGS surfel source carries honest hillshade
+  // color and must NOT get pre-fire photo texture projected onto it.
+  private bakedColor = false
+
+  // Render evidence for E2E/benchmarks (SPATIAL-001/002): cumulative frames
+  // with content, nodes drawn, and splat instances issued via
+  // drawArraysInstanced. Read through window.__splats / window.__usgsSplats.
+  readonly stats = { frames: 0, drawnNodes: 0, drawnSplats: 0, residentBytes: 0 }
+
+  constructor(id: string, baseUrl: string, intersector?: SpatialIntersector,
+              opts?: { bakedColor?: boolean; textures?: boolean }) {
     this.id = id
     this.baseUrl = baseUrl.replace(/\/$/, '')
     this.fetcher = new TileFetcher(this.baseUrl)
     this.intersector = intersector ?? null
+    this.bakedColor = opts?.bakedColor ?? false
+    this.texturesEnabled = opts?.textures ?? true
   }
 
   setEnabled(on: boolean): void {
@@ -122,7 +141,8 @@ export class SplatRenderLayer implements CustomLayerInterface {
     this.generation++
     this.program = compileProgram(gl, SPLAT_VERT, SPLAT_FRAG)
     for (const name of ['u_matrix', 'u_viewport', 'u_fade', 'u_zOffset',
-                        'u_hasTex', 'u_texOrigin', 'u_texInvSize', 'u_tex']) {
+                        'u_hasTex', 'u_texOrigin', 'u_texInvSize', 'u_tex',
+                        'u_bakedColor']) {
       this.uniforms[name] = gl.getUniformLocation(this.program, name)
     }
     this.pool = new BufferPool(gl, 16, 8)
@@ -353,7 +373,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     const latRad = (m.origin.lat * Math.PI) / 180
     const lon = m.origin.lon + node.cx / (METERS_PER_DEG_LON_EQ * Math.cos(latRad))
     const lat = m.origin.lat + node.cy / METERS_PER_DEG_LAT
-    let elev: number | null = null
+    let elev: number | null
     try {
       elev = map.queryTerrainElevation([lon, lat])
     } catch {
@@ -460,6 +480,15 @@ export class SplatRenderLayer implements CustomLayerInterface {
       drawList.push({ node, dist, fade })
     }
 
+    // ---- adaptive splat budget (SPATIAL-002, profiling-selected) ----
+    // Wide views select hundreds of small nodes at a fixed 14px threshold:
+    // the measured far scene drew MORE instances (217k/frame) than a close-up
+    // (180k). HYSTERESIS across frames (not same-frame retraversal — that
+    // cost 1-3 extra CPU passes per frame and regressed software-raster p50):
+    // when the last cut exceeded the budget, the threshold eases up next
+    // frame; when comfortably under, it decays back toward the base.
+    const sseThreshold = this.adaptiveSse
+
     const visit = (node: SplatNode): void => {
       const radius = Math.hypot(node.hx, node.hy, node.hz)
       const zOff = Number.isNaN(node.zOffset) ? 0 : node.zOffset
@@ -472,7 +501,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
         node.cx + node.hx, node.cy + node.hy, node.cz + node.hz)
       const sse = screenSpaceError(node.geometricError, dist, vh, fov)
 
-      if (node.children.length > 0 && sse > SSE_THRESHOLD_PX) {
+      if (node.children.length > 0 && sse > sseThreshold) {
         let allReady = true
         for (const c of node.children) {
           if (c.state !== 'ready') {
@@ -508,6 +537,20 @@ export class SplatRenderLayer implements CustomLayerInterface {
       }
     }
     visit(this.tileset.root)
+    // budget feedback for the NEXT frame (single traversal per frame)
+    {
+      const selected = drawList.reduce((s, d) => s + d.node.splatCount, 0)
+      if (selected > SplatRenderLayer.FRAME_SPLAT_BUDGET) {
+        this.adaptiveSse = Math.min(this.adaptiveSse * 1.5, SSE_THRESHOLD_PX * 8)
+        map.triggerRepaint() // converge within a frame or two
+      } else if (
+        selected < SplatRenderLayer.FRAME_SPLAT_BUDGET * 0.6
+        && this.adaptiveSse > SSE_THRESHOLD_PX
+      ) {
+        this.adaptiveSse = Math.max(this.adaptiveSse * 0.85, SSE_THRESHOLD_PX)
+        map.triggerRepaint()
+      }
+    }
 
     if (drawList.length === 0) {
       this.evictPass()
@@ -522,6 +565,7 @@ export class SplatRenderLayer implements CustomLayerInterface {
     gl2.uniformMatrix4fv(this.uniforms.u_matrix, false, this.matrixF32)
     gl2.uniform2f(this.uniforms.u_viewport, vw, vh)
     gl2.uniform1i(this.uniforms.u_tex, 0)
+    gl2.uniform1f(this.uniforms.u_bakedColor, this.bakedColor ? 1 : 0)
     gl2.enable(gl2.BLEND)
     gl2.blendFunc(gl2.ONE, gl2.ONE_MINUS_SRC_ALPHA)
     gl2.depthMask(false) // depth TEST stays on (terrain occludes splats)
@@ -563,7 +607,11 @@ export class SplatRenderLayer implements CustomLayerInterface {
 
       gl2.bindVertexArray(node.vao)
       gl2.drawArraysInstanced(gl2.TRIANGLE_STRIP, 0, 4, node.splatCount)
+      this.stats.drawnNodes++
+      this.stats.drawnSplats += node.splatCount
     }
+    this.stats.frames++
+    this.stats.residentBytes = this.residentBytes
     // ---- GPU maintenance still inside the envelope (binds buffers, deletes) ----
     this.resortPass(drawList, cam)
     this.evictPass()

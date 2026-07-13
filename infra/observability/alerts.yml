@@ -1,0 +1,10 @@
+groups:
+  - name: openpali
+    rules:
+      - alert: ServiceDown
+        expr: probe_success == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.probed }} failed its health probe for 30s"

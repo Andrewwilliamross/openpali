@@ -1,0 +1,42 @@
+# Keep pull-request CI intentionally small: test, lint, typecheck, and build.
+# Heavier image, security, restore, and deployment checks are operator tasks,
+# not merge blockers for this repository.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  fast-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pipeline/requirements-lock.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install pipeline dependencies (locked)
+        run: |
+          python -m venv pipeline/.venv
+          pipeline/.venv/bin/pip install --no-cache-dir -r pipeline/requirements-lock.txt
+          pipeline/.venv/bin/pip install --no-deps -e pipeline
+
+      - name: Install web dependencies (locked)
+        run: cd web && npm ci
+
+      - name: Fast gate (same script as local)
+        run: sh scripts/check-fast
+
+      - name: Web production build
+        run: cd web && npm run build

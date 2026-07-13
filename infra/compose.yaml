@@ -1,0 +1,900 @@
+# OpenPali local production-equivalent stack.
+#
+# Invoke ONLY through the validated wrapper:
+#   python3 openpali-one-shot/scripts/docker_safe.py -f infra/compose.yaml up -d --wait
+#
+# Topology constraints enforced by the wrapper:
+# - every runtime network is internal; the single labeled squid proxy owns the
+#   egress network and is the only ingress (loopback-published ports) and
+#   egress (CONNECT allowlist) path;
+# - third-party images are digest-pinned (docker.io/ghcr.io);
+# - all credentials are explicit local-only fixtures (openpali-local-*);
+# - jobs (migrations, bucket init, releases, drills) are Compose services run
+#   via `up -d <svc>` + `wait <svc>`, never `docker run`/`exec`.
+
+networks:
+  internal:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.28.100.0/24
+  egress: {}
+
+volumes:
+  pgdata: {}
+  seaweed-data: {}
+  prefect-data: {}
+
+configs:
+  postgres-init:
+    file: postgres/init-databases.sql
+  seaweed-s3:
+    file: seaweedfs/s3.json
+
+services:
+  postgres:
+    image: ghcr.io/baosystems/postgis:17-3.5@sha256:d63ea2f9c038b80bb30cc4f4fb41e11cf6fc9dedfd16b1c6a0095dddc1c22785
+    environment:
+      POSTGRES_USER: openpali
+      POSTGRES_PASSWORD: openpali-local-fixture-db
+      POSTGRES_DB: openpali
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    configs:
+      - source: postgres-init
+        target: /docker-entrypoint-initdb.d/00-init-databases.sql
+    networks:
+      internal:
+        ipv4_address: 172.28.100.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openpali -d openpali"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  object-store:
+    image: chrislusf/seaweedfs:4.39@sha256:c7d6c721b30ae711db766bbbfd40192776e263d4e51e22f57baef7bef93c12c6
+    command: >-
+      server -dir=/data -master.volumeSizeLimitMB=256
+      -s3 -s3.config=/etc/seaweedfs/s3.json
+      -ip=object-store -master.peers=object-store:9333
+    volumes:
+      - seaweed-data:/data
+    configs:
+      - source: seaweed-s3
+        target: /etc/seaweedfs/s3.json
+    networks:
+      internal:
+        ipv4_address: 172.28.100.11
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/healthz || wget -q -O /dev/null http://127.0.0.1:9333/cluster/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  prefect-server:
+    image: prefecthq/prefect:3.7.8-python3.12@sha256:a1a789339d6176bf4ba37e0e7658ad8a4b021e14a63912f00afcd3e8e75d1863
+    command: ["prefect", "server", "start", "--host", "0.0.0.0", "--port", "4200"]
+    environment:
+      PREFECT_HOME: /data
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://openpali:openpali-local-fixture-db@postgres:5432/prefect
+      PREFECT_SERVER_DATABASE_CONNECTION_URL: postgresql+asyncpg://openpali:openpali-local-fixture-db@postgres:5432/prefect
+      PREFECT_UI_API_URL: http://127.0.0.1:54200/api
+    volumes:
+      - prefect-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      internal:
+        ipv4_address: 172.28.100.12
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:4200/api/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  prefect-worker:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["prefect", "worker", "start", "--pool", "openpali-process", "--type", "process"]
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,postgres,object-store,prefect-server,mlflow,api,proxy
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+
+  mlflow:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: >-
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/mlflow
+      --default-artifact-root s3://openpali-mlflow/
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+      # in-cluster clients address the service name; the browser reaches the
+      # UI through the squid accel port (Host localhost:55000)
+      MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow:5000,localhost:55000,127.0.0.1:55000,localhost,127.0.0.1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks:
+      internal:
+        ipv4_address: 172.28.100.13
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  api:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["uvicorn", "openpali.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks:
+      internal:
+        ipv4_address: 172.28.100.14
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  web:
+    image: openpali-web:local
+    build:
+      context: ../web
+    depends_on:
+      - api
+    networks:
+      internal:
+        ipv4_address: 172.28.100.15
+
+  proxy:
+    image: openpali-proxy:local
+    build:
+      context: ../infra/proxy
+    labels:
+      org.openpali.egress-proxy: "true"
+    networks: [internal, egress]
+    ports:
+      - "127.0.0.1:58000:8000"   # api
+      - "127.0.0.1:58080:8080"   # web
+      - "127.0.0.1:54200:4200"   # prefect ui/api
+      - "127.0.0.1:55000:5000"   # mlflow ui/api
+      - "127.0.0.1:58333:8333"   # object-store S3
+    depends_on:
+      - api
+      - web
+
+  # ---- job services (run with: up -d <name> && wait <name>) ----
+
+  migrate:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["alembic", "upgrade", "head"]
+    working_dir: /app
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  migrate-reset:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["sh", "-c", "alembic downgrade base && alembic upgrade head"]
+    working_dir: /app
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  bucket-init:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["python", "-m", "openpali.ops.bucket_init"]
+    environment:
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  test-integration:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["python", "-m", "pytest", "tests/integration", "-q", "--no-header"]
+    working_dir: /app
+    environment:
+      OPENPALI_INTEGRATION: "1"
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  db-stats:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - python
+      - -c
+      - |
+        from sqlalchemy import text
+        from openpali.storage.db import get_engine
+        engine = get_engine()
+        with engine.connect() as connection:
+            print("observations by source:")
+            for row in connection.execute(text(
+                "SELECT source_id, count(*) FROM civic.recovery_observation GROUP BY 1 ORDER BY 1"
+            )):
+                print(" ", row)
+            print("observations by event_type (top 20):")
+            for row in connection.execute(text(
+                "SELECT event_type, count(*) FROM civic.recovery_observation GROUP BY 1 ORDER BY 2 DESC LIMIT 20"
+            )):
+                print(" ", row)
+            print("record versions by source:")
+            for row in connection.execute(text(
+                "SELECT source_id, count(*) FROM source.source_record_version GROUP BY 1 ORDER BY 1"
+            )):
+                print(" ", row)
+            print("snapshot members by type (latest snapshot):")
+            for row in connection.execute(text(
+                "SELECT member_type, count(*) FROM civic.snapshot_member WHERE snapshot_id = "
+                "(SELECT snapshot_id FROM civic.snapshot ORDER BY created_at DESC LIMIT 1) GROUP BY 1"
+            )):
+                print(" ", row)
+            print("current release snapshot vs latest snapshot:")
+            for row in connection.execute(text(
+                "SELECT p.release_id, p.snapshot_id, s.created_at FROM ops.publication p "
+                "JOIN civic.snapshot s ON s.snapshot_id = p.snapshot_id "
+                "ORDER BY s.created_at DESC LIMIT 3"
+            )):
+                print(" ", row)
+            print("missingness metric event types for current-release snapshot:")
+            for row in connection.execute(text(
+                "SELECT DISTINCT cohort->>'event_type' FROM analytics.metric_value "
+                "WHERE metric_id='evidence_missingness' AND snapshot_id = "
+                "(SELECT p.snapshot_id FROM ops.current_release c JOIN ops.publication p "
+                " ON p.release_id = c.current_release_id WHERE c.id=1) ORDER BY 1"
+            )):
+                print(" ", row)
+            print("member observation sources for current-release snapshot:")
+            for row in connection.execute(text(
+                "SELECT o.source_id, count(*) FROM civic.snapshot_member m "
+                "JOIN civic.recovery_observation o ON o.observation_id = m.member_id "
+                "WHERE m.member_type='observation' AND m.snapshot_id = "
+                "(SELECT p.snapshot_id FROM ops.current_release c JOIN ops.publication p "
+                " ON p.release_id = c.current_release_id WHERE c.id=1) GROUP BY 1 ORDER BY 1"
+            )):
+                print(" ", row)
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  ml-drill:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "ml-drill"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  ml-representative:
+    # Representative-ledger ML path: real dataset + availability audit +
+    # baselines; challenger gated by the precommitted point-in-time-history
+    # gate (expected: INSUFFICIENT_POINT_IN_TIME_HISTORY) + typed
+    # insufficiency prediction set.
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        openpali ml-dataset --snapshot current | tee /tmp/ds.out
+        DATASET_ID=$$(grep '^DATASET_ID=' /tmp/ds.out | cut -d= -f2)
+        openpali ml-experiments --dataset "$$DATASET_ID" | tee /tmp/exp.out
+        SNAPSHOT_ID=$$(python -c "
+        import sys
+        from openpali.storage.db import session_scope
+        from openpali.storage.models import CurrentRelease, Publication
+        from sqlalchemy import select
+        with session_scope() as s:
+            c = s.get(CurrentRelease, 1)
+            p = s.execute(select(Publication).where(Publication.release_id == c.current_release_id)).scalar_one()
+            if p.kind != 'representative':
+                sys.exit(f'refusing: current release kind={p.kind}, not representative — heal the pointer first')
+            print(p.snapshot_id)
+        ")
+        openpali ml-serve --snapshot "$$SNAPSHOT_ID" --dataset "$$DATASET_ID"
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://object-store:8333
+      AWS_ACCESS_KEY_ID: openpali-local-fixture-access
+      AWS_SECRET_ACCESS_KEY: openpali-local-fixture-secret
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  prefect-deploy:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "orchestrate-deploy"]
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  replay:
+    # Zero-network proof: internal network only, NO proxy environment — the
+    # process is physically incapable of egress while it re-reads and
+    # re-derives the current release from verified raw bytes.
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "replay", "--release", "current"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  e2e-browser:
+    image: openpali-e2e:local
+    build:
+      context: ../web
+      dockerfile: e2e.Dockerfile
+    environment:
+      E2E_BASE_URL: http://web:80
+      E2E_PROXY: http://proxy:3128
+    depends_on:
+      - web
+      - api
+      - proxy
+    networks: [internal]
+    profiles: [jobs]
+
+  renderer-bench:
+    image: openpali-e2e:local
+    build:
+      context: ../web
+      dockerfile: e2e.Dockerfile
+    command: ["npx", "playwright", "test", "e2e/renderer-bench.spec.ts", "--reporter=list"]
+    environment:
+      E2E_BASE_URL: http://web:80
+      E2E_PROXY: http://proxy:3128
+    depends_on:
+      - web
+      - api
+      - proxy
+    networks: [internal]
+    profiles: [jobs]
+
+  # ---- observability profile (OPS-001): blackbox health probes + one alert
+  # rule; the drill stops a service, asserts ServiceDown fires, restores it,
+  # and asserts resolution via the alert-check job ----
+  prometheus:
+    image: openpali-prometheus:local
+    build:
+      context: ../infra/observability
+    networks: [internal]
+    profiles: [observability]
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.28.0@sha256:e753ff9f3fc458d02cca5eddab5a77e1c175eee484a8925ac7d524f04366c2fc
+    networks: [internal]
+    profiles: [observability]
+
+  alert-check:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    # EXPECT: "none" (no ServiceDown firing) or a substring the firing
+    # alert's probed target must contain (see alert-check-firing)
+    environment:
+      EXPECT: none
+    command:
+      - python
+      - -c
+      - |
+        import json, os, sys, time, urllib.request
+        expect = os.environ.get("EXPECT", "none")
+        deadline = time.time() + 240
+        last = None
+        while time.time() < deadline:
+            try:
+                with urllib.request.urlopen(
+                    "http://prometheus:9090/api/v1/alerts", timeout=10
+                ) as r:
+                    alerts = json.loads(r.read())["data"]["alerts"]
+            except Exception as exc:
+                last = f"prometheus unreachable: {exc}"
+                time.sleep(5)
+                continue
+            firing = [
+                a for a in alerts
+                if a.get("labels", {}).get("alertname") == "ServiceDown"
+                and a.get("state") == "firing"
+            ]
+            targets = [a["labels"].get("probed", "?") for a in firing]
+            last = f"firing={targets}"
+            if expect == "none" and not firing:
+                print(f"ALERT-CHECK OK: no ServiceDown firing ({last})")
+                sys.exit(0)
+            if expect != "none" and any(expect in t for t in targets):
+                print(f"ALERT-CHECK OK: ServiceDown firing for {expect} ({last})")
+                sys.exit(0)
+            time.sleep(10)
+        print(f"ALERT-CHECK FAIL: expected {expect}, last state {last}")
+        sys.exit(5)
+    networks: [internal]
+    profiles: [observability]
+
+  # The injected-fault half of the observability drill: expects ServiceDown
+  # to be FIRING for the mlflow probe (run after `stop mlflow`).
+  alert-check-firing:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    environment:
+      EXPECT: "mlflow:5000"
+    command:
+      - python
+      - -c
+      - |
+        import json, os, sys, time, urllib.request
+        expect = os.environ.get("EXPECT", "none")
+        deadline = time.time() + 240
+        last = None
+        while time.time() < deadline:
+            try:
+                with urllib.request.urlopen(
+                    "http://prometheus:9090/api/v1/alerts", timeout=10
+                ) as r:
+                    alerts = json.loads(r.read())["data"]["alerts"]
+            except Exception as exc:
+                last = f"prometheus unreachable: {exc}"
+                time.sleep(5)
+                continue
+            firing = [
+                a for a in alerts
+                if a.get("labels", {}).get("alertname") == "ServiceDown"
+                and a.get("state") == "firing"
+            ]
+            targets = [a["labels"].get("probed", "?") for a in firing]
+            last = f"firing={targets}"
+            if expect == "none" and not firing:
+                print(f"ALERT-CHECK OK: no ServiceDown firing ({last})")
+                sys.exit(0)
+            if expect != "none" and any(expect in t for t in targets):
+                print(f"ALERT-CHECK OK: ServiceDown firing for {expect} ({last})")
+                sys.exit(0)
+            time.sleep(10)
+        print(f"ALERT-CHECK FAIL: expected {expect}, last state {last}")
+        sys.exit(5)
+    networks: [internal]
+    profiles: [observability]
+
+  # Publish the CROSS-STACK FIXTURE release through the registered
+  # release-candidate deployment on the worker: release-qualified manifest,
+  # fixture spatial assets included (kind-aware selection), and the CURRENT
+  # pointer left untouched (promote=false — fixture data never displaces
+  # civic data). Uses the newest all-fixture-run snapshot (ml-drill output).
+  fixture-release:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -ceu
+      - |
+        SNAPSHOT_ID=$$(python -c "
+        from sqlalchemy import text
+        from openpali.storage.db import session_scope
+        with session_scope() as s:
+            row = s.execute(text(
+                \"SELECT snapshot_id FROM civic.snapshot s2 WHERE NOT EXISTS (\"
+                \" SELECT 1 FROM jsonb_array_elements_text(s2.input_runs) r(run_id)\"
+                \" WHERE r.run_id NOT LIKE 'run-fixture-%') \"
+                \"ORDER BY cutoff DESC LIMIT 1\")).first()
+            assert row, 'no fixture snapshot; run ml-drill first'
+            print(row[0])
+        ")
+        echo "publishing fixture snapshot $$SNAPSHOT_ID (promote=false)"
+        openpali orchestrate-run release-candidate/default \
+          --params "{\"snapshot_id\": \"$$SNAPSHOT_ID\", \"kind\": \"fixture\", \"promote\": false}"
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  # Trigger the full multi-source refresh -> snapshot -> analytics -> release
+  # pipeline through the registered deployment and WAIT for its terminal
+  # state (exit 0 only on Completed). Used directly and by the worker
+  # kill/resume drill.
+  full-release:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - openpali
+      - orchestrate-run
+      - full-refresh-release/default
+      - --params
+      - '{"kind": "representative"}'
+      - --timeout
+      - "3600"
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  restore-verify:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "restore-verify"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  api-bench:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["python", "-m", "openpali.ops_bench", "http://api:8000"]
+    depends_on:
+      - api
+    networks: [internal]
+    profiles: [jobs]
+
+  flow-reap:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "flow-reap"]
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  schedule-drill:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "schedule-drill"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  # OPS restore drill: dump the live civic database and DESTRUCTIVELY restore
+  # it into a clean namespace (a fresh database in the same instance), verify
+  # row counts + the current-release pointer match, then drop the namespace.
+  # Uses the same pinned postgis image as the primary (client tools included).
+  restore-drill:
+    image: ghcr.io/baosystems/postgis:17-3.5@sha256:d63ea2f9c038b80bb30cc4f4fb41e11cf6fc9dedfd16b1c6a0095dddc1c22785
+    entrypoint: ["sh", "-ceu"]
+    command:
+      - |
+        export PGPASSWORD=openpali-local-fixture-db
+        H="-h postgres -U openpali"
+        QFILE=/tmp/queries.txt
+        cat > "$$QFILE" <<'QEOF'
+        SELECT count(*) FROM civic.recovery_observation
+        SELECT count(*) FROM civic.snapshot
+        SELECT count(*) FROM ops.publication WHERE status='published'
+        SELECT current_release_id FROM ops.current_release WHERE id=1
+        SELECT manifest_sha256 FROM ops.publication WHERE release_id=(SELECT current_release_id FROM ops.current_release WHERE id=1)
+        SELECT count(*) FROM spatial.spatial_asset
+        SELECT count(*) FROM ml.model_version
+        SELECT count(*) FROM ml.promotion_decision
+        QEOF
+        echo "== reference values captured AT dump time (live keeps moving) =="
+        : > /tmp/reference.txt
+        while IFS= read -r q; do
+          psql $$H -tA openpali -c "$$q" >> /tmp/reference.txt
+        done < "$$QFILE"
+        echo "== dump ALL live databases (civic + prefect + mlflow) =="
+        for db in openpali prefect mlflow; do
+          pg_dump $$H -Fc "$$db" > "/tmp/$$db.dump"
+          ls -la "/tmp/$$db.dump"
+        done
+        pa=$$(psql $$H -tA prefect -c "SELECT count(*) FROM flow_run")
+        ma=$$(psql $$H -tA mlflow -c "SELECT count(*) FROM runs")
+        echo "== destructive restore into clean namespaces =="
+        for db in openpali prefect mlflow; do
+          dropdb $$H --if-exists "$${db}_restore"
+          createdb $$H "$${db}_restore"
+          pg_restore $$H -d "$${db}_restore" --no-owner "/tmp/$$db.dump"
+        done
+        echo "== verify restored civic state matches the dump-time reference =="
+        i=1
+        while IFS= read -r q; do
+          ref=$$(sed -n "$${i}p" /tmp/reference.txt)
+          got=$$(psql $$H -tA openpali_restore -c "$$q")
+          if [ "$$ref" != "$$got" ]; then
+            echo "MISMATCH: [$$q] reference=$$ref restored=$$got"; exit 5
+          fi
+          echo "  match: [$$q] = $$got"
+          i=$$((i + 1))
+        done < "$$QFILE"
+        echo "== verify restored orchestration/tracking metadata =="
+        pb=$$(psql $$H -tA prefect_restore -c "SELECT count(*) FROM flow_run")
+        [ "$$pa" = "$$pb" ] || { echo "MISMATCH prefect flow_run $$pa != $$pb"; exit 5; }
+        echo "  match: prefect flow_run = $$pa"
+        mb=$$(psql $$H -tA mlflow_restore -c "SELECT count(*) FROM runs")
+        [ "$$ma" = "$$mb" ] || { echo "MISMATCH mlflow runs $$ma != $$mb"; exit 5; }
+        echo "  match: mlflow runs = $$ma"
+        echo "== drop restore namespaces =="
+        for db in openpali prefect mlflow; do dropdb $$H "$${db}_restore"; done
+        echo "RESTORE DRILL OK (db half; object/API half = restore-verify job)"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  release-republish:
+    # Re-promote the CURRENT release's snapshot through the registered
+    # release-candidate deployment (worker-executed): the rebuilt manifest
+    # picks up newly selected spatial assets and re-derives undocumented
+    # values from run health.
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -ceu
+      - |
+        SNAPSHOT_ID=$$(python -c "
+        import sys
+        from openpali.storage.db import session_scope
+        from openpali.storage.models import CurrentRelease, Publication
+        from sqlalchemy import select
+        with session_scope() as s:
+            c = s.get(CurrentRelease, 1)
+            p = s.execute(select(Publication).where(Publication.release_id == c.current_release_id)).scalar_one()
+            if p.kind != 'representative':
+                sys.exit(f'refusing: current release kind={p.kind}, not representative — heal the pointer first')
+            print(p.snapshot_id)
+        ")
+        echo "republishing snapshot $$SNAPSHOT_ID as representative"
+        openpali orchestrate-run release-candidate/default \
+          --params "{\"snapshot_id\": \"$$SNAPSHOT_ID\", \"kind\": \"representative\"}"
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prefect-server:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  recon-drill:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "recon-drill"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]
+
+  # Optional GPU reconstruction worker boundary: the pinned entrypoint probes
+  # hardware and, absent a qualifying GPU, emits a TYPED unsupported_hardware
+  # result instead of crashing or silently falling back.
+  recon-gpu:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "recon-gpu-probe"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+    networks: [internal]
+    profiles: [gpu]
+
+  spatial-refresh:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command:
+      - sh
+      - -ceu
+      - |
+        echo "== USGS AOI acquisition (frozen tiles) =="
+        openpali spatial-acquire
+        echo "== derive surfel tileset + terrain pyramid =="
+        openpali spatial-derive
+        echo "== rights registration: tracked pre-fire corpus (unresolved) =="
+        openpali spatial-register-prefire
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,postgres,object-store,prefect-server,mlflow,api,proxy
+      # pyproj fetches the GEOID18 grid via the egress proxy and caches it in
+      # the writable container home (PROJ honors proxy env)
+      PROJ_NETWORK: "ON"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+      proxy:
+        condition: service_started
+    networks: [internal]
+    profiles: [jobs]
+
+  slice-dev:
+    image: openpali-pipeline:local
+    build:
+      context: ../pipeline
+    command: ["openpali", "dev-slice"]
+    environment:
+      OPENPALI_DATABASE_URL: postgresql+psycopg://openpali:openpali-local-fixture-db@postgres:5432/openpali
+      OPENPALI_S3_ENDPOINT: http://object-store:8333
+      OPENPALI_S3_ACCESS_KEY: openpali-local-fixture-access
+      OPENPALI_S3_SECRET_KEY: openpali-local-fixture-secret
+      HTTP_PROXY: http://proxy:3128
+      HTTPS_PROXY: http://proxy:3128
+      NO_PROXY: localhost,127.0.0.1,postgres,object-store,prefect-server,mlflow,api,proxy
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_healthy
+    networks: [internal]
+    profiles: [jobs]

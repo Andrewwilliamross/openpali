@@ -1,0 +1,17 @@
+# CP2 platform-spine API verification — 2026-07-12T06:01:13Z
+READY: 200 {"status": "ready", "checks": {"database": "ok", "migrations": "ok:0001", "release": "ok", "object_store": "ok"}}
+CURRENT: rel-ee79a630f5c01d429f8d7a3a snap-10ca317c79d84be1776cff9d kind: dev coverage: {"properties": 5877, "cofo_issued": 0, "permit_issued": 90, "cleanup_complete": 3964, "plan_check_approved": 12, "application_submitted": 140, "construction_evidence": 1}
+SEARCH: 3 items; first: 4409002001 14227 W SUNSET BLVD
+DETAIL: 4409002001 lanes: {"lane_occup": "no_public_evidence", "lane_constr": "no_public_evidence", "lane_design": "no_public_evidence", "lane_permit": "no_public_evidence", "lane_cleanup": "milestone_reached"} milestones: {"cofo_issued": false, "permit_issued": false, "cleanup_complete": true, "plan_check_approved": false, "application_submitted": false, "construction_evidence": false}
+OBSERVATIONS: 2
+  - structure_destroyed | agency_reported | {'kind': 'interval', 'date': None, 'earliest': '2025-01-07', 'latest': '2026-07-12'} | observed_at: 2026-07-12T05:56:40Z | src: county_base
+  - debris_removal_complete | agency_reported | {'kind': 'exact', 'date': '2025-04-28', 'earliest': None, 'latest': None} | observed_at: 2026-07-12T05:56:40Z | src: county_base
+SOURCES: [('county_base', True, 5877, '2026-07-12T05:56:40Z')]
+MVT z13: 200 338322 bytes
+MVT z14: 200 226786 bytes
+MVT z15: 200 97586 bytes
+ETAG-304: 304 body-bytes: 0 etag-echo: True
+CROSS-RELEASE CURSOR: 400 cursor was issued for a different release
+UNKNOWN RELEASE: 404 unknown or unpublished release: rel-doesnotexist
+LIVE STATUS: 200 {"sources": [{"source_id": "county_base", "last_run_status": "succeeded", "last_success_at": "2026-07-12T05:56:40Z", "last_attempt_at": "2026-07-12T05:56:36Z", "error_class": null}], "current_release_id": "rel-ee79a630f5c01d429f8d7a3a", "lkg_release_id": null}
+WEB SAME-ORIGIN /v1: 200 rel-ee79a630f5c01d429f8d7a3a

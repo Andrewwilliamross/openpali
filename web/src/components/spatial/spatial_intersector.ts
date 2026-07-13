@@ -100,7 +100,7 @@ export class SpatialIntersector {
     let best: PickHit | null = null
     for (const [apn, e] of Object.entries(this.index)) {
       const [minX, minY, minZ, maxX, maxY, maxZ] = e.bbox
-      let elev: number | null = null
+      let elev: number | null
       try {
         elev = map.queryTerrainElevation([e.lon, e.lat])
       } catch {

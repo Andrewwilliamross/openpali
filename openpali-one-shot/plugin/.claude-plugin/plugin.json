@@ -1,0 +1,8 @@
+{
+  "name": "openpali-one-shot",
+  "version": "2.0.0",
+  "description": "Compact product-directed agents and guardrails for the OpenPali Fable 5 production-MVP build",
+  "author": {
+    "name": "OpenPali / respring.ai"
+  }
+}

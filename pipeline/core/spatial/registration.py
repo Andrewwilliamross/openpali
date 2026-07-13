@@ -153,6 +153,20 @@ def _geometric_descriptors(points: np.ndarray, *, k: int = 12) -> np.ndarray:
     return desc / sd
 
 
+def _saliency(points: np.ndarray, *, k: int = 12, min_vertical_extent: float = 1.0
+              ) -> np.ndarray:
+    """Boolean mask of geometrically salient points: k-NN neighbourhoods with
+    real vertical structure (walls, roof edges). Smooth ground — flat OR
+    sloped — is non-salient; slope-invariant because the measure is local."""
+    pts = np.asarray(points, dtype=np.float64)
+    k = min(k, len(pts) - 1)
+    tree = cKDTree(pts)
+    _, idx = tree.query(pts, k=k + 1)
+    z = pts[:, 2]
+    extent = z[idx].max(axis=1) - z[idx].min(axis=1)
+    return extent >= min_vertical_extent
+
+
 def ransac_coarse_align(source: np.ndarray, target: np.ndarray, *,
                         voxel: float = 1.0, inlier_threshold: float | None = None,
                         max_iterations: int = 4000, seed: int = 7,
@@ -161,11 +175,16 @@ def ransac_coarse_align(source: np.ndarray, target: np.ndarray, *,
 
     1. Voxel-downsample both clouds to building scale.
     2. Compute local geometric descriptors; propose correspondences by nearest
-       neighbour in descriptor space (source → target).
+       neighbour in descriptor space (source → target) among SALIENT points
+       (vertical local structure). A ground plane — flat or uniformly sloped —
+       is self-similar under in-plane translation, so ground-dominated
+       consensus rewards "slide along the terrain" hypotheses; sampling AND
+       scoring on salient points removes that degeneracy. When a capture has
+       too little vertical structure the full clouds are used as before.
     3. RANSAC: sample 3 correspondences, demand congruent triangles (rigid
        motions preserve pairwise distances), solve Kabsch, count inliers by
-       3-D nearest-neighbour distance, keep the best hypothesis.
-    4. Re-solve Kabsch on the full inlier set of the winning hypothesis.
+       3-D nearest-neighbour distance among salient points, keep the best.
+    4. Re-solve Kabsch on the full-cloud inlier set of the winning hypothesis.
 
     Returns (R, t, inlier_fraction).
     """
@@ -175,12 +194,20 @@ def ransac_coarse_align(source: np.ndarray, target: np.ndarray, *,
     if inlier_threshold is None:
         inlier_threshold = 2.5 * voxel
 
-    d_src = _geometric_descriptors(src)
-    d_tgt = _geometric_descriptors(tgt)
+    sal_s = _saliency(src)
+    sal_t = _saliency(tgt)
+    if sal_s.sum() >= 30 and sal_t.sum() >= 30:
+        src_sal, tgt_sal = src[sal_s], tgt[sal_t]
+    else:  # sparse vertical structure: fall back to the full clouds
+        src_sal, tgt_sal = src, tgt
+
+    d_src = _geometric_descriptors(src_sal)
+    d_tgt = _geometric_descriptors(tgt_sal)
     desc_tree = cKDTree(d_tgt)
     _, match = desc_tree.query(d_src, k=1)
-    corr_s, corr_t = src, tgt[match]  # candidate correspondence pairs
+    corr_s, corr_t = src_sal, tgt_sal[match]  # candidate correspondence pairs
 
+    sal_tree = cKDTree(tgt_sal)
     tgt_tree = cKDTree(tgt)
     n = len(corr_s)
     if n < 3:
@@ -201,8 +228,8 @@ def ransac_coarse_align(source: np.ndarray, target: np.ndarray, *,
         if ds.min() < voxel or np.any(np.abs(ds - dt) > inlier_threshold):
             continue
         rot, trans = kabsch(s3, t3)
-        moved = apply_rigid(src, rot, trans)
-        d_nn, _ = tgt_tree.query(moved, k=1, distance_upper_bound=inlier_threshold)
+        moved = apply_rigid(src_sal, rot, trans)
+        d_nn, _ = sal_tree.query(moved, k=1, distance_upper_bound=inlier_threshold)
         inliers = int(np.isfinite(d_nn).sum())
         if inliers > best_inliers:
             best_inliers = inliers

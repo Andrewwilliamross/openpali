@@ -1,0 +1,39 @@
+{
+  "agent_id": "a0edb318ca4090e0f",
+  "agent_transcript": {
+    "base": "HOME",
+    "relative": ".claude/projects/-Users-andrewross-paliml/dc58a404-9c7f-4f3f-a245-826ebfda8251/subagents/agent-a0edb318ca4090e0f.jsonl"
+  },
+  "agent_transcript_sha256": "e1e0477eec771d8f5f6e418670793d9ab0239101b38936c59f829263eb3478b6",
+  "agent_type": "openpali-one-shot:openpali-independent-evaluator",
+  "attestation_version": "2.0.0",
+  "candidate_commit": "0b0f2369625edbc8464355c850d187930fc741c2",
+  "captured_at": "2026-07-13T03:53:12.841309Z",
+  "confidence": "high",
+  "contract_sha256": "97977ba8a50104cae4953a22da821f6c9fc818e0b5afebadc497c1cd12381421",
+  "message_sha256": "5f39562265d3b5eb154d5c009da18c4c4090c1503d250c626fe36bfd204cbcab",
+  "must_results": {
+    "ANALYTICS-001": "PASS",
+    "BACKEND-001": "PASS",
+    "DATA-001": "PASS",
+    "DATA-002": "PASS",
+    "E2E-001": "PASS",
+    "ENV-001": "PASS",
+    "FRONTEND-001": "PASS",
+    "FRONTEND-002": "PASS",
+    "GOV-001": "PASS",
+    "ML-001": "PASS",
+    "ML-002": "PASS",
+    "ML-003": "PASS",
+    "MULTIMODAL-001": "PASS",
+    "OPS-001": "PASS",
+    "OPS-002": "PASS",
+    "PUB-001": "PASS",
+    "RELEASE-001": "PASS",
+    "SPATIAL-001": "PASS",
+    "SPATIAL-002": "PASS",
+    "TRUTH-001": "PASS"
+  },
+  "session_id": "dc58a404-9c7f-4f3f-a245-826ebfda8251",
+  "verdict": "PASS"
+}

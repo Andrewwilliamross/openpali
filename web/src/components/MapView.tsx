@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef } from 'react'
 import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import type { ParcelCollection } from '../lib/types'
-import { scorePaintExpression } from '../lib/colors'
+import { evidencePaintExpression } from '../lib/colors'
+import { fetchPostfireSources } from '../lib/postfire'
+import { motionMs } from '../lib/format'
 // Type-only imports are erased at build time: the renderer subsystem itself
 // is code-split and fetched via import('./spatial/renderer3d') on 3D entry
 // (ROADMAP D10 / PR3). Never import its values statically here.
@@ -56,6 +58,9 @@ interface Props {
   selectedApn: string | null
   mode: ViewMode
   ground: GroundMode
+  // rights gate (GOV-001): the LARIAC-derived pre-fire corpus renders ONLY
+  // on explicit opt-in; nothing fetches its tiles until then
+  prefire: boolean
   onSelect: (apn: string | null) => void
   onMapReady: (map: MLMap) => void
   onSpatialStatus?: (status: SpatialStatus) => void
@@ -78,6 +83,7 @@ export default function MapView({
   selectedApn,
   mode,
   ground,
+  prefire,
   onSelect,
   onMapReady,
   onSpatialStatus,
@@ -85,15 +91,24 @@ export default function MapView({
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
   const hoveredRef = useRef<string | number | null>(null)
+  const fsSourceRef = useRef<((id: string | number) => { source: string; sourceLayer?: string; id: string | number }) | null>(null)
   const loadedRef = useRef(false)
   const splatLayerRef = useRef<SplatRenderLayer | null>(null)
   const intersectorRef = useRef<SpatialIntersector | null>(null)
+  // release-served USGS post-fire surfel source (SPATIAL-001): its own layer
+  // instance + picking index; presentation flags differ from the LARIAC corpus
+  const usgsLayerRef = useRef<SplatRenderLayer | null>(null)
+  const usgsIntersectorRef = useRef<SpatialIntersector | null>(null)
   const modeRef = useRef<ViewMode>(mode)
-  modeRef.current = mode
   const groundRef = useRef<GroundMode>(ground)
-  groundRef.current = ground
+  const prefireRef = useRef<boolean>(prefire)
   const onSpatialStatusRef = useRef(onSpatialStatus)
+  // Sync latest props into refs for event handlers/async callbacks. Declared
+  // before the mount effect so first-render consumers observe current values.
   useEffect(() => {
+    modeRef.current = mode
+    groundRef.current = ground
+    prefireRef.current = prefire
     onSpatialStatusRef.current = onSpatialStatus
   })
   // cached promise for the code-split renderer chunk (cleared on failure so
@@ -158,7 +173,7 @@ export default function MapView({
             const splats = new mod.SplatRenderLayer('palisades-splats', TILES_BASE, intersector)
             splatLayerRef.current = splats
             map.addLayer(splats)
-            splats.setEnabled(modeRef.current === '3d')
+            splats.setEnabled(modeRef.current === '3d' && prefireRef.current)
             // E2E/debug handle (custom layers are invisible to map.getLayer in v5)
             ;(window as unknown as { __splats?: SplatRenderLayer }).__splats = splats
           } catch (e) {
@@ -166,6 +181,29 @@ export default function MapView({
             // 3D still works, so this is not surfaced as a chunk failure
             console.error('splat layer failed to initialize:', e)
           }
+
+          // ---- USGS post-fire surfel source (release-qualified API URLs) ----
+          void fetchPostfireSources().then((pf) => {
+            if (!pf?.surfelBase) return // API absent — pre-fire corpus only
+            if (mapRef.current !== map || !loadedRef.current) return
+            const usgsIntersector = new mod.SpatialIntersector()
+            void usgsIntersector.load(pf.surfelBase)
+            usgsIntersectorRef.current = usgsIntersector
+            try {
+              const usgs = new mod.SplatRenderLayer(
+                'usgs-postfire-splats', pf.surfelBase, usgsIntersector,
+                // honest hillshade color baked at derivation; projecting the
+                // PRE-fire orthophoto onto a post-fire surface would lie
+                { bakedColor: true, textures: false },
+              )
+              usgsLayerRef.current = usgs
+              map.addLayer(usgs)
+              usgs.setEnabled(modeRef.current === '3d')
+              ;(window as unknown as { __usgsSplats?: SplatRenderLayer }).__usgsSplats = usgs
+            } catch (e) {
+              console.error('post-fire surfel layer failed to initialize:', e)
+            }
+          })
           onSpatialStatusRef.current?.('ready')
         })
         .catch((err: unknown) => {
@@ -213,6 +251,15 @@ export default function MapView({
 
     map.on('load', () => {
       loadedRef.current = true
+      // WebGL context loss: drop 3D work and keep the 2D journey usable
+      map.getCanvas().addEventListener('webglcontextlost', () => {
+        splatLayerRef.current?.setEnabled(false)
+        usgsLayerRef.current?.setEnabled(false)
+        onSpatialStatusRef.current?.('error')
+      })
+      // deterministic E2E signal: fires once; map.loaded() polling is false
+      // whenever custom layers keep the render loop warm
+      ;(window as unknown as { __mapReady?: boolean }).__mapReady = true
 
       // ---- hillshade DEM (2D feature too; terrain-dem is added lazily on
       // 3D entry — separate source instances, per ML guidance) ----
@@ -272,6 +319,39 @@ export default function MapView({
         },
         firstSymbolLayerId(map),
       )
+      // release-served USGS post-fire DEM hillshade over the AOI (visible in
+      // 2D and 3D): actual post-fire ground detail at 0.5 m through the
+      // production asset path, layered above the coarse global hillshade
+      void fetchPostfireSources().then((pf) => {
+        if (!pf?.terrainTileUrl || mapRef.current !== map) return
+        if (map.getSource('postfire-dem')) return
+        const acquired = pf.terrain?.acquisition_start?.slice(0, 10) ?? ''
+        map.addSource('postfire-dem', {
+          type: 'raster-dem',
+          encoding: 'terrarium',
+          tiles: [pf.terrainTileUrl],
+          tileSize: 256,
+          minzoom: 13,
+          maxzoom: 18,
+          bounds: [-118.532835, 34.036386, -118.516832, 34.050111],
+          attribution: `Post-fire terrain: USGS 3DEP emergency lidar (${acquired}, preliminary)`,
+        })
+        map.addLayer(
+          {
+            id: 'postfire-hills',
+            type: 'hillshade',
+            source: 'postfire-dem',
+            paint: {
+              'hillshade-illumination-direction': 315,
+              'hillshade-exaggeration': 0.5,
+              'hillshade-shadow-color': '#4a4238',
+              'hillshade-highlight-color': '#ffffff',
+              'hillshade-accent-color': '#000000',
+            },
+          },
+          firstSymbolLayerId(map),
+        )
+      })
       // muted atmosphere for the deep-pitch horizon
       try {
         map.setSky({
@@ -308,6 +388,8 @@ export default function MapView({
       loadedRef.current = false
       splatLayerRef.current = null
       intersectorRef.current = null
+      usgsLayerRef.current = null
+      usgsIntersectorRef.current = null
       spatialInstalledRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -327,14 +409,16 @@ export default function MapView({
       // first entry kicks off the chunk fetch; once installed it's a no-op
       // and setEnabled below drives the already-resident layer
       ensureSpatial(map)
-      splatLayerRef.current?.setEnabled(true)
-      map.easeTo({ pitch: 62, duration: 900 })
+      splatLayerRef.current?.setEnabled(prefire)
+      usgsLayerRef.current?.setEnabled(true)
+      map.easeTo({ pitch: 62, duration: motionMs(900) })
     } else {
       map.setTerrain(null)
       splatLayerRef.current?.setEnabled(false)
-      map.easeTo({ pitch: 0, bearing: 0, duration: 900 })
+      usgsLayerRef.current?.setEnabled(false)
+      map.easeTo({ pitch: 0, bearing: 0, duration: motionMs(900) })
     }
-  }, [mode, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
+  }, [mode, prefire, ensureTerrain, ensureSpatial, reconcileSpatialStatus])
 
   // ---- ground mode: map ↔ current-conditions imagery ----
   useEffect(() => {
@@ -345,7 +429,7 @@ export default function MapView({
         map.setLayoutProperty(id, 'visibility', ground === 'sat' ? 'visible' : 'none')
       }
     }
-    // over imagery the score fills read better slightly lighter
+    // over imagery the evidence fills read better slightly lighter
     if (map.getLayer('parcel-fill')) {
       map.setPaintProperty('parcel-fill', 'fill-opacity', [
         'case',
@@ -361,19 +445,49 @@ export default function MapView({
     const map = mapRef.current
     if (!map || !parcels) return
 
-    const install = () => {
+    const install = async () => {
       hoveredRef.current = null
       if (map.getSource('parcels')) {
-        ;(map.getSource('parcels') as maplibregl.GeoJSONSource).setData(parcels)
+        const src = map.getSource('parcels')
+        if (src?.type === 'geojson') {
+          ;(src as maplibregl.GeoJSONSource).setData(parcels)
+        }
         return
       }
-      map.addSource('parcels', { type: 'geojson', data: parcels, promoteId: 'apn' })
+      // ONE snapshot everywhere (PUB-001): parcels come from the pinned
+      // release's MVT tiles, whose properties are the same milestone booleans
+      // the paint expression reads. The static geojson remains the offline/
+      // LKG fallback when the API is unreachable.
+      const pf = await fetchPostfireSources()
+      if (map.getSource('parcels')) return // raced a concurrent install
+      const releaseTiles = pf
+        ? `${window.location.origin}/v1/releases/${pf.releaseId}/tiles/parcels/{z}/{x}/{y}.mvt`
+        : null
+      const vector = releaseTiles !== null
+      if (vector) {
+        map.addSource('parcels', {
+          type: 'vector',
+          tiles: [releaseTiles as string],
+          minzoom: 10,
+          maxzoom: 16,
+          promoteId: { parcels: 'apn' },
+        })
+      } else {
+        map.addSource('parcels', { type: 'geojson', data: parcels, promoteId: 'apn' })
+      }
+      const sl = vector ? { 'source-layer': 'parcels' } : {}
+      const fsSource = (id: string | number) =>
+        vector
+          ? { source: 'parcels', sourceLayer: 'parcels', id }
+          : { source: 'parcels', id }
+      fsSourceRef.current = fsSource
       map.addLayer({
         id: 'parcel-fill',
         type: 'fill',
         source: 'parcels',
+        ...sl,
         paint: {
-          'fill-color': scorePaintExpression() as never,
+          'fill-color': evidencePaintExpression() as never,
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
@@ -386,8 +500,9 @@ export default function MapView({
         id: 'parcel-line',
         type: 'line',
         source: 'parcels',
+        ...sl,
         paint: {
-          'line-color': scorePaintExpression() as never,
+          'line-color': evidencePaintExpression() as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
           'line-opacity': 0.9,
         },
@@ -396,6 +511,7 @@ export default function MapView({
         id: 'parcel-selected',
         type: 'line',
         source: 'parcels',
+        ...sl,
         filter: ['==', ['get', 'apn'], ''],
         paint: { 'line-color': '#1d4ed8', 'line-width': 3.5 },
       })
@@ -406,25 +522,30 @@ export default function MapView({
           .features?.[0]
         if (!f || f.id === hoveredRef.current) return
         if (hoveredRef.current != null)
-          map.setFeatureState({ source: 'parcels', id: hoveredRef.current }, { hover: false })
+          map.setFeatureState(fsSource(hoveredRef.current), { hover: false })
         hoveredRef.current = f.id ?? null
         if (f.id != null)
-          map.setFeatureState({ source: 'parcels', id: f.id }, { hover: true })
+          map.setFeatureState(fsSource(f.id), { hover: true })
       })
       map.on('mouseleave', 'parcel-fill', () => {
         map.getCanvas().style.cursor = ''
         if (hoveredRef.current != null)
-          map.setFeatureState({ source: 'parcels', id: hoveredRef.current }, { hover: false })
+          map.setFeatureState(fsSource(hoveredRef.current), { hover: false })
         hoveredRef.current = null
       })
 
-      // click routing: in 3D, ray-pick the building prisms first; the draped
-      // parcel polygons are the fallback (and the 2D path)
+      // click routing: in 3D, ray-pick BOTH sources' parcel prisms (nearest
+      // hit wins); the draped parcel polygons are the fallback (and 2D path)
       map.on('click', (e) => {
-        if (modeRef.current === '3d' && intersectorRef.current?.ready) {
-          const hit = intersectorRef.current.pick(map, e.point)
-          if (hit) {
-            onSelect(hit.apn)
+        if (modeRef.current === '3d') {
+          let best: { apn: string; distance: number } | null = null
+          for (const ref of [intersectorRef, usgsIntersectorRef]) {
+            if (!ref.current?.ready) continue
+            const hit = ref.current.pick(map, e.point)
+            if (hit && (best === null || hit.distance < best.distance)) best = hit
+          }
+          if (best) {
+            onSelect(best.apn)
             return
           }
         }
@@ -433,8 +554,8 @@ export default function MapView({
       })
     }
 
-    if (loadedRef.current) install()
-    else map.once('load', install)
+    if (loadedRef.current) void install()
+    else map.once('load', () => void install())
   }, [parcels, onSelect])
 
   // selection highlight

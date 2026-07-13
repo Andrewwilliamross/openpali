@@ -1,0 +1,501 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "2.0.0",
+  "immutable": true,
+  "title": "OpenPali integrated production-MVP acceptance contract",
+  "mission": "Turn the exact local prototype into a locally deployable release candidate with working backend, data, continual ML, spatial/3D, product, and operations capabilities.",
+  "implementation_rule": "Every technical implementation criterion requires meaningful reachable production implementation outside openpali-one-shot plus current evidence of every declared kind. Independent evaluation is a gate over those artifacts. Documentation, tests, schemas, configuration, workflow YAML, reports, mocks beyond the external-source boundary, and task-harness changes cannot be the sole implementation artifact.",
+  "completion_rule": "All technical MUST criteria must be PASS at one clean candidate commit and a fresh independent evaluator must return PASS after exercising the integrated system. APPROVAL-001 is a separate human release gate and cannot excuse incomplete technical work.",
+  "evidence_kinds": [
+    "command",
+    "runtime",
+    "integration_test",
+    "browser",
+    "live_data_run",
+    "offline_data_run",
+    "model_evaluation",
+    "benchmark",
+    "fault_injection",
+    "security_scan",
+    "ops_drill",
+    "review",
+    "decision"
+  ],
+  "criteria": [
+    {
+      "id": "ENV-001",
+      "component": "environment",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Shared local environment and reproducible runtime",
+      "requirement": "Fable works in the exact prepared local checkout and turns it into a bounded, documented local operator runtime. From a clean checkout, the validated Docker wrapper starts the required backend/data/orchestration/model/frontend services; an idempotent product bootstrap initializes locked dependencies, schemas, buckets, deployments, and fixture state; and fast/full gates run without undocumented host state.",
+      "required_evidence_kinds": ["command", "runtime", "integration_test"],
+      "proof": [
+        "A launch-time environment manifest records commit, platform, CPU/GPU capability, disk, Python/uv, Node/npm, Docker/Compose, browser, and relevant dependency versions.",
+        "The documented wrapper-plus-bootstrap sequence is idempotent, names every step explicitly, and reaches healthy API, storage, orchestration/model tracking, and frontend processes from a clean local state.",
+        "Fast and full commands produce concise summaries, preserve full logs, use time/resource bounds, and exit nonzero on a failing subsystem.",
+        "The final candidate is clean and reproducible from its locked dependencies and fixture inputs."
+      ],
+      "fail_if": [
+        "A Git worktree or existing developer cache is presented as the runtime environment.",
+        "A required service, dataset, port, browser, or native dependency is assumed without a probe or bootstrap path.",
+        "The run operates from a remote-only or reduced snapshot rather than the intended local checkout."
+      ]
+    },
+    {
+      "id": "TRUTH-001",
+      "component": "domain_truth",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Source semantics repaired end to end",
+      "requirement": "Qualifying fire-rebuild, permit, inspection, cleanup, event-time, identity, unknown/conflict, parcel/structure, jurisdiction, and parallel-milestone semantics are source-backed, executable, and propagated through every downstream artifact and product claim.",
+      "required_evidence_kinds": ["integration_test", "live_data_run", "review"],
+      "proof": [
+        "Official schema/domain snapshots and an evidence-backed taxonomy cover PALISADES_WF_REBUILD, permit types, inspection outcomes, cleanup status, jurisdictions, multi-permit, and multi-structure cases.",
+        "Golden positive, negative, future, failed, canceled, missing-date, ancillary, ambiguous, conflicting, corrected, and cross-jurisdiction fixtures exercise production normalization and projection code.",
+        "Scheduled/future/failed/ancillary inspections and cleanup opt-outs cannot advance physical recovery; missing times remain unknown or interval-censored.",
+        "Invalid prototype score/ETA outputs are removed or explicitly deprecated; every still-authorized count, metric, prediction, color, and publication is recomputed and independently sampled after repair."
+      ],
+      "fail_if": [
+        "The previous 489 under-construction count or fabricated fire-date events are preserved for continuity.",
+        "Inspection description is treated as outcome, or any Bldg-New record is assumed to be a qualifying rebuild without resolving source semantics.",
+        "Truth repair becomes the terminal scope and later workstreams remain plans."
+        ,"The prototype 0-100 score or ETA affects a public API response, forecast, sort order, map color/style, spatial presentation, or user-facing recovery claim."
+      ]
+    },
+    {
+      "id": "DATA-001",
+      "component": "acquisition",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Operational multi-source acquisition and immutable lineage",
+      "requirement": "The County parcel/debris, LADBS permit, LADBS inspection, CofO/Socrata verification, and jurisdiction-relevant Malibu adapters plus consequential new CAL FIRE DINS structure-damage data run through one production acquisition contract that creates immutable raw objects, schema/source/run evidence, normalized records, health, lineage, and deterministic offline replay.",
+      "required_evidence_kinds": ["live_data_run", "offline_data_run", "integration_test"],
+      "proof": [
+        "Every acquisition records source/layer, parameters, upstream edit time, retrieval time, page/row counts, response hash, schema/domain fingerprint, terms reference, code version, and health.",
+        "True offline mode constructs no network client and fails explicitly on missing/corrupt input; paging, repeated/partial pages, timeout, source outage, and schema drift are tested.",
+        "Identical bytes deduplicate content without erasing acquisition history, and repeated normalization is idempotent.",
+        "A current representative run acquires every applicable named source. The full bounded master CAL FIRE DINS result is incident-filtered only after live endpoint verification and records source total/damage distribution, records with/without APN, deterministic APN/address/spatial join counts, unmatched/ambiguous/multi-structure counts, uncapped pagination, and an independently verified user-visible joined property. Malibu is applicable whenever it intersects the declared damaged universe.",
+        "Zero-network replay of the exact representative raw hashes matches, every object read verifies size/digest, and an attempted different-byte overwrite at an existing content key is rejected or quarantined and blocks publication."
+      ],
+      "fail_if": [
+        "Offline is a long cache TTL or a source failure becomes an empty successful dataset.",
+        "Run time is presented as upstream freshness or source health is hard-coded true.",
+        "A new source is counted without a user-visible integrated outcome."
+      ]
+    },
+    {
+      "id": "DATA-002",
+      "component": "canonical_store",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Canonical identity and bitemporal recovery store",
+      "requirement": "Persistent production storage separates properties, parcel and structure versions, source records, cases, append-only recovery observations, corrections/retractions, acquisition time, event time, snapshot time, provenance, confidence, and point-in-time visibility.",
+      "required_evidence_kinds": ["runtime", "integration_test", "fault_injection"],
+      "proof": [
+        "Versioned migrations create the canonical schema on an empty production-equivalent database and upgrade from a prior fixture schema.",
+        "Reprocessing creates no duplicate observations; corrections and late arrivals preserve source history and historical snapshots.",
+        "Point-in-time queries cannot see observations first acquired after their cutoff, including backfilled earlier occurrence dates.",
+        "APN changes, unresolved joins, multiple structures, multiple permits, and identity confidence are represented and tested."
+        ,"Public property, source-record, observation, data-snapshot, and release IDs are deterministic from authoritative identity seeds, native keys, ordered input/policy hashes, and manifest hashes; random surrogate keys never enter public contracts or semantic hashes."
+        ,"Database constraints and concurrent tests enforce source/native-version uniqueness, observation idempotency, revision/retraction foreign keys, immutable snapshot membership, geometry SRID/type, required indexes, duplicate acquisition, publication serialization, and persistence across restart."
+      ],
+      "fail_if": [
+        "A mutable Parcel object or static JSON file is the only historical system of record.",
+        "APN is treated as globally immutable and one-to-one with property or structure.",
+        "The local test substitute does not exercise the production geospatial/transaction behavior."
+        ,"Nullable JSON blobs and application-only checks replace database-enforced temporal, identity, revision, spatial, or idempotency integrity."
+      ]
+    },
+    {
+      "id": "PUB-001",
+      "component": "publication",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Quality-gated atomic publication",
+      "requirement": "A public release manifest pins exact civic snapshot, metric, immutable model/prediction-set or typed insufficiency artifact, spatial asset, object, and client-schema hashes. PostgreSQL/API is the sole current-release authority; every later API, MVT, model, and spatial request is release-qualified. The object-store current pointer is a non-authoritative old-or-new mirror. Publication stages, validates, promotes, retains last-known-good, and rolls back coherently.",
+      "required_evidence_kinds": ["integration_test", "fault_injection", "ops_drill"],
+      "proof": [
+        "A forced build, validation, or authoritative database-promotion failure cannot advance current. A delayed/failed non-authoritative object mirror remains on the prior coherent release, records detectable drift, and cannot change or mix the API current release.",
+        "Critical taxonomy, schema, source, reconciliation, rights, model, or spatial inconsistency fails closed while last-known-good remains readable.",
+        "Two builds from identical immutable inputs produce identical semantic hashes and a complete artifact graph. Release ID canonicalization excludes its own ID, signatures, mutable aliases, timestamps, and mirror state and versions key/artifact/number/geometry ordering.",
+        "Rollback is executed, hash-verified, and observed through API and browser state."
+        ,"Delayed/failed object-pointer mirroring and promotion during two concurrent pinned browser sessions are tested without mixed releases."
+      ],
+      "fail_if": [
+        "Public files are overwritten sequentially without a manifest/pointer transaction boundary.",
+        "The browser mixes snapshot IDs or hides critical stale/source/publication failure.",
+        "Rollback exists only as prose."
+      ]
+    },
+    {
+      "id": "BACKEND-001",
+      "component": "backend",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Working production backend and typed API",
+      "requirement": "A locally runnable modular backend owns storage, domain services, queries, and a versioned typed HTTP API consumed by the frontend. It exposes a sole current-release resolver; release-qualified property/search, observations, community metrics, bottlenecks, snapshotted source state, forecast/model status, vector tiles, and spatial manifest/assets; separate live operational source health; corrections; and liveness/readiness behavior.",
+      "required_evidence_kinds": ["runtime", "integration_test", "benchmark"],
+      "proof": [
+        "The service starts against production-equivalent persistent/geospatial storage and immutable objects; readiness reflects migrations, dependencies, and a valid current/LKG snapshot.",
+        "Generated and validated OpenAPI plus generated TypeScript contracts fail CI on drift and are used by the actual web application.",
+        "Canonical /v1/releases/{release_id}/... routes, release-bound cursors, resolve-current-once behavior, bounded bbox/tile queries, ETags/cache rules, problem-details errors, stale/partial dependency states, and public/private route boundaries are tested.",
+        "Cold and warm results for 200 mixed search/property/timeline/metric/MVT requests at 20 concurrent clients meet declared payload/query budgets and retain raw traces."
+        ,"E2E feeds a uniquely marked source fixture through production acquisition, snapshot, and publication before observing it through PostGIS/object storage, generated client, release API, and browser; it never directly mutates a published database. Production fetches are confined to the generated API client boundary."
+      ],
+      "fail_if": [
+        "Static JSON remains the only application backend.",
+        "The frontend uses fixture-only or scattered untyped fetches instead of the production API contract.",
+        "API code exists but no running-process integration is exercised."
+      ]
+    },
+    {
+      "id": "ANALYTICS-001",
+      "component": "analytics",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Executable recovery and bottleneck engine",
+      "requirement": "Production analytics derives a fixed MVP catalog from the corrected point-in-time ledger: damaged-universe denominator/coverage, as-of milestone prevalence, interval transition incidence/throughput, censoring-aware time-to-transition or restricted mean, backlog/inflow/outflow bottleneck measures, and missingness/source coverage, all versioned with uncertainty and comparability.",
+      "required_evidence_kinds": ["integration_test", "runtime", "review"],
+      "proof": [
+        "Every metric declares unit, population, numerator, denominator, jurisdiction, window, cutoff, inclusion, missingness, censoring, sample size, definition version, and validation state.",
+        "For each milestone/window, backlog is eligible subjects lacking the milestone at cutoff, inflow becomes eligible, outflow first reaches it, net flow is inflow minus outflow, throughput divides outflow by declared exposure/window, and time-to-transition is censoring-aware/minimum-sample suppressed; bottleneck ranking discloses its conjunction and is never largest-stage-count alone.",
+        "A source-fixture-to-analytics test covers ambiguous, conflicting, censored, cross-jurisdiction, and small-sample cases and reconciles an independent formula implementation.",
+        "Versioned metric artifacts are available from the API, UI, and snapshot-addressed research export.",
+        "Definition changes create explicit comparability breaks and no observational trend is labeled causal."
+      ],
+      "fail_if": [
+        "An ordinal parcel score is aggregated as an interval-scale recovery measure.",
+        "Validation simply repeats the production query or chooses tolerance after observing the result.",
+        "Unknown or uncovered properties disappear from denominators without disclosure."
+      ]
+    },
+    {
+      "id": "ML-001",
+      "component": "ml_data",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Point-in-time learning dataset and feature pipeline",
+      "requirement": "A versioned production dataset/feature builder uses one qualifying fire-rebuild permit application per risk unit: documented submission origin, first issuance of that same application as event, 180-day issuance probability and censoring-aware time-to-issuance, with predeclared withdrawal/cancellation/expiration competing-event or censoring policy. Property output keeps multiple applications separate and labels origin estimates as estimated at submission, not current ETA. It defines cutoffs, features, labels, cohorts, and split membership using only information observed by each historical cutoff.",
+      "required_evidence_kinds": ["command", "integration_test", "model_evaluation"],
+      "proof": [
+        "One command writes immutable Parquet/data card/schema/manifest artifacts with source/snapshot/code/environment hashes, feature lineage, cohort counts, missingness, censoring, and follow-up.",
+        "Rolling-origin splits and an untouched final time block are deterministic and recorded.",
+        "Leakage tests reject current/latest outcome status, post-cutoff observations, later milestone dates, source-provided days-to-outcome, and post-cutoff corrections.",
+        "The builder executes on eligible temporal fixtures and the corrected representative ledger. The representative output includes a late-entry/availability audit and sufficiency report; filesystem mtime, current-row presence, retrospective status, occurrence date, and outcome date cannot establish historical availability without a snapshotted immutable-public field contract.",
+        "After 180 days, serving returns observed outcome/current status or insufficiency rather than recycling the origin probability."
+      ],
+      "fail_if": [
+        "Only completed transitions are retained as though uncensored.",
+        "A random row split or current snapshot fields leak future information.",
+        "A data-sufficiency memo substitutes for executable dataset generation."
+      ]
+    },
+    {
+      "id": "ML-002",
+      "component": "ml_experiments",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Executed reproducible baseline and challenger experiments",
+      "requirement": "The continual experiment system runs a naive baseline, a statistically valid censoring-aware baseline, and at least one justified interpretable challenger under one versioned interface and experiment tracker/registry.",
+      "required_evidence_kinds": ["model_evaluation", "integration_test", "review"],
+      "proof": [
+        "A one-command run records data, feature, label, code, environment, seed, configuration, fold, runtime, metric, calibration/coverage, cohort, artifact, and report identities.",
+        "Evaluation uses appropriate time-dependent error/discrimination, calibration, interval coverage, uncertainty, sample size, censoring, follow-up, cohort failures, and comparison to the naive baseline.",
+        "The nontrivial temporal fixture runs baseline and challenger paths; the actual representative ledger always runs valid naive/censoring-aware estimates and runs a challenger only if a precommitted methods-reviewed point-in-time-history gate passes, otherwise emitting INSUFFICIENT_POINT_IN_TIME_HISTORY. Both paths write S3 artifacts, link immutable MLflow/OpenPali records, and reproduce after fresh-process deserialization.",
+        "The experiment specification and cutoff are committed before the single final evaluation; ordering is recorded in Git/MLflow, the final period is not exposed to iterative tuning, and the methods reviewer audits the protocol.",
+        "MLflow owns immutable experiment runs/artifact URIs while OpenPali owns dataset identity, review, champion state, predictions, and publication references; hash/run reconciliation fails promotion on missing, mutable, or divergent lifecycle state."
+      ],
+      "fail_if": [
+        "The deliverable is only an experiment folder schema, ADR, or future plan.",
+        "A complex model is selected from training fit or because it sounds more advanced.",
+        "No challenger is actually trained and evaluated."
+      ]
+    },
+    {
+      "id": "ML-003",
+      "component": "ml_operations",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Gated inference, registry, and continual reevaluation",
+      "requirement": "Model lifecycle code records immutable prediction sets and append-only manual promotion decisions, produces snapshot-bound batch predictions or typed insufficiency artifacts, exposes model/status metadata through API and UI, and triggers a new reproducible evaluation when an eligible snapshot changes without automatically promoting it or rewriting an existing release.",
+      "required_evidence_kinds": ["runtime", "model_evaluation", "fault_injection", "browser"],
+      "proof": [
+        "Predeclared promotion gates prevent an inferior, miscalibrated, leaky, cohort-regressing, or unreviewed challenger from replacing the champion.",
+        "Batch predictions carry model, dataset, training cutoff, target/horizon, estimate/interval, evidence/sample basis, limitations, generated time, and snapshot.",
+        "Prediction-set rows pin model/dataset/civic snapshot, target signature, row count, schema/object hash and status; promotion rows pin prior/proposed champion, frozen gates, reviewer, reason/time, and MLflow/OpenPali hashes. Changing champion state alone never changes an existing release.",
+        "API and UI exercise both an eligible prediction fixture and a typed insufficient-evidence/suppression path.",
+        "In the N to N+1 drill, N has an eligible active application; N+1 adds a late-arriving eligible application plus a correction/retraction. Historical N features remain byte-identical, N+1 gets a distinct dataset hash and actual MLflow evaluation, champion remains unchanged absent review, and a semantic no-op creates neither duplicate dataset nor experiment. A failed/asynchronous challenger never blocks newer valid civic data and uses a compatible champion or typed insufficiency."
+      ],
+      "fail_if": [
+        "Insufficient current evidence is used to omit the learning, registry, reevaluation, or serving implementation.",
+        "A refresh automatically promotes a model without declared gates and independent review.",
+        "Forecasts are trained or computed ad hoc on public request."
+      ]
+    },
+    {
+      "id": "SPATIAL-001",
+      "component": "spatial_pipeline",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Rights-safe versioned spatial asset pipeline",
+      "requirement": "A production spatial pipeline freezes a verified public-domain USGS 2025 post-wildfire 3DEP item/product and checked-in Palisades AOI covering at least 25 damaged-universe parcels and four independently requested LOD tiles, then ingests it through acquisition, object storage, asset registry, release selection, API, terrain and a nonempty USGS-derived registration/surfel/tiler/custom-renderer path. It preserves immutable bytes, acquisition/vintage slot, observation/processing time, CRS/vertical datum, transform/residual, extent, coverage, quality, lineage, observation kind, rights state, and renderer format.",
+      "required_evidence_kinds": ["live_data_run", "integration_test", "benchmark"],
+      "proof": [
+        "The real USGS AOI passes register, persist, normalize, align, derive, tile, quality, asset-registry, release, API, actual custom-renderer draw calls/tile requests/picking/legend, and a real property-evidence stage in addition to terrain; a separate nontrivial deterministic stress fixture tests reconstruction and rendering.",
+        "One nonempty selected version per subject/kind/vintage-slot/release permits explicit comparison vintages while preventing accidental epoch concatenation, empty enabled slots, and stale tiles; a two-epoch test and coverage reconciliation pass.",
+        "Acquisition time, CRS/datum, observation kind, fallback/no-coverage, quality, and rights survive manifest, tile/picking metadata, API, legend, and property view.",
+        "Unresolved LARIAC/EagleView/Pictometry assets are technically excluded or replaced without disabling the rights-safe spatial/3D path."
+      ],
+      "fail_if": [
+        "Processing time is presented as acquisition time or pre-fire/fallback geometry as current observation.",
+        "The only passing behavior disables every spatial asset.",
+        "A synthetic benchmark never reaches the production asset publication path."
+      ]
+    },
+    {
+      "id": "SPATIAL-002",
+      "component": "renderer_3d",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Working measured 2D/3D experience and renderer improvement",
+      "requirement": "The production map exposes the same evidence/structure meaning in a fast top-down 2D mode and an on-demand 3D mode, uses coherent rights-safe assets, and implements at least one material profiling-selected renderer, asset-delivery, z-fighting, registration, GPU/memory, request, picking, or visual-quality improvement.",
+      "required_evidence_kinds": ["browser", "benchmark", "integration_test", "fault_injection"],
+      "proof": [
+        "Deterministic reference scenes and fixed cameras measure alignment, ordering/z-fighting, transfer, tile/request behavior, CPU/main-thread work, frame-time percentiles, allocation/memory, context loss, and visual output where supported.",
+        "The reported GPU-utilization, z-fighting, registration, and loading defects are reproduced or conclusively disproved before architecture changes.",
+        "A measured before/after artifact demonstrates the selected production improvement without correctness, coverage, or mobile regression.",
+        "Every browser benchmark records hardware acceleration versus SwiftShader/software; headless/software proves correctness only and cannot support GPU-utilization or headed-performance claims.",
+        "3D loads only on request, aborts stale work, stays within declared budgets, handles no-WebGL/context-loss fallback, and keeps a usable 2D/list journey."
+      ],
+      "fail_if": [
+        "The result is only a benchmark and deferred remediation plan.",
+        "GPU-resident counters substitute for actual allocation/network/frame evidence.",
+        "3D is globally disabled to satisfy performance or rights gates."
+      ]
+    },
+    {
+      "id": "MULTIMODAL-001",
+      "component": "multimodal_observations",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Multimodal observation and reconstruction path",
+      "requirement": "A nontrivial legal synthetic/public stress fixture follows a working capture/imagery/LiDAR-to-registered-asset and probabilistic candidate path. Candidates carry asset, subject/region, hypothesis, confidence/uncertainty method, coverage, occlusion/quality, registration residual, model/process version, provenance, privacy/rights, and review state. Only reviewed acceptance can append a civic observation; rejection/retraction remains auditable.",
+      "required_evidence_kinds": ["integration_test", "benchmark", "runtime"],
+      "proof": [
+        "A CPU-runnable stress fixture uses two partially overlapping noisy/occluded views or depth clouds, mixed change/no-change regions, and a withheld 1.5 m/3 degree transform. Production code estimates rather than reads the transform, fuses/tiles the asset, derives candidate uncertainty from measured residual/coverage, and meets predeclared errors of at most 0.15 m translation, 0.5 degree rotation, and 0.20 m aligned RMSE before exercising accepted, rejected, and retracted transitions.",
+        "The observation contract distinguishes physical evidence from permit state and carries confidence, coverage, occlusion/quality, registration error, source, acquisition time, and review state into API/product evidence.",
+        "A pinned optional GPU worker profile runs its entrypoint without GPU and emits typed unsupported_hardware; a bounded real pilot runs only when hardware and rights are available.",
+        "Privacy/rights gates reject unauthorized or noncompliant media; synthetic or unreviewed candidate IDs are technically unable to enter a public release manifest or become consequential facts."
+      ],
+      "fail_if": [
+        "A document-only observation schema substitutes for an executed source-to-ledger path.",
+        "Synthetic or low-resolution output is presented as ground truth or precise rebuild stage.",
+        "Missing GPU hardware is used to omit the CPU fixture and production job boundary."
+      ]
+    },
+    {
+      "id": "FRONTEND-001",
+      "component": "property_product",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Complete API-backed property recovery journey",
+      "requirement": "A resident can search and deep-link to a stable property and inspect versioned identity, parallel milestones, source-backed observations, freshness, conflicts/unknowns, forecast or insufficiency, spatial observation kind/coverage, limitations, and correction route from the running backend.",
+      "required_evidence_kinds": ["browser", "integration_test", "runtime"],
+      "proof": [
+        "Browser E2E against the real local API covers search, deep link, source trace, scheduled/failed/unknown/conflict/retraction, stale/LKG, API error/offline, prediction, insufficiency, spatial fallback, and correction behavior.",
+        "The UI distinguishes observed, agency-reported, scheduled, attempted, failed, accepted, derived, inferred, historical, fallback, and unavailable.",
+        "Mobile, keyboard/focus return, reduced motion, non-color cues, accessible names, and a non-map alternative pass automated and manual checks; a pinned warm session remains coherent and visibly stale offline while cold offline start reports unavailable, never zero activity.",
+        "Corrections persist across restart with validation, rate limiting/idempotency, and optional contact in a separate restricted table. Submission pins release, property, and affected claim/observation; moderation cites authoritative evidence or an explicitly reviewed correction assertion, and only verified acceptance creates an append-only revision in a later release. No absence from public sources is worded as resident inactivity."
+      ],
+      "fail_if": [
+        "A frontend fixture or static JSON path substitutes for backend integration.",
+        "Source health, snapshot age, model version/limits, or spatial observation kind is hidden from the journey.",
+        "A network/schema failure becomes an empty or zero-recovery state."
+      ]
+    },
+    {
+      "id": "FRONTEND-002",
+      "component": "community_product",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Complete community intelligence and map journey",
+      "requirement": "The API-backed product exposes community milestone distributions, throughput, bottlenecks, change over time, coverage, sample size, censoring/missingness, uncertainty, validation, model sufficiency, source health, research exports, and optional spatial/3D exploration with visible definitions.",
+      "required_evidence_kinds": ["browser", "integration_test", "benchmark"],
+      "proof": [
+        "Browser E2E starts from source fixtures and reconciles visible cards/charts/map state with versioned analytics API values and definitions.",
+        "A neutral base plus the scan/evidence structure layer works in top-down 2D and opt-in 3D; fallback/no-coverage is explicit.",
+        "The default journey defers full property history and all 3D code/assets, stays within declared transfer/main-thread/mobile budgets, and remains useful without WebGL.",
+        "Snapshot-addressed CSV/Parquet/API exports reproduce the displayed cohort and definition version."
+      ],
+      "fail_if": [
+        "A score-colored parcel choropleth remains the only community intelligence surface.",
+        "Colors/rankings imply resident effort, contractor quality, agency blame, or causal policy effect.",
+        "A build-only check substitutes for an operated browser journey."
+      ]
+    },
+    {
+      "id": "E2E-001",
+      "component": "cross_stack",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Cross-stack production vertical slice",
+      "requirement": "Two releases use production paths: a deterministic fixture release and a separate current representative Palisades release covering all applicable named core civic sources, CAL FIRE DINS, a real USGS spatial AOI, immutable storage, temporal ledger, fixed analytics, actual ML evaluation/status, spatial publication, API, and browser. Both originate from registered Prefect deployments executed by a worker under one release manifest; only the fixture may mock the external acquisition boundary.",
+      "required_evidence_kinds": ["command", "integration_test", "browser", "fault_injection", "live_data_run", "offline_data_run", "model_evaluation", "benchmark"],
+      "proof": [
+        "A golden property and community cohort are asserted at raw, normalized, ledger, metric, model, spatial manifest, API, and browser stages with one snapshot ID and artifact graph.",
+        "The bounded fixture operator sequence starts from deterministic legal fixtures, applies migrations, runs real service/storage interfaces, and produces a locally inspectable release bundle.",
+        "An injected source/schema/model/spatial/publication dependency failure leaves last-known-good coherent and produces an actionable failure artifact.",
+        "The same code paths support a bounded representative local-data run without fixture-specific hard-coding."
+        ,"Zero-network replay of the representative release's exact raw object hashes reproduces its semantic outputs, and the release image/API/browser visibly assert at least one independently verified joined DINS property, one real fixed community metric, and the real USGS layer."
+      ],
+      "fail_if": [
+        "Six disconnected subsystem skeletons pass without one source-to-user execution.",
+        "Frontend mocks replace API/storage/model/spatial integration.",
+        "The fixture succeeds only because tests or expected outputs were weakened."
+      ]
+    },
+    {
+      "id": "OPS-001",
+      "component": "ci_release",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Executable CI-equivalent and release build",
+      "requirement": "Pinned CI and local commands execute repository hygiene, generated-contract drift, Python/web static checks, unit and integration tests, source/data contracts, ML evaluation, spatial ingest/renderer checks, browser E2E/accessibility/performance, security scans, image builds, migrations, and fixture release packaging.",
+      "required_evidence_kinds": ["command", "integration_test", "security_scan"],
+      "proof": [
+        "The complete CI-equivalent command passes locally and the workflow calls the same scripts rather than a weaker duplicate path.",
+        "Fresh database migration, prior-fixture upgrade, container startup/readiness, non-root checks, dependency locks, secret scan, vulnerability scan, and SBOM are exercised.",
+        "A release bundle records commit, images/artifacts, manifests/hashes, schemas, source/model/spatial versions, checks, unresolved risks, and operator commands.",
+        "Large generated/binary artifacts use an intentional object/CDN/version policy rather than accidental Git history."
+      ],
+      "fail_if": [
+        "Workflow YAML, Dockerfiles, or runbooks are accepted without local execution.",
+        "CI omits model, spatial, browser, or Compose integration because those tracks are slow.",
+        "Failures are hidden by unconditional skips, continue-on-error, or catch-all tests."
+      ]
+    },
+    {
+      "id": "OPS-002",
+      "component": "operations",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Executable refresh, observability, rollback, and restore",
+      "requirement": "Checked-in jobs implement scheduled/manual dry-run refresh, bounded retries, run/source/snapshot/model/spatial telemetry, product health and freshness, failure alerts tied to runbooks, last-known-good rollback, backup, and clean-environment restore.",
+      "required_evidence_kinds": ["ops_drill", "runtime", "fault_injection"],
+      "proof": [
+        "Registered Prefect deployments and a worker execute fixture and representative source, snapshot, analytics, model, spatial, and release flows; flow/task IDs reconcile with OpenPali ops.job_run and downstream stages consume persisted upstream output IDs.",
+        "A temporary local Prefect schedule is enabled and the server scheduler—not a direct function call—creates a worker run with scheduled time, flow/task IDs, persisted output IDs, and typed completion; the drill disables the schedule afterward.",
+        "Worker termination/restart and idempotent resume complete without duplicate records/objects; typed transient failures retry and semantic/schema/rights failures do not.",
+        "Structured logs/metrics/traces carry request, job, run, snapshot, source, model, and asset IDs and expose stale/source/reconciliation/model/spatial/publication health separately from process liveness.",
+        "Outage, schema drift, partial acquisition, failed migration/publish, stale snapshot, model rejection, spatial-rights withdrawal, and rollback drills create actionable alert/runbook evidence.",
+        "A destructive drill stops services, removes or renames original volumes, restores OpenPali/Prefect/MLflow metadata and raw/feature/model/publication/tile/spatial bytes into a clean namespace, verifies every current/LKG object hash, and reruns API, model deserialization, MVT/spatial fetch, and property/community browser assertions."
+      ],
+      "fail_if": [
+        "Cron, observability, backup, or rollback claims exist only in documentation or configuration.",
+        "A retry treats semantic/schema/rights failure as transient noise.",
+        "Health reports green while the public snapshot is critically stale or incoherent."
+      ]
+    },
+    {
+      "id": "GOV-001",
+      "component": "governance_security",
+      "priority": "MUST",
+      "implementation_required": true,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Safe technical release surface",
+      "requirement": "The release candidate enforces data/spatial/model rights and privacy classifications, exposes attribution/methodology/model-use/limitations/correction information, excludes private resident material, and includes security policy, threat model, dependency/secret checks, safe defaults, and contributor/governance foundations not dependent on choosing a license.",
+      "required_evidence_kinds": ["security_scan", "browser", "integration_test", "decision"],
+      "proof": [
+        "Automated rights gates exclude unresolved proprietary sources and derivatives from manifests/bundles while retaining a functioning open spatial path and visible coverage impact.",
+        "Only durably redistributable assets receive immutable public URLs; restricted assets use private storage and expiring authorized URLs, and a rights-withdrawal drill revokes prior access, invalidates derivatives, and publishes a coherent replacement release.",
+        "Release inspection and negative tests find no credentials, private resident data, unauthorized objects, admin surface, or correction contact content in public artifacts/model features.",
+        "Browser checks expose required attribution, source/model/spatial limitations, privacy/methodology notices, and correction/contact route.",
+        "Threat and controls cover source poisoning, schema drift, SSRF/operator input, object substitution, stale/mixed snapshots, corrections, supply chain, geospatial privacy, model leakage, and misleading inference."
+      ],
+      "fail_if": [
+        "Public-record status is treated as proprietary imagery redistribution/training permission.",
+        "The README claims an open-source license that Andrew has not selected.",
+        "A disclaimer substitutes for technical prevention of unsafe publication."
+      ]
+    },
+    {
+      "id": "RELEASE-001",
+      "component": "independent_evaluation",
+      "priority": "MUST",
+      "implementation_required": false,
+      "external_blockable": false,
+      "status": "FAIL",
+      "title": "Independent integrated release-candidate verification",
+      "requirement": "A fresh openpali-independent-evaluator that did not author product changes inspects meaningful implementation in every component and independently reruns the complete system, edge cases, browser journeys, benchmarks, and failure drills at one clean candidate commit.",
+      "required_evidence_kinds": ["review", "command", "browser", "model_evaluation", "benchmark", "ops_drill"],
+      "proof": [
+        "The evaluator reports a component matrix naming each production entrypoint, implementation artifact, runtime command, observed behavior, and verdict before criterion results.",
+        "Every MUST appears exactly once and is tied to component-specific current evidence; generic full-gate logs and principal summaries are only supplementary.",
+        "The evaluator checks the complete diff, contract integrity, production behavior, test strength, local-data assumptions, and clean full commit and returns VERDICT: PASS.",
+        "All failures from the penultimate evaluation are repaired and the authoritative gates are rerun at the final candidate."
+      ],
+      "fail_if": [
+        "The evaluator approves docs/config/tests without reachable production behavior.",
+        "It accepts insufficient evidence without an executed ML system, disabled 3D without an enabled rights-safe replacement, or CI/ops backed only by YAML.",
+        "It trusts subagent/principal summaries without local reproduction or evaluates a dirty/different commit."
+      ]
+    },
+    {
+      "id": "APPROVAL-001",
+      "component": "human_release_gate",
+      "priority": "HUMAN_GATE",
+      "implementation_required": false,
+      "external_blockable": true,
+      "status": "UNRESOLVED",
+      "title": "Sponsor release approvals",
+      "requirement": "Andrew/respring.ai chooses the source-code license and provides or rejects any proprietary LARIAC/EagleView/Pictometry display, caching, derivative, redistribution, and model-training rights needed for public release.",
+      "required_evidence_kinds": ["decision"],
+      "proof": [
+        "The exact decisions, owner, affected release artifacts, and safe default are documented.",
+        "Until resolved, source-code license claims remain neutral and affected proprietary assets are technically excluded while the rights-safe MVP remains functional."
+      ],
+      "fail_if": [
+        "Fable invents a license or asserts rights on the sponsor's behalf.",
+        "This human gate is used to defer backend, data, ML, spatial, frontend, operations, or safe default implementation."
+      ]
+    }
+  ]
+}

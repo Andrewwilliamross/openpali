@@ -1,9 +1,15 @@
 node_modules/
 dist/
 .venv/
+.uv-cache/
 __pycache__/
 *.pyc
 .env
 data/raw/
 .DS_Store
 data/spatial/
+.npm-cache/
+data/out/
+.playwright-browsers/
+web/test-results/
+web/playwright-report/

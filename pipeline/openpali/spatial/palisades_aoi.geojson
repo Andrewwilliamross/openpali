@@ -1,0 +1,46 @@
+{
+  "type": "FeatureCollection",
+  "name": "openpali-usgs-3dep-postfire-aoi",
+  "description": "FROZEN spatial AOI for SPATIAL-001 (committed before execution). Covers the Pacific Palisades 'Alphabet Streets' area: 1,728 destroyed-universe parcels (verified against release rel-27386c5f parcels) across exactly four independently requested USGS LOD tiles.",
+  "source": {
+    "title": "USGS 2025 Post-Wildfire LiDAR, Los Angeles CA (PRELIMINARY) — bare-earth DEM rasters",
+    "program": "USGS 3D Elevation Program (3DEP), NV5/UCSD emergency acquisition",
+    "acquisition_date": "2025-01-21",
+    "horizontal_crs": "EPSG:6340 (NAD83(2011) / UTM zone 11N)",
+    "vertical_datum": "NAVD88 (GEOID18), meters",
+    "resolution_m": 0.5,
+    "rights": "U.S. public domain (USGS). Provider statement: 'These datasets are provided as-is for emergency response purposes and have not been reviewed by USGS for accuracy.' Observation kind: post_fire_observation (2025-01-21 emergency baseline), never current construction evidence.",
+    "reference_page": "https://www.usgs.gov/3d-elevation-program/science/2025-post-wildfire-lidar-data-los-angeles-ca",
+    "vendor_metadata_xml": "https://prd-tnm.s3.amazonaws.com/CA_FireImpactZone_2025_PRELIMINARY/Palisades/metadata/reports/vendor_provided_xml/Palisades_Wildfire_2025_Provisional_DEM_Metadata.xml",
+    "staged_base": "https://prd-tnm.s3.amazonaws.com/CA_FireImpactZone_2025_PRELIMINARY/Palisades/bare_earth/be_rasters"
+  },
+  "tiles": [
+    {"name": "Prelim_11SLT003585037672", "utm_bounds": [358500.0, 3767250.0, 359250.0, 3768000.0]},
+    {"name": "Prelim_11SLT003592037672", "utm_bounds": [359250.0, 3767250.0, 360000.0, 3768000.0]},
+    {"name": "Prelim_11SLT003585037680", "utm_bounds": [358500.0, 3768000.0, 359250.0, 3768750.0]},
+    {"name": "Prelim_11SLT003592037680", "utm_bounds": [359250.0, 3768000.0, 360000.0, 3768750.0]}
+  ],
+  "verified": {
+    "date": "2026-07-12",
+    "destroyed_parcels_inside": 1728,
+    "tfw_confirmed": true,
+    "tile_pixel_size": [1500, 1500],
+    "tile_byte_size": 9443436
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"role": "aoi", "vintage_slot": "post_fire_2025_prelim"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-118.532835, 34.036386],
+          [-118.516832, 34.036386],
+          [-118.516832, 34.050111],
+          [-118.532835, 34.050111],
+          [-118.532835, 34.036386]
+        ]]
+      }
+    }
+  ]
+}

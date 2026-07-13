@@ -1,12 +1,21 @@
-"""Rebuild score (0-100) + predicted completion. See docs/METHODOLOGY.md.
+"""DEPRECATED prototype rebuild score (0-100) + heuristic completion date.
 
-The score blends:
-  1. stage band      — where the lot sits in the permit pipeline
-  2. milestone/velocity position within the band — moving lots float up,
-     stalled lots sink, so "permitted last week" and "permitted 8 months ago,
-     silent since" look different on the map
-  3. predicted completion — cohort-median transition times, conditioned on
-     time already spent in the current stage
+This module is retired from the public product (TRUTH-001): it is not called
+by the pipeline entrypoint, its outputs are never emitted, and no API, sort
+order, map color/style, spatial presentation, or user-facing recovery claim
+may depend on it. It survives only as characterization-tested reference code
+until the censoring-aware analytics/ML platform fully replaces its cohort
+math. Defects that forced retirement:
+
+- medians computed only from parcels that advanced (ignores right-censoring);
+- fixed arbitrary stage bands and unsourced priors;
+- consumed stage labels contaminated by scheduled inspections, ancillary
+  permits, and fabricated cleanup dates;
+- no temporal split, calibration, interval coverage, or model versioning.
+
+Historical description (Docs/initialbuild_docs/METHODOLOGY.md):
+  1. stage band; 2. milestone/velocity position within band; 3. predicted
+  completion from cohort-median transition times.
 """
 
 from __future__ import annotations

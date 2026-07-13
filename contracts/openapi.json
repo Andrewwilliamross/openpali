@@ -1,0 +1,1815 @@
+{
+ "components": {
+  "schemas": {
+   "CorrectionIn": {
+    "properties": {
+     "claim_ref": {
+      "description": "which shown claim is wrong (e.g. lane/event id)",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Claim Ref",
+      "type": "string"
+     },
+     "contact": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "optional; stored separately, never published",
+      "title": "Contact"
+     },
+     "message": {
+      "maxLength": 4000,
+      "minLength": 10,
+      "title": "Message",
+      "type": "string"
+     }
+    },
+    "required": [
+     "claim_ref",
+     "message"
+    ],
+    "title": "CorrectionIn",
+    "type": "object"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "LiveSourceStatus": {
+    "properties": {
+     "error_class": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error Class"
+     },
+     "last_attempt_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Attempt At"
+     },
+     "last_run_status": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Run Status"
+     },
+     "last_success_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Success At"
+     },
+     "source_id": {
+      "title": "Source Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "source_id",
+     "last_run_status",
+     "last_success_at",
+     "last_attempt_at",
+     "error_class"
+    ],
+    "title": "LiveSourceStatus",
+    "type": "object"
+   },
+   "LiveStatusResponse": {
+    "properties": {
+     "current_release_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Current Release Id"
+     },
+     "lkg_release_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lkg Release Id"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/LiveSourceStatus"
+      },
+      "title": "Sources",
+      "type": "array"
+     }
+    },
+    "required": [
+     "sources",
+     "current_release_id",
+     "lkg_release_id"
+    ],
+    "title": "LiveStatusResponse",
+    "type": "object"
+   },
+   "ObservationModel": {
+    "properties": {
+     "detail": {
+      "additionalProperties": true,
+      "title": "Detail",
+      "type": "object"
+     },
+     "event_type": {
+      "title": "Event Type",
+      "type": "string"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "lane": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lane"
+     },
+     "observation_id": {
+      "title": "Observation Id",
+      "type": "string"
+     },
+     "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+     },
+     "occurred": {
+      "$ref": "#/components/schemas/OccurrenceModel"
+     },
+     "policy_version": {
+      "title": "Policy Version",
+      "type": "string"
+     },
+     "record_version_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Record Version Id"
+     },
+     "related_subjects": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Related Subjects",
+      "type": "array"
+     },
+     "retracted": {
+      "default": false,
+      "title": "Retracted",
+      "type": "boolean"
+     },
+     "retraction_reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Retraction Reason"
+     },
+     "source_id": {
+      "title": "Source Id",
+      "type": "string"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     },
+     "subject_id": {
+      "title": "Subject Id",
+      "type": "string"
+     },
+     "subject_type": {
+      "title": "Subject Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "observation_id",
+     "subject_type",
+     "subject_id",
+     "lane",
+     "event_type",
+     "status",
+     "occurred",
+     "observed_at",
+     "source_id",
+     "record_version_id",
+     "policy_version",
+     "label",
+     "related_subjects",
+     "detail"
+    ],
+    "title": "ObservationModel",
+    "type": "object"
+   },
+   "ObservationPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/ObservationModel"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "next_cursor": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Cursor"
+     },
+     "property_id": {
+      "title": "Property Id",
+      "type": "string"
+     },
+     "release_id": {
+      "title": "Release Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "release_id",
+     "property_id",
+     "items",
+     "next_cursor"
+    ],
+    "title": "ObservationPage",
+    "type": "object"
+   },
+   "OccurrenceModel": {
+    "properties": {
+     "date": {
+      "anyOf": [
+       {
+        "format": "date",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Date"
+     },
+     "earliest": {
+      "anyOf": [
+       {
+        "format": "date",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Earliest"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "latest": {
+      "anyOf": [
+       {
+        "format": "date",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Latest"
+     }
+    },
+    "required": [
+     "kind"
+    ],
+    "title": "OccurrenceModel",
+    "type": "object"
+   },
+   "PropertyDetail": {
+    "properties": {
+     "address": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Address"
+     },
+     "apn": {
+      "title": "Apn",
+      "type": "string"
+     },
+     "center": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Center"
+     },
+     "conflict_count": {
+      "title": "Conflict Count",
+      "type": "integer"
+     },
+     "identity": {
+      "additionalProperties": true,
+      "title": "Identity",
+      "type": "object"
+     },
+     "jurisdiction": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Jurisdiction"
+     },
+     "lane_signals": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "title": "Lane Signals",
+      "type": "object"
+     },
+     "last_evidence_date": {
+      "anyOf": [
+       {
+        "format": "date",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Evidence Date"
+     },
+     "milestones": {
+      "additionalProperties": {
+       "type": "boolean"
+      },
+      "title": "Milestones",
+      "type": "object"
+     },
+     "neighborhood": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Neighborhood"
+     },
+     "observation_count": {
+      "title": "Observation Count",
+      "type": "integer"
+     },
+     "pre_fire": {
+      "additionalProperties": true,
+      "title": "Pre Fire",
+      "type": "object"
+     },
+     "projection_policy_version": {
+      "title": "Projection Policy Version",
+      "type": "string"
+     },
+     "property_id": {
+      "title": "Property Id",
+      "type": "string"
+     },
+     "release_id": {
+      "title": "Release Id",
+      "type": "string"
+     },
+     "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "property_id",
+     "apn",
+     "address",
+     "neighborhood",
+     "jurisdiction",
+     "identity",
+     "pre_fire",
+     "lane_signals",
+     "milestones",
+     "projection_policy_version",
+     "observation_count",
+     "conflict_count",
+     "last_evidence_date",
+     "center",
+     "release_id",
+     "snapshot_id"
+    ],
+    "title": "PropertyDetail",
+    "type": "object"
+   },
+   "PropertyPage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/PropertySummary"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "next_cursor": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Cursor"
+     },
+     "release_id": {
+      "title": "Release Id",
+      "type": "string"
+     },
+     "total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total"
+     }
+    },
+    "required": [
+     "release_id",
+     "items",
+     "next_cursor"
+    ],
+    "title": "PropertyPage",
+    "type": "object"
+   },
+   "PropertySummary": {
+    "properties": {
+     "address": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Address"
+     },
+     "apn": {
+      "title": "Apn",
+      "type": "string"
+     },
+     "conflict_count": {
+      "title": "Conflict Count",
+      "type": "integer"
+     },
+     "jurisdiction": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Jurisdiction"
+     },
+     "lane_signals": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "title": "Lane Signals",
+      "type": "object"
+     },
+     "last_evidence_date": {
+      "anyOf": [
+       {
+        "format": "date",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Evidence Date"
+     },
+     "milestones": {
+      "additionalProperties": {
+       "type": "boolean"
+      },
+      "title": "Milestones",
+      "type": "object"
+     },
+     "neighborhood": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Neighborhood"
+     },
+     "property_id": {
+      "title": "Property Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "property_id",
+     "apn",
+     "address",
+     "neighborhood",
+     "jurisdiction",
+     "lane_signals",
+     "milestones",
+     "last_evidence_date",
+     "conflict_count"
+    ],
+    "title": "PropertySummary",
+    "type": "object"
+   },
+   "ReleaseInfo": {
+    "properties": {
+     "coverage": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Coverage",
+      "type": "object"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "limitations": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+     },
+     "lkg_release_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lkg Release Id"
+     },
+     "manifest_sha256": {
+      "title": "Manifest Sha256",
+      "type": "string"
+     },
+     "policy_versions": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "title": "Policy Versions",
+      "type": "object"
+     },
+     "published_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Published At"
+     },
+     "release_id": {
+      "title": "Release Id",
+      "type": "string"
+     },
+     "schema_versions": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "title": "Schema Versions",
+      "type": "object"
+     },
+     "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "release_id",
+     "snapshot_id",
+     "kind",
+     "status",
+     "published_at",
+     "manifest_sha256"
+    ],
+    "title": "ReleaseInfo",
+    "type": "object"
+   },
+   "SourceHealthModel": {
+    "properties": {
+     "notes": {
+      "additionalProperties": true,
+      "title": "Notes",
+      "type": "object"
+     },
+     "ok": {
+      "title": "Ok",
+      "type": "boolean"
+     },
+     "records": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Records"
+     },
+     "response_sha256": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Response Sha256"
+     },
+     "retrieved_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Retrieved At"
+     },
+     "schema_fingerprint": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Schema Fingerprint"
+     },
+     "source_id": {
+      "title": "Source Id",
+      "type": "string"
+     },
+     "title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     },
+     "upstream_edited_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upstream Edited At"
+     }
+    },
+    "required": [
+     "source_id",
+     "ok"
+    ],
+    "title": "SourceHealthModel",
+    "type": "object"
+   },
+   "SourcesResponse": {
+    "properties": {
+     "release_id": {
+      "title": "Release Id",
+      "type": "string"
+     },
+     "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceHealthModel"
+      },
+      "title": "Sources",
+      "type": "array"
+     }
+    },
+    "required": [
+     "release_id",
+     "snapshot_id",
+     "sources"
+    ],
+    "title": "SourcesResponse",
+    "type": "object"
+   },
+   "ValidationError": {
+    "properties": {
+     "ctx": {
+      "title": "Context",
+      "type": "object"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   }
+  }
+ },
+ "info": {
+  "description": "Versioned public read API for Pacific Palisades recovery evidence. Resolve /v1/releases/current once, then use release-qualified routes.",
+  "title": "OpenPali Recovery Intelligence API",
+  "version": "1.0.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/health/live": {
+   "get": {
+    "operationId": "live_health_live_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Live Health Live Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Live",
+    "tags": [
+     "health"
+    ]
+   }
+  },
+  "/health/ready": {
+   "get": {
+    "operationId": "ready_health_ready_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Ready Health Ready Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Ready",
+    "tags": [
+     "health"
+    ]
+   }
+  },
+  "/v1/releases": {
+   "get": {
+    "description": "Recent publications (all kinds/states) \u2014 operational visibility for\n/status and the evaluator; current authority remains /releases/current.",
+    "operationId": "list_releases_v1_releases_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "kind",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Kind"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response List Releases V1 Releases Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "List Releases",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/current": {
+   "get": {
+    "operationId": "resolve_current_v1_releases_current_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReleaseInfo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Resolve Current",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}": {
+   "get": {
+    "operationId": "release_info_v1_releases__release_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ReleaseInfo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Release Info",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/metrics/bottlenecks": {
+   "get": {
+    "operationId": "bottleneck_metrics_v1_releases__release_id__metrics_bottlenecks_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Bottleneck Metrics V1 Releases  Release Id  Metrics Bottlenecks Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Bottleneck Metrics",
+    "tags": [
+     "metrics"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/metrics/community": {
+   "get": {
+    "operationId": "community_metrics_v1_releases__release_id__metrics_community_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Community Metrics V1 Releases  Release Id  Metrics Community Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Community Metrics",
+    "tags": [
+     "metrics"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/metrics/export.csv": {
+   "get": {
+    "operationId": "metrics_export_v1_releases__release_id__metrics_export_csv_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Metrics Export",
+    "tags": [
+     "metrics"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/model-status": {
+   "get": {
+    "description": "The learning system's state for THIS release: the champion (if any),\nthe latest prediction set for the release's snapshot, and the typed\nreason when nothing is served (ML-003 user-facing status).",
+    "operationId": "model_status_v1_releases__release_id__model_status_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Model Status V1 Releases  Release Id  Model Status Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Model Status",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/properties": {
+   "get": {
+    "operationId": "search_properties_v1_releases__release_id__properties_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "description": "address or APN fragment",
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 120,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "address or APN fragment",
+       "title": "Q"
+      }
+     },
+     {
+      "description": "minLon,minLat,maxLon,maxLat",
+      "in": "query",
+      "name": "bbox",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "minLon,minLat,maxLon,maxLat",
+       "title": "Bbox"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cursor",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 25,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PropertyPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Search Properties",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/properties/{property_id}": {
+   "get": {
+    "operationId": "property_detail_v1_releases__release_id__properties__property_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "property_id",
+      "required": true,
+      "schema": {
+       "title": "Property Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PropertyDetail"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Property Detail",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/properties/{property_id}/corrections": {
+   "post": {
+    "operationId": "submit_correction_v1_releases__release_id__properties__property_id__corrections_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "property_id",
+      "required": true,
+      "schema": {
+       "title": "Property Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CorrectionIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Submit Correction V1 Releases  Release Id  Properties  Property Id  Corrections Post",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Submit Correction",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/properties/{property_id}/forecast": {
+   "get": {
+    "operationId": "property_forecast_v1_releases__release_id__properties__property_id__forecast_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "property_id",
+      "required": true,
+      "schema": {
+       "title": "Property Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Property Forecast V1 Releases  Release Id  Properties  Property Id  Forecast Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Property Forecast",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/properties/{property_id}/observations": {
+   "get": {
+    "operationId": "property_observations_v1_releases__release_id__properties__property_id__observations_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "property_id",
+      "required": true,
+      "schema": {
+       "title": "Property Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cursor",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Cursor"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ObservationPage"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Property Observations",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/sources": {
+   "get": {
+    "operationId": "release_sources_v1_releases__release_id__sources_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SourcesResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Release Sources",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/spatial/assets": {
+   "get": {
+    "operationId": "spatial_assets_v1_releases__release_id__spatial_assets_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "title": "Response Spatial Assets V1 Releases  Release Id  Spatial Assets Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Spatial Assets",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/spatial/{asset_id}/{version_id}/{path}": {
+   "get": {
+    "operationId": "spatial_asset_file_v1_releases__release_id__spatial__asset_id___version_id___path__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "asset_id",
+      "required": true,
+      "schema": {
+       "title": "Asset Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "version_id",
+      "required": true,
+      "schema": {
+       "title": "Version Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "path",
+      "required": true,
+      "schema": {
+       "title": "Path",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Spatial Asset File",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/releases/{release_id}/tiles/parcels/{z}/{x}/{y}.mvt": {
+   "get": {
+    "operationId": "parcel_tile_v1_releases__release_id__tiles_parcels__z___x___y__mvt_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "z",
+      "required": true,
+      "schema": {
+       "title": "Z",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "path",
+      "name": "x",
+      "required": true,
+      "schema": {
+       "title": "X",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "path",
+      "name": "y",
+      "required": true,
+      "schema": {
+       "title": "Y",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Parcel Tile",
+    "tags": [
+     "releases"
+    ]
+   }
+  },
+  "/v1/status/sources": {
+   "get": {
+    "operationId": "live_sources_v1_status_sources_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LiveStatusResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Live Sources",
+    "tags": [
+     "status"
+    ]
+   }
+  }
+ }
+}
