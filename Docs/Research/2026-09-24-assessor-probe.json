@@ -1,0 +1,491 @@
+{
+  "metadata": {
+    "url": "https://assessor.gis.lacounty.gov/assessor/rest/services/PAIS/pais_sales_parcels/MapServer/0?f=json",
+    "status": 200,
+    "sha256": "8e9ce9633c4cddbbfe9cc548d64b3b428cbd20501aa3c005d458f7a89ad1f239",
+    "body": {
+      "currentVersion": 10.91,
+      "id": 0,
+      "name": "Sales Parcels",
+      "type": "Feature Layer",
+      "description": "",
+      "geometryType": "esriGeometryPolygon",
+      "sourceSpatialReference": {
+        "wkid": 102645,
+        "latestWkid": 2229
+      },
+      "copyrightText": "",
+      "parentLayer": null,
+      "subLayers": [],
+      "minScale": 10000,
+      "maxScale": 0,
+      "drawingInfo": {
+        "renderer": {
+          "type": "uniqueValue",
+          "field1": "USETYPE",
+          "field2": null,
+          "field3": null,
+          "defaultSymbol": null,
+          "defaultLabel": null,
+          "uniqueValueInfos": [
+            {
+              "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                  255,
+                  99,
+                  71,
+                  255
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid",
+                  "color": [
+                    110,
+                    110,
+                    110,
+                    255
+                  ],
+                  "width": 0.4
+                }
+              },
+              "value": "C/I",
+              "label": "Commercial / Industrial",
+              "description": ""
+            },
+            {
+              "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                  106,
+                  90,
+                  205,
+                  255
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid",
+                  "color": [
+                    110,
+                    110,
+                    110,
+                    255
+                  ],
+                  "width": 0.4
+                }
+              },
+              "value": "CND",
+              "label": "Condominium",
+              "description": ""
+            },
+            {
+              "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                  0,
+                  139,
+                  139,
+                  255
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid",
+                  "color": [
+                    110,
+                    110,
+                    110,
+                    255
+                  ],
+                  "width": 0.4
+                }
+              },
+              "value": "OTH",
+              "label": "Other",
+              "description": ""
+            },
+            {
+              "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                  255,
+                  165,
+                  0,
+                  255
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid",
+                  "color": [
+                    110,
+                    110,
+                    110,
+                    255
+                  ],
+                  "width": 0.4
+                }
+              },
+              "value": "R-I",
+              "label": "Multiple Family Residence",
+              "description": ""
+            },
+            {
+              "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                  132,
+                  135,
+                  255,
+                  255
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid",
+                  "color": [
+                    110,
+                    110,
+                    110,
+                    255
+                  ],
+                  "width": 0.4
+                }
+              },
+              "value": "SFR",
+              "label": "Single Family Residence",
+              "description": ""
+            },
+            {
+              "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                  165,
+                  42,
+                  42,
+                  255
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "style": "esriSLSSolid",
+                  "color": [
+                    110,
+                    110,
+                    110,
+                    255
+                  ],
+                  "width": 0.4
+                }
+              },
+              "value": "VAC",
+              "label": "Vacant Land",
+              "description": ""
+            }
+          ],
+          "fieldDelimiter": ","
+        },
+        "transparency": 0,
+        "labelingInfo": null
+      },
+      "defaultVisibility": true,
+      "extent": {
+        "xmin": -13239107.43939656,
+        "ymin": 3939993.248642384,
+        "xmax": -13096781.32695682,
+        "ymax": 4139924.3657469517,
+        "spatialReference": {
+          "wkid": 102100,
+          "latestWkid": 3857
+        }
+      },
+      "hasAttachments": false,
+      "htmlPopupType": "esriServerHTMLPopupTypeAsHTMLText",
+      "displayField": "AIN",
+      "typeIdField": null,
+      "subtypeFieldName": null,
+      "subtypeField": null,
+      "defaultSubtypeCode": null,
+      "fields": [
+        {
+          "name": "OBJECTID",
+          "type": "esriFieldTypeOID",
+          "alias": "OBJECTID",
+          "domain": null
+        },
+        {
+          "name": "AIN",
+          "type": "esriFieldTypeString",
+          "alias": "AIN",
+          "length": 10,
+          "domain": null
+        },
+        {
+          "name": "FORMATTED_AIN",
+          "type": "esriFieldTypeString",
+          "alias": "FORMATTED_AIN",
+          "length": 12,
+          "domain": null
+        },
+        {
+          "name": "SAADDR",
+          "type": "esriFieldTypeString",
+          "alias": "SAADDR",
+          "length": 55,
+          "domain": null
+        },
+        {
+          "name": "SAADDR2",
+          "type": "esriFieldTypeString",
+          "alias": "SAADDR2",
+          "length": 35,
+          "domain": null
+        },
+        {
+          "name": "SASTR",
+          "type": "esriFieldTypeString",
+          "alias": "SASTR",
+          "length": 32,
+          "domain": null
+        },
+        {
+          "name": "SANUM",
+          "type": "esriFieldTypeString",
+          "alias": "SANUM",
+          "length": 5,
+          "domain": null
+        },
+        {
+          "name": "SAFRACT",
+          "type": "esriFieldTypeString",
+          "alias": "SAFRACT",
+          "length": 3,
+          "domain": null
+        },
+        {
+          "name": "SAUNIT",
+          "type": "esriFieldTypeString",
+          "alias": "SAUNIT",
+          "length": 8,
+          "domain": null
+        },
+        {
+          "name": "SALEDATE",
+          "type": "esriFieldTypeDate",
+          "alias": "SALEDATE",
+          "length": 8,
+          "domain": null
+        },
+        {
+          "name": "FORMATTED_SALEDATE",
+          "type": "esriFieldTypeString",
+          "alias": "FORMATTED_SALEDATE",
+          "length": 10,
+          "domain": null
+        },
+        {
+          "name": "SALEPRICE",
+          "type": "esriFieldTypeInteger",
+          "alias": "SALEPRICE",
+          "domain": null
+        },
+        {
+          "name": "FORMATTED_SALEPRICE",
+          "type": "esriFieldTypeString",
+          "alias": "FORMATTED_SALEPRICE",
+          "length": 4000,
+          "domain": null
+        },
+        {
+          "name": "SIZE",
+          "type": "esriFieldTypeInteger",
+          "alias": "SIZE",
+          "domain": null
+        },
+        {
+          "name": "FORMATTED_SIZE",
+          "type": "esriFieldTypeString",
+          "alias": "FORMATTED_SIZE",
+          "length": 20,
+          "domain": null
+        },
+        {
+          "name": "BEDROOMS",
+          "type": "esriFieldTypeInteger",
+          "alias": "BEDROOMS",
+          "domain": null
+        },
+        {
+          "name": "BATHROOMS",
+          "type": "esriFieldTypeInteger",
+          "alias": "BATHROOMS",
+          "domain": null
+        },
+        {
+          "name": "YEARBUILT",
+          "type": "esriFieldTypeString",
+          "alias": "YEARBUILT",
+          "length": 4,
+          "domain": null
+        },
+        {
+          "name": "EFFECTIVE_YEARBUILT",
+          "type": "esriFieldTypeString",
+          "alias": "EFFECTIVE_YEARBUILT",
+          "length": 4,
+          "domain": null
+        },
+        {
+          "name": "USECODE",
+          "type": "esriFieldTypeString",
+          "alias": "USECODE",
+          "length": 4,
+          "domain": null
+        },
+        {
+          "name": "USETYPE",
+          "type": "esriFieldTypeString",
+          "alias": "USETYPE",
+          "length": 3,
+          "domain": null
+        },
+        {
+          "name": "SHAPE",
+          "type": "esriFieldTypeGeometry",
+          "alias": "SHAPE",
+          "domain": null
+        }
+      ],
+      "geometryField": {
+        "name": "SHAPE",
+        "type": "esriFieldTypeGeometry",
+        "alias": "SHAPE"
+      },
+      "indexes": null,
+      "subtypes": [],
+      "relationships": [],
+      "canModifyLayer": true,
+      "canScaleSymbols": false,
+      "hasLabels": false,
+      "capabilities": "Map,Query,Data",
+      "maxRecordCount": 1000,
+      "supportsStatistics": true,
+      "supportsAdvancedQueries": true,
+      "supportedQueryFormats": "JSON, geoJSON",
+      "isDataVersioned": false,
+      "ownershipBasedAccessControlForFeatures": {
+        "allowOthersToQuery": true
+      },
+      "useStandardizedQueries": true,
+      "advancedQueryCapabilities": {
+        "useStandardizedQueries": true,
+        "supportsStatistics": true,
+        "supportsHavingClause": true,
+        "supportsCountDistinct": true,
+        "supportsOrderBy": true,
+        "supportsDistinct": true,
+        "supportsPagination": true,
+        "supportsTrueCurve": true,
+        "supportsReturningQueryExtent": true,
+        "supportsQueryWithDistance": true,
+        "supportsSqlExpression": true
+      },
+      "supportsDatumTransformation": true,
+      "dateFieldsTimeReference": null,
+      "supportsCoordinatesQuantization": true
+    }
+  },
+  "post_fire_bbox_count": {
+    "url": "https://assessor.gis.lacounty.gov/assessor/rest/services/PAIS/pais_sales_parcels/MapServer/0/query?f=json&where=SALEDATE+%3E%3D+DATE+%272025-01-07%27&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnCountOnly=true",
+    "status": 200,
+    "sha256": "618de7d9f46f3f697d827a1b6d84974760d5deda62e4e592adaa3c646602a94c",
+    "body": {
+      "count": 0
+    }
+  },
+  "retrieved_at": "2026-09-25T00:59:29.256156+00:00",
+  "countywide_extent": {
+    "url": "https://assessor.gis.lacounty.gov/assessor/rest/services/PAIS/pais_sales_parcels/MapServer/0/query?f=json&where=1%3D1&outStatistics=%5B%7B%22statisticType%22%3A+%22count%22%2C+%22onStatisticField%22%3A+%22OBJECTID%22%2C+%22outStatisticFieldName%22%3A+%22records%22%7D%2C+%7B%22statisticType%22%3A+%22max%22%2C+%22onStatisticField%22%3A+%22SALEDATE%22%2C+%22outStatisticFieldName%22%3A+%22latest_sale%22%7D%2C+%7B%22statisticType%22%3A+%22min%22%2C+%22onStatisticField%22%3A+%22SALEDATE%22%2C+%22outStatisticFieldName%22%3A+%22earliest_sale%22%7D%5D",
+    "status": 200,
+    "sha256": "21461ee85f538fa96a237f836abf7df4c5196b176695aa880ec36ec45b3d2992",
+    "body": {
+      "displayFieldName": "",
+      "fieldAliases": {
+        "records": "records",
+        "latest_sale": "latest_sale",
+        "earliest_sale": "earliest_sale"
+      },
+      "fields": [
+        {
+          "name": "records",
+          "type": "esriFieldTypeInteger",
+          "alias": "records"
+        },
+        {
+          "name": "latest_sale",
+          "type": "esriFieldTypeDate",
+          "alias": "latest_sale",
+          "length": 8
+        },
+        {
+          "name": "earliest_sale",
+          "type": "esriFieldTypeDate",
+          "alias": "earliest_sale",
+          "length": 8
+        }
+      ],
+      "features": [
+        {
+          "attributes": {
+            "records": 75854,
+            "latest_sale": 1717545600000,
+            "earliest_sale": 1660521600000
+          }
+        }
+      ]
+    }
+  },
+  "palisades_bbox_extent": {
+    "url": "https://assessor.gis.lacounty.gov/assessor/rest/services/PAIS/pais_sales_parcels/MapServer/0/query?f=json&where=1%3D1&outStatistics=%5B%7B%22statisticType%22%3A+%22count%22%2C+%22onStatisticField%22%3A+%22OBJECTID%22%2C+%22outStatisticFieldName%22%3A+%22records%22%7D%2C+%7B%22statisticType%22%3A+%22max%22%2C+%22onStatisticField%22%3A+%22SALEDATE%22%2C+%22outStatisticFieldName%22%3A+%22latest_sale%22%7D%2C+%7B%22statisticType%22%3A+%22min%22%2C+%22onStatisticField%22%3A+%22SALEDATE%22%2C+%22outStatisticFieldName%22%3A+%22earliest_sale%22%7D%5D&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects",
+    "status": 200,
+    "sha256": "4bf3cc961549efac5ec73dc1e45e2cf076386789f77f59df5942652988075451",
+    "body": {
+      "displayFieldName": "",
+      "fieldAliases": {
+        "records": "records",
+        "latest_sale": "latest_sale",
+        "earliest_sale": "earliest_sale"
+      },
+      "fields": [
+        {
+          "name": "records",
+          "type": "esriFieldTypeInteger",
+          "alias": "records"
+        },
+        {
+          "name": "latest_sale",
+          "type": "esriFieldTypeDate",
+          "alias": "latest_sale",
+          "length": 8
+        },
+        {
+          "name": "earliest_sale",
+          "type": "esriFieldTypeDate",
+          "alias": "earliest_sale",
+          "length": 8
+        }
+      ],
+      "features": [
+        {
+          "attributes": {
+            "records": 2765,
+            "latest_sale": 1715299200000,
+            "earliest_sale": 1660521600000
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,5757 @@
+{
+  "probed_at": "2026-09-25T00:55:15.986346+00:00",
+  "sources": [
+    {
+      "configured_fields_missing": [],
+      "count": {
+        "count": 5877
+      },
+      "domains": {
+        "DEBRIS_CLEARED": {
+          "features": [
+            {
+              "attributes": {
+                "DEBRIS_CLEARED": null,
+                "row_count": 1
+              }
+            },
+            {
+              "attributes": {
+                "DEBRIS_CLEARED": "NA",
+                "row_count": 5590
+              }
+            },
+            {
+              "attributes": {
+                "DEBRIS_CLEARED": "Yes",
+                "row_count": 286
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "Debris_Cleared",
+              "defaultValue": null,
+              "domain": null,
+              "length": 255,
+              "name": "DEBRIS_CLEARED",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPolygon",
+          "globalIdFieldName": "GLOBALID",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        },
+        "LCITY": {
+          "features": [
+            {
+              "attributes": {
+                "LCITY": "Los Angeles",
+                "row_count": 4701
+              }
+            },
+            {
+              "attributes": {
+                "LCITY": "Malibu",
+                "row_count": 623
+              }
+            },
+            {
+              "attributes": {
+                "LCITY": "Unincorporated",
+                "row_count": 553
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "LCITY",
+              "defaultValue": null,
+              "domain": null,
+              "length": 50,
+              "name": "LCITY",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPolygon",
+          "globalIdFieldName": "GLOBALID",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        },
+        "REBUILD_PROGRESS": {
+          "features": [
+            {
+              "attributes": {
+                "REBUILD_PROGRESS": null,
+                "row_count": 5616
+              }
+            },
+            {
+              "attributes": {
+                "REBUILD_PROGRESS": "Building Permits Issued",
+                "row_count": 33
+              }
+            },
+            {
+              "attributes": {
+                "REBUILD_PROGRESS": "Building Plans Approved",
+                "row_count": 8
+              }
+            },
+            {
+              "attributes": {
+                "REBUILD_PROGRESS": "Construction Completed",
+                "row_count": 1
+              }
+            },
+            {
+              "attributes": {
+                "REBUILD_PROGRESS": "Rebuild Applications Received",
+                "row_count": 137
+              }
+            },
+            {
+              "attributes": {
+                "REBUILD_PROGRESS": "Rebuild In Construction",
+                "row_count": 82
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "REBUILD_PROGRESS",
+              "defaultValue": null,
+              "domain": null,
+              "length": 2000,
+              "name": "REBUILD_PROGRESS",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPolygon",
+          "globalIdFieldName": "GLOBALID",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        },
+        "ROE_STATUS": {
+          "features": [
+            {
+              "attributes": {
+                "ROE_STATUS": "FEMA Ineligible",
+                "row_count": 38
+              }
+            },
+            {
+              "attributes": {
+                "ROE_STATUS": "Final Sign Off - Complete",
+                "row_count": 3964
+              }
+            },
+            {
+              "attributes": {
+                "ROE_STATUS": "Final Sign Off - Ineligible",
+                "row_count": 24
+              }
+            },
+            {
+              "attributes": {
+                "ROE_STATUS": "No ROE",
+                "row_count": 256
+              }
+            },
+            {
+              "attributes": {
+                "ROE_STATUS": "Non-responsive Opt-out",
+                "row_count": 5
+              }
+            },
+            {
+              "attributes": {
+                "ROE_STATUS": "Opt-Out and Manage Cleanup Independently",
+                "row_count": 1590
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "ROE_Status",
+              "defaultValue": null,
+              "domain": null,
+              "length": 255,
+              "name": "ROE_STATUS",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPolygon",
+          "globalIdFieldName": "GLOBALID",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        }
+      },
+      "endpoint": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0",
+      "metadata": {
+        "advancedQueryCapabilities": {
+          "fullTextSearchCapabilities": {
+            "supportsAccentSensitivity": true,
+            "supportsOperator": true,
+            "supportsSearchOperator": true,
+            "supportsStopWords": true
+          },
+          "supportedLodTypes": [
+            "geohash"
+          ],
+          "supportedOperationsWithCacheHint": [
+            "query",
+            "queryTopFilter",
+            "queryAnalytics",
+            "queryAttachments",
+            "queryRelated",
+            "queryBins",
+            "queryPivot"
+          ],
+          "supportedSpatialAggregationStatistics": [
+            "EnvelopeAggregate",
+            "CentroidAggregate",
+            "ConvexHullAggregate"
+          ],
+          "supportsAdvancedQueryRelated": true,
+          "supportsAggIds": true,
+          "supportsApproxPercentileStatistics": true,
+          "supportsCountDistinct": true,
+          "supportsCurrentUserQueries": true,
+          "supportsDefaultSR": true,
+          "supportsDisjointSpatialRel": true,
+          "supportsDistinct": true,
+          "supportsFullTextSearch": true,
+          "supportsHavingClause": true,
+          "supportsISODOW": true,
+          "supportsISOWeek": true,
+          "supportsLod": true,
+          "supportsMaxRecordCountFactor": true,
+          "supportsOrderBy": true,
+          "supportsOutDistance": true,
+          "supportsOutFieldSQLExpression": true,
+          "supportsPagination": true,
+          "supportsPaginationOnAggregatedQueries": true,
+          "supportsPercentileStatistics": true,
+          "supportsQueryAnalytic": true,
+          "supportsQueryBins": true,
+          "supportsQueryPivot": true,
+          "supportsQueryRelatedPagination": true,
+          "supportsQueryWithCacheHint": true,
+          "supportsQueryWithCollation": true,
+          "supportsQueryWithDatumTransformation": true,
+          "supportsQueryWithDistance": true,
+          "supportsQueryWithLodSR": false,
+          "supportsQueryWithResultType": true,
+          "supportsReturningGeometryCentroid": true,
+          "supportsReturningGeometryEnvelope": true,
+          "supportsReturningGeometryProperties": true,
+          "supportsReturningQueryExtent": true,
+          "supportsSpatialAggregationStatistics": true,
+          "supportsSqlExpression": true,
+          "supportsStatistics": true,
+          "supportsTimeRelation": true,
+          "supportsTopFeaturesQuery": true,
+          "supportsTranslations": false,
+          "supportsTrueCurve": true
+        },
+        "copyrightText": "",
+        "description": "",
+        "editingInfo": {
+          "dataLastEditDate": 1790263449054,
+          "lastEditDate": 1790263449054,
+          "schemaLastEditDate": 1790263449054
+        },
+        "extent": {
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "xmax": 6557842.819889143,
+          "xmin": 6347012.514516473,
+          "ymax": 1914175.5899041295,
+          "ymin": 1833025.9300252944
+        },
+        "fields": [
+          {
+            "alias": "OBJECTID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": false,
+            "name": "OBJECTID",
+            "nullable": false,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeOID"
+          },
+          {
+            "alias": "AIN",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 10,
+            "name": "AIN",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "APN",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 12,
+            "name": "APN",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusHouseNo",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "SITUSHOUSENO",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusFraction",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 3,
+            "name": "SITUSFRACTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusDirection",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 1,
+            "name": "SITUSDIRECTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusUnit",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "SITUSUNIT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusStreet",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 32,
+            "name": "SITUSSTREET",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusAddress",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 55,
+            "name": "SITUSADDRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusCity",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 24,
+            "name": "SITUSCITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusZIP",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 10,
+            "name": "SITUSZIP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SitusFullAddress",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 84,
+            "name": "SITUSFULLADDRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TaxRateArea",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "TAXRATEAREA",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TaxRateCity",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 21,
+            "name": "TAXRATECITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "AgencyClassNo",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "AGENCYCLASSNO",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "AgencyName",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "AGENCYNAME",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "AgencyType",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "AGENCYTYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "UseCode",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "USECODE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "UseCode_2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2,
+            "name": "USECODE_2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "UseType",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 14,
+            "name": "USETYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "UseDescription",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 61,
+            "name": "USEDESCRIPTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "DesignType1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "DESIGNTYPE1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "YearBuilt1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "YEARBUILT1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "EffectiveYear1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "EFFECTIVEYEAR1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Units1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "UNITS1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bedrooms1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BEDROOMS1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bathrooms1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BATHROOMS1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "SQFTmain1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "SQFTMAIN1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "DesignType2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "DESIGNTYPE2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "YearBuilt2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "YEARBUILT2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "EffectiveYear2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "EFFECTIVEYEAR2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Units2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "UNITS2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bedrooms2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BEDROOMS2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bathrooms2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BATHROOMS2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "SQFTmain2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "SQFTMAIN2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "DesignType3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "DESIGNTYPE3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "YearBuilt3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "YEARBUILT3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "EffectiveYear3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "EFFECTIVEYEAR3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Units3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "UNITS3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bedrooms3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BEDROOMS3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bathrooms3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BATHROOMS3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "SQFTmain3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "SQFTMAIN3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "DesignType4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "DESIGNTYPE4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "YearBuilt4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "YEARBUILT4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "EffectiveYear4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "EFFECTIVEYEAR4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Units4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "UNITS4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bedrooms4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BEDROOMS4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bathrooms4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BATHROOMS4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "SQFTmain4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "SQFTMAIN4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "DesignType5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "DESIGNTYPE5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "YearBuilt5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "YEARBUILT5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "EffectiveYear5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "EFFECTIVEYEAR5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Units5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "UNITS5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bedrooms5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BEDROOMS5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "Bathrooms5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "BATHROOMS5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "SQFTmain5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "SQFTMAIN5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "RecDate",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "RECDATE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "RecDocNo",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "RECDOCNO",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_Year",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "ROLL_YEAR",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Roll_LandValue",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_LANDVALUE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_ImpValue",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_IMPVALUE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_PersPropValue",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_PERSPROPVALUE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_FixtureValue",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_FIXTUREVALUE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_HomeOwnersExemp",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_HOMEOWNERSEXEMP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_RealEstateExemp",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_REALESTATEEXEMP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_PersPropExemp",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_PERSPROPEXEMP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_FixtureExemp",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ROLL_FIXTUREEXEMP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Roll_LandBaseYear",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "ROLL_LANDBASEYEAR",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Roll_ImpBaseYear",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4,
+            "name": "ROLL_IMPBASEYEAR",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LastSaleDate",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "LASTSALEDATE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LastSaleAmount",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "LASTSALEAMOUNT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "QualityClass1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "QUALITYCLASS1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "QualityClass2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "QUALITYCLASS2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "QualityClass3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "QUALITYCLASS3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "QualityClass4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "QUALITYCLASS4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "QualityClass5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "QUALITYCLASS5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescLine1",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 40,
+            "name": "LEGALDESCLINE1",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescLine2",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 40,
+            "name": "LEGALDESCLINE2",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescLine3",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 40,
+            "name": "LEGALDESCLINE3",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescLine4",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 40,
+            "name": "LEGALDESCLINE4",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescLine5",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 40,
+            "name": "LEGALDESCLINE5",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescLineLast",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 40,
+            "name": "LEGALDESCLINELAST",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LegalDescription",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 500,
+            "name": "LEGALDESCRIPTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SpatialChangeDate",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "SPATIALCHANGEDATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "ParcelCreateDate",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "PARCELCREATEDATE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "ParcelTypeCode",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "PARCELTYPECODE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Assr_Map",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "ASSR_MAP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Assr_Index_Map",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "ASSR_INDEX_MAP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "CENTER_LAT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "CENTER_LAT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "CENTER_LON",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "CENTER_LON",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "CENTER_X",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "CENTER_X",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "CENTER_Y",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "CENTER_Y",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "LAT_LON",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 62,
+            "name": "LAT_LON",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Fire_Name",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "FIRE_NAME",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Damage",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 50,
+            "name": "DAMAGE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Structure Category",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 100,
+            "name": "STRUCTURECATEGORY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Total_Units",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "TOTAL_UNITS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "GlobalID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": false,
+            "length": 38,
+            "name": "GLOBALID",
+            "nullable": false,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeGlobalID"
+          },
+          {
+            "alias": "Tot_SqFt",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "TOT_SQFT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "DINS_Count",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "DINS_COUNT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeSmallInteger"
+          },
+          {
+            "alias": "LCITY",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 50,
+            "name": "LCITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "COMMUNITY",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 50,
+            "name": "COMMUNITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "STATUS_EPA",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "STATUS_EPA",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "STATUS_ROE_TETRATECH",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "STATUS_ROE_TETRATECH",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "STATUS_ROE_USACE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "STATUS_ROE_USACE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "STATUS_HSA_USACE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "STATUS_HSA_USACE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "BSD_TAG",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 20,
+            "name": "BSD_TAG",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ROE_ACCEPTED_USACE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "ROE_ACCEPTED_USACE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ROE_SUBMITTED_USACE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "ROE_SUBMITTED_USACE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "FSO_PKG_APPROVED_USACE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "FSO_PKG_APPROVED_USACE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "DEBRIS_REMOVAL_EPICLA",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "isViewOverride": true,
+            "length": 2000,
+            "name": "DEBRIS_REMOVAL_EPICLA",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SWIMMING_POOL",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "SWIMMING_POOL",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TT_Eligible",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "TT_ELIGIBLE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Debris_Cleared",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "DEBRIS_CLEARED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ROE_Number",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "ROE_NUMBER",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "FSO_URL",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "FSO_URL",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ROE_Status",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "ROE_STATUS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Permit_Status",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "PERMIT_STATUS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "EVENT_SUB_NAME_USACE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "EVENT_SUB_NAME_USACE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "REBUILD_PERMIT_EPICLA",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "REBUILD_PERMIT_EPICLA",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TEMPHOUSING_PERMIT_EPICLA",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "TEMPHOUSING_PERMIT_EPICLA",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "REBUILD_APP_RECEIVED",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "REBUILD_APP_RECEIVED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "BUILD_PLAN_APPROVED",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "BUILD_PLAN_APPROVED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "BUILD_PERMIT_ISSUED",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "BUILD_PERMIT_ISSUED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "REBUILD_IN_CONS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "REBUILD_IN_CONS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "CONS_COMPLETED",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "CONS_COMPLETED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "REBUILD_PROGRESS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 2000,
+            "name": "REBUILD_PROGRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "REBUILD_PROGRESS_NUM",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "REBUILD_PROGRESS_NUM",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "MailAddress",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 55,
+            "name": "MAILADDRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailCity",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 24,
+            "name": "MAILCITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailDirection",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 1,
+            "name": "MAILDIRECTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailFraction",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 3,
+            "name": "MAILFRACTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailHouseNo",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 5,
+            "name": "MAILHOUSENO",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailStreet",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 32,
+            "name": "MAILSTREET",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailUnit",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "MAILUNIT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "MailZip",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 10,
+            "name": "MAILZIP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Shape__Area",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "isViewOverride": true,
+            "name": "Shape__Area",
+            "nullable": true,
+            "sqlType": "sqlTypeDouble",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "Shape__Length",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "isViewOverride": true,
+            "name": "Shape__Length",
+            "nullable": true,
+            "sqlType": "sqlTypeDouble",
+            "type": "esriFieldTypeDouble"
+          }
+        ],
+        "maxRecordCount": 2000,
+        "name": "Parcels Debris Removal",
+        "objectIdField": "OBJECTID"
+      },
+      "requests": [
+        {
+          "bytes": 34422,
+          "parameters": {
+            "f": "json"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.244125+00:00",
+          "sha256": "82bda4e7516464f197b7be85dba6fb81707ecbffcabb39df975396a897a202e9",
+          "status": 200,
+          "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0"
+        },
+        {
+          "bytes": 16,
+          "parameters": {
+            "f": "json",
+            "returnCountOnly": "true",
+            "where": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.506799+00:00",
+          "sha256": "072f782f2611a31c96006df0d7f42e69865fb3ee81e50b48f5be4c6145938655",
+          "status": 200,
+          "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0/query"
+        },
+        {
+          "bytes": 944,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "ROE_STATUS",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.693697+00:00",
+          "sha256": "5d52b93ec3be6a95e9c95c2ce047460e8be1cd05a8054f7ebe3aa31285a418e5",
+          "status": 200,
+          "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0/query"
+        },
+        {
+          "bytes": 690,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "DEBRIS_CLEARED",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.875776+00:00",
+          "sha256": "93e6507a940d741e95bc5d8f0a02f344a0cc1161dae75e5a221ceec44d85eaf2",
+          "status": 200,
+          "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0/query"
+        },
+        {
+          "bytes": 977,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "REBUILD_PROGRESS",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'"
+          },
+          "retrieved_at": "2026-09-25T00:55:15.099104+00:00",
+          "sha256": "b3851730e189256ff4f6fbb6824ab06b03b3cb9d18e2402b929530f2be0af3b5",
+          "status": 200,
+          "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0/query"
+        },
+        {
+          "bytes": 670,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "LCITY",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'"
+          },
+          "retrieved_at": "2026-09-25T00:55:15.292656+00:00",
+          "sha256": "1dda4b84e4f05e3c04d9da96d4ece0cedbede98622e721bb09353b560d4ecf5e",
+          "status": 200,
+          "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0/query"
+        }
+      ],
+      "source_id": "county_base",
+      "status": "succeeded"
+    },
+    {
+      "configured_fields_missing": [],
+      "count": {
+        "count": 6485
+      },
+      "domains": {
+        "PALISADES_WF_REBUILD": {
+          "features": [
+            {
+              "attributes": {
+                "PALISADES_WF_REBUILD": "Rebuild",
+                "row_count": 2250
+              }
+            },
+            {
+              "attributes": {
+                "PALISADES_WF_REBUILD": "No",
+                "row_count": 4235
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "PALISADES_WF_REBUILD",
+              "defaultValue": null,
+              "domain": null,
+              "length": 4000,
+              "name": "PALISADES_WF_REBUILD",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPoint",
+          "globalIdFieldName": "",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        },
+        "PERMIT_STATUS": {
+          "features": [
+            {
+              "attributes": {
+                "PERMIT_STATUS": "Plans Approved & Permit Issued",
+                "row_count": 4331
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_STATUS": "Plan Check in Progress",
+                "row_count": 99
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_STATUS": "Corrections Issued",
+                "row_count": 1132
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_STATUS": "Plans Approved & Permit Not Issued",
+                "row_count": 762
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_STATUS": "Application Pending Fees",
+                "row_count": 153
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_STATUS": "Plans Submitted",
+                "row_count": 8
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "PERMIT_STATUS",
+              "defaultValue": null,
+              "domain": null,
+              "length": 4000,
+              "name": "PERMIT_STATUS",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPoint",
+          "globalIdFieldName": "",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        },
+        "PERMIT_TYPE": {
+          "features": [
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Bldg-Demolition",
+                "row_count": 35
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Nonbldg-Addition",
+                "row_count": 5
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Nonbldg-Alter/Repair",
+                "row_count": 34
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Bldg-New",
+                "row_count": 2110
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Bldg-Addition",
+                "row_count": 150
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Plumbing",
+                "row_count": 175
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Nonbldg-Demolition",
+                "row_count": 1
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Sign",
+                "row_count": 2
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Nonbldg-New",
+                "row_count": 721
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Bldg-Alter/Repair",
+                "row_count": 710
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "HVAC",
+                "row_count": 13
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Swimming-Pool/Spa",
+                "row_count": 326
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Fire Sprinkler",
+                "row_count": 676
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Electrical",
+                "row_count": 93
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Grading",
+                "row_count": 1419
+              }
+            },
+            {
+              "attributes": {
+                "PERMIT_TYPE": "Elevator",
+                "row_count": 15
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "PERMIT_TYPE",
+              "defaultValue": null,
+              "domain": null,
+              "length": 4000,
+              "name": "PERMIT_TYPE",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPoint",
+          "globalIdFieldName": "",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        }
+      },
+      "endpoint": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0",
+      "metadata": {
+        "advancedQueryCapabilities": {
+          "fullTextSearchCapabilities": {
+            "supportsAccentSensitivity": true,
+            "supportsOperator": true,
+            "supportsSearchOperator": true,
+            "supportsStopWords": true
+          },
+          "supportedLodTypes": [
+            "geohash"
+          ],
+          "supportedOperationsWithCacheHint": [
+            "query",
+            "queryTopFilter",
+            "queryAnalytics",
+            "queryAttachments",
+            "queryRelated",
+            "queryBins",
+            "queryPivot"
+          ],
+          "supportedSpatialAggregationStatistics": [
+            "EnvelopeAggregate",
+            "CentroidAggregate",
+            "ConvexHullAggregate"
+          ],
+          "supportsAdvancedQueryRelated": true,
+          "supportsAggIds": true,
+          "supportsApproxPercentileStatistics": true,
+          "supportsCountDistinct": true,
+          "supportsCurrentUserQueries": true,
+          "supportsDefaultSR": true,
+          "supportsDisjointSpatialRel": true,
+          "supportsDistinct": true,
+          "supportsFullTextSearch": true,
+          "supportsHavingClause": true,
+          "supportsISODOW": true,
+          "supportsISOWeek": true,
+          "supportsLod": true,
+          "supportsMaxRecordCountFactor": true,
+          "supportsOrderBy": true,
+          "supportsOutDistance": true,
+          "supportsOutFieldSQLExpression": true,
+          "supportsPagination": true,
+          "supportsPaginationOnAggregatedQueries": true,
+          "supportsPercentileStatistics": true,
+          "supportsQueryAnalytic": true,
+          "supportsQueryBins": true,
+          "supportsQueryPivot": true,
+          "supportsQueryRelatedPagination": true,
+          "supportsQueryWithCacheHint": true,
+          "supportsQueryWithCollation": true,
+          "supportsQueryWithDatumTransformation": true,
+          "supportsQueryWithDistance": true,
+          "supportsQueryWithLodSR": false,
+          "supportsQueryWithResultType": true,
+          "supportsReturningGeometryCentroid": false,
+          "supportsReturningGeometryEnvelope": false,
+          "supportsReturningQueryExtent": true,
+          "supportsSpatialAggregationStatistics": true,
+          "supportsSqlExpression": true,
+          "supportsStatistics": true,
+          "supportsTimeRelation": true,
+          "supportsTopFeaturesQuery": true,
+          "supportsTranslations": false
+        },
+        "copyrightText": "",
+        "description": "",
+        "editingInfo": {
+          "dataLastEditDate": 1790297396355,
+          "lastEditDate": 1790297399341,
+          "schemaLastEditDate": 1790297399341
+        },
+        "extent": {
+          "spatialReference": {
+            "latestWkid": 2229,
+            "wkid": 102645
+          },
+          "xmax": 6415723.839658897,
+          "xmin": 6388153.377319274,
+          "ymax": 1860804.6994733766,
+          "ymin": 1833125.6263112696
+        },
+        "fields": [
+          {
+            "alias": "AutoID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "AutoID",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "PERMIT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PERMIT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ADDRESS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ADDRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "PERMIT_TYPE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PERMIT_TYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "PERMIT_SUBTYPE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PERMIT_SUBTYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "USE_DESCRIPTION",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "USE_DESCRIPTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ZONE_USE_DESC",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ZONE_USE_DESC",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SUBMIT_DATE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "SUBMIT_DATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "PC_APPROVED_DATE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "PC_APPROVED_DATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "CORRECTIONS_ISSUED_DATE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "CORRECTIONS_ISSUED_DATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "ISSUE_DATE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "ISSUE_DATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "TYPE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "TYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "COFO_DATE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "COFO_DATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "PERMIT_STATUS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PERMIT_STATUS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "STATUS_DATE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "STATUS_DATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "OFFICE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "OFFICE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TAG_STATUS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "TAG_STATUS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "LAT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "LAT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "LON",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "LON",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "APN",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "APN",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "WORK_DESC",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "WORK_DESC",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "PROJECT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PROJECT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "PALISADES_WF_REBUILD",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PALISADES_WF_REBUILD",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ELIGIBLE_CODE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ELIGIBLE_CODE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "INELIGIBLE_CODE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "INELIGIBLE_CODE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ELIGIBILITY",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ELIGIBILITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ELIGIBILITY_DETAIL",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ELIGIBILITY_DETAIL",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ELIGIBILITY_ORDER",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ELIGIBILITY_ORDER",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "DAYS_TO_PC_APPROVED",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "DAYS_TO_PC_APPROVED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "DAYS_TO_PERMIT_ISSUE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "DAYS_TO_PERMIT_ISSUE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "DAYS_TO_CORRECTIONS_ISSUED",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "DAYS_TO_CORRECTIONS_ISSUED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "Imported_DT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "Imported_DT",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "Imported_DT_txt",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "Imported_DT_txt",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "OBJECTID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": false,
+            "length": 8,
+            "name": "OBJECTID",
+            "nullable": false,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeOID"
+          },
+          {
+            "alias": "PERMIT_STATUS_SORT_CODE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "PERMIT_STATUS_SORT_CODE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          }
+        ],
+        "maxRecordCount": 1000,
+        "name": "LADBS_WF_Fire_Data_Palisades_Recovery_Area",
+        "objectIdField": "OBJECTID"
+      },
+      "requests": [
+        {
+          "bytes": 16955,
+          "parameters": {
+            "f": "json"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.201775+00:00",
+          "sha256": "36590a0080b9afb53c992eb1a04df60e514eb31bdb05e908ffaf94dc365b361c",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0"
+        },
+        {
+          "bytes": 16,
+          "parameters": {
+            "f": "json",
+            "returnCountOnly": "true",
+            "where": "1=1"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.464194+00:00",
+          "sha256": "a3a53a37a24302d24d884f3fbd6072ecb4be164c550d98b59f00c48c8d91107b",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0/query"
+        },
+        {
+          "bytes": 657,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "PALISADES_WF_REBUILD",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "1=1"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.639548+00:00",
+          "sha256": "0d2da720eda81d7f009be0eb7bd175fc49422abb47daf4a829696a8a0be2ec44",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0/query"
+        },
+        {
+          "bytes": 1491,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "PERMIT_TYPE",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "1=1"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.793222+00:00",
+          "sha256": "93e7b798d39a7de718fdd9741984becda99b01eb7e0b81a8225e5063d9576732",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0/query"
+        },
+        {
+          "bytes": 968,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "PERMIT_STATUS",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "1=1"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.998853+00:00",
+          "sha256": "aea9a31ee7b358afd256467313273206249628349738d7f1c6c52ee1b8c4dba4",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0/query"
+        }
+      ],
+      "source_id": "ladbs_permits",
+      "status": "succeeded"
+    },
+    {
+      "configured_fields_missing": [],
+      "count": {
+        "count": 1024
+      },
+      "domains": {
+        "INSP_STATUS": {
+          "features": [
+            {
+              "attributes": {
+                "INSP_STATUS": "Insp Scheduled",
+                "row_count": 1024
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "INSP_STATUS",
+              "defaultValue": null,
+              "domain": null,
+              "length": 4000,
+              "name": "INSP_STATUS",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "globalIdFieldName": "",
+          "objectIdFieldName": "OBJECTID",
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        }
+      },
+      "endpoint": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/ArcGIS/rest/services/LADBS_WF_Inspection_Data_tbl_Palisades_Recovery_Area/FeatureServer/0",
+      "metadata": {
+        "advancedQueryCapabilities": {
+          "fullTextSearchCapabilities": {
+            "supportsAccentSensitivity": true,
+            "supportsOperator": true,
+            "supportsSearchOperator": true,
+            "supportsStopWords": true
+          },
+          "supportedLodTypes": [
+            "geohash"
+          ],
+          "supportedOperationsWithCacheHint": [
+            "query",
+            "queryTopFilter",
+            "queryAnalytics",
+            "queryAttachments",
+            "queryRelated",
+            "queryBins",
+            "queryPivot"
+          ],
+          "supportedSpatialAggregationStatistics": [
+            "EnvelopeAggregate",
+            "CentroidAggregate",
+            "ConvexHullAggregate"
+          ],
+          "supportsAdvancedQueryRelated": true,
+          "supportsAggIds": true,
+          "supportsApproxPercentileStatistics": true,
+          "supportsCountDistinct": true,
+          "supportsCurrentUserQueries": true,
+          "supportsDefaultSR": true,
+          "supportsDistinct": true,
+          "supportsFullTextSearch": true,
+          "supportsHavingClause": true,
+          "supportsISODOW": true,
+          "supportsISOWeek": true,
+          "supportsLod": true,
+          "supportsMaxRecordCountFactor": true,
+          "supportsOrderBy": true,
+          "supportsOutFieldSQLExpression": true,
+          "supportsPagination": true,
+          "supportsPaginationOnAggregatedQueries": true,
+          "supportsPercentileStatistics": true,
+          "supportsQueryAnalytic": true,
+          "supportsQueryBins": true,
+          "supportsQueryPivot": true,
+          "supportsQueryRelatedPagination": true,
+          "supportsQueryWithCacheHint": true,
+          "supportsQueryWithCollation": true,
+          "supportsQueryWithDatumTransformation": true,
+          "supportsQueryWithDistance": true,
+          "supportsQueryWithLodSR": false,
+          "supportsQueryWithResultType": true,
+          "supportsReturningGeometryCentroid": false,
+          "supportsReturningGeometryEnvelope": true,
+          "supportsReturningQueryExtent": false,
+          "supportsSpatialAggregationStatistics": true,
+          "supportsSqlExpression": true,
+          "supportsStatistics": true,
+          "supportsTimeRelation": true,
+          "supportsTopFeaturesQuery": true,
+          "supportsTranslations": false
+        },
+        "copyrightText": "",
+        "description": "",
+        "editingInfo": {
+          "dataLastEditDate": 1790297410745,
+          "lastEditDate": 1790297410745,
+          "schemaLastEditDate": 1790297410745
+        },
+        "extent": null,
+        "fields": [
+          {
+            "alias": "AutoID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "AutoID",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "PERMIT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PERMIT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ADDRESS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ADDRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TAG_STATUS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "TAG_STATUS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "GRP",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "GRP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "TYP",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "TYP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SUB_TYP",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "SUB_TYP",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ZONE_USE_DESC",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ZONE_USE_DESC",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "USE_DESC",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "USE_DESC",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "SUBMIT_DT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "SUBMIT_DT",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "ISSUE_DT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "ISSUE_DT",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "CRNT_STAT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "CRNT_STAT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "OFFICE",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "OFFICE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "PALISADES_WF_REBUILD",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PALISADES_WF_REBUILD",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "PROJECT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "PROJECT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "ELIGIBILITY_DETAIL",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "ELIGIBILITY_DETAIL",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "INSP_DT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "INSP_DT",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "INSP_STATUS",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "INSP_STATUS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "INSP_DESC",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "INSP_DESC",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "INSPECTOR",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "INSPECTOR",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Imported_DT",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "Imported_DT",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "Imported_DT_txt",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 4000,
+            "name": "Imported_DT_txt",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "OBJECTID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": false,
+            "length": 8,
+            "name": "OBJECTID",
+            "nullable": false,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeOID"
+          }
+        ],
+        "maxRecordCount": 1000,
+        "name": "LADBS_WF_Inspection_Data_tbl_Palisades_Recovery_Area",
+        "objectIdField": "OBJECTID"
+      },
+      "requests": [
+        {
+          "bytes": 9540,
+          "parameters": {
+            "f": "json"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.200373+00:00",
+          "sha256": "28de04954af458111f72a80af453a456f504c6a3ca201f375e6a4883fdd6ab2c",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/ArcGIS/rest/services/LADBS_WF_Inspection_Data_tbl_Palisades_Recovery_Area/FeatureServer/0"
+        },
+        {
+          "bytes": 16,
+          "parameters": {
+            "f": "json",
+            "returnCountOnly": "true",
+            "where": "1=1"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.491572+00:00",
+          "sha256": "898823ec68ebd04d303735f0a64a8c13180e4be02ff88ef5a2d8107a77493f16",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/ArcGIS/rest/services/LADBS_WF_Inspection_Data_tbl_Palisades_Recovery_Area/FeatureServer/0/query"
+        },
+        {
+          "bytes": 487,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "INSP_STATUS",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "1=1"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.657481+00:00",
+          "sha256": "1cbfd70e5ebf79ea5a3939b262e934b17a7146b3f47fd3415843a049ee25b947",
+          "status": 200,
+          "url": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/ArcGIS/rest/services/LADBS_WF_Inspection_Data_tbl_Palisades_Recovery_Area/FeatureServer/0/query"
+        }
+      ],
+      "source_id": "ladbs_inspections",
+      "status": "succeeded"
+    },
+    {
+      "configured_fields_missing": [],
+      "count": {
+        "count": 12137
+      },
+      "domains": {
+        "DAMAGE": {
+          "features": [
+            {
+              "attributes": {
+                "DAMAGE": "Affected (>0-10%)",
+                "row_count": 732
+              }
+            },
+            {
+              "attributes": {
+                "DAMAGE": "Destroyed (>50%)",
+                "row_count": 6845
+              }
+            },
+            {
+              "attributes": {
+                "DAMAGE": "Inaccessible",
+                "row_count": 56
+              }
+            },
+            {
+              "attributes": {
+                "DAMAGE": "Major (25-50%)",
+                "row_count": 72
+              }
+            },
+            {
+              "attributes": {
+                "DAMAGE": "Minor (10-25%)",
+                "row_count": 171
+              }
+            },
+            {
+              "attributes": {
+                "DAMAGE": "No Damage",
+                "row_count": 4261
+              }
+            }
+          ],
+          "fields": [
+            {
+              "alias": "row_count",
+              "defaultValue": null,
+              "domain": null,
+              "name": "row_count",
+              "sqlType": "sqlTypeInteger",
+              "type": "esriFieldTypeInteger"
+            },
+            {
+              "alias": "* Damage",
+              "defaultValue": null,
+              "domain": {
+                "codedValues": [
+                  {
+                    "code": "Destroyed (>50%)",
+                    "name": "Destroyed (>50%)"
+                  },
+                  {
+                    "code": "Major (25-50%)",
+                    "name": "Major (25-50%)"
+                  },
+                  {
+                    "code": "Minor (10-25%)",
+                    "name": "Minor (10-25%)"
+                  },
+                  {
+                    "code": "Affected (>0-10%)",
+                    "name": "Affected (>0-10%)"
+                  },
+                  {
+                    "code": "Inaccessible",
+                    "name": "Inaccessible"
+                  },
+                  {
+                    "code": "No Damage",
+                    "name": "No Damage"
+                  }
+                ],
+                "mergePolicy": "esriMPTDefaultValue",
+                "name": "Damage_PostFire",
+                "splitPolicy": "esriSPTDefaultValue",
+                "type": "codedValue"
+              },
+              "length": 50,
+              "name": "DAMAGE",
+              "sqlType": "sqlTypeOther",
+              "type": "esriFieldTypeString"
+            }
+          ],
+          "geometryType": "esriGeometryPoint",
+          "globalIdFieldName": "GLOBALID",
+          "objectIdFieldName": "OBJECTID",
+          "spatialReference": {
+            "latestWkid": 6414,
+            "wkid": 102962
+          },
+          "uniqueIdField": {
+            "isSystemMaintained": true,
+            "name": "OBJECTID"
+          }
+        }
+      },
+      "endpoint": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/POSTFIRE_MASTER_DATA_SHARE/FeatureServer/0",
+      "metadata": {
+        "advancedQueryCapabilities": {
+          "fullTextSearchCapabilities": {
+            "supportsAccentSensitivity": true,
+            "supportsOperator": true,
+            "supportsSearchOperator": true,
+            "supportsStopWords": true
+          },
+          "supportedLodTypes": [
+            "geohash"
+          ],
+          "supportedOperationsWithCacheHint": [
+            "query",
+            "queryTopFilter",
+            "queryAnalytics",
+            "queryAttachments",
+            "queryRelated",
+            "queryBins",
+            "queryPivot"
+          ],
+          "supportedSpatialAggregationStatistics": [
+            "EnvelopeAggregate",
+            "CentroidAggregate",
+            "ConvexHullAggregate"
+          ],
+          "supportsAdvancedQueryRelated": true,
+          "supportsAggIds": true,
+          "supportsApproxPercentileStatistics": true,
+          "supportsCountDistinct": true,
+          "supportsCurrentUserQueries": true,
+          "supportsDefaultSR": true,
+          "supportsDisjointSpatialRel": true,
+          "supportsDistinct": true,
+          "supportsFullTextSearch": true,
+          "supportsHavingClause": true,
+          "supportsISODOW": true,
+          "supportsISOWeek": true,
+          "supportsLod": true,
+          "supportsMaxRecordCountFactor": true,
+          "supportsOrderBy": true,
+          "supportsOutDistance": true,
+          "supportsOutFieldSQLExpression": true,
+          "supportsPagination": true,
+          "supportsPaginationOnAggregatedQueries": true,
+          "supportsPercentileStatistics": true,
+          "supportsQueryAnalytic": true,
+          "supportsQueryBins": true,
+          "supportsQueryPivot": true,
+          "supportsQueryRelatedPagination": true,
+          "supportsQueryWithCacheHint": true,
+          "supportsQueryWithCollation": true,
+          "supportsQueryWithDatumTransformation": true,
+          "supportsQueryWithDistance": true,
+          "supportsQueryWithLodSR": false,
+          "supportsQueryWithResultType": true,
+          "supportsReturningGeometryCentroid": false,
+          "supportsReturningGeometryEnvelope": false,
+          "supportsReturningQueryExtent": true,
+          "supportsSpatialAggregationStatistics": true,
+          "supportsSqlExpression": true,
+          "supportsStatistics": true,
+          "supportsTimeRelation": true,
+          "supportsTopFeaturesQuery": true,
+          "supportsTranslations": false
+        },
+        "copyrightText": "",
+        "description": "",
+        "editingInfo": {
+          "dataLastEditDate": 1767736301240,
+          "lastEditDate": 1770236963695,
+          "schemaLastEditDate": 1770236963695
+        },
+        "extent": {
+          "spatialReference": {
+            "latestWkid": 6414,
+            "wkid": 102962
+          },
+          "xmax": 336721.2570134308,
+          "xmin": -354828.9272760947,
+          "ymax": 447689.5520994561,
+          "ymin": -602150.1747189164
+        },
+        "fields": [
+          {
+            "alias": "OBJECTID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": false,
+            "name": "OBJECTID",
+            "nullable": false,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeOID"
+          },
+          {
+            "alias": "GLOBALID",
+            "defaultValue": null,
+            "domain": null,
+            "editable": false,
+            "length": 38,
+            "name": "GLOBALID",
+            "nullable": false,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeGlobalID"
+          },
+          {
+            "alias": "* Damage",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Destroyed (>50%)",
+                  "name": "Destroyed (>50%)"
+                },
+                {
+                  "code": "Major (25-50%)",
+                  "name": "Major (25-50%)"
+                },
+                {
+                  "code": "Minor (10-25%)",
+                  "name": "Minor (10-25%)"
+                },
+                {
+                  "code": "Affected (>0-10%)",
+                  "name": "Affected (>0-10%)"
+                },
+                {
+                  "code": "Inaccessible",
+                  "name": "Inaccessible"
+                },
+                {
+                  "code": "No Damage",
+                  "name": "No Damage"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "Damage_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "DAMAGE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Structure Type",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Single Family Residence Single Story",
+                  "name": "Single Family Residence Single Story"
+                },
+                {
+                  "code": "Single Family Residence Multi Story",
+                  "name": "Single Family Residence Multi Story"
+                },
+                {
+                  "code": "Mobile Home Single Wide",
+                  "name": "Mobile Home Single Wide"
+                },
+                {
+                  "code": "Mobile Home Double Wide",
+                  "name": "Mobile Home Double Wide"
+                },
+                {
+                  "code": "Mobile Home Triple Wide",
+                  "name": "Mobile Home Triple Wide"
+                },
+                {
+                  "code": "Motor Home",
+                  "name": "Motor Home (If used as a residence)"
+                },
+                {
+                  "code": "Multi Family Residence Single Story",
+                  "name": "Multi Family Residence Single Story"
+                },
+                {
+                  "code": "Multi Family Residence Multi Story",
+                  "name": "Multi Family Residence Multi Story"
+                },
+                {
+                  "code": "Mixed Commercial/Residential",
+                  "name": "Mixed Commercial/Residential"
+                },
+                {
+                  "code": "Commercial Building Single Story",
+                  "name": "Commercial Building Single Story"
+                },
+                {
+                  "code": "Commercial Building Multi Story",
+                  "name": "Commercial Building Multi Story"
+                },
+                {
+                  "code": "Church",
+                  "name": "Church"
+                },
+                {
+                  "code": "Hospital",
+                  "name": "Hospital (Medical)"
+                },
+                {
+                  "code": "School",
+                  "name": "School"
+                },
+                {
+                  "code": "Infrastructure",
+                  "name": "Infrastructure (Essential Services)"
+                },
+                {
+                  "code": "Utility Misc Structure",
+                  "name": "Utility or Miscellaneous Structure > 120 sqft"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "StructureType_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 255,
+            "name": "STRUCTURETYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Street Number",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "STREETNUMBER",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "* Street Name",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 50,
+            "name": "STREETNAME",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Street Type (e.g. road, drive, lane, etc.)",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Alley",
+                  "name": "Alley"
+                },
+                {
+                  "code": "Avenue",
+                  "name": "Avenue"
+                },
+                {
+                  "code": "Boulevard",
+                  "name": "Boulevard"
+                },
+                {
+                  "code": "Circle",
+                  "name": "Circle"
+                },
+                {
+                  "code": "Court",
+                  "name": "Court"
+                },
+                {
+                  "code": "Drive",
+                  "name": "Drive"
+                },
+                {
+                  "code": "Lane",
+                  "name": "Lane"
+                },
+                {
+                  "code": "Loop",
+                  "name": "Loop"
+                },
+                {
+                  "code": "Parkway",
+                  "name": "Parkway"
+                },
+                {
+                  "code": "Place",
+                  "name": "Place"
+                },
+                {
+                  "code": "Road",
+                  "name": "Road"
+                },
+                {
+                  "code": "Route",
+                  "name": "Route"
+                },
+                {
+                  "code": "Street",
+                  "name": "Street"
+                },
+                {
+                  "code": "Terrace",
+                  "name": "Terrace"
+                },
+                {
+                  "code": "Trail",
+                  "name": "Trail"
+                },
+                {
+                  "code": "Way",
+                  "name": "Way"
+                },
+                {
+                  "code": "None",
+                  "name": "None"
+                },
+                {
+                  "code": "Other",
+                  "name": "Other"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "StreetType",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 10,
+            "name": "STREETTYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Street Suffix (e.g. apt. 23, blding C)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 10,
+            "name": "STREETSUFFIX",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* City",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 50,
+            "name": "CITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "State",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "CA",
+                  "name": "CA"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "State",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 2,
+            "name": "STATE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Zip Code",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ZIPCODE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "* CAL FIRE Unit",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "AEU",
+                  "name": "AEU - Amador - El Dorado Unit"
+                },
+                {
+                  "code": "BDU",
+                  "name": "BDU - San Bernardino Unit"
+                },
+                {
+                  "code": "BEU",
+                  "name": "BEU - San Benito - Monterey Unit"
+                },
+                {
+                  "code": "BTU",
+                  "name": "BTU - Butte Unit"
+                },
+                {
+                  "code": "CZU",
+                  "name": "CZU - San Mateo - Santa Cruz Unit"
+                },
+                {
+                  "code": "FKU",
+                  "name": "FKU - Fresno - Kings Unit"
+                },
+                {
+                  "code": "HUU",
+                  "name": "HUU - Humboldt - Del Norte Unit"
+                },
+                {
+                  "code": "KRN",
+                  "name": "KRN - Kern County"
+                },
+                {
+                  "code": "LAC",
+                  "name": "LAC - Los Angeles County"
+                },
+                {
+                  "code": "LMU",
+                  "name": "LMU - Lassen - Modoc Unit"
+                },
+                {
+                  "code": "LNU",
+                  "name": "LNU - Sonoma - Lake - Napa Unit"
+                },
+                {
+                  "code": "MEU",
+                  "name": "MEU - Mendocino Unit"
+                },
+                {
+                  "code": "MMU",
+                  "name": "MMU - Madera - Mariposa - Merced Unit"
+                },
+                {
+                  "code": "MRN",
+                  "name": "MRN - Marin County"
+                },
+                {
+                  "code": "NEU",
+                  "name": "NEU - Nevada - Yuba - Placer Unit"
+                },
+                {
+                  "code": "ORC",
+                  "name": "ORC - Orange County"
+                },
+                {
+                  "code": "RRU",
+                  "name": "RRU - Riverside Unit"
+                },
+                {
+                  "code": "SBC",
+                  "name": "SBC - Santa Barbara County"
+                },
+                {
+                  "code": "SCU",
+                  "name": "SCU - Santa Clara Unit"
+                },
+                {
+                  "code": "SHU",
+                  "name": "SHU - Shasta - Trinity Unit"
+                },
+                {
+                  "code": "SKU",
+                  "name": "SKU - Siskiyou Unit"
+                },
+                {
+                  "code": "SLU",
+                  "name": "SLU - San Luis Obispo Unit"
+                },
+                {
+                  "code": "TCU",
+                  "name": "TCU - Tuolumne - Calaveras Unit"
+                },
+                {
+                  "code": "TGU",
+                  "name": "TGU - Tehama - Glenn Unit"
+                },
+                {
+                  "code": "TUU",
+                  "name": "TUU - Tulare Unit"
+                },
+                {
+                  "code": "VNC",
+                  "name": "VNC - Ventura County"
+                },
+                {
+                  "code": "SDU",
+                  "name": "SDU - San Diego Unit"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "CALFIREunit",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 3,
+            "name": "CALFIREUNIT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "County",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Alameda",
+                  "name": "Alameda"
+                },
+                {
+                  "code": "Alpine",
+                  "name": "Alpine"
+                },
+                {
+                  "code": "Amador",
+                  "name": "Amador"
+                },
+                {
+                  "code": "Butte",
+                  "name": "Butte"
+                },
+                {
+                  "code": "Calaveras",
+                  "name": "Calaveras"
+                },
+                {
+                  "code": "Colusa",
+                  "name": "Colusa"
+                },
+                {
+                  "code": "Contra Costa",
+                  "name": "Contra Costa"
+                },
+                {
+                  "code": "Del Norte",
+                  "name": "Del Norte"
+                },
+                {
+                  "code": "El Dorado",
+                  "name": "El Dorado"
+                },
+                {
+                  "code": "Fresno",
+                  "name": "Fresno"
+                },
+                {
+                  "code": "Glenn",
+                  "name": "Glenn"
+                },
+                {
+                  "code": "Humboldt",
+                  "name": "Humboldt"
+                },
+                {
+                  "code": "Imperial",
+                  "name": "Imperial"
+                },
+                {
+                  "code": "Inyo",
+                  "name": "Inyo"
+                },
+                {
+                  "code": "Kern",
+                  "name": "Kern"
+                },
+                {
+                  "code": "Kings",
+                  "name": "Kings"
+                },
+                {
+                  "code": "Lake",
+                  "name": "Lake"
+                },
+                {
+                  "code": "Lassen",
+                  "name": "Lassen"
+                },
+                {
+                  "code": "Los Angeles",
+                  "name": "Los Angeles"
+                },
+                {
+                  "code": "Madera",
+                  "name": "Madera"
+                },
+                {
+                  "code": "Marin",
+                  "name": "Marin"
+                },
+                {
+                  "code": "Mariposa",
+                  "name": "Mariposa"
+                },
+                {
+                  "code": "Mendocino",
+                  "name": "Mendocino"
+                },
+                {
+                  "code": "Merced",
+                  "name": "Merced"
+                },
+                {
+                  "code": "Modoc",
+                  "name": "Modoc"
+                },
+                {
+                  "code": "Mono",
+                  "name": "Mono"
+                },
+                {
+                  "code": "Monterey",
+                  "name": "Monterey"
+                },
+                {
+                  "code": "Napa",
+                  "name": "Napa"
+                },
+                {
+                  "code": "Nevada",
+                  "name": "Nevada"
+                },
+                {
+                  "code": "Orange",
+                  "name": "Orange"
+                },
+                {
+                  "code": "Placer",
+                  "name": "Placer"
+                },
+                {
+                  "code": "Plumas",
+                  "name": "Plumas"
+                },
+                {
+                  "code": "Riverside",
+                  "name": "Riverside"
+                },
+                {
+                  "code": "Sacramento",
+                  "name": "Sacramento"
+                },
+                {
+                  "code": "San Benito",
+                  "name": "San Benito"
+                },
+                {
+                  "code": "San Bernardino",
+                  "name": "San Bernardino"
+                },
+                {
+                  "code": "San Diego",
+                  "name": "San Diego"
+                },
+                {
+                  "code": "San Francisco",
+                  "name": "San Francisco"
+                },
+                {
+                  "code": "San Joaquin",
+                  "name": "San Joaquin"
+                },
+                {
+                  "code": "San Luis Obispo",
+                  "name": "San Luis Obispo"
+                },
+                {
+                  "code": "San Mateo",
+                  "name": "San Mateo"
+                },
+                {
+                  "code": "Santa Barbara",
+                  "name": "Santa Barbara"
+                },
+                {
+                  "code": "Santa Clara",
+                  "name": "Santa Clara"
+                },
+                {
+                  "code": "Santa Cruz",
+                  "name": "Santa Cruz"
+                },
+                {
+                  "code": "Shasta",
+                  "name": "Shasta"
+                },
+                {
+                  "code": "Sierra",
+                  "name": "Sierra"
+                },
+                {
+                  "code": "Siskiyou",
+                  "name": "Siskiyou"
+                },
+                {
+                  "code": "Solano",
+                  "name": "Solano"
+                },
+                {
+                  "code": "Sonoma",
+                  "name": "Sonoma"
+                },
+                {
+                  "code": "Stanislaus",
+                  "name": "Stanislaus"
+                },
+                {
+                  "code": "Sutter",
+                  "name": "Sutter"
+                },
+                {
+                  "code": "Tehama",
+                  "name": "Tehama"
+                },
+                {
+                  "code": "Trinity",
+                  "name": "Trinity"
+                },
+                {
+                  "code": "Tulare",
+                  "name": "Tulare"
+                },
+                {
+                  "code": "Tuolumne",
+                  "name": "Tuolumne"
+                },
+                {
+                  "code": "Ventura",
+                  "name": "Ventura"
+                },
+                {
+                  "code": "Yolo",
+                  "name": "Yolo"
+                },
+                {
+                  "code": "Yuba",
+                  "name": "Yuba"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "County",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "COUNTY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Community",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "COMMUNITY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Battalion",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "1",
+                  "name": "1"
+                },
+                {
+                  "code": "2",
+                  "name": "2"
+                },
+                {
+                  "code": "3",
+                  "name": "3"
+                },
+                {
+                  "code": "4",
+                  "name": "4"
+                },
+                {
+                  "code": "5",
+                  "name": "5"
+                },
+                {
+                  "code": "6",
+                  "name": "6"
+                },
+                {
+                  "code": "7",
+                  "name": "7"
+                },
+                {
+                  "code": "8",
+                  "name": "8"
+                },
+                {
+                  "code": "9",
+                  "name": "9"
+                },
+                {
+                  "code": "10",
+                  "name": "10"
+                },
+                {
+                  "code": "11",
+                  "name": "11"
+                },
+                {
+                  "code": "12",
+                  "name": "12"
+                },
+                {
+                  "code": "13",
+                  "name": "13"
+                },
+                {
+                  "code": "14",
+                  "name": "14"
+                },
+                {
+                  "code": "15",
+                  "name": "15"
+                },
+                {
+                  "code": "16",
+                  "name": "16"
+                },
+                {
+                  "code": "17",
+                  "name": "17"
+                },
+                {
+                  "code": "18",
+                  "name": "18"
+                },
+                {
+                  "code": "19",
+                  "name": "19"
+                },
+                {
+                  "code": "20",
+                  "name": "20"
+                },
+                {
+                  "code": "21",
+                  "name": "21"
+                },
+                {
+                  "code": "22",
+                  "name": "22"
+                },
+                {
+                  "code": "23",
+                  "name": "23"
+                },
+                {
+                  "code": "24",
+                  "name": "24"
+                },
+                {
+                  "code": "25",
+                  "name": "25"
+                },
+                {
+                  "code": "26",
+                  "name": "26"
+                },
+                {
+                  "code": "27",
+                  "name": "27"
+                },
+                {
+                  "code": "28",
+                  "name": "28"
+                },
+                {
+                  "code": "29",
+                  "name": "29"
+                },
+                {
+                  "code": "30",
+                  "name": "30"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "Battalion",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 3,
+            "name": "BATTALION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Incident Name",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 255,
+            "name": "INCIDENTNAME",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Incident Number (e.g. CAAEU 123456)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 20,
+            "name": "INCIDENTNUM",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Incident Start Date",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 8,
+            "name": "INCIDENTSTARTDATE",
+            "nullable": true,
+            "precision": 1,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDate"
+          },
+          {
+            "alias": "Hazard Type",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Fire",
+                  "name": "Fire"
+                },
+                {
+                  "code": "Earthquake",
+                  "name": "Earthquake"
+                },
+                {
+                  "code": "Flood",
+                  "name": "Flood"
+                },
+                {
+                  "code": "Civil Disturbance",
+                  "name": "Civil Disturbance"
+                },
+                {
+                  "code": "Hazardous Material",
+                  "name": "Hazardous Material"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "HazardType",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 20,
+            "name": "HAZARDTYPE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "If Affected - Where did fire start?",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Roof",
+                  "name": "Roof"
+                },
+                {
+                  "code": "Eaves",
+                  "name": "Eaves"
+                },
+                {
+                  "code": "Vent",
+                  "name": "Vent"
+                },
+                {
+                  "code": "Siding",
+                  "name": "Siding"
+                },
+                {
+                  "code": "Window",
+                  "name": "Window"
+                },
+                {
+                  "code": "Deck on Grade",
+                  "name": "Deck on Grade"
+                },
+                {
+                  "code": "Deck Elevated",
+                  "name": "Deck Elevated"
+                },
+                {
+                  "code": "Attached Patio Cover/Carport",
+                  "name": "Attached Patio Cover/Carport"
+                },
+                {
+                  "code": "Attached Fence",
+                  "name": "Attached Fence"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "FireStartedStructureLocation",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "WHEREFIRESTARTEDONSTRUCTURE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "If Affected - What started fire?",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Direct flame impingement",
+                  "name": "Direct flame impingement"
+                },
+                {
+                  "code": "Embers",
+                  "name": "Embers"
+                },
+                {
+                  "code": "Radiant Heat",
+                  "name": "Radiant Heat"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "WhatStartedFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "WHATDIDFIRESTARTFROM",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Structure Defense Actions Taken",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Combination of Actions",
+                  "name": "Combination of Actions"
+                },
+                {
+                  "code": "Dozer Fuel Break",
+                  "name": "Dozer Fuel Break"
+                },
+                {
+                  "code": "Engine Company Actions",
+                  "name": "Engine Company Actions"
+                },
+                {
+                  "code": "Fire Retardant Drop",
+                  "name": "Fire Retardant Drop"
+                },
+                {
+                  "code": "Hand Crew Fuel Break",
+                  "name": "Hand Crew Fuel Break"
+                },
+                {
+                  "code": "Other",
+                  "name": "Other - Describe in Comments"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "DefensiveActions",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "DEFENSIVEACTIONS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Structure Category",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Single Residence",
+                  "name": "Single Residence"
+                },
+                {
+                  "code": "Multiple Residence",
+                  "name": "Multiple Residence"
+                },
+                {
+                  "code": "Mixed Commercial/Residential",
+                  "name": "Mixed Commercial/Residential"
+                },
+                {
+                  "code": "Nonresidential Commercial",
+                  "name": "Nonresidential Commercial"
+                },
+                {
+                  "code": "Infrastructure",
+                  "name": "Infrastructure"
+                },
+                {
+                  "code": "Other Minor Structure",
+                  "name": "Other Minor Structure"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "StructureCategory",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 100,
+            "name": "STRUCTURECATEGORY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "# Units in Structure (if multi unit)",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": 0,
+                  "name": "0"
+                },
+                {
+                  "code": 1,
+                  "name": "1"
+                },
+                {
+                  "code": 2,
+                  "name": "2"
+                },
+                {
+                  "code": 3,
+                  "name": "3"
+                },
+                {
+                  "code": 4,
+                  "name": "4"
+                },
+                {
+                  "code": 5,
+                  "name": "5"
+                },
+                {
+                  "code": 6,
+                  "name": "6"
+                },
+                {
+                  "code": 7,
+                  "name": "7"
+                },
+                {
+                  "code": 8,
+                  "name": "8"
+                },
+                {
+                  "code": 9,
+                  "name": "9"
+                },
+                {
+                  "code": 10,
+                  "name": "10"
+                },
+                {
+                  "code": 20,
+                  "name": "20"
+                },
+                {
+                  "code": 40,
+                  "name": "40"
+                },
+                {
+                  "code": 60,
+                  "name": "60"
+                },
+                {
+                  "code": 80,
+                  "name": "80"
+                },
+                {
+                  "code": 100,
+                  "name": "100"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "NumberValue",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "name": "NUMBEROFUNITPERSTRUCTURE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "# of Damaged Outbuildings < 120 SQFT",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": 0,
+                  "name": "0"
+                },
+                {
+                  "code": 1,
+                  "name": "1"
+                },
+                {
+                  "code": 2,
+                  "name": "2"
+                },
+                {
+                  "code": 3,
+                  "name": "3"
+                },
+                {
+                  "code": 4,
+                  "name": "4"
+                },
+                {
+                  "code": 5,
+                  "name": "5"
+                },
+                {
+                  "code": 6,
+                  "name": "6"
+                },
+                {
+                  "code": 7,
+                  "name": "7"
+                },
+                {
+                  "code": 8,
+                  "name": "8"
+                },
+                {
+                  "code": 9,
+                  "name": "9"
+                },
+                {
+                  "code": 10,
+                  "name": "10"
+                },
+                {
+                  "code": 20,
+                  "name": "20"
+                },
+                {
+                  "code": 40,
+                  "name": "40"
+                },
+                {
+                  "code": 60,
+                  "name": "60"
+                },
+                {
+                  "code": 80,
+                  "name": "80"
+                },
+                {
+                  "code": 100,
+                  "name": "100"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "NumberValue",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "name": "NOOUTBUILDINGSDAMAGED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "# of Non Damaged Outbuildings < 120 SQFT",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": 0,
+                  "name": "0"
+                },
+                {
+                  "code": 1,
+                  "name": "1"
+                },
+                {
+                  "code": 2,
+                  "name": "2"
+                },
+                {
+                  "code": 3,
+                  "name": "3"
+                },
+                {
+                  "code": 4,
+                  "name": "4"
+                },
+                {
+                  "code": 5,
+                  "name": "5"
+                },
+                {
+                  "code": 6,
+                  "name": "6"
+                },
+                {
+                  "code": 7,
+                  "name": "7"
+                },
+                {
+                  "code": 8,
+                  "name": "8"
+                },
+                {
+                  "code": 9,
+                  "name": "9"
+                },
+                {
+                  "code": 10,
+                  "name": "10"
+                },
+                {
+                  "code": 20,
+                  "name": "20"
+                },
+                {
+                  "code": 40,
+                  "name": "40"
+                },
+                {
+                  "code": 60,
+                  "name": "60"
+                },
+                {
+                  "code": 80,
+                  "name": "80"
+                },
+                {
+                  "code": 100,
+                  "name": "100"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "NumberValue",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "name": "NOOUTBUILDINGSNOTDAMAGED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "# of Damaged or Destroyed Cars on Property",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": 0,
+                  "name": "0"
+                },
+                {
+                  "code": 1,
+                  "name": "1"
+                },
+                {
+                  "code": 2,
+                  "name": "2"
+                },
+                {
+                  "code": 3,
+                  "name": "3"
+                },
+                {
+                  "code": 4,
+                  "name": "4"
+                },
+                {
+                  "code": 5,
+                  "name": "5"
+                },
+                {
+                  "code": 6,
+                  "name": "6"
+                },
+                {
+                  "code": 7,
+                  "name": "7"
+                },
+                {
+                  "code": 8,
+                  "name": "8"
+                },
+                {
+                  "code": 9,
+                  "name": "9"
+                },
+                {
+                  "code": 10,
+                  "name": "10"
+                },
+                {
+                  "code": 20,
+                  "name": "20"
+                },
+                {
+                  "code": 40,
+                  "name": "40"
+                },
+                {
+                  "code": 60,
+                  "name": "60"
+                },
+                {
+                  "code": 80,
+                  "name": "80"
+                },
+                {
+                  "code": 100,
+                  "name": "100"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "NumberValue",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "name": "NOOFCARSONPROPERTY",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "* Roof Construction",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Wood",
+                  "name": "Wood"
+                },
+                {
+                  "code": "Asphalt",
+                  "name": "Asphalt"
+                },
+                {
+                  "code": "Concrete",
+                  "name": "Concrete"
+                },
+                {
+                  "code": "Tile",
+                  "name": "Tile"
+                },
+                {
+                  "code": "Metal",
+                  "name": "Metal"
+                },
+                {
+                  "code": "Other",
+                  "name": "Other"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "RoofConstruction_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "ROOFCONSTRUCTION",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Eaves",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Enclosed",
+                  "name": "Enclosed"
+                },
+                {
+                  "code": "Unenclosed",
+                  "name": "Unenclosed"
+                },
+                {
+                  "code": "No Eaves",
+                  "name": "No Eaves"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "Eaves_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "EAVES",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Vent Screen",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Mesh Screen <= 1/8\"",
+                  "name": "Mesh Screen <= 1/8\""
+                },
+                {
+                  "code": "Mesh Screen > 1/8\"",
+                  "name": "Mesh Screen > 1/8\""
+                },
+                {
+                  "code": "Unscreened",
+                  "name": "Unscreened"
+                },
+                {
+                  "code": "No Vents",
+                  "name": "No Vents"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "VentScreens_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "VENTSCREEN",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Exterior Siding",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Metal",
+                  "name": "Metal"
+                },
+                {
+                  "code": "Stucco Brick Cement",
+                  "name": "Stucco/Brick/Cement"
+                },
+                {
+                  "code": "Vinyl",
+                  "name": "Vinyl"
+                },
+                {
+                  "code": "Wood",
+                  "name": "Wood"
+                },
+                {
+                  "code": "Other",
+                  "name": "Other"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "ExteriorSiding_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "EXTERIORSIDING",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Window Pane",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Single Pane",
+                  "name": "Single Pane"
+                },
+                {
+                  "code": "Multi Pane",
+                  "name": "Multi Pane"
+                },
+                {
+                  "code": "No Windows",
+                  "name": "No Windows"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "WindowPane_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "WINDOWPANE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Deck/Porch On Grade",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Composite",
+                  "name": "Composite"
+                },
+                {
+                  "code": "Wood",
+                  "name": "Wood"
+                },
+                {
+                  "code": "Masonry/Concrete",
+                  "name": "Masonry/Concrete"
+                },
+                {
+                  "code": "No Deck/Porch",
+                  "name": "No Deck/Porch"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "DeckPorch_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "DECKPORCHONGRADE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Deck/Porch Elevated",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Composite",
+                  "name": "Composite"
+                },
+                {
+                  "code": "Wood",
+                  "name": "Wood"
+                },
+                {
+                  "code": "Masonry/Concrete",
+                  "name": "Masonry/Concrete"
+                },
+                {
+                  "code": "No Deck/Porch",
+                  "name": "No Deck/Porch"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "DeckPorch_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "DECKPORCHELEVATED",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Patio Cover/Carport Attached to Structure",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Combustible",
+                  "name": "Combustible"
+                },
+                {
+                  "code": "No Patio Cover/Carport",
+                  "name": "No Patio Cover/Carport"
+                },
+                {
+                  "code": "Non Combustible",
+                  "name": "Non Combustible"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "PatioCoverCarport_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "PATIOCOVERCARPORT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "* Fence Attached to Structure",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "Combustible",
+                  "name": "Combustible"
+                },
+                {
+                  "code": "Non Combustible",
+                  "name": "Non Combustible"
+                },
+                {
+                  "code": "No Fence",
+                  "name": "No Fence"
+                },
+                {
+                  "code": "Unknown",
+                  "name": "Unknown"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "FenceStructure_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "FENCEATTACHEDTOSTRUCTURE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Distance - Propane Tank to Structure",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "0-10",
+                  "name": "0-10'"
+                },
+                {
+                  "code": "11-20",
+                  "name": "11-20'"
+                },
+                {
+                  "code": "21-30",
+                  "name": "21-30'"
+                },
+                {
+                  "code": ">30",
+                  "name": ">30'"
+                },
+                {
+                  "code": "N/A",
+                  "name": "Not Applicable"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "PropaneTank",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "PROPANETANKDISTANCE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Distance - Residence to Utility/Misc Structure &gt; 120 SQFT",
+            "defaultValue": null,
+            "domain": {
+              "codedValues": [
+                {
+                  "code": "<30'",
+                  "name": "<30'"
+                },
+                {
+                  "code": "30-50'",
+                  "name": "30-50'"
+                },
+                {
+                  "code": ">50'",
+                  "name": ">50'"
+                },
+                {
+                  "code": "NA",
+                  "name": "Not Applicable"
+                }
+              ],
+              "mergePolicy": "esriMPTDefaultValue",
+              "name": "StructureDistance_PostFire",
+              "splitPolicy": "esriSPTDefaultValue",
+              "type": "codedValue"
+            },
+            "editable": true,
+            "length": 50,
+            "name": "UTILITYMISCSTRUCTUREDISTANCE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Fire Name (Secondary)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 50,
+            "name": "FIRENAME",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "APN (parcel)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 6000,
+            "name": "APN",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Assessed Improved Value (parcel)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "ASSESSEDIMPROVEDVALUE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "Year Built (parcel)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "YEARBUILT",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeInteger"
+          },
+          {
+            "alias": "Site Address (parcel)",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "length": 6000,
+            "name": "SITEADDRESS",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeString"
+          },
+          {
+            "alias": "Latitude",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "LATITUDE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          },
+          {
+            "alias": "Longitude",
+            "defaultValue": null,
+            "domain": null,
+            "editable": true,
+            "name": "LONGITUDE",
+            "nullable": true,
+            "sqlType": "sqlTypeOther",
+            "type": "esriFieldTypeDouble"
+          }
+        ],
+        "maxRecordCount": 2000,
+        "name": "POSTFIRE",
+        "objectIdField": "OBJECTID"
+      },
+      "requests": [
+        {
+          "bytes": 54937,
+          "parameters": {
+            "f": "json"
+          },
+          "retrieved_at": "2026-09-25T00:55:14.853429+00:00",
+          "sha256": "fdce068b320485557ee9a14941e5c17c7efc8225fbaa5c75fdac40020a151f9e",
+          "status": 200,
+          "url": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/POSTFIRE_MASTER_DATA_SHARE/FeatureServer/0"
+        },
+        {
+          "bytes": 15,
+          "parameters": {
+            "f": "json",
+            "returnCountOnly": "true",
+            "where": "INCIDENTNAME='Palisades'"
+          },
+          "retrieved_at": "2026-09-25T00:55:15.214359+00:00",
+          "sha256": "b9542396d44137fbdd1a76147e9cced23347776927a35ad1798501bfd0196530",
+          "status": 200,
+          "url": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/POSTFIRE_MASTER_DATA_SHARE/FeatureServer/0/query"
+        },
+        {
+          "bytes": 1316,
+          "parameters": {
+            "f": "json",
+            "groupByFieldsForStatistics": "DAMAGE",
+            "outStatistics": "[{\"statisticType\": \"count\", \"onStatisticField\": \"OBJECTID\", \"outStatisticFieldName\": \"row_count\"}]",
+            "returnGeometry": "false",
+            "where": "INCIDENTNAME='Palisades'"
+          },
+          "retrieved_at": "2026-09-25T00:55:15.512237+00:00",
+          "sha256": "5d7817b51fd22733535bf38557f78251b7cf9a052c61735a8d96586d7446d007",
+          "status": 200,
+          "url": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/POSTFIRE_MASTER_DATA_SHARE/FeatureServer/0/query"
+        }
+      ],
+      "source_id": "calfire_dins",
+      "status": "succeeded"
+    },
+    {
+      "configured_fields_missing": [],
+      "count": [
+        {
+          "count": "11588"
+        }
+      ],
+      "endpoint": "https://data.lacity.org/resource/gwh9-jnip.json",
+      "fields": [
+        {
+          "name": "permit_nbr",
+          "type": "text"
+        },
+        {
+          "name": "primary_address",
+          "type": "text"
+        },
+        {
+          "name": "zip_code",
+          "type": "text"
+        },
+        {
+          "name": "cd",
+          "type": "number"
+        },
+        {
+          "name": "pin_nbr",
+          "type": "text"
+        },
+        {
+          "name": "apn",
+          "type": "text"
+        },
+        {
+          "name": "zone",
+          "type": "text"
+        },
+        {
+          "name": "apc",
+          "type": "text"
+        },
+        {
+          "name": "cpa",
+          "type": "text"
+        },
+        {
+          "name": "cnc",
+          "type": "text"
+        },
+        {
+          "name": "hl",
+          "type": "text"
+        },
+        {
+          "name": "ct",
+          "type": "text"
+        },
+        {
+          "name": "permit_group",
+          "type": "text"
+        },
+        {
+          "name": "permit_type",
+          "type": "text"
+        },
+        {
+          "name": "permit_sub_type",
+          "type": "text"
+        },
+        {
+          "name": "use_code",
+          "type": "text"
+        },
+        {
+          "name": "use_desc",
+          "type": "text"
+        },
+        {
+          "name": "submitted_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "issue_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "cofo_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "du_changed",
+          "type": "text"
+        },
+        {
+          "name": "adu_changed",
+          "type": "text"
+        },
+        {
+          "name": "junior_adu",
+          "type": "text"
+        },
+        {
+          "name": "square_footage",
+          "type": "number"
+        },
+        {
+          "name": "status_desc",
+          "type": "text"
+        },
+        {
+          "name": "status_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "valuation",
+          "type": "text"
+        },
+        {
+          "name": "construction",
+          "type": "text"
+        },
+        {
+          "name": "height",
+          "type": "text"
+        },
+        {
+          "name": "type_lat_lon",
+          "type": "text"
+        },
+        {
+          "name": "lat",
+          "type": "number"
+        },
+        {
+          "name": "lon",
+          "type": "number"
+        },
+        {
+          "name": "work_desc",
+          "type": "text"
+        },
+        {
+          "name": "ev",
+          "type": "text"
+        },
+        {
+          "name": "solar",
+          "type": "text"
+        },
+        {
+          "name": "business_unit",
+          "type": "text"
+        },
+        {
+          "name": "refresh_time",
+          "type": "calendar_date"
+        }
+      ],
+      "metadata": {
+        "description": "The Department of Building and Safety issues permits for the construction, remodeling, and repair of buildings and structures in the City of Los Angeles. Permits are categorized into building permits, electrical permits, and mechanical permits (which include plumbing, HVAC systems, fire sprinklers, elevators, and pressure vessels). Depending on the complexity of a project, a permit may be issued the same day with Express Permit or e-Permit (\"No Plan Check\" category), or a permit may require that the plans be reviewed (\"Plan Check\" category) by a Building and Safety Plan Check personnel.",
+        "id": "gwh9-jnip",
+        "licenseId": null,
+        "name": "Building and Safety - Building Permits Submitted from 2020 to Present (N)",
+        "rowsUpdatedAt": 1790002112,
+        "viewLastModified": 1770650272
+      },
+      "requests": [
+        {
+          "bytes": 62628,
+          "parameters": null,
+          "retrieved_at": "2026-09-25T00:55:15.421462+00:00",
+          "sha256": "26edbb29b8a68902ac1148e517c12aeb84662af36dc533c5628be971cb96948c",
+          "status": 200,
+          "url": "https://data.lacity.org/api/views/gwh9-jnip.json"
+        },
+        {
+          "bytes": 20,
+          "parameters": {
+            "$select": "count(*)",
+            "$where": "lat between 33.99 and 34.13 AND lon between -118.62 and -118.44 AND submitted_date >= '2025-01-07T00:00:00'"
+          },
+          "retrieved_at": "2026-09-25T00:55:15.986103+00:00",
+          "sha256": "a538ec22fe6e7e91a99a5c32077ed4d6938a76b4564ac2dcf92fd927d7bdc420",
+          "status": 200,
+          "url": "https://data.lacity.org/resource/gwh9-jnip.json"
+        }
+      ],
+      "source_id": "socrata_permits",
+      "status": "succeeded"
+    },
+    {
+      "configured_fields_missing": [],
+      "count": [
+        {
+          "count": "18707"
+        }
+      ],
+      "endpoint": "https://data.lacity.org/resource/3f9m-afei.json",
+      "fields": [
+        {
+          "name": "cofo_number",
+          "type": "number"
+        },
+        {
+          "name": "cofo_issue_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "latest_status",
+          "type": "text"
+        },
+        {
+          "name": "status_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "assessor_book",
+          "type": "text"
+        },
+        {
+          "name": "assessor_page",
+          "type": "text"
+        },
+        {
+          "name": "assessor_parcel",
+          "type": "text"
+        },
+        {
+          "name": "tract",
+          "type": "text"
+        },
+        {
+          "name": "block",
+          "type": "text"
+        },
+        {
+          "name": "lot",
+          "type": "text"
+        },
+        {
+          "name": "reference_old_permit",
+          "type": "text"
+        },
+        {
+          "name": "pcis_permit",
+          "type": "text"
+        },
+        {
+          "name": "permit_type",
+          "type": "text"
+        },
+        {
+          "name": "permit_sub_type",
+          "type": "text"
+        },
+        {
+          "name": "permit_category",
+          "type": "text"
+        },
+        {
+          "name": "project_number",
+          "type": "number"
+        },
+        {
+          "name": "event_code",
+          "type": "text"
+        },
+        {
+          "name": "initiating_office",
+          "type": "text"
+        },
+        {
+          "name": "issue_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "address_start",
+          "type": "number"
+        },
+        {
+          "name": "address_fraction_start",
+          "type": "text"
+        },
+        {
+          "name": "address_end",
+          "type": "number"
+        },
+        {
+          "name": "address_fraction_end",
+          "type": "text"
+        },
+        {
+          "name": "street_direction",
+          "type": "text"
+        },
+        {
+          "name": "street_name",
+          "type": "text"
+        },
+        {
+          "name": "street_suffix",
+          "type": "text"
+        },
+        {
+          "name": "suffix_direction",
+          "type": "text"
+        },
+        {
+          "name": "unit_range_start",
+          "type": "text"
+        },
+        {
+          "name": "unit_range_end",
+          "type": "text"
+        },
+        {
+          "name": "zip_code",
+          "type": "number"
+        },
+        {
+          "name": "work_description",
+          "type": "text"
+        },
+        {
+          "name": "valuation",
+          "type": "number"
+        },
+        {
+          "name": "floor_area_l_a_zoning_code_definition",
+          "type": "number"
+        },
+        {
+          "name": "of_residential_dwelling_units",
+          "type": "number"
+        },
+        {
+          "name": "of_stories",
+          "type": "number"
+        },
+        {
+          "name": "contractors_business_name",
+          "type": "text"
+        },
+        {
+          "name": "contractor_address",
+          "type": "text"
+        },
+        {
+          "name": "contractor_city",
+          "type": "text"
+        },
+        {
+          "name": "contractor_state",
+          "type": "text"
+        },
+        {
+          "name": "license_type",
+          "type": "text"
+        },
+        {
+          "name": "license",
+          "type": "number"
+        },
+        {
+          "name": "principal_first_name",
+          "type": "text"
+        },
+        {
+          "name": "principal_middle_name",
+          "type": "text"
+        },
+        {
+          "name": "principal_last_name",
+          "type": "text"
+        },
+        {
+          "name": "license_expiration_date",
+          "type": "calendar_date"
+        },
+        {
+          "name": "applicant_first_name",
+          "type": "text"
+        },
+        {
+          "name": "applicant_last_name",
+          "type": "text"
+        },
+        {
+          "name": "applicant_business_name",
+          "type": "text"
+        },
+        {
+          "name": "applicant_address_1",
+          "type": "text"
+        },
+        {
+          "name": "applicant_address_2",
+          "type": "text"
+        },
+        {
+          "name": "applicant_address_3",
+          "type": "text"
+        },
+        {
+          "name": "zone",
+          "type": "text"
+        },
+        {
+          "name": "occupancy",
+          "type": "text"
+        },
+        {
+          "name": "floor_area_l_a_building_code_definition",
+          "type": "number"
+        },
+        {
+          "name": "census_tract",
+          "type": "text"
+        },
+        {
+          "name": "latitude_longitude",
+          "type": "location"
+        },
+        {
+          "name": ":@computed_region_qz3q_ghft",
+          "type": "number"
+        },
+        {
+          "name": ":@computed_region_k96s_3jcv",
+          "type": "number"
+        },
+        {
+          "name": ":@computed_region_tatf_ua23",
+          "type": "number"
+        },
+        {
+          "name": ":@computed_region_ur2y_g4cx",
+          "type": "number"
+        },
+        {
+          "name": ":@computed_region_kqwf_mjcx",
+          "type": "number"
+        },
+        {
+          "name": ":@computed_region_2dna_qi2s",
+          "type": "number"
+        }
+      ],
+      "metadata": {
+        "description": "The Department of Building and Safety is required by the Los Angeles Municipal Code to issue a Certificate of Occupancy for every building or structure in the City of Los Angeles.  A Certificate of Occupancy is a document issued by the Department of Building and Safety certifying a building's compliance with applicable building codes and other laws, and indicating it to be in a condition suitable for occupancy.",
+        "id": "3f9m-afei",
+        "licenseId": "CC0_10",
+        "name": "Building and Safety Certificate of Occupancy",
+        "rowsUpdatedAt": 1789995665,
+        "viewLastModified": 1606756941
+      },
+      "requests": [
+        {
+          "bytes": 109015,
+          "parameters": null,
+          "retrieved_at": "2026-09-25T00:55:15.727621+00:00",
+          "sha256": "cd5c209ceac953b562fefe84b8057a3bf066d2736c40c3e20abd39b432bc0770",
+          "status": 200,
+          "url": "https://data.lacity.org/api/views/3f9m-afei.json"
+        },
+        {
+          "bytes": 20,
+          "parameters": {
+            "$select": "count(*)",
+            "$where": "cofo_issue_date >= '2025-01-07T00:00:00'"
+          },
+          "retrieved_at": "2026-09-25T00:55:15.894188+00:00",
+          "sha256": "16782f0585cea25d56212c69bb299d38c7d3d4f0be354a4cd0bfbc7a9f08c88d",
+          "status": 200,
+          "url": "https://data.lacity.org/resource/3f9m-afei.json"
+        }
+      ],
+      "source_id": "socrata_cofo",
+      "status": "succeeded"
+    },
+    {
+      "count": 288,
+      "endpoint": "https://mlb-pptsrv.ci.malibu.ca.us/Home/GetProjectDashMarkers?sFireView=PalisadesRebuildStatsDetailWithBPComplete",
+      "fields": [
+        "apn",
+        "caseNo",
+        "iconShape",
+        "iconURL",
+        "latlng",
+        "name"
+      ],
+      "requests": [
+        {
+          "bytes": 53454,
+          "parameters": null,
+          "retrieved_at": "2026-09-25T00:55:15.619907+00:00",
+          "sha256": "ec553bbdd3936785650783d5638fe52f669b6518e7e7454e794c3d33221eb4a1",
+          "status": 200,
+          "url": "https://mlb-pptsrv.ci.malibu.ca.us/Home/GetProjectDashMarkers?sFireView=PalisadesRebuildStatsDetailWithBPComplete"
+        }
+      ],
+      "response_type": "list",
+      "source_id": "malibu_dash",
+      "status": "succeeded"
+    }
+  ]
+}

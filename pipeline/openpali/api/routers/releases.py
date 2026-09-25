@@ -11,6 +11,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import math
 from datetime import date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
@@ -22,7 +23,6 @@ from openpali.storage.models import (
     CurrentRelease,
     ObservationRevision,
     ParcelVersion,
-    PropertyIdentity,
     Publication,
     RecoveryObservationRow,
     SnapshotMember,
@@ -172,6 +172,25 @@ def _summary(state: SnapshotPropertyState, property_id: str) -> PropertySummary:
     )
 
 
+def parcel_members(snapshot_id: str):
+    return select(SnapshotMember.member_id).where(
+        SnapshotMember.snapshot_id == snapshot_id,
+        SnapshotMember.member_type == "parcel_version",
+    )
+
+
+def parse_bbox(value: str) -> tuple[float, float, float, float]:
+    try:
+        a, b, c, d = (float(x) for x in value.split(","))
+    except ValueError as exc:
+        raise HTTPException(400, "bbox must be minLon,minLat,maxLon,maxLat") from exc
+    if not all(map(math.isfinite, (a, b, c, d))) or not (-180 <= a < c <= 180 and -90 <= b < d <= 90):
+        raise HTTPException(400, "bbox must contain finite, ordered geographic coordinates")
+    if (c - a) * (d - b) > 1:
+        raise HTTPException(400, "bbox too large; maximum area is 1 square degree")
+    return a, b, c, d
+
+
 @router.get("/releases/{release_id}/properties", response_model=PropertyPage)
 def search_properties(
     request: Request,
@@ -202,13 +221,9 @@ def search_properties(
         else:
             query = query.where(SnapshotPropertyState.address.ilike(f"%{needle}%"))
     if bbox:
-        try:
-            min_lon, min_lat, max_lon, max_lat = (float(x) for x in bbox.split(","))
-        except ValueError as exc:
-            raise HTTPException(400, "bbox must be minLon,minLat,maxLon,maxLat") from exc
-        if (max_lon - min_lon) * (max_lat - min_lat) > 1.0:
-            raise HTTPException(400, "bbox too large; maximum area is 1 square degree")
+        min_lon, min_lat, max_lon, max_lat = parse_bbox(bbox)
         apns_in_bbox = select(ParcelVersion.apn).where(
+            ParcelVersion.record_version_id.in_(parcel_members(publication.snapshot_id)),
             func.ST_Intersects(
                 ParcelVersion.geometry,
                 func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326),
@@ -258,12 +273,10 @@ def property_detail(
     etag = _etag(publication.release_id, "prop", property_id)
     _maybe_304(request, response, etag, IMMUTABLE_CACHE)
     state = _state_for_property(session, publication, property_id)
-    identity = session.execute(
-        select(PropertyIdentity).where(PropertyIdentity.property_id == state.property_id)
-    ).scalar_one_or_none()
     parcel = session.execute(
         select(ParcelVersion)
-        .where(ParcelVersion.apn == state.apn, ParcelVersion.observed_to.is_(None))
+        .where(ParcelVersion.apn == state.apn,
+               ParcelVersion.record_version_id.in_(parcel_members(publication.snapshot_id)))
         .order_by(ParcelVersion.observed_from.desc())
         .limit(1)
     ).scalar_one_or_none()
@@ -273,11 +286,7 @@ def property_detail(
         address=state.address,
         neighborhood=state.neighborhood,
         jurisdiction=state.jurisdiction,
-        identity={
-            "seed_policy_version": identity.seed_policy_version if identity else None,
-            "confidence": identity.confidence if identity else None,
-            "state": identity.state if identity else None,
-        },
+        identity=state.frozen_identity,
         pre_fire=(parcel.pre_fire if parcel else {}),
         lane_signals=state.lane_signals,
         milestones=state.milestones,
@@ -446,7 +455,9 @@ MVT_QUERY = text(
         FROM civic.snapshot_property_state sps
         JOIN LATERAL (
             SELECT geometry FROM civic.parcel_version pv
-            WHERE pv.apn = sps.apn AND pv.observed_to IS NULL
+            JOIN civic.snapshot_member sm ON sm.member_id = pv.record_version_id
+              AND sm.member_type = 'parcel_version' AND sm.snapshot_id = sps.snapshot_id
+            WHERE pv.apn = sps.apn
             ORDER BY pv.observed_from DESC LIMIT 1
         ) pv ON true
         CROSS JOIN bounds
@@ -472,6 +483,8 @@ def parcel_tile(
         raise HTTPException(400, "zoom out of range")
     if z < 10:
         raise HTTPException(400, "parcel tiles are served at z>=10")
+    if not (0 <= x < 2**z and 0 <= y < 2**z):
+        raise HTTPException(400, "tile coordinate out of range")
     etag = _etag(publication.release_id, "mvt", str(z), str(x), str(y))
     _maybe_304(request, response, etag, IMMUTABLE_CACHE)
     row = session.execute(

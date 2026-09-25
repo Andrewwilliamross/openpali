@@ -353,6 +353,105 @@
     "title": "OccurrenceModel",
     "type": "object"
    },
+   "ProjectClaim": {
+    "properties": {
+     "apn": {
+      "pattern": "^\\d{10}$",
+      "title": "Apn",
+      "type": "string"
+     },
+     "ended_at": {
+      "anyOf": [
+       {
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ended At"
+     },
+     "evidence_url": {
+      "format": "uri",
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "Evidence Url",
+      "type": "string"
+     },
+     "license_number": {
+      "anyOf": [
+       {
+        "maxLength": 100,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "License Number"
+     },
+     "organization": {
+      "maxLength": 160,
+      "minLength": 2,
+      "title": "Organization",
+      "type": "string"
+     },
+     "role": {
+      "enum": [
+       "owner",
+       "general_contractor",
+       "framing",
+       "architect",
+       "engineer",
+       "real_estate_agent",
+       "other_trade"
+      ],
+      "title": "Role",
+      "type": "string"
+     },
+     "scope": {
+      "maxLength": 1500,
+      "minLength": 10,
+      "title": "Scope",
+      "type": "string"
+     },
+     "sqft": {
+      "anyOf": [
+       {
+        "exclusiveMinimum": 0.0,
+        "maximum": 1000000.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sqft"
+     },
+     "started_at": {
+      "anyOf": [
+       {
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Started At"
+     }
+    },
+    "required": [
+     "apn",
+     "organization",
+     "role",
+     "scope",
+     "evidence_url"
+    ],
+    "title": "ProjectClaim",
+    "type": "object"
+   },
    "PropertyDetail": {
     "properties": {
      "address": {
@@ -822,6 +921,45 @@
     "title": "SourcesResponse",
     "type": "object"
    },
+   "TaskUpdate": {
+    "properties": {
+     "evidence_url": {
+      "anyOf": [
+       {
+        "format": "uri",
+        "maxLength": 2083,
+        "minLength": 1,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Evidence Url"
+     },
+     "note": {
+      "maxLength": 2000,
+      "minLength": 5,
+      "title": "Note",
+      "type": "string"
+     },
+     "status": {
+      "enum": [
+       "queued",
+       "in_progress",
+       "needs_review"
+      ],
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status",
+     "note"
+    ],
+    "title": "TaskUpdate",
+    "type": "object"
+   },
    "ValidationError": {
     "properties": {
      "ctx": {
@@ -914,6 +1052,487 @@
     "summary": "Ready",
     "tags": [
      "health"
+    ]
+   }
+  },
+  "/v1/evidence/current": {
+   "get": {
+    "operationId": "current_v1_evidence_current_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Current",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/artifacts/{name}": {
+   "get": {
+    "operationId": "artifact_v1_evidence_releases__release_id__artifacts__name__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "name",
+      "required": true,
+      "schema": {
+       "title": "Name",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Artifact",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/claims": {
+   "post": {
+    "operationId": "claim_v1_evidence_releases__release_id__claims_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ProjectClaim"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Claim",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/properties": {
+   "get": {
+    "operationId": "properties_v1_evidence_releases__release_id__properties_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "default": "",
+       "maxLength": 120,
+       "title": "Q",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "stage",
+      "required": false,
+      "schema": {
+       "default": "",
+       "title": "Stage",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 50,
+       "maximum": 500,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Properties",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/properties/{apn}": {
+   "get": {
+    "operationId": "detail_v1_evidence_releases__release_id__properties__apn__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "apn",
+      "required": true,
+      "schema": {
+       "title": "Apn",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Detail",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/properties/{apn}/claims": {
+   "get": {
+    "operationId": "claims_v1_evidence_releases__release_id__properties__apn__claims_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "apn",
+      "required": true,
+      "schema": {
+       "title": "Apn",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Claims",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/tasks": {
+   "get": {
+    "operationId": "tasks_v1_evidence_releases__release_id__tasks_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "kind",
+      "required": false,
+      "schema": {
+       "default": "",
+       "title": "Kind",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 100,
+       "maximum": 1000,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Tasks",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/tasks/{task_id}": {
+   "post": {
+    "operationId": "update_task_v1_evidence_releases__release_id__tasks__task_id__post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "task_id",
+      "required": true,
+      "schema": {
+       "title": "Task Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TaskUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Update Task",
+    "tags": [
+     "evidence workspace"
+    ]
+   }
+  },
+  "/v1/evidence/releases/{release_id}/tasks/{task_id}/history": {
+   "get": {
+    "operationId": "task_history_v1_evidence_releases__release_id__tasks__task_id__history_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "release_id",
+      "required": true,
+      "schema": {
+       "title": "Release Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "task_id",
+      "required": true,
+      "schema": {
+       "title": "Task Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Task History",
+    "tags": [
+     "evidence workspace"
     ]
    }
   },

@@ -1,254 +1,58 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import type { Map as MLMap } from 'maplibre-gl'
-import MapView, { type GroundMode, type SpatialStatus, type ViewMode } from './components/MapView'
-import Header from './components/Header'
-import ParcelDetailCard from './components/spatial/ParcelDetailCard'
-import SearchBar from './components/SearchBar'
-import Legend from './components/Legend'
-import DebugHud from './components/DebugHud'
-import type { DetailsIndex, ParcelCollection, Summary } from './lib/types'
-import { centroid, motionMs } from './lib/format'
-import { fetchPostfireSources } from './lib/postfire'
+import { useEffect, useState, type FormEvent } from 'react';
+import { Search, ArrowUpRight, MapPin, Layers, ArrowLeft, Download, Check, X, Activity, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsList, TabsTab, TabsPanel } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { ParcelMap } from './Map';
+import { apiPath, get, post, display, money, stages, type Property, type Release, type Summary, type Evidence, type Task } from './lib/api';
 
-const BASE = import.meta.env.BASE_URL
-
-export default function App() {
-  const [parcels, setParcels] = useState<ParcelCollection | null>(null)
-  const [details, setDetails] = useState<DetailsIndex | null>(null)
-  // one snapshot everywhere (PUB-001): the static bundle is the base (and the
-  // last-known-good when the API is down); release-manifest numbers overlay it
-  const [staticSummary, setStaticSummary] = useState<Summary | null>(null)
-  const [releaseSummary, setReleaseSummary] = useState<{
-    as_of: string
-    snapshot_id: string
-    totals: Partial<Summary['totals']>
-  } | null>(null)
-  const summary = useMemo<Summary | null>(() => {
-    if (!staticSummary) return null
-    if (!releaseSummary) return staticSummary
-    return {
-      ...staticSummary,
-      as_of: releaseSummary.as_of || staticSummary.as_of,
-      snapshot_id: releaseSummary.snapshot_id,
-      totals: { ...staticSummary.totals, ...releaseSummary.totals },
-    }
-  }, [staticSummary, releaseSummary])
-  // property selection lives in the URL: /property/:apn is a shareable,
-  // reload-safe journey; closing the card returns to /map
-  const { apn: routeApn } = useParams<{ apn: string }>()
-  const navigate = useNavigate()
-  const selectedApn = routeApn && /^\d{10}$/.test(routeApn) ? routeApn : null
-  const setSelectedApn = useCallback(
-    (next: string | null) => {
-      navigate(next ? `/property/${next}` : '/map')
-    },
-    [navigate],
-  )
-  const [loadError, setLoadError] = useState<string | null>(null)
-  // 2D-first: 3D loads ONLY on request (SPATIAL-002), and the vendor ground
-  // imagery is opt-in (GOV-001 safe default — EagleView WMTS rights are
-  // county-account terms, not ours to presume)
-  const [mode, setMode] = useState<ViewMode>('2d')
-  const [ground, setGround] = useState<GroundMode>('map')
-  // LARIAC-derived pre-fire 3D corpus: rights unresolved -> explicit opt-in
-  const [prefire, setPrefire] = useState(false)
-  // capability probe: never offer 3D where WebGL2 does not exist
-  const webglOk = useMemo(() => {
-    try {
-      return document.createElement('canvas').getContext('webgl2') !== null
-    } catch {
-      return false
-    }
-  }, [])
-  // lifecycle of the code-split 3D renderer chunk (MapView reports it)
-  const [spatialStatus, setSpatialStatus] = useState<SpatialStatus>('idle')
-  const mapRef = useRef<MLMap | null>(null)
-
-  const handleSpatialStatus = useCallback((status: SpatialStatus) => {
-    setSpatialStatus(status)
-    // chunk fetch failed (offline / flaky connection): revert the toggle so
-    // the 2D tracker keeps working; the retry chip re-arms the fetch
-    if (status === 'error') setMode('2d')
-  }, [])
-
-  // visible release identity: everything on screen belongs to ONE pinned
-  // release/snapshot; when the API is unreachable the static bundle serves
-  // as clearly-labeled last-known-good
-  const [releaseInfo, setReleaseInfo] = useState<{
-    releaseId: string
-    snapshotId: string
-    publishedAt: string | null
-  } | null>(null)
-
-  useEffect(() => {
-    Promise.all([
-      fetch(`${BASE}data/parcels.geojson`).then((r) => r.json()),
-      fetch(`${BASE}data/summary.json`).then((r) => r.json()),
-    ])
-      .then(([p, s]) => {
-        setParcels(p)
-        setStaticSummary(s)
-      })
-      .catch(() => setLoadError('Could not load rebuild data. Try refreshing.'))
-    // details are big-ish; load after first paint
-    fetch(`${BASE}data/details.json`)
-      .then((r) => r.json())
-      .then(setDetails)
-      .catch(() => {})
-    // release-pinned header numbers (PUB-001/FRONTEND-002): coverage counts
-    // straight from the current release manifest
-    void (async () => {
-      const pf = await fetchPostfireSources()
-      if (!pf) return
-      try {
-        const { releaseInfoV1ReleasesReleaseIdGet } = await import('./api/generated/sdk.gen')
-        const resp = await releaseInfoV1ReleasesReleaseIdGet({
-          path: { release_id: pf.releaseId },
-        })
-        if (!resp.data) return
-        const rel = resp.data as {
-          release_id: string
-          snapshot_id: string
-          published_at?: string | null
-          coverage?: Record<string, number | null>
-        }
-        setReleaseInfo({
-          releaseId: rel.release_id,
-          snapshotId: rel.snapshot_id,
-          publishedAt: rel.published_at ?? null,
-        })
-        const c = rel.coverage ?? {}
-        const totals: Partial<Summary['totals']> = {}
-        if (c.properties != null) totals.destroyed = c.properties
-        if (c.cleanup_complete != null) totals.cleanup_complete = c.cleanup_complete
-        if (c.application_submitted != null) totals.application_submitted = c.application_submitted
-        if (c.plan_check_approved != null) totals.plan_check_approved = c.plan_check_approved
-        if (c.permit_issued != null) totals.permit_issued = c.permit_issued
-        if (c.construction_evidence != null) totals.construction_evidence = c.construction_evidence
-        if (c.cofo_issued != null) totals.cofo_issued = c.cofo_issued
-        setReleaseSummary({
-          as_of: rel.published_at ?? '',
-          snapshot_id: rel.snapshot_id,
-          totals,
-        })
-      } catch {
-        /* static summary remains the LKG */
-      }
-    })()
-  }, [])
-
-  const selectedProps = useMemo(() => {
-    if (!selectedApn || !parcels) return null
-    return parcels.features.find((f) => f.properties.apn === selectedApn)?.properties ?? null
-  }, [selectedApn, parcels])
-
-  const handlePickFromSearch = useCallback(
-    (apn: string) => {
-      setSelectedApn(apn)
-      const f = parcels?.features.find((x) => x.properties.apn === apn)
-      if (f && mapRef.current)
-        mapRef.current.flyTo({
-          center: centroid(f.geometry),
-          zoom: 17.4,
-          pitch: mode === '3d' ? 58 : 0,
-          duration: motionMs(1400),
-        })
-    },
-    [parcels, mode, setSelectedApn],
-  )
-
-  const handleGoto = useCallback((center: [number, number], zoom: number) => {
-    mapRef.current?.flyTo({ center, zoom, duration: motionMs(1200) })
-  }, [])
-
-  return (
-    <div className="app">
-      <Header summary={summary} />
-      <div className="map-wrap">
-        <MapView
-          parcels={parcels}
-          selectedApn={selectedApn}
-          mode={mode}
-          ground={ground}
-          prefire={prefire}
-          onSelect={setSelectedApn}
-          onMapReady={(m) => {
-            mapRef.current = m
-          }}
-          onSpatialStatus={handleSpatialStatus}
-        />
-        <SearchBar
-          parcels={parcels}
-          neighborhoods={summary?.neighborhoods ?? []}
-          onPick={handlePickFromSearch}
-          onGoto={handleGoto}
-        />
-        <button
-          className={`mode-toggle${spatialStatus === 'loading' ? ' mode-toggle-loading' : ''}`}
-          onClick={() => setMode((m) => (m === '3d' ? '2d' : '3d'))}
-          aria-label="Toggle 3D view"
-          aria-busy={spatialStatus === 'loading'}
-          disabled={!webglOk}
-          title={webglOk ? undefined : '3D is unavailable on this device (no WebGL2); the 2D tracker has every capability'}
-        >
-          {spatialStatus === 'loading' ? '3D…' : mode === '3d' ? '2D' : '3D'}
-        </button>
-        {mode === '3d' && (
-          <button
-            className="mode-toggle prefire-toggle"
-            onClick={() => setPrefire((p) => !p)}
-            aria-pressed={prefire}
-            aria-label="Toggle pre-fire county model"
-            title="LARIAC-derived pre-fire structures; county license terms pending — off by default"
-          >
-            {prefire ? 'Hide pre-fire model' : 'Pre-fire model (rights pending)'}
-          </button>
-        )}
-        <button
-          className="mode-toggle ground-toggle"
-          onClick={() => setGround((g) => (g === 'sat' ? 'map' : 'sat'))}
-          aria-label="Toggle ground imagery"
-          title="Ground: current imagery (May 2026) vs map"
-        >
-          {ground === 'sat' ? 'Map' : 'Sat'}
-        </button>
-        <Legend mode={mode} />
-        <nav className="app-nav" aria-label="Site">
-          <a href="/methods">Methods</a>
-          <a href="/status">Status</a>
-        </nav>
-        <div
-          className="release-badge"
-          data-testid="release-badge"
-          title={
-            releaseInfo
-              ? `Every number, color, and timeline on this page comes from this one release`
-              : 'The data API is unreachable; showing the bundled last-known-good data'
-          }
-        >
-          {releaseInfo
-            ? `release ${releaseInfo.releaseId.slice(0, 16)} · snapshot ${releaseInfo.snapshotId.slice(0, 17)}`
-            : 'offline · last-known-good data'}
-        </div>
-        <DebugHud />
-        {loadError && <div className="load-error">{loadError}</div>}
-        {spatialStatus === 'error' && (
-          <div className="spatial-load-error" role="alert">
-            <span>3D view failed to load.</span>
-            <button onClick={() => setMode('3d')}>Retry</button>
-          </div>
-        )}
-        {selectedApn && (
-          <ParcelDetailCard
-            key={selectedApn}
-            apn={selectedApn}
-            props={selectedProps}
-            detail={details?.[selectedApn] ?? null}
-            onClose={() => setSelectedApn(null)}
-          />
-        )}
-      </div>
-    </div>
-  )
+function Source({item}:{item:Evidence}){return <a className="source-link" href={item.url} target="_blank" rel="noreferrer">{item.source_id.replaceAll('_',' ')} <ArrowUpRight size={12}/>{item.observed_at&&<span>Observed {item.observed_at.slice(0,10)}</span>}</a>}
+function Notice({children}:{children:React.ReactNode}){return <div className="notice">{children}</div>}
+function Facts({items}:{items:Record<string,unknown>}){return <dl className="facts">{Object.entries(items).map(([k,v])=><div key={k}><dt>{k.replaceAll('_',' ')}</dt><dd>{typeof v === "number" && /(?:DATE|_DT)$/.test(k) && v>1e11 ? new Date(v).toISOString().slice(0,10) : display(v)}</dd></div>)}</dl>}
+function TaskCard({task,release,enabled}:{task:Task;release:string;enabled:boolean}){
+ const [state,setState]=useState(''),[busy,setBusy]=useState(false);
+ useEffect(()=>{if(!enabled)return;get<{items:{payload:{status:string}}[]}>(apiPath(release,`tasks/${task.task_id}/history`)).then(d=>{if(d.items.at(-1)?.payload.status==='queued')setState('Queued locally')}).catch(e=>setState(String(e)));},[enabled,release,task.task_id]);
+ async function queue(){setBusy(true);try{await post(apiPath(release,`tasks/${task.task_id}`),{status:'queued',note:'Queued for source acquisition from property workspace'});setState('Queued locally');}catch(e){setState(String(e));}finally{setBusy(false);}}
+ return <article className="task"><div className="task-head"><strong>{task.kind.replaceAll('_',' ')}</strong><Badge variant="outline">P{task.priority}</Badge></div><p>{task.reason}</p><p className="muted">Next: {task.next_sources.join(' → ')}</p>{enabled&&<Button size="sm" variant="outline" onClick={queue} disabled={busy||state==='Queued locally'}>{state==='Queued locally'?<Check size={14}/>:null}{state||'Queue acquisition'}</Button>}</article>
+}
+function Claims({p,release,enabled}:{p:Property;release:string;enabled:boolean}){
+ const [items,setItems]=useState<{id:string;payload:{organization:string;role:string;scope:string}}[]>([]),[msg,setMsg]=useState(''),[busy,setBusy]=useState(false);
+ const endpoint=apiPath(release,`properties/${p.apn}/claims`);
+ useEffect(()=>{get<{items:typeof items}>(endpoint).then(d=>setItems(d.items)).catch(e=>setMsg(String(e)));},[endpoint]);
+ async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);const form=e.currentTarget,d=new FormData(form);
+ try{const value={apn:p.apn,organization:d.get('organization'),role:d.get('role'),scope:d.get('scope'),license_number:d.get('license')||null,evidence_url:d.get('evidence'),started_at:d.get('start')||null,ended_at:d.get('end')||null,sqft:d.get('sqft')?Number(d.get('sqft')):null};await post(apiPath(release,'claims'),value);setMsg('Saved locally for verification. This does not change agency evidence.');setItems((await get<{items:typeof items}>(endpoint)).items);form.reset();}catch(e){setMsg(String(e));}finally{setBusy(false);}}
+ return <><h3>People behind the rebuild</h3><p>Record a company’s role, work scope and supporting evidence. Verified trade dates and comparable scope are needed before performance rankings.</p>{items.map(c=><article className="task" key={c.id}><strong>{c.payload.organization}</strong><Badge variant="outline">Unverified draft</Badge><p>{c.payload.role.replaceAll('_',' ')} · {c.payload.scope}</p></article>)}
+ {enabled?<form onSubmit={submit} className="claim-form"><h4>Claim a project role</h4><label>Organization<Input name="organization" required minLength={2} maxLength={160}/></label><label>Role<select name="role"><option value="general_contractor">General contractor</option><option value="framing">Framing contractor</option><option value="architect">Architect</option><option value="engineer">Engineer</option><option value="real_estate_agent">Real estate agent</option><option value="other_trade">Other trade</option><option value="owner">Owner</option></select></label><label>License number, if applicable<Input name="license" maxLength={100}/></label><label>Work performed<Textarea name="scope" required minLength={10} maxLength={1500}/></label><label>Supporting public document URL<Input type="url" name="evidence" required/></label><div className="form-pair"><label>Started<Input type="date" name="start"/></label><label>Finished<Input type="date" name="end"/></label></div><label>Work area (sq ft), if known<Input name="sqft" type="number" min={1}/></label><Button disabled={busy}>Save claim for review</Button></form>:<Notice>Claim intake is disabled on this read-only deployment.</Notice>}{msg&&<p role="status">{msg}</p>}</>;
+}
+function PropertyPanel({p,release,close}:{p:Property;release:Release;close:()=>void}){
+ const stage=stages[p.stage]||stages.unknown;const [tab,setTab]=useState('evidence');
+ const base=apiPath(release.release_id,'artifacts/');
+ return <section className="property-panel" aria-label="Property details"><div className="property-top"><div className="eyebrow">PROPERTY RECORD / {p.apn}</div><Button variant="ghost" size="icon-sm" aria-label="Close property" onClick={close}><X/></Button></div><h2>{p.address||`Parcel ${p.apn}`}</h2><div className="stage-label"><i style={{background:stage.color}}/>{stage.label}</div><p className="muted small">{p.damage==='destroyed'?'Destroyed in agency fire assessment':'Damage status not established'} · {p.cohorts.includes('zip_90272')?'90272 parcel cohort':'Exact AIN recovery lookup'}</p>
+ <Tabs value={tab} onValueChange={v=>setTab(String(v))}><TabsList variant="underline" className="property-tabs">{[['evidence','Evidence'],['market','Market'],['site','Site'],['people','People'],['tasks','Collect']].map(([value,label])=><TabsTab value={value} key={value}>{label}</TabsTab>)}</TabsList>
+ <TabsPanel value="evidence"><h3>Recovery evidence</h3>{p.cleanup?<><Facts items={{'Cleanup pathway':p.cleanup.ROE_STATUS,'Private cleanup record':p.cleanup.DEBRIS_REMOVAL_EPICLA,'Rebuild progress':p.cleanup.REBUILD_PROGRESS}}/>{p.cleanup.document_url&&<a className="document" href={String(p.cleanup.document_url)} target="_blank" rel="noreferrer"><span>County cleanup packet<small>PDF · may include photos, sign-off or withdrawal</small></span><ArrowUpRight size={18}/></a>}<Notice>{String(p.cleanup.document_semantics)}</Notice></>:<Notice>No cleanup record in the acquired destroyed-parcel dataset. This does not establish the condition of this property.</Notice>}
+ {p.permits.map(permit=><div key={permit.permit}><h3>Permit {permit.permit}</h3><p>{permit.details['Work Description']}</p><Facts items={{Status:permit.details['Current Status'],'Certificate of occupancy':permit.details['Certificate of Occupancy']}}/><Source item={permit.evidence}/>{permit.sections.filter(s=>s.rows.length).map(s=><details key={s.heading}><summary>{s.heading} <span>{s.rows.length} records</span></summary><div className="table-scroll"><table><tbody>{s.rows.map((r,i)=><tr key={i}>{r.map((cell,j)=><td key={j}>{cell}</td>)}</tr>)}</tbody></table></div></details>)}</div>)}
+ {Boolean(p.permit_records?.length)&&<><h3>Agency permits · {p.permit_records.length}</h3><p className="muted small">Includes primary rebuilds and accessory work. Scheduled inspection requests are not completed inspections.</p>{p.permit_records.map((record,i)=><details key={i}><summary>{display(record.PERMIT)} · {display(record.PERMIT_TYPE)}<br/>{display(record.PERMIT_STATUS)}</summary><Facts items={record}/></details>)}<details><summary>Scheduled inspection requests · {p.inspection_requests.length}</summary>{p.inspection_requests.map((record,i)=><Facts key={i} items={record}/>)}</details></>}<h3>Property & assessment</h3><Facts items={{'County use':p.parcel.UseDescription,'Recorded structure year':p.parcel.YearBuilt1,'Recorded building sq ft':p.parcel.SQFTmain1,'Current roll':p.parcel.Roll_Year,'Assessed land':money(p.parcel.Roll_LandValue),'Assessed improvements':money(p.parcel.Roll_ImpValue)}}/><p className="muted small">Current assessor attributes may reflect fire adjustments. They are not a reconstructed pre-fire home or a market appraisal.</p>
+ {p.assessor&&<><h4>Assessment history · {p.assessor.assessments.length} records</h4><p className="muted">Current roll {display(p.assessor.profile.current_roll_year)} / preparation roll {display(p.assessor.profile.preparation_roll_year)}</p><details><summary>Inspect recorded bills and changes</summary>{p.assessor.assessments.map((row,i)=><details key={i}><summary>{display(row.TaxYear)} · {display(row.BillTypeDesc)||'Assessment'}</summary><Facts items={row}/></details>)}</details></>}
+ <h3>Source trail</h3>{p.evidence.map((s,i)=><Source key={i} item={s}/>)}<a className="download" href={apiPath(release.release_id,`properties/${p.apn}`)} target="_blank" rel="noreferrer"><Download size={14}/> Open property JSON</a></TabsPanel>
+ <TabsPanel value="market"><h3>Market evidence</h3>{p.listings?.map(l=><article className="task" key={l.source_url}><div className="task-head"><strong>{money(l.asking_price)} asking</strong><Badge variant="outline">{l.status.replaceAll("_"," ")}</Badge></div><p>Observed {l.observed_at} · {l.source}</p><p className="muted small">{l.limitation}</p>{l.events.map((e,i)=><p key={i}>{e.date} · {e.kind}{e.asking_price ? " · "+money(e.asking_price):""}</p>)}<a className="source-link" href={l.source_url} target="_blank" rel="noreferrer">Open listing source <ArrowUpRight size={12}/></a></article>)}<Notice><strong>Price estimate not yet supported</strong><p>{p.market_support.reason}</p></Notice><h4>Recorded transfers · {p.market_events.length}</h4>{p.market_events.length===0?<p>No transfer history acquired for this parcel yet. Use Collect to queue the assessor feed.</p>:p.market_events.map((e,i)=><article className="transfer" key={i}><div><strong>{money(e.price)}</strong><span>{e.date||`${e.raw_date} · invalid source date`}</span></div><p>{e.description}</p><small>Transfer-tax-derived amount · {e.screening.replaceAll('_',' ')}</small>{e.reasons.length>0&&<p className="muted small">{e.reasons.join(' · ').replaceAll('_',' ')}</p>}</article>)}
+ <h3>Surrounding recovery</h3><p>Counts use distance from parcel edges. Historical destruction is measurable; present-day vacancy needs a dated site observation.</p><table><thead><tr><th>Within</th><th>Parcels</th><th>Destroyed</th><th>Construction reported</th></tr></thead><tbody>{Object.entries(p.neighborhood.measures||{}).map(([r,m])=><tr key={r}><td>{r} m</td><td>{m.parcel_count}</td><td>{m.destroyed_count}</td><td>{m.construction_evidence_count}</td></tr>)}</tbody></table><p className="muted small">{p.neighborhood.limitation||'Geometry unavailable for this parcel.'}</p><h4>Required before a valuation model</h4><ul>{p.market_support.requirements.map(r=><li key={r}>{r}</li>)}</ul></TabsPanel>
+ <TabsPanel value="site"><h3>Measured site context</h3>{p.visuals.length?p.visuals.map(v=><article key={v.asset}><div className="section-heading"><h4>LiDAR surface</h4><Badge variant="outline">Captured {v.captured_at}</Badge></div><img className="lidar" src={base+v.preview} alt={`LiDAR ground and surface points captured ${v.captured_at}; historical site baseline`}/><p>{v.points.toLocaleString()} points · parcel and 5 m context</p><Notice>{v.limitation}</Notice>{v.measurements&&<Facts items={{"Ground normalization support":Math.round(v.measurements.ground_support_fraction*100)+"%","Measurement quality":v.measurements.quality,"90th-percentile surface height (m)":v.measurements.height_quantiles_m["0.9"]}}/>}<Source item={v.evidence}/><a className="download" href={base+v.asset}><Download size={14}/> Download classified LAZ points</a></article>):<Notice>No visual observations acquired for this parcel. Capture requests are available under Collect.</Notice>}
+ <h3>Utilities & public works</h3>{p.utilities.length?p.utilities.map((u,i)=><div key={i}><h4>{u.kind} · {u.radius_m} m context</h4><p>{u.features.length} nearby segments</p><Notice>{u.limitation}</Notice>{u.features.map((f,j)=><details key={j}><summary>Segment {String(f.attributes.PIPE_ID||j+1)}</summary><Facts items={f.attributes}/></details>)}<Source item={u.evidence}/></div>):<Notice>No parcel-specific utility evidence acquired. Coverage is not a statement that service is disconnected.</Notice>}</TabsPanel>
+ <TabsPanel value="people"><Claims p={p} release={release.release_id} enabled={release.local_workspace}/></TabsPanel>
+ <TabsPanel value="tasks"><h3>Close the evidence gaps</h3><p>Each missing observation has a next source. Queue work here; reviewed findings can enter a subsequent release.</p>{p.tasks.map(t=><TaskCard key={t.task_id} task={t} release={release.release_id} enabled={release.local_workspace}/>)}</TabsPanel>
+ </Tabs></section>;
+}
+export default function App(){
+ const [release,setRelease]=useState<Release|null>(null),[error,setError]=useState(''),[query,setQuery]=useState(''),[results,setResults]=useState<Summary[]>([]),[total,setTotal]=useState(0),[selected,setSelected]=useState<string|null>(new URLSearchParams(location.search).get('parcel')),[property,setProperty]=useState<Property|null>(null),[filter,setFilter]=useState(''),[view,setView]=useState('map');
+ useEffect(()=>{get<Release>('/v1/evidence/current').then(setRelease).catch(e=>setError(String(e)))},[]);
+ useEffect(()=>{if(!release)return;const controller=new AbortController();const timer=setTimeout(()=>{get<{items:Summary[];total:number}>(apiPath(release.release_id,`properties?q=${encodeURIComponent(query)}&stage=${filter}&limit=60`),controller.signal).then(d=>{setResults(d.items);setTotal(d.total)}).catch(e=>{if(e.name!=='AbortError')setError(String(e))})},180);return()=>{clearTimeout(timer);controller.abort()}},[query,filter,release]);
+ useEffect(()=>{setProperty(null);if(!release||!selected)return;const controller=new AbortController();get<Property>(apiPath(release.release_id,`properties/${selected}`),controller.signal).then(setProperty).catch(e=>{if(e.name!=='AbortError')setError(String(e))});const url=new URL(location.href);url.searchParams.set('parcel',selected);history.replaceState(null,'',url);return()=>controller.abort()},[selected,release]);
+ function close(){setSelected(null);setProperty(null);history.replaceState(null,'',location.pathname)}
+ if(!release)return <main className="loading"><div className="brand">OPENPALI<span>RE\SPRING</span></div><h1>Recovery, made legible.</h1><p role={error?'alert':'status'}>{error||'Loading the evidence release…'}</p>{error&&<p>Run <code>make evidence-build</code> and <code>make evidence-api</code> to start the local evidence workspace.</p>}</main>;
+ return <div className="app"><header><a className="brand" href="/">OPENPALI<span>RE\SPRING</span></a><nav aria-label="Main navigation"><Button variant={view==='map'?'secondary':'ghost'} onClick={()=>setView('map')}><MapPin size={15}/> Explore</Button><Button variant={view==='sources'?'secondary':'ghost'} onClick={()=>setView('sources')}><Layers size={15}/> Coverage</Button></nav><div className="release-status"><span className="status-dot"/>Research evidence release <small>{release.release_id.slice(-8)}</small></div></header>
+ {error&&<div className="error" role="alert">{error}<Button variant="ghost" onClick={()=>setError('')}>Dismiss</Button></div>}
+ {view==='sources'?<main className="coverage"><div className="eyebrow">THE EVIDENCE BASE</div><h1>Know what we know.</h1><p>{release.coverage.cohort}. {release.coverage.limitation}</p><div className="stats">{Object.entries(release.counts).map(([k,v])=><div key={k}><strong>{v.toLocaleString()}</strong><span>{k.replaceAll('_',' ')}</span></div>)}</div>{release.permit_timing&&<Notice><strong>Observed permit timelines</strong><p>{release.permit_timing.issued_with_valid_dates.toLocaleString()} primary-home permits with valid submission and issue dates · median {release.permit_timing.median_observed_days_to_issue} calendar days. {release.permit_timing.not_yet_issued} applications not yet issued.</p><p>{release.permit_timing.interpretation}</p></Notice>}<div className="source-grid">{release.sources.map(s=><article key={s.source_id}><h3>{s.source_id.replaceAll('_',' ')}</h3><Badge variant="outline">{s.count.toLocaleString()} records / samples</Badge><p>{s.shape}</p><p className="muted">{s.limitation}</p><Source item={s}/></article>)}</div><Notice>{release.unmatched_evidence.length} assessor sample awaits a parcel identity match. It is excluded from property histories until resolved.</Notice><a className="download" href={apiPath(release.release_id,'artifacts/release.json')}><Download size={15}/> Download versioned evidence JSON</a></main>:<main className="workspace"><aside className="sidebar"><div className="eyebrow">PACIFIC PALISADES / RECOVERY ATLAS</div><h1>A clearer picture<br/>of the rebuild.</h1><p className="intro">Property evidence you can inspect.<br/>A path to the information still missing.</p><div className="mini-stats"><div><strong>{release.counts.properties.toLocaleString()}</strong><span>property records</span></div><div><strong>{release.counts.pdf_links.toLocaleString()}</strong><span>cleanup packets linked</span></div></div><div className="sample-links"><span>Explore detailed samples</span><Button variant="ghost" size="xs" onClick={()=>setSelected("4412013017")}>Site & utilities</Button><Button variant="ghost" size="xs" onClick={()=>setSelected("4409004001")}>Inspections</Button><Button variant="ghost" size="xs" onClick={()=>setSelected("4412006025")}>Market</Button></div><label className="search"><Search size={17}/><Input aria-label="Search address or parcel number" placeholder="Address or parcel number" value={query} onChange={e=>setQuery(e.target.value)}/></label><div className="filter-heading"><Activity size={14}/> Recovery evidence</div><select aria-label="Filter by recovery milestone" value={filter} onChange={e=>setFilter(e.target.value)}><option value="">All milestones</option>{Object.entries(stages).map(([key,v])=><option value={key} key={key}>{v.label}</option>)}</select><div className="results-heading">{total.toLocaleString()} matches <span>First {results.length}</span></div><div className="results">{results.map(p=><button className={`result ${selected===p.apn?'active':''}`} key={p.apn} onClick={()=>setSelected(p.apn)}><i style={{background:(stages[p.stage]||stages.unknown).color}}/><span><strong>{p.address||`Parcel ${p.apn}`}</strong><small>{p.apn} · {p.damage==='destroyed'?'Destroyed':'Damage unknown'}</small></span><ArrowUpRight size={14}/></button>)}{!results.length&&<p className="muted">No matching parcels. Try a street name or ten-digit APN.</p>}</div><div className="sidebar-footer"><Building2 size={16}/><span>{release.counts.mapped.toLocaleString()} parcel geometries mapped<br/><small>Remaining records are searchable.</small></span></div></aside><div className="map-area"><ParcelMap release={release.release_id} selected={selected} select={setSelected} filter={filter}/><div className="map-legend">{Object.entries(stages).map(([key,v])=><span key={key}><i style={{background:v.color}}/>{v.label}</span>)}</div>{selected&&!property&&<div className="detail-loading" role="status">Loading property evidence… <Button onClick={close} variant="ghost"><ArrowLeft/>Back</Button></div>}{property&&<PropertyPanel key={property.apn} p={property} release={release} close={close}/>}</div></main>}
+ </div>;
 }

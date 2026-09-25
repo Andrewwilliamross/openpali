@@ -1,0 +1,24 @@
+{
+  "schema_version": "lidar-height-v1",
+  "captured_at": "2025-01-21",
+  "sha256": "7b942bf6073704c79986d72a7247d25431fa503912a6aa2e8323bd4eef87e407",
+  "crs": "EPSG:6340",
+  "crs_evidence": "USGS CA_LAPostWildfire_Palisades_WU300865_Report.pdf; parcel crop acquisition manifest",
+  "method": "surface minus nearest classified ground elevation within 2 m",
+  "ground_points": 23454,
+  "surface_points": 29097,
+  "normalized_points": 29097,
+  "ground_support_fraction": 1.0,
+  "quality": "usable",
+  "height_quantiles_m": {
+    "0.1": -0.01,
+    "0.5": 0.27,
+    "0.9": 5.374,
+    "0.95": 7.412
+  },
+  "limitations": [
+    "5 m context crop is not a building footprint",
+    "vegetation and debris can be elevated returns",
+    "single historical acquisition cannot establish change or current construction"
+  ]
+}

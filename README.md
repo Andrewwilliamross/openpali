@@ -1,72 +1,107 @@
-# Palisades Rebuild Tracker (OpenPali)
+# OpenPali — recovery evidence workspace
 
-By RE\SPRING (respring.ai)
+By RE\SPRING. A parcel-level evidence platform for Pacific Palisades recovery.
 
-A public evidence platform for the rebuild after the January 2025 Palisades
-Fire: one map of every destroyed property, each showing **what the public
-record actually documents** — cleanup, design review, permitting,
-construction, and occupancy as separate evidence lanes — plus the observation
-timeline behind every claim, down to the source record.
+## Run the implemented workspace
 
-The platform never scores, ranks, or guesses. Milestones appear only when a
-documented event supports them; "no public evidence" is displayed as exactly
-that, never as a judgment about the property or its owners. Permit-timing
-estimates come from a reviewed batch model and are suppressed with a typed
-reason whenever the evidence base is insufficient.
+```sh
+npm --prefix web ci --cache .npm-cache
+make evidence-build
+make evidence-api  # terminal 1: http://127.0.0.1:8000
+make evidence-web  # terminal 2: http://127.0.0.1:5173
+```
+
+The Python environment is `pipeline/.venv` (Python 3.12+). Install the pipeline
+with its locked requirements when creating a new environment. The release build
+requires the acquired source files referenced by `Docs/Research` manifests;
+it fails on missing or altered bytes. Raw acquisitions and generated releases
+are excluded from Git. A generated release can be copied as a portable artifact.
+
+The current implementation covers the ZIP 90272 parcel cohort, destroyed
+Palisades Fire parcels, and exact-AIN lookups. It does **not** establish that
+this is every parcel within an authoritative Palisades neighborhood boundary.
+Unknown damage and unknown current vacancy remain unknown.
+
+### Working features
+
+- React, official coss components, and MapLibre parcel search and map.
+- Immutable, hash-verified evidence releases and a release-pinned read API.
+- Cleanup status and source PDF links, current permit rows, inspection requests,
+  detailed sampled PCIS outcomes, assessor and recorded transfer histories.
+- Sourced listing samples; asking prices, transfer-tax-derived amounts and
+  assessed values remain distinct.
+- Metric neighborhood destruction exposure, descriptive permit timelines,
+  dated LiDAR geometry measurements, and sampled sewer engineering records.
+- Persistent local project-role drafts and acquisition-task actions. Claims are
+  unverified and never change agency evidence or generate contractor rankings.
+- Expanded source collectors, a bounded assessor acquisition command, and a
+  deterministic PCIS browser worker with retained failures.
+
+### Start with detailed examples
+
+- **677 Via de la Paz / 4412013017:** cleanup packet, assessor history, LiDAR, sewer.
+- **758 Radcliffe / 4412006025:** pending lot listing and recorded transfers.
+- **1201 Villa Woods / 4409004001:** actual PCIS inspection outcomes and clearances.
 
 ## Architecture
 
-A modular Python monolith with workers, serving a React/MapLibre/WebGL client:
+- `pipeline/openpali/intelligence/`: portable release builder, source integration,
+  spatial features, permit/market support logic, LiDAR measurements and local drafts.
+- `pipeline/openpali/discovery/`: bounded source collectors with retained raw bytes.
+- `pipeline/openpali/api/`: FastAPI. `/v1/evidence/current` resolves a research
+  release; all property and artifact reads pin its ID.
+- `pipeline/openpali/{ingestion,storage,publication}/`: canonical PostGIS ledger,
+  source-run membership, snapshots and production publication. The portable import
+  command stages data here without moving the production release pointer.
+- `web/`: coss / React / Tailwind 4 / MapLibre client.
+- `infra/`: PostGIS, S3, orchestration and canonical service stack. The optional
+  `compose.evidence.yaml` mounts portable artifacts read-only.
+- `pipeline/palisades/`: legacy static producer, retained for comparison; the new
+  frontend uses the evidence API.
 
-- `pipeline/openpali/` — domain semantics, source adapters (LA County, LADBS
-  permits + inspections, Socrata permits/CofO, Malibu, CAL FIRE DINS, USGS
-  3DEP), bitemporal PostGIS ledger, content-addressed object store,
-  censoring-aware analytics, the continual-ML platform (MLflow), the
-  spatial/3D pipeline, and the FastAPI release API.
-- `infra/compose.yaml` — PostgreSQL/PostGIS, SeaweedFS (S3), Prefect
-  orchestration, MLflow, API, web, observability, and the drill/gate jobs.
-- `web/` — the 2D-first map product with opt-in 3D (USGS post-fire lidar
-  surfels + terrain through release-qualified URLs), generated API client.
+The local draft workspace uses SQLite for **operational submissions only**;
+civic facts and production publication retain PostGIS. `make evidence-api`
+enables draft writes and binds loopback. Public authentication, ownership/license
+verification, moderation and abuse controls must precede public claim intake.
 
-Everything a user sees is pinned to ONE published release/snapshot;
-publication is atomic with gates, last-known-good, and rollback. Raw source
-bytes are immutable and every release replays offline from exact hashes.
+## Grow coverage
 
-## Run it locally
+```sh
+# Up to 25 histories per batch; retains selection scope, raw bytes and failures.
+PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.intelligence.acquire --limit 25 --register
+# Add --queued-only to consume explicitly queued history tasks.
+make evidence-build
 
-```bash
-scripts/bootstrap        # toolchain + dependency setup (no services)
-scripts/check-fast       # unit suites, lint, typecheck, OpenAPI drift
-scripts/check-full       # full local gate: services, integration, ML,
-                         # spatial, browser, security, release packaging
+# Refresh complete agency permit and inspection-request tables.
+PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.discovery.permit_inventory
+
+# Stage in canonical PostGIS after migrations, without publication.
+make evidence-import
 ```
 
-Service lifecycle runs through Docker Compose (see `infra/compose.yaml`);
-`scripts/check-full` prints each wrapper command it needs when it cannot
-invoke Docker itself.
+`Docs/Research/evidence-extra-inputs.json` is an explicit input recipe. Building
+again from the same inputs produces the same release ID and artifact hashes.
 
-## Data honesty
+## Verification
 
-- Observation, source record, parcel, property, permit, and inspection are
-  distinct; unknown stays unknown, and missing dates are never replaced.
-- Analytics disclose denominators, censoring, and failed reconciliations on
-  the metric itself.
-- Corrections: every property card has a report path; contact details are
-  stored separately and never published.
+```sh
+sh scripts/check-fast
+npm --prefix web run build
+```
 
-## History
+The full service suite requires real PostGIS and S3; it is not represented by
+SQLite tests. See the [implementation record](Docs/Plans/2026-09-24-IMPLEMENTATION.md)
+for measured counts, checks, and outstanding work.
 
-The original static-site prototype (0–100 rebuild score, static JSON, no
-backend) is retired; its design docs remain in
-[Docs/initialbuild_docs/](Docs/initialbuild_docs/ARCHITECTURE.md) as history.
-Its scoring and estimated-completion semantics no longer exist anywhere in
-the product.
+## Remaining research and engineering
 
-## License
+Validated price predictions, vacancy price effects, current construction vision,
+continuous listing acquisition, broader utility feeds, public identity verification,
+and fair contractor rankings are **not shipped claims**. The workspace exposes
+missing evidence and acquisition paths, rather than manufacturing those results.
 
-Not yet decided. Licensing (and any open-source release) is a pending
-human decision for the project owner; no license is granted by this
-repository today. Government data remains public record; imagery, basemaps,
-and vendor-derived assets are used under their respective terms with
-attribution shown in-app, and rights-unresolved assets are excluded from
-public releases by default.
+- [Data expansion research](Docs/Research/2026-09-24-DATA-EXPANSION.md)
+- [Market research](Docs/Research/2026-09-24-MARKET-SPIKE.md)
+- [Visual acquisition and modeling program](Docs/Research/2026-09-24-VISUAL-PROGRAM.md)
+- [Long-term recovery intelligence plan](Docs/Plans/2026-09-24-RECOVERY-INTELLIGENCE.md)
+- [Frontend source and coss attribution](web/README.md)

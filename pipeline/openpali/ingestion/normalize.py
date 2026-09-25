@@ -207,6 +207,11 @@ def normalize_county_parcel(
                 "construction_completed",
                 "Construction completed (county dashboard, coarse)",
             ),
+            CountyProgressCategory.CONSTRUCTION_IN_PROGRESS.value: (
+                MilestoneLane.CONSTRUCTION,
+                "construction_in_progress",
+                "Construction in progress (county dashboard, coarse)",
+            ),
         }
         lane, event_type, label = coarse_map[progress.category]
         result.observations.append(

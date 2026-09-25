@@ -1,0 +1,466 @@
+{
+  "as_of": "2026-09-24",
+  "audit_version": "1",
+  "bundle_age_days": 74,
+  "counts": {
+    "application_submitted": 1205,
+    "cleanup_complete": 3964,
+    "cofo_issued": 27,
+    "construction_evidence": 1,
+    "construction_scheduled_only": 436,
+    "no_evidenced_milestone": 1371,
+    "no_evidenced_permit_or_later": 4911,
+    "parcels": 5877,
+    "parcels_with_cleanup_opt_out": 1595,
+    "parcels_with_permit_records": 1714,
+    "parcels_without_observations": 0,
+    "permit_issued": 965,
+    "permit_records": 5033,
+    "plan_check_approved": 878
+  },
+  "geometry": {
+    "empty": 0,
+    "invalid": 0,
+    "nonpolygon": 0,
+    "validation": "Shapely"
+  },
+  "hashes": {
+    "coverage.json": {
+      "bytes": 700216,
+      "matches_manifest": null,
+      "sha256": "64d46aaf22204acbfd6aa99b9f5a43a3305fcf5644ddd8e077a46ab56473cfc1"
+    },
+    "details.json": {
+      "bytes": 20872817,
+      "matches_manifest": true,
+      "sha256": "a4471d8e3abd41bd41cee5e142cb52b723e4104d314534115f3069a53564ba99"
+    },
+    "meta.json": {
+      "bytes": 3423,
+      "matches_manifest": null,
+      "sha256": "d0f4ed94a221cb2c4c5fa2ff9cb5d59b6982689b8d5b29d03f710fdcbddfe81c"
+    },
+    "parcels.geojson": {
+      "bytes": 6514386,
+      "matches_manifest": true,
+      "sha256": "c36888f8dcc387c2a865a70b796b0d024d31e3301322ad0d7262f6399002b8f0"
+    },
+    "summary.json": {
+      "bytes": 9413,
+      "matches_manifest": true,
+      "sha256": "2e54608d63d3dd91a191b551a2bbdd9f7f45aad24985a21c8836e0ac7311e6a7"
+    }
+  },
+  "integrity": {
+    "detail_apns_without_map": 0,
+    "duplicate_map_apns": 0,
+    "duplicate_observation_instances": 0,
+    "map_apns_without_coverage": 0,
+    "map_apns_without_details": 0,
+    "note": "observation instance duplicates can reflect a multi-parcel relationship",
+    "snapshot_ids_match": true,
+    "summary_mismatches": {},
+    "temporal_issues": {
+      "interval_without_upper_bound": 5877,
+      "nonscheduled_exact_after_observation": 1
+    }
+  },
+  "jurisdictions": {
+    "COUNTY": {
+      "application_submitted": 137,
+      "cleanup_complete": 434,
+      "cofo_issued": 0,
+      "construction_evidence": 1,
+      "no_evidenced_milestone": 52,
+      "no_evidenced_permit_or_later": 462,
+      "parcels": 553,
+      "permit_issued": 90,
+      "plan_check_approved": 12
+    },
+    "LA": {
+      "application_submitted": 1067,
+      "cleanup_complete": 3103,
+      "cofo_issued": 27,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 1170,
+      "no_evidenced_permit_or_later": 3911,
+      "parcels": 4701,
+      "permit_issued": 790,
+      "plan_check_approved": 866
+    },
+    "MALIBU": {
+      "application_submitted": 1,
+      "cleanup_complete": 427,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 149,
+      "no_evidenced_permit_or_later": 538,
+      "parcels": 623,
+      "permit_issued": 85,
+      "plan_check_approved": 0
+    }
+  },
+  "lane_signals": {
+    "lane_cleanup": {
+      "milestone_reached": 3964,
+      "no_public_evidence": 1913
+    },
+    "lane_constr": {
+      "activity_scheduled": 436,
+      "milestone_reached": 1,
+      "no_public_evidence": 5440
+    },
+    "lane_design": {
+      "in_progress": 380,
+      "milestone_reached": 878,
+      "no_public_evidence": 4619
+    },
+    "lane_occup": {
+      "milestone_reached": 27,
+      "no_public_evidence": 5850
+    },
+    "lane_permit": {
+      "milestone_reached": 1380,
+      "no_public_evidence": 4497
+    }
+  },
+  "missing_pre_fire_fields": {
+    "baths": 109,
+    "beds": 109,
+    "sqft": 109,
+    "units": 1,
+    "year_built": 138
+  },
+  "neighborhood_method": "nearest configured center; not validated neighborhood polygons",
+  "neighborhoods": {
+    "Bienveneda / Temescal": {
+      "application_submitted": 77,
+      "cleanup_complete": 327,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 118,
+      "no_evidenced_permit_or_later": 412,
+      "parcels": 468,
+      "permit_issued": 56,
+      "plan_check_approved": 61
+    },
+    "Castellammare": {
+      "application_submitted": 12,
+      "cleanup_complete": 93,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 11,
+      "no_evidenced_permit_or_later": 102,
+      "parcels": 109,
+      "permit_issued": 7,
+      "plan_check_approved": 9
+    },
+    "El Medio Bluffs": {
+      "application_submitted": 189,
+      "cleanup_complete": 519,
+      "cofo_issued": 1,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 85,
+      "no_evidenced_permit_or_later": 541,
+      "parcels": 672,
+      "permit_issued": 131,
+      "plan_check_approved": 146
+    },
+    "Huntington Palisades": {
+      "application_submitted": 58,
+      "cleanup_complete": 119,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 76,
+      "no_evidenced_permit_or_later": 182,
+      "parcels": 225,
+      "permit_issued": 43,
+      "plan_check_approved": 47
+    },
+    "Malibu \u2014 Las Flores / PCH": {
+      "application_submitted": 39,
+      "cleanup_complete": 505,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 164,
+      "no_evidenced_permit_or_later": 632,
+      "parcels": 732,
+      "permit_issued": 100,
+      "plan_check_approved": 2
+    },
+    "Marquez Knolls": {
+      "application_submitted": 48,
+      "cleanup_complete": 196,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 153,
+      "no_evidenced_permit_or_later": 333,
+      "parcels": 365,
+      "permit_issued": 32,
+      "plan_check_approved": 36
+    },
+    "Palisades Highlands": {
+      "application_submitted": 49,
+      "cleanup_complete": 251,
+      "cofo_issued": 1,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 146,
+      "no_evidenced_permit_or_later": 368,
+      "parcels": 407,
+      "permit_issued": 39,
+      "plan_check_approved": 42
+    },
+    "Paseo Miramar / Castellammare Mesa": {
+      "application_submitted": 27,
+      "cleanup_complete": 90,
+      "cofo_issued": 1,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 40,
+      "no_evidenced_permit_or_later": 120,
+      "parcels": 141,
+      "permit_issued": 21,
+      "plan_check_approved": 23
+    },
+    "Rustic Canyon": {
+      "application_submitted": 32,
+      "cleanup_complete": 90,
+      "cofo_issued": 1,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 43,
+      "no_evidenced_permit_or_later": 124,
+      "parcels": 148,
+      "permit_issued": 24,
+      "plan_check_approved": 28
+    },
+    "Sunset Mesa (County)": {
+      "application_submitted": 104,
+      "cleanup_complete": 389,
+      "cofo_issued": 0,
+      "construction_evidence": 1,
+      "no_evidenced_milestone": 46,
+      "no_evidenced_permit_or_later": 405,
+      "parcels": 487,
+      "permit_issued": 81,
+      "plan_check_approved": 17
+    },
+    "The Alphabets / Village": {
+      "application_submitted": 552,
+      "cleanup_complete": 1332,
+      "cofo_issued": 23,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 470,
+      "no_evidenced_permit_or_later": 1621,
+      "parcels": 2043,
+      "permit_issued": 422,
+      "plan_check_approved": 457
+    },
+    "The Riviera": {
+      "application_submitted": 4,
+      "cleanup_complete": 15,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 9,
+      "no_evidenced_permit_or_later": 24,
+      "parcels": 26,
+      "permit_issued": 2,
+      "plan_check_approved": 2
+    },
+    "Topanga (County)": {
+      "application_submitted": 14,
+      "cleanup_complete": 38,
+      "cofo_issued": 0,
+      "construction_evidence": 0,
+      "no_evidenced_milestone": 10,
+      "no_evidenced_permit_or_later": 47,
+      "parcels": 54,
+      "permit_issued": 7,
+      "plan_check_approved": 8
+    }
+  },
+  "observations": {
+    "by_source": {
+      "county_base": {
+        "date_exact": 3963,
+        "date_interval": 5877,
+        "date_unknown": 1901,
+        "event_cleanup_opt_out_selected": 1595,
+        "event_cleanup_program_ineligible": 62,
+        "event_construction_completed": 1,
+        "event_debris_removal_complete": 3964,
+        "event_plan_check_approved": 12,
+        "event_rebuild_application_submitted": 140,
+        "event_rebuild_permit_issued": 90,
+        "event_structure_destroyed": 5877,
+        "missing_payload_hash": 11741,
+        "observation_instances": 11741
+      },
+      "ladbs_inspections": {
+        "date_unknown": 904,
+        "event_construction_inspection_activity": 439,
+        "event_inspection_activity": 465,
+        "missing_payload_hash": 904,
+        "observation_instances": 904
+      },
+      "ladbs_permits": {
+        "date_exact": 7006,
+        "event_ancillary_permit_activity": 783,
+        "event_certificate_of_occupancy_issued": 29,
+        "event_corrections_issued": 232,
+        "event_non_rebuild_permit_activity": 3124,
+        "event_plan_check_approved": 895,
+        "event_plan_check_in_progress": 6,
+        "event_rebuild_application_submitted": 1126,
+        "event_rebuild_permit_issued": 811,
+        "missing_payload_hash": 7006,
+        "observation_instances": 7006
+      },
+      "malibu_dash": {
+        "date_unknown": 265,
+        "event_plan_check_in_progress": 180,
+        "event_rebuild_permit_issued": 85,
+        "missing_payload_hash": 265,
+        "observation_instances": 265
+      }
+    },
+    "event_types": {
+      "ancillary_permit_activity": 783,
+      "certificate_of_occupancy_issued": 29,
+      "cleanup_opt_out_selected": 1595,
+      "cleanup_program_ineligible": 62,
+      "construction_completed": 1,
+      "construction_inspection_activity": 439,
+      "corrections_issued": 232,
+      "debris_removal_complete": 3964,
+      "inspection_activity": 465,
+      "non_rebuild_permit_activity": 3124,
+      "plan_check_approved": 907,
+      "plan_check_in_progress": 186,
+      "rebuild_application_submitted": 1266,
+      "rebuild_permit_issued": 986,
+      "structure_destroyed": 5877
+    },
+    "instances": 19916,
+    "observed_dates": {
+      "2026-07-12": 19916
+    },
+    "occurrence_kinds": {
+      "exact": 10969,
+      "interval": 5877,
+      "unknown": 3070
+    },
+    "sources_absent_from_metadata": [
+      "ladbs_inspections"
+    ],
+    "statuses": {
+      "agency_reported": 18172,
+      "issued": 840,
+      "scheduled": 904
+    },
+    "unique_ids": 19916
+  },
+  "scope": "local static bundle only; deployment and live source state are separate",
+  "snapshot_ids": {
+    "details": "20260712T022255Z-7e67da",
+    "meta": "20260712T022255Z-7e67da",
+    "parcels": "20260712T022255Z-7e67da",
+    "summary": "20260712T022255Z-7e67da"
+  },
+  "source_health": [
+    {
+      "age_basis": "retrieval, not acquisition or event occurrence",
+      "as_of": "2026-07-12",
+      "bytes": 7790392,
+      "cache_hits": 0,
+      "endpoint": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/Parcels_Debris_Removal_Public/FeatureServer/0",
+      "fetched_at": "2026-07-12T02:23:01+00:00",
+      "id": "county_base",
+      "joined": 5877,
+      "note": "LA County Parcels Debris Removal (destroyed)",
+      "ok": true,
+      "query": "FIRE_NAME='Palisades' AND DAMAGE='Destroyed (>50%)'",
+      "records": 5877,
+      "requests": 6,
+      "retrieval_age_days": 74,
+      "schema_fingerprint": "4465489b6e26fdcc",
+      "sha256": "d8e5761ceff3d717c5a667cf9be0766393281e5fb08f61af52878d271c4f2a3b"
+    },
+    {
+      "age_basis": "retrieval, not acquisition or event occurrence",
+      "as_of": "2026-07-12",
+      "bytes": 2253745,
+      "cache_hits": 0,
+      "endpoint": "https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LADBS_WF_Fire_Data_Palisades_Recovery_Area/FeatureServer/0",
+      "fetched_at": "2026-07-12T02:23:03+00:00",
+      "id": "ladbs_permits",
+      "joined": 5033,
+      "note": "LADBS Palisades Recovery",
+      "ok": true,
+      "parcels_matched": 1714,
+      "qualifying_applications": 1126,
+      "query": "1=1",
+      "records": 5331,
+      "requests": 6,
+      "retrieval_age_days": 74,
+      "schema_fingerprint": "3a140097f78a8a18",
+      "sha256": "1aaa533e8470a1b0dd9d33dc690faf6324fb7e300cc75836a2500faeebaaab4f",
+      "unjoined_permits": 24,
+      "unparseable": 24
+    },
+    {
+      "age_basis": "retrieval, not acquisition or event occurrence",
+      "as_of": "2026-07-12",
+      "bytes": 146271,
+      "cache_hits": 0,
+      "endpoint": "https://maps.lacity.org/lahub/rest/services/WildfireRecovery/MapServer/4",
+      "fetched_at": "2026-07-12T02:23:04+00:00",
+      "id": "inspections",
+      "joined": 904,
+      "note": "LA City Wildfire Recovery inspections",
+      "ok": true,
+      "orphan_inspections": 110,
+      "query": "1=1",
+      "records": 1014,
+      "requests": 2,
+      "retrieval_age_days": 74,
+      "schema_fingerprint": "43c1a53b3654e1e9",
+      "sha256": "9a648cc6ab9e4469615943b8cd7d2a9787d092d5e1ccef9a2330449ea1f907aa"
+    },
+    {
+      "age_basis": "retrieval, not acquisition or event occurrence",
+      "as_of": "2026-07-12",
+      "bytes": 53471,
+      "cache_hits": 1,
+      "endpoint": "https://mlb-pptsrv.ci.malibu.ca.us/Home/GetProjectDashMarkers?sFireView=PalisadesRebuildStatsDetailWithBPComplete",
+      "fetched_at": "2026-07-12T02:05:10+00:00",
+      "id": "malibu_dash",
+      "joined": 265,
+      "note": "Malibu rebuild dashboard markers (unofficial)",
+      "ok": true,
+      "query": null,
+      "records": 269,
+      "requests": 1,
+      "retrieval_age_days": 74,
+      "schema_fingerprint": "23f8f3c186589b8a",
+      "sha256": "f41187933d2a3eedc09762809dd6951de90231d7df125c0ade5aa9c24b55b0e0"
+    },
+    {
+      "age_basis": "retrieval, not acquisition or event occurrence",
+      "as_of": "2026-07-12",
+      "bytes": 154699,
+      "cache_hits": 0,
+      "endpoint": "https://data.lacity.org/resource/gwh9-jnip.json",
+      "fetched_at": "2026-07-12T02:23:18+00:00",
+      "id": "socrata_links",
+      "joined": null,
+      "note": "City open-data permit deep-link presence",
+      "ok": true,
+      "query": "permit_nbr in(<permit numbers>)",
+      "records": 4181,
+      "requested": 5033,
+      "requests": 26,
+      "retrieval_age_days": 74,
+      "schema_fingerprint": null,
+      "sha256": "9a25444ba8da7b092b162cc68e09f7edafad384a95fde87a841c04ef6befbd51"
+    }
+  ]
+}

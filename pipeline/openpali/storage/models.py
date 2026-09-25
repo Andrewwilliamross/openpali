@@ -185,6 +185,19 @@ class SourceRecordVersion(TimestampMixin, Base):
 # ---------------------------------------------------------------------------
 
 
+class AcquisitionRecord(Base):
+    """Every record observed in a run, including unchanged, deduplicated payloads."""
+
+    __tablename__ = "acquisition_record"
+    __table_args__ = {"schema": "source"}
+    acquisition_run_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("source.acquisition_run.id"), primary_key=True
+    )
+    record_version_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("source.source_record_version.record_version_id"), primary_key=True
+    )
+
+
 class PropertyIdentity(TimestampMixin, Base):
     __tablename__ = "property_identity"
     __table_args__ = {"schema": "civic"}
@@ -391,6 +404,7 @@ class SnapshotPropertyState(Base):
     address: Mapped[str | None] = mapped_column(Text)
     neighborhood: Mapped[str | None] = mapped_column(Text)
     projection_policy_version: Mapped[str] = mapped_column(Text, nullable=False)
+    frozen_identity: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     lane_signals: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     milestones: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     observation_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
