@@ -26,52 +26,53 @@ See [REFERENCES.md](REFERENCES.md) for source-linked research. Borrow the discip
 - [x] Inspect the requested reference websites and repositories.
 - [x] Read the existing project, setup scripts, CI, and deployment instructions.
 - [x] Identify stale descriptions and the outstanding license decision.
-- [ ] Record references, what to borrow, and what to avoid.
-- [ ] Confirm canonical repository URL and publication path.
-- [ ] Separate shipped behavior, fixtures, legacy paths, and planned capabilities in copy.
+- [x] Record references, what to borrow, and what to avoid.
+- [x] Confirm canonical repository URL and publication path.
+- [x] Separate shipped behavior, fixtures, legacy paths, and planned capabilities in copy.
 
 ### 2. Identity system
 
-- [ ] Original transparent vector mark, light/dark variants, wordmark.
-- [ ] GitHub README banner.
-- [ ] Social preview at 1280 × 640 and social square at 1080 × 1080.
-- [ ] Avatar and small favicon variants.
-- [ ] ASCII/text mark for terminal and release notes.
-- [ ] Brand guide covering colors, spacing, usage, accessibility, and voice.
-- [ ] Reproducible asset source and export instructions.
-- [ ] Inspect the assets at banner, avatar, and mobile sizes.
+- [x] Original transparent vector mark, light/dark variants, wordmark.
+- [x] GitHub README banner.
+- [x] Social preview at 1280 × 640 and social square at 1080 × 1080.
+- [x] Avatar and small favicon variants.
+- [x] ASCII/text mark for terminal and release notes.
+- [x] Brand guide covering colors, spacing, usage, accessibility, and voice.
+- [x] Reproducible asset source and export instructions.
+- [x] Inspect the assets at banner, avatar, and mobile sizes.
 
 ### 3. GitHub front door
 
-- [ ] Rewrite the README around purpose, visuals, local start, architecture, and contribution.
-- [ ] Give developers a low-friction frontend preview path.
-- [ ] Preserve data honesty, source attribution, and license status.
-- [ ] Add verified links and concise navigation.
-- [ ] Add a useful contribution guide.
-- [ ] Add bug, feature, and public data-correction issue forms.
-- [ ] Add a pull request template and community conduct guidance.
-- [ ] Replace stale frontend and pipeline READMEs.
-- [ ] Verify private vulnerability reporting instructions against repository settings.
+- [x] Rewrite the README around purpose, visuals, local start, architecture, and contribution.
+- [x] Give developers a low-friction frontend preview path.
+- [x] Preserve data honesty, source attribution, and license status.
+- [x] Add verified links and concise navigation.
+- [x] Add a useful contribution guide.
+- [x] Add bug, feature, and public data-correction issue forms.
+- [x] Add a pull request template and community conduct guidance.
+- [x] Replace stale frontend and pipeline READMEs.
+- [x] Verify private vulnerability reporting instructions against repository settings.
 
 ### 4. One-button website
 
-- [ ] Implement a lightweight static page in `site/`, separate from the map application.
-- [ ] Use the shared brand assets and one prominent link to the canonical repository.
-- [ ] Work at small mobile, tablet, and desktop widths.
-- [ ] Support keyboard focus, high contrast text, and reduced motion.
-- [ ] Include favicon and accurate social metadata.
-- [ ] Work without JavaScript; enhance only decorative behavior.
-- [ ] Add a reproducible staging command and GitHub Pages workflow.
-- [ ] Keep API services and real property data out of the marketing deploy.
+- [x] Implement a lightweight static page in `site/`, separate from the map application.
+- [x] Use the shared brand assets and one prominent link to the canonical repository.
+- [x] Work at small mobile, tablet, and desktop widths.
+- [x] Support keyboard focus, high contrast text, and reduced motion.
+- [x] Include favicon and accurate social metadata.
+- [x] Work without JavaScript; enhance only decorative behavior.
+- [x] Add a reproducible staging command and GitHub Pages workflow.
+- [x] Keep API services and real property data out of the marketing deploy.
 
 ### 5. Launch kit and verification
 
-- [ ] Provide launch copy, social captions, and a release-note template.
-- [ ] Provide the exact repository description, homepage, topics, and social-image settings.
-- [ ] Check local links, asset dimensions, and staging output.
-- [ ] Inspect the website in a real browser on desktop and mobile.
-- [ ] Check keyboard navigation, reduced motion, and no-JavaScript rendering.
-- [ ] Review the diff for unsupported product or license claims.
+- [x] Provide launch copy, social captions, and a release-note template.
+- [x] Provide the exact repository description, homepage, topics, and social-image settings.
+- [x] Check local links, asset dimensions, and staging output.
+- [x] Inspect the website in a real browser on desktop and mobile.
+- [x] Verify keyboard navigation in-browser and review reduced-motion/no-JavaScript behavior in source.
+- [ ] Finish browser emulation of reduced motion, JavaScript disabled, and 200% zoom.
+- [x] Review the diff for unsupported product or license claims.
 - [ ] Publish the GitHub presentation and website when authorized and available.
 - [ ] Report any remaining owner decisions or settings accurately.
 
@@ -82,3 +83,16 @@ Use code-native SVG for the geometric identity and a dependency-free static page
 ## Definition of done
 
 A visitor recognizes OpenPali, understands its purpose and evidence standards, can start exploring the code, and sees a clear way to contribute. The same identity appears on GitHub, the website, and shareable images. Any unpublished pieces or undecided license are explicitly recorded.
+
+
+## Verification and publication record
+
+- Original SVGs parse, generation is deterministic, and PNG dimensions match their intended uses. Banner and both social-card compositions were visually inspected.
+- The static build stages only the landing page, CSS, decorative JavaScript, mark, favicon, social PNG, and `.nojekyll`.
+- Real-browser checks passed at desktop, 390 px, and 320 px: assets loaded, one GitHub action, no horizontal overflow, and a visible keyboard-focus outline.
+- Reduced motion and no-JavaScript behavior were reviewed in source: the full grid and link are static HTML, while pointer highlighting is optional and checks `prefers-reduced-motion`. Browser emulation of these settings and 200% zoom were not completed after browser access became unavailable.
+- Local documentation links, SVG XML, PNG dimensions, Python compilation, JavaScript syntax, and whitespace checks passed. Independent review found and corrected a stale security-scanning claim.
+- Canonical repository confirmed as `Andrewwilliamross/openpali`. GitHub Pages was enabled for Actions; private vulnerability reporting was enabled.
+- Publication is tracked in [pull request #11](https://github.com/Andrewwilliamross/openpali/pull/11).
+- Source-code licensing remains pending owner selection. Public copy does not claim an open-source license.
+- GitHub's social-preview image still needs uploading in Settings. The browser extension denied local file access; the ready-to-upload asset is `assets/brand/social-card.png`. Social posts are drafted, not sent.
