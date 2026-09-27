@@ -35,7 +35,7 @@ import('../../vendor/three/three.module.js').then(async THREE => {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.domElement.setAttribute('aria-hidden', 'true');
   stage.append(renderer.domElement);
   await document.fonts.ready;
