@@ -2,94 +2,68 @@
 
 **A place with footnotes.**
 
-OpenPali's field office connects a coastal place with the work of keeping a clear public record. Its illustrated world has a layered paper atlas, tracing sheets, a blue pencil and clip, and a small paper pelican attending to a source note.
+The current **Field Notes** direction pairs a flat white-and-cobalt pelican, a field notebook, and actual Pacific Palisades parcel lines. The bird observes and annotates; the geography stays fixed. The implementation is pending review in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12), rather than a claim about the currently published main branch.
 
-![OpenPali — A place with footnotes. A paper coastal atlas and a pelican lifting a tracing sheet.](../../assets/brand/field-office/banner.png)
+![OpenPali — A place with footnotes. A flat pelican with a notebook beside actual Palisades parcel lines.](../../assets/brand/field-notes-2d/banner.png)
 
-Read the [field-office guide](FIELD-OFFICE.md) for the story, character, voice, and rules for extending the family.
+## Current assets
 
-## Artwork
+The active artwork is in [`assets/brand/field-notes-2d/`](../../assets/brand/field-notes-2d/).
 
 | Asset | Size | Use |
 | --- | --- | --- |
-| [README banner](../../assets/brand/field-office/banner.png) | 1600 × 600 | Wordmark, headline, and full coastal scene on white. |
-| [Follow a source](../../assets/brand/field-office/follow-source.png) | 640 × 427 | Source research, citations, and explanations. |
-| [Improve the software](../../assets/brand/field-office/build-tools.png) | 640 × 427 | Code, maps, accessibility, tests, and documentation. |
-| [Question a record](../../assets/brand/field-office/correct-record.png) | 640 × 427 | A public discrepancy or an annotation preserving the original. |
-| [Website hero](../../assets/brand/field-office/hero.webp) / [smaller hero](../../assets/brand/field-office/hero-900.webp) | 1536 / 900 pixels wide | Responsive image delivery. |
-| [Hero source](../../assets/brand/field-office/hero-source.png) | 1536 × 1024 | Master coastal illustration for new compositions and crops. |
-| [Social preview](../../assets/brand/field-office/social-card.png) | 1280 × 640 | GitHub social preview, Open Graph, and landscape announcements. |
-| [Social square](../../assets/brand/field-office/social-square.png) | 1080 × 1080 | Square announcements. |
-| [Wordmark](../../assets/brand/field-office/wordmark.svg) | 290 × 75 | Outlined type with the note marker. |
-| [Avatar SVG](../../assets/brand/field-office/avatar.svg) / [PNG](../../assets/brand/field-office/avatar.png) | 512 × 512 | Simplified paper pelican for project accounts. |
-| [Favicon](../../assets/brand/field-office/favicon.svg) | 32 × 32 | Small browser icon. |
-| [Sticker](../../assets/brand/field-office/sticker.svg) | 600 × 300 | Pelican, wordmark, and “Follow the source.” |
-| [ASCII companion](../../assets/brand/field-office/openpali.txt) | Plain text | A small pelican, purpose line, and field notes for terminal and developer surfaces. |
+| [README banner](../../assets/brand/field-notes-2d/banner.png) / [SVG](../../assets/brand/field-notes-2d/banner.svg) | 1600 × 600 | Project introduction. |
+| [Social preview](../../assets/brand/field-notes-2d/social-card.png) / [SVG](../../assets/brand/field-notes-2d/social-card.svg) | 1280 × 640 | GitHub and Open Graph preview. |
+| [Avatar PNG](../../assets/brand/field-notes-2d/avatar.png) / [SVG](../../assets/brand/field-notes-2d/avatar.svg) | 512 × 512 | Project account artwork. |
+| [Favicon](../../assets/brand/field-notes-2d/favicon.svg) | 32 × 32 | Browser icon. |
+| [Pelican rig](../../assets/brand/field-notes-2d/pelican.svg) | 260 × 260 | Editable character groups and animation hooks. |
+| [Website scene](../../assets/brand/field-notes-2d/scene.svg) | 1100 × 850 | Composed flat drawing, character, and margin study. |
+| [Close parcel drawing](../../assets/brand/field-notes-2d/map/close/alphabet-streets-linework.svg) | 1100 × 720 | Attributed, stationary map layer. |
 
-The current family lives in [`assets/brand/field-office/`](../../assets/brand/field-office/). Keep role labels as readable text beside the images. Earlier square/P experiments in the parent directory document the previous direction; use the field-office family for new artwork.
+The earlier square/P studies and layered paper-atlas artwork are archival. The former website is preserved in [`design-lab/round-2/field-office/`](../../design-lab/round-2/field-office/). Its [Field Office guide](FIELD-OFFICE.md) records that earlier direction. The shared font files still live in [`field-office/fonts/`](../../assets/brand/field-office/fonts/).
 
-## Color and type
+## Color, type, and voice
 
-| Color | Hex | Role |
-| --- | --- | --- |
-| Cobalt | `#1557FF` | Identity and primary action. |
-| Ink | `#172C52` | Readable dark text. |
-| Paper | `#FFFFFF` | Canvas. |
-
-Pale blues support the artwork and rules. Match the delivered artwork and the website's actual color tokens when extending it. Brand colors do not redefine the product's evidence-lane colors or imply recovery progress.
-
-The website uses locally bundled **Fraunces** for editorial display type and **DM Sans** for body and interface text. The font files and their SIL Open Font License notices are in [`field-office/fonts/`](../../assets/brand/field-office/fonts/). README text uses GitHub's native typography; code and the ASCII companion use ordinary monospace.
-
-- Keep essential text outside the raster artwork, apart from the designed banner lockup. Supply meaningful alternative text for that lockup.
-- Preserve the scene's quiet white space. Do not cover the main action with tiny labels or a large mark.
-- Keep the bird's proportions, atlas layers, blue accents, and paper texture consistent between pieces.
-- Compose dedicated mobile and social crops. Check the source note, bird, and coastal edge at the smallest intended size.
-- Use high-contrast text and visible focus indicators; pale lines belong to artwork and decoration.
-
-## Voice
+Use white `#FFFFFF`, cobalt `#1557FF`, dark blue text, and pale blue drawing lines. **Fraunces** supplies editorial type; **DM Sans** supplies body and interface text. Both fonts are locally bundled with SIL Open Font License notices. Follow the delivered scene and site tokens when extending the artwork.
 
 | Purpose | Copy |
 | --- | --- |
 | Headline | A place with footnotes. |
-| Plain explanation | Public evidence for the Palisades rebuild. |
-| Website action | Explore on GitHub. |
+| Explanation | Public evidence for the Palisades rebuild. |
+| Primary action | Explore on GitHub. |
 | Contribution invitation | Help make the record clearer. |
-| Encouragement | Small fixes count. |
 
-Celebrate useful work and the people doing it. Keep property evidence factual. Say what a covered source documents, preserve unknowns, and distinguish event, observation, and release dates. Avoid invented statistics, official endorsement, and promises of complete or live coverage.
+Keep essential text readable outside the illustration. Preserve the pelican’s long bill, soft pouch, rounded body, held notebook, and separate feet. Use clear ink shapes and purposeful pauses. Humor belongs in the character’s work; it should never judge a household’s recovery or make light of loss.
 
-The character's play belongs in research and contribution. It must not express a judgment about an owner's progress or make light of loss.
+## Motion and production
 
-## Production and provenance
+The website uses an inline SVG and a shared 26-second JavaScript timeline. The pelican waddles, inspects, lifts its pencil, underlines a margin note, and returns. Visitors can pause and resume. Reduced-motion mode starts still and offers **Play once**; hidden or offscreen scenes suspend the clock. The map itself does not move.
 
-The hero and three role scenes are original AI-generated illustrations made with the built-in ImageGen tool. The simplified pelican icons, composition templates, and typography exports are code-authored. The banner and social SVG files reference the adjacent raster master, `hero-source.png`. Keep that image beside them when previewing or editing; use the PNG exports for portable sharing. The SVG files are editable compositions, not wholly vector illustrations.
-
-[PROVENANCE.md](../../assets/brand/field-office/PROVENANCE.md) describes the source artwork and production history. [PROMPTS.json](../../assets/brand/field-office/PROMPTS.json) records generation instructions. [manifest.json](../../assets/brand/field-office/manifest.json) records the palette, tool, font licenses, and asset sizes. Role masters are preserved in [`sources/`](../../assets/brand/field-office/sources/).
-
-Rebuild the display assets from the committed illustrations and type outlines with [export-field-office.cjs](../../scripts/export-field-office.cjs):
+Recompose the scene and stage the website with Python’s standard library:
 
 ```sh
-npm install --prefix /tmp/openpali-brand-tools sharp
-NODE_PATH=/tmp/openpali-brand-tools/node_modules node scripts/export-field-office.cjs
+python3 scripts/compose-field-notes.py
+python3 scripts/build-site.py
 ```
 
-The export script makes no network requests. It creates the responsive WebP hero, smaller role PNGs, banner, social images, wordmark, avatar, favicon, sticker, and manifest. It does not regenerate the original illustrations. New artwork requires a separate generation and review pass; prompts alone do not reproduce identical pixels.
+The composer reads the committed pelican and close parcel SVG. The site builder inserts the resulting scene into HTML and stages only its explicit asset allowlist. There is no runtime renderer package or external map fetch.
 
-For changed typography, update the text list in [generate-field-office-type.py](../../scripts/generate-field-office-type.py) and run it with Python, FontTools, and Brotli installed before exporting. It rebuilds `type-outlines.json` from the bundled Fraunces font.
+For banner, avatar, favicon, and social changes, [`generate-assets.py`](../../assets/brand/field-notes-2d/generate-assets.py) creates self-contained SVG compositions with outlined type; it requires FontTools with WOFF2 support. [`export-assets.cjs`](../../assets/brand/field-notes-2d/export-assets.cjs) rasterizes the PNGs with Sharp. Those authoring dependencies are separate from the website build. Review the smallest intended size after exporting.
 
-The website build uses committed assets and does not install Sharp. Review desktop, mobile, and social crops after any source or composition change.
+## Geography and illustration
 
-## Image meaning and rights
+The close drawing uses 61 general County parcel features, plus named CAMS street lines around Galloway, Hartzell, and Bestor. The [geography record](../../design-lab/round-3/GEOGRAPHY.md) preserves the extent, source coordinates, queries, hashes, projection, terms, and rebuild recipe.
 
-The coastal paper scene is **illustrative artwork**, not a terrain survey, map of property conditions, or recovery measurement. Its lines and paper layers carry no data meaning. A future asset derived from actual geography needs its own source, extent, dates, and attribution.
+Keep this credit with compositions that contain the map: **Map: LA County Assessor · LA County CAMS**. Retain the full source references in accompanying documentation or metadata. The County data terms are separate from the rights to the new artwork and software.
 
-This artwork was made for OpenPali. The reference projects informed the idea of a coherent visual world; their characters, artwork, and marks are not included. This guide grants no trademark or asset license. Follow the repository's [current licensing notice](../../README.md#license-and-data-rights); government records, imagery, basemaps, and vendor-derived assets have separate terms.
+The character, pencil action, margin annotations, and architectural study are illustrative. Keep the architectural study separate from real parcel boundaries and labeled as such. Do not draw invented buildings onto specific lots or turn animation into recovery-status evidence. Preserve unknowns and distinguish event, observation, and release dates.
+
+This guide grants no software, asset, or trademark license. Follow the repository’s [licensing notice](../../README.md#license-and-data-rights).
 
 ## Further reading
 
-- [The field office: story, roles, and applications](FIELD-OFFICE.md)
-- [Round-two strategy and acceptance criteria](../../design-lab/round-2/STRATEGY.md)
-- [Round-two reference research](../../design-lab/round-2/RESEARCH.md)
-- [Original reference study](REFERENCES.md)
-- [Project launch plan](PLAN.md)
-- [Launch materials and repository settings](LAUNCH.md)
+- [Round-three implementation and release status](ROUND-3.md)
+- [Website development](../../site/README.md)
+- [Round-three review index](../../design-lab/round-3/README.md)
+- [Character source guide](../../design-lab/round-3/CHARACTER.md)
+- [Original reference research](REFERENCES.md)

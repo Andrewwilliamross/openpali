@@ -16,11 +16,11 @@
 
 **Social preview**
 
-Upload [`social-card.png`](../../assets/brand/field-office/social-card.png) under **Settings → General → Social preview**. GitHub does not use a repository image as its social preview just because the file exists. The website's preview is configured separately through its HTML metadata.
+Upload [`social-card.png`](../../assets/brand/field-notes-2d/social-card.png) under **Settings → General → Social preview**. GitHub does not use a repository image as its social preview just because the file exists. The website's preview is configured separately through its HTML metadata.
 
 **Avatar**
 
-[`avatar.png`](../../assets/brand/field-office/avatar.png) is ready for a dedicated OpenPali account or community space. GitHub repositories do not have independent avatars. Keep the owner's personal profile identity intact.
+[`avatar.png`](../../assets/brand/field-notes-2d/avatar.png) is ready for a dedicated OpenPali account or community space. GitHub repositories do not have independent avatars. Keep the owner's personal profile identity intact.
 
 ## Launch announcement
 

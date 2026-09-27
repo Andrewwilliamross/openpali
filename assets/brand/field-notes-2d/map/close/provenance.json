@@ -1,0 +1,48 @@
+{
+  "created_at": "2026-09-27T05:40:06.975829+00:00",
+  "geography": "Alphabet Streets, Pacific Palisades, Los Angeles, California",
+  "extent_wgs84": [
+    -118.5223,
+    34.05015,
+    -118.5198,
+    34.0517
+  ],
+  "viewBox": [
+    0,
+    0,
+    1100,
+    720
+  ],
+  "parcel_count": 61,
+  "street_feature_count": 8,
+  "coordinate_retention": "Full source WGS84 rings/lines retained in GeoJSON and raw responses. SVG coordinates rounded to 0.01 units; no vertex simplification. Rendering clipped to extent.",
+  "selection": "All geometry intersecting the chosen geographic window from the general County parcel service. No damage or recovery filter.",
+  "parcel_source": "https://cache.gis.lacounty.gov/cache/rest/services/LACounty_Cache/LACounty_Parcel/FeatureServer/0",
+  "parcel_catalog": "https://www.arcgis.com/home/item.html?id=5b277305f006459586a70165065d0fd6",
+  "street_source": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/eGIS_Addressing_ROAD_LINES/FeatureServer/0",
+  "street_catalog": "https://www.arcgis.com/home/item.html?id=0a72e51eab7949678aff0670bf5d108b",
+  "attribution": "Los Angeles County Office of the Assessor; Los Angeles County Countywide Address Management System (CAMS). Accessed September 27, 2026.",
+  "terms_url": "https://egis-lacounty.hub.arcgis.com/pages/terms-of-use",
+  "terms_review": "Provider terms read in browser on 2026-09-27. License allows copying, publication, distribution, transmission, adaptation, and commercial/personal use subject to County terms. Does not grant ownership or imply County endorsement. County provides data as-is without completeness or accuracy warranties. This is not a public-domain or CC0 claim.",
+  "street_item_license_field": "None; County-wide terms apply to County published mapping data.",
+  "confidence": {
+    "geometric_provenance": "Direct official County sources, retained response hashes.",
+    "street_names": "Source FullName attributes, with topology from the same source.",
+    "engineering_use": "Provider identifies parcel data as informational, potentially unsuitable for legal, engineering, or surveying uses.",
+    "current_conditions": "No inference; no building footprints, construction activity, damage, or occupancy is encoded."
+  },
+  "excluded_fields": "No owner, address, APN, value, permit, damage, recovery or construction-status attributes are exported. Source OBJECTID is kept for lineage.",
+  "coastline": "Not included: this is an inland close-up. Adding a shoreline within this extent would misrepresent geography.",
+  "illustration_boundary": "Character and construction-detail inset are separate reserved groups; they must be labeled illustrative and cannot alter actual parcel geometry.",
+  "source_files": {
+    "county-parcels-item.json": "0411ca6213c35257c13985ba25fddb4c2136975074f0c40f50c41d0f38d04a9b",
+    "county-parcels-layer.json": "ea0be65a3d53f27a51bf119bb3cfb4905c255e82d96f0a0fe7b6c08566e01f58",
+    "county-parcels-service.json": "ebfcc696ae4d0938aecb143f00fcb6390504a6bc3a636dbc4bd8af37698179d6",
+    "county-streets-item.json": "6e92cf44701d5bb44d62627e0ae335505de303ee79780b2f77b23220576b6d8d",
+    "county-streets-layer.json": "1f4a313f467caa5bafc28005558f2a940d6f721737d18de43639a9caaa03d060",
+    "parcels-general-esri.json": "2aefcf5345d528e03891b274aff312f95ea137a11553b14afa3f778846a59300",
+    "parcels-general-query.json": "825efeeb9af0ed584a73d198b57e9ff88ffa159e0242d670f7f7012b0a4480ca",
+    "streets-context-query.json": "f06bae3007f4189b14fa9db998861f3e5e73f274b388bc1b5671b3de894bce5f",
+    "streets-context.geojson": "66b6036fcdc018babce0719fe3d49e10bc7144eaa25077c3afea092b99f4debf"
+  }
+}

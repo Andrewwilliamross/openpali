@@ -1,0 +1,170 @@
+{
+  "id": "0a72e51eab7949678aff0670bf5d108b",
+  "owner": "RRodriguez3@isd.lacounty.gov_lacounty",
+  "ownerId": "800ff2b19a24e1ab240e2a4571594d47",
+  "orgId": "RmCCgQtiZLDCtblq",
+  "created": 1746465458000,
+  "modified": 1790202897000,
+  "guid": null,
+  "name": "eGIS_Addressing_ROAD_LINES",
+  "title": "Address Street Lines",
+  "type": "Feature Service",
+  "typeKeywords": [
+    "ArcGIS Server",
+    "Data",
+    "Feature Access",
+    "Feature Service",
+    "Metadata",
+    "Service",
+    "Singlelayer",
+    "Hosted Service"
+  ],
+  "description": "<p><span>Data Updated: September 23, 2026<\/span><\/p><div><div style='box-sizing:border-box; font-family:\"Avenir Next W01\", \"Avenir Next W00\", \"Avenir Next\", Avenir, \"Helvetica Neue\", sans-serif; font-size:16px; margin-bottom:3rem; margin-right:4vw; margin-top:1.5rem; max-width:68vw; padding-left:0.5rem; padding-right:0.5rem; width:1020px;'><div><div style='margin-bottom:3rem;'><div><div style='display:inherit; max-width:100%; overflow:auto; padding-bottom:0.375rem;'><div style='font-family:inherit;'><div style='font-family:inherit;'><div style='font-family:inherit;'><p style='margin-bottom:1.5rem; margin-top:0px;'><span style='font-family:inherit;'>This dataset contains address road segments from the Countywide Address Management System, a collaborative program between the County&rsquo;s independent cities, Registrar/Recorder, Chief Information Officer, Public Works Department, Department of Regional Planning, and many others to manage addresses and street centerlines for the purposes of geocoding and cartography. More information about this layer can be found on the&nbsp;<\/span><span style='color:#0000ee;'><font style='font-family:inherit;'><u>https://cams-lacounty.hub.arcgis.com/&nbsp;<\/u><\/font><\/span><\/p><p style='margin-bottom:1.5rem; margin-top:0px;'><span style='font-family:inherit;'><strong>What this data is (and isn&rsquo;t)<\/strong><\/span><\/p><p style='margin-bottom:1.5rem; margin-top:0px;'><span style='font-family:inherit;'>This dataset contains the best available information on Road Naming and includes address ranges, primary and secondary classification of roads within the County of Los Angeles. The dataset is NOT a NETWORK Dataset and does NOT support routing features. As well, the road features do NOT include information on turn restrictions, speed limits, etc.&nbsp;<\/span><\/p><p style='margin-bottom:1.5rem; margin-top:0px;'><span style='font-family:inherit;'><strong>Description<\/strong><\/span><\/p><p style='margin-bottom:1.5rem; margin-top:0px;'><span style='font-family:inherit;'>This dataset has been compiled from best available sources, including city databases, LA County Assessor parcels, and the County&rsquo;s Road network maps. Please see the Source field for information.<\/span><\/p><p style='margin-bottom:1.5rem; margin-top:0px;'><span style='font-family:inherit;'>Street Name information has been split into multiple fields to support the County&rsquo;s specifically designed geocoders &ndash; please see the entry on LA County Specific Locators and Matching rules for more information.<\/span><\/p><\/div><\/div><\/div><\/div><\/div><\/div><\/div><\/div><\/div>",
+  "tags": [
+    "Streets",
+    "CAMS",
+    "Centerline",
+    "Address",
+    "Addressing",
+    "Countywide Address Management System",
+    "911",
+    "Address Matching",
+    "Address Points",
+    "Addresses",
+    "CA 911",
+    "CAMS_Address_Point",
+    "cities",
+    "City Jurisdictions",
+    "city"
+  ],
+  "snippet": "The CAMS Address Lines file is a street centerline network that supports geocoding and cartographic rendering of streets in Los Angeles County.",
+  "thumbnail": "thumbnail/thumbnail.png",
+  "documentation": null,
+  "extent": [
+    [
+      -118.95402663899142,
+      32.80339078343027
+    ],
+    [
+      -117.62308771501101,
+      34.82351251333984
+    ]
+  ],
+  "categories": [
+    "/Categories/Addressing",
+    "/Categories/Infrastructure/Transportation"
+  ],
+  "spatialReference": "102645",
+  "accessInformation": "CAMS",
+  "classification": null,
+  "licenseInfo": "None",
+  "culture": "en-us",
+  "properties": {
+    "indexJobId": "",
+    "location": {
+      "type": "org",
+      "extent": [
+        [
+          -118.92693777199796,
+          33.63677373199948
+        ],
+        [
+          -117.51493777199796,
+          35.04877373199948
+        ]
+      ],
+      "spatialReference": {"wkid": 4326},
+      "geometries": [{
+        "spatialReference": {"wkid": 4326},
+        "rings": [[
+          [
+            -118.92693777199796,
+            33.63677373199948
+          ],
+          [
+            -118.92693777199796,
+            35.04877373199948
+          ],
+          [
+            -117.51493777199796,
+            35.04877373199948
+          ],
+          [
+            -117.51493777199796,
+            33.63677373199948
+          ],
+          [
+            -118.92693777199796,
+            33.63677373199948
+          ]
+        ]],
+        "type": "polygon"
+      }]
+    },
+    "downloads": {
+      "flowType": "createReplica",
+      "formats": [
+        {
+          "key": "csv",
+          "hidden": false
+        },
+        {
+          "key": "shapefile",
+          "hidden": false
+        },
+        {
+          "key": "geojson",
+          "hidden": false
+        },
+        {
+          "key": "kml",
+          "hidden": false
+        },
+        {
+          "key": "filegdb",
+          "hidden": false
+        },
+        {
+          "key": "featureCollection",
+          "hidden": false
+        },
+        {
+          "key": "excel",
+          "hidden": false
+        },
+        {
+          "key": "geoPackage",
+          "hidden": false
+        },
+        {
+          "key": "sqlite",
+          "hidden": false
+        }
+      ]
+    }
+  },
+  "advancedSettings": null,
+  "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/eGIS_Addressing_ROAD_LINES/FeatureServer",
+  "proxyFilter": null,
+  "access": "public",
+  "size": 647372800,
+  "subInfo": 0,
+  "appCategories": [],
+  "industries": [],
+  "languages": [],
+  "largeThumbnail": null,
+  "banner": null,
+  "screenshots": [],
+  "listed": false,
+  "commentsEnabled": true,
+  "numComments": 0,
+  "numRatings": 0,
+  "avgRating": 0,
+  "numViews": 20096,
+  "contentStatus": "public_authoritative",
+  "scoreCompleteness": 100,
+  "groupDesignations": null,
+  "apiToken1ExpirationDate": -1,
+  "apiToken2ExpirationDate": -1,
+  "lastViewed": 1790485200000
+}

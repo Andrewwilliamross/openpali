@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ffffff" />
     <title>OpenPali — A place with footnotes.</title>
@@ -25,23 +26,23 @@
     />
     <meta
       property="og:image"
-      content="https://andrewwilliamross.github.io/openpali/assets/brand/field-notes-2d/social-card.png"
+      content="https://andrewwilliamross.github.io/openpali/assets/brand/field-office/social-card.png"
     />
     <meta property="og:image:width" content="1280" />
     <meta property="og:image:height" content="640" />
     <meta
       property="og:image:alt"
-      content="OpenPali: A place with footnotes. A curious pelican with a field notebook works on a flat drawing of real Pacific Palisades parcels."
+      content="OpenPali: A place with footnotes. An original paper coastal atlas with a small pelican lifting a tracing sheet."
     />
     <meta name="twitter:card" content="summary_large_image" />
     <link
       rel="icon"
-      href="assets/brand/field-notes-2d/favicon.svg"
+      href="../../../assets/brand/field-office/favicon.svg"
       type="image/svg+xml"
     />
     <link
       rel="preload"
-      href="assets/brand/field-office/fonts/Fraunces.woff2"
+      href="../../../assets/brand/field-office/fonts/Fraunces.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -68,7 +69,7 @@
             A place with<br /><em>footnotes.</em><sup aria-hidden="true">*</sup>
           </h1>
           <p class="description">
-            Public evidence for<br />the Palisades rebuild.
+            Public evidence for <br />the Palisades rebuild.
           </p>
           <a
             class="github-link"
@@ -89,46 +90,34 @@
           >
           <p class="invitation">A shared map of records and their sources.</p>
         </section>
-        <figure class="field-table" aria-labelledby="drawing-caption">
-          <div class="drawing-heading" aria-hidden="true">
-            <span>THE PALISADES, IN THE DETAILS</span
-            ><span class="sheet-number">FIELD SHEET / 01</span>
-          </div>
-          <div class="drawing-canvas">
-            <!-- OPENPALI_DRAWING -->
-          </div>
-          <figcaption id="drawing-caption" class="art-caption">
-            <div>
-              <span class="caption-arrow" aria-hidden="true">↳</span> A little
-              fieldwork.<small>On Galloway, Hartzell &amp; Bestor.</small>
-            </div>
-            <button
-              id="motion-toggle"
-              class="motion-toggle"
-              type="button"
-              hidden
+        <figure class="field-table">
+          <img
+            class="atlas-art"
+            src="../../../assets/brand/field-office/hero.webp"
+            srcset="
+              ../../../assets/brand/field-office/hero-900.webp  900w,
+              ../../../assets/brand/field-office/hero.webp     1536w
+            "
+            sizes="(max-width: 720px) 115vw, 74vw"
+            width="1536"
+            height="1024"
+            fetchpriority="high"
+            alt="A paper coastal atlas, layered with tracing sheets and source slips. A small white and cobalt pelican lifts a page to look underneath."
+          />
+          <div class="scene-annotation" aria-hidden="true">
+            <span class="annotation-dot">*</span
+            ><span class="annotation-leader"></span
+            ><span class="annotation-paper"
+              ><small class="annotation-index">FIELD NOTE 01</small
+              ><span class="annotation-copy">Trace it back.</span></span
             >
-              <span class="motion-icon" aria-hidden="true">Ⅱ</span
-              ><span class="motion-label">Pause motion</span>
-            </button>
+          </div>
+          <figcaption class="art-caption">
+            <span aria-hidden="true">↳</span
+            ><span
+              >Look a little closer.<small>An illustrated coast</small></span
+            >
           </figcaption>
-          <details class="drawing-source">
-            <summary>
-              About the drawing <span aria-hidden="true">+</span>
-            </summary>
-            <p>
-              Galloway and Hartzell, near Bestor Boulevard. Parcel and street
-              geometry:
-              <a
-                href="https://egis-lacounty.hub.arcgis.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Los Angeles County eGIS</a
-              >. A fixed geographic study, with an illustrated margin sketch. It
-              shows no property status or approved building plans. OpenPali is
-              an independent project.
-            </p>
-          </details>
         </figure>
         <aside class="field-notes" aria-label="OpenPali field notes">
           <div class="notes-heading">
@@ -183,10 +172,16 @@
       </main>
       <footer>
         <p>Made for a place.<br /><span>Built to be understood.</span></p>
-        <span class="footer-mark" aria-hidden="true">✳</span>
+        <div class="footer-coast" aria-hidden="true">
+          <svg viewBox="0 0 180 22">
+            <path
+              d="M0 15Q18 1 32 10T61 9 91 12 120 8 150 13 180 6M0 21Q18 7 32 16T61 15 91 18 120 14 150 19 180 12"
+            />
+          </svg>
+        </div>
         <p class="colophon">
-          A public record. A shared undertaking.<br /><span
-            >Pacific Palisades · 34.05° N, 118.52° W</span
+          Independent public evidence.<br /><span
+            >Illustrated coast · no property data</span
           >
         </p>
       </footer>

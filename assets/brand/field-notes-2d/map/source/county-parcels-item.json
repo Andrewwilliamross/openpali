@@ -1,0 +1,71 @@
+{
+  "id": "5b277305f006459586a70165065d0fd6",
+  "owner": "lacounty_isd",
+  "ownerId": "dd82bf6d01d536d497a99d5ab14e05b1",
+  "orgId": "RmCCgQtiZLDCtblq",
+  "created": 1397065141000,
+  "modified": 1782416622000,
+  "guid": null,
+  "name": null,
+  "title": "LA County Parcel Map Service",
+  "type": "Map Service",
+  "typeKeywords": [
+    "ArcGIS Server",
+    "Data",
+    "Map Service",
+    "Service"
+  ],
+  "description": "<p><font color='#808080' style='font-size: inherit; font-family: var(--fontsBaseFamily),Avenir Next; font-weight: 600;'><font size='3'>Do not download this parcel map service as a shapefile - you will get an error. To download a zipped file geodatabase, go to this Hub item:&nbsp;<\/font><\/font><a href='https://egis-lacounty.hub.arcgis.com/datasets/parcels' style='font-size: inherit; font-family: var(--fontsBaseFamily),Avenir Next; background-color: rgb(255, 255, 255); font-weight: 600;' rel='nofollow ugc'>https://egis-lacounty.hub.arcgis.com/datasets/parcels<\/a><br /><\/p><p><font color='#808080'><font size='3' style=''><span style='background-color:rgb(255, 255, 255);'><font>This&nbsp;map service provides information about properties and parcel boundaries in the County of Los Angeles. The&nbsp;Office of the Assessor (<\/font><\/span><\/font><a href='https://assessor.lacounty.gov/' style='' target='_blank' rel='nofollow ugc noopener noreferrer'>click here for their website<\/a><font size='3' style=''><span style='font-family:tahoma, arial, sans-serif; background-color:rgb(255, 255, 255);'>) maintains <\/span><span style='font-family:tahoma, arial, sans-serif; background-color:rgb(255, 255, 255);'>assessment records of real and personal property in the County of Los Angeles, as well as a GIS Tax Parcel Base Map. &nbsp;The Assessor has recently <\/span><span style='font-family:tahoma, arial, sans-serif; background-color:rgb(255, 255, 255);'>changed its policies and will be releasing a number of datasets publicly over time. They will be available here, as well as on the County\u2019s Open Data Portal (<\/span><\/font><a href='https://assessor.lacounty.gov/open-data-initiative/' style='' target='_blank' rel='nofollow ugc noopener noreferrer'>click here to learn more<\/a><font size='3' style=''><span style='font-family:tahoma, arial, sans-serif; background-color:rgb(255, 255, 255);'>). &nbsp;To access the Property Assessment Information System, where you can search for properties and see maps and imagery,&nbsp;<\/span><\/font><a href='https://assessor.lacounty.gov/property-assessment-information-system/' style='' target='_blank' rel='nofollow ugc noopener noreferrer'>go to the PAIS website.<\/a><\/font><div><font color='#808080'><font size='3' style=''><br /><\/font><\/font><\/div><div><font color='#808080'><font size='3' style=''>All inquiries should be directed to the Mapping &amp; GIS Services Section, LA County Office of the Assessor at gisinfo@assessor.lacounty.gov<br /><\/font><\/font><\/div><\/p>",
+  "tags": [
+    "LA County",
+    "Assessor",
+    "Property and Zoning",
+    "map service",
+    "parcel",
+    "parcels"
+  ],
+  "snippet": "Parcel information for Los Angeles County",
+  "thumbnail": "thumbnail/thumbnail1650572330819.png",
+  "documentation": null,
+  "extent": [
+    [
+      -120.3779,
+      32.6895
+    ],
+    [
+      -116.2197,
+      34.9238
+    ]
+  ],
+  "categories": [],
+  "spatialReference": "102100",
+  "accessInformation": "Los Angeles County Office of the Assessor\n",
+  "classification": null,
+  "licenseInfo": "<span style='font-family:&quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:16px;'>The data herein is for informational purposes, and may not have been prepared for or be suitable for legal, engineering, or surveying intents. The County of Los Angeles reserves the right to change, restrict, or discontinue access at any time.  All users of the maps and data presented on <\/span><a href='https://lacounty.maps.arcgis.com/' style='color:rgb(0, 121, 193); text-decoration-line:none; font-family:&quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:16px;' target='_blank' rel='nofollow ugc noopener noreferrer'>https://lacounty.maps.arcgis.com<\/a><span style='font-family:&quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:16px;'> or deriving from any LA County REST URLs agree to the &quot;Terms of Use&quot; outlined on the County of LA Enterprise GIS (eGIS) Hub (<\/span><a href='https://egis-lacounty.hub.arcgis.com/pages/terms-of-use' style='color:rgb(0, 121, 193); text-decoration-line:none; font-family:&quot;Avenir Next W01&quot;, &quot;Avenir Next W00&quot;, &quot;Avenir Next&quot;, Avenir, &quot;Helvetica Neue&quot;, sans-serif; font-size:16px;' target='_blank' rel='nofollow ugc noopener noreferrer'>https://egis-lacounty.hub.arcgis.com/pages/terms-of-use<\/a><i>).<\/i>",
+  "culture": "en-us",
+  "properties": {},
+  "advancedSettings": null,
+  "url": "https://cache.gis.lacounty.gov/cache/rest/services/LACounty_Cache/LACounty_Parcel/MapServer",
+  "proxyFilter": null,
+  "access": "public",
+  "size": 87,
+  "subInfo": 0,
+  "appCategories": [],
+  "industries": [],
+  "languages": [],
+  "largeThumbnail": null,
+  "banner": null,
+  "screenshots": [],
+  "listed": false,
+  "commentsEnabled": true,
+  "numComments": 0,
+  "numRatings": 0,
+  "avgRating": 0,
+  "numViews": 5,
+  "contentStatus": "public_authoritative",
+  "scoreCompleteness": 93,
+  "groupDesignations": null,
+  "apiToken1ExpirationDate": -1,
+  "apiToken2ExpirationDate": -1,
+  "lastViewed": -1
+}

@@ -1,5 +1,7 @@
 # The OpenPali field office
 
+> Archived round-two direction. The current flat pelican and parcel drawing are documented in [Field Notes](ROUND-3.md).
+
 **A place with footnotes.**
 
 The field office is the illustrated world around OpenPali: a layered paper coastal atlas, tracing sheets, a source slip, and a small paper pelican taking an interest in the page. A blue pencil and clip make the scene feel in use. It connects a place with the patient work of understanding its public record.

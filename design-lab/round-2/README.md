@@ -15,7 +15,7 @@ Open <http://127.0.0.1:4173/design-lab/round-2/>. The gallery supports desktop a
 
 | Study | Implementation | Direct route |
 | --- | --- | --- |
-| Field Office | HTML, CSS, native field notes, original ImageGen illustrations | `/dist/site/` |
+| Field Office | HTML, CSS, native field notes, original ImageGen illustrations | `/design-lab/round-2/field-office/` |
 | Living Atlas | Local Three.js, actual hinged paper/terrain geometry, SVG fallback | `/design-lab/round-2/atlas/` |
 | Three Dates | HTML/CSS/JS mechanical date reader and source slip | `/design-lab/round-2/instrument/` |
 | Component board | Four GitHub invitations, source disclosure, correction history | `/design-lab/round-2/components/` |
@@ -31,6 +31,6 @@ The illustrations and examples contain no property data. The primary site works 
 - [Atlas critique](atlas/critique.md) and [instrument critique](instrument/critique.md): screenshot iterations and checks.
 - [Brand guide](../../Docs/Brand/FIELD-OFFICE.md): how to extend the finished family.
 
-The first round remains in `design-lab/concepts/` as exploration history. Its monogram direction is not the recommendation. The current branch's production files are `site/`, `README.md`, `assets/brand/field-office/`, and the brand documentation.
+The first round remains in `design-lab/concepts/` as exploration history. Its monogram direction is not the recommendation. This round is archived; the next revision is in `design-lab/round-3/`. Its original assets are `site/`, `README.md`, `assets/brand/field-office/`, and the brand documentation.
 
 The presentation deck and review captures are generated artifacts in `output/design-round-2/`. The local `.build/` script uses the bundled Artifact Tool runtime. They are not part of the GitHub Pages artifact.

@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://andrewwilliamross.github.io/openpali/">
-    <img src="assets/brand/field-office/banner.png" alt="OpenPali — A place with footnotes. A paper coastal atlas, source notes, and a pelican lifting a tracing sheet." width="100%">
+    <img src="assets/brand/field-notes-2d/banner.png" alt="OpenPali — A place with footnotes. A curious pelican with a field notebook and a flat drawing of actual Palisades parcels." width="100%">
   </a>
 </p>
 
@@ -78,7 +78,6 @@ The map brings together parcel records, source-linked timelines, and optional 3D
 
 | Follow a source | Improve the software | Question a record |
 | --- | --- | --- |
-| <img src="assets/brand/field-office/follow-source.png" alt="A paper pelican following a source note." width="100%"> | <img src="assets/brand/field-office/build-tools.png" alt="A paper pelican at work with the project tools." width="100%"> | <img src="assets/brand/field-office/correct-record.png" alt="A paper pelican adding a note beside the original record." width="100%"> |
 | [Source adapters](pipeline/openpali/adapters/) | [Contributor guide](CONTRIBUTING.md) | [Data issue form](https://github.com/Andrewwilliamross/openpali/issues/new?template=03-data.yml) |
 
 A source citation, clearer label, keyboard fix, or better test all count. For a public discrepancy, explain what looks wrong and include the source. Browse [existing issues](https://github.com/Andrewwilliamross/openpali/issues), choose a focused change, and explain how you checked it.

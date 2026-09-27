@@ -3,7 +3,7 @@
   const studies = {
     "field-office": {
       name: "Field Office",
-      url: "../../dist/site/",
+      url: "field-office/",
       status: "Recommended",
       medium: "Illustrated world · HTML/CSS",
       description:
