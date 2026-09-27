@@ -5,6 +5,7 @@ from its initial prototype to a production-ready product.
 
 ## Structure
 
+- [`Brand/`](Brand/README.md) — visual identity, reference research, launch materials, and website presentation.
 - `Plans/` — approved or proposed implementation plans, sequencing, milestones,
   dependencies, and decision records.
 - `Tickets/` — scoped engineering and product work suitable for assignment.

@@ -13,3 +13,7 @@ data/out/
 .playwright-browsers/
 web/test-results/
 web/playwright-report/
+
+# Local branding/browser review artifacts
+.playwright-cli/
+output/playwright/

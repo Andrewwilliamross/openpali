@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Start contributing
+    url: https://github.com/Andrewwilliamross/openpali/blob/main/CONTRIBUTING.md
+    about: Find a starting point, set up locally, and check your change.
+  - name: Report a security vulnerability
+    url: https://github.com/Andrewwilliamross/openpali/security/advisories/new
+    about: Send a private vulnerability report instead of posting sensitive details in a public issue.
