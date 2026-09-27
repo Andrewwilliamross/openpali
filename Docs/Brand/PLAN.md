@@ -71,10 +71,11 @@ See [REFERENCES.md](REFERENCES.md) for source-linked research. Borrow the discip
 - [x] Check local links, asset dimensions, and staging output.
 - [x] Inspect the website in a real browser on desktop and mobile.
 - [x] Verify keyboard navigation in-browser and review reduced-motion/no-JavaScript behavior in source.
-- [ ] Finish browser emulation of reduced motion, JavaScript disabled, and 200% zoom.
+- [x] Render a script-free copy and confirm its complete content, grid, and single GitHub action.
+- [ ] Complete additional browser emulation of reduced motion and 200% zoom.
 - [x] Review the diff for unsupported product or license claims.
-- [ ] Publish the GitHub presentation and website when authorized and available.
-- [ ] Report any remaining owner decisions or settings accurately.
+- [x] Publish the GitHub presentation and website when authorized and available.
+- [x] Report any remaining owner decisions or settings accurately.
 
 ## Engineering scope
 
@@ -90,9 +91,11 @@ A visitor recognizes OpenPali, understands its purpose and evidence standards, c
 - Original SVGs parse, generation is deterministic, and PNG dimensions match their intended uses. Banner and both social-card compositions were visually inspected.
 - The static build stages only the landing page, CSS, decorative JavaScript, mark, favicon, social PNG, and `.nojekyll`.
 - Real-browser checks passed at desktop, 390 px, and 320 px: assets loaded, one GitHub action, no horizontal overflow, and a visible keyboard-focus outline.
-- Reduced motion and no-JavaScript behavior were reviewed in source: the full grid and link are static HTML, while pointer highlighting is optional and checks `prefers-reduced-motion`. Browser emulation of these settings and 200% zoom were not completed after browser access became unavailable.
+- Reduced motion and no-JavaScript behavior were reviewed in source: the full grid and link are static HTML, while pointer highlighting is optional and checks `prefers-reduced-motion`. A later script-free browser check confirmed all 675 decorative cells, the content, and the GitHub link render without JavaScript or horizontal overflow. Browser emulation of reduced motion and 200% zoom remains unverified.
 - Local documentation links, SVG XML, PNG dimensions, Python compilation, JavaScript syntax, and whitespace checks passed. Independent review found and corrected a stale security-scanning claim.
 - Canonical repository confirmed as `Andrewwilliamross/openpali`. GitHub Pages was enabled for Actions; private vulnerability reporting was enabled.
-- Publication is tracked in [pull request #11](https://github.com/Andrewwilliamross/openpali/pull/11).
+- [Pull request #11](https://github.com/Andrewwilliamross/openpali/pull/11) merged after the platform fast gate, production web build, and website build passed. [GitHub Pages deployment](https://github.com/Andrewwilliamross/openpali/actions/runs/36288633944) completed successfully.
+- The [live website](https://andrewwilliamross.github.io/openpali/) and social PNG returned HTTP 200; the title, canonical GitHub destination, and single action were verified. The public README banner and architecture diagram rendered successfully in GitHub, including its dark presentation.
+- Repository description, homepage, and discovery topics were applied. The public community profile recognizes the README, contribution guide, conduct guide, and PR template.
 - Source-code licensing remains pending owner selection. Public copy does not claim an open-source license.
 - GitHub's social-preview image still needs uploading in Settings. The browser extension denied local file access; the ready-to-upload asset is `assets/brand/social-card.png`. Social posts are drafted, not sent.
