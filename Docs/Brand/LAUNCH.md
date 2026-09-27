@@ -16,11 +16,11 @@
 
 **Social preview**
 
-Upload [`social-card.png`](../../assets/brand/social-card.png) under **Settings → General → Social preview**. GitHub does not use a repository image as its social preview just because the file exists. The website's preview is configured separately through its HTML metadata.
+Upload [`social-card.png`](../../assets/brand/field-office/social-card.png) under **Settings → General → Social preview**. GitHub does not use a repository image as its social preview just because the file exists. The website's preview is configured separately through its HTML metadata.
 
 **Avatar**
 
-[`avatar.png`](../../assets/brand/avatar.png) is ready for a dedicated OpenPali account or community space. GitHub repositories do not have independent avatars. Keep the owner's personal profile identity intact.
+[`avatar.png`](../../assets/brand/field-office/avatar.png) is ready for a dedicated OpenPali account or community space. GitHub repositories do not have independent avatars. Keep the owner's personal profile identity intact.
 
 ## Launch announcement
 
@@ -30,7 +30,7 @@ We're building a clearer picture of the Palisades rebuild from public records: c
 
 A missing record stays unknown. A documented milestone keeps its source. Corrections are part of the work.
 
-If you like maps, careful data, accessible interfaces, or useful civic software, there's room to help. Start with a small fix. Bring your square.
+If you like maps, careful data, accessible interfaces, or useful civic software, there's room to help. Start with a small fix. Help make the record clearer.
 
 Explore the project: https://github.com/Andrewwilliamross/openpali
 
@@ -38,13 +38,13 @@ Explore the project: https://github.com/Andrewwilliamross/openpali
 
 ## Short social caption
 
-Recovery, in the open.
+A place with footnotes.
 
 Meet OpenPali: a public evidence platform for the Palisades rebuild. Follow the records. Trace the sources. Help build a clearer picture.
 
 https://github.com/Andrewwilliamross/openpali
 
-Attach the landscape or square card. Add alt text: “OpenPali. Recovery, in the open. A blue square-built P and abstract contribution squares on white.”
+Attach the landscape or square card. Add alt text: “OpenPali. A place with footnotes. A paper coastal atlas, source slips, and a white-and-blue pelican lifting a tracing sheet.”
 
 ## Developer invitation
 
@@ -87,4 +87,4 @@ Start here: https://github.com/Andrewwilliamross/openpali/blob/main/CONTRIBUTING
 4. Link to a small next task.
 5. Reuse the same mark and visual system.
 
-Social copy here is prepared for the owner to publish; no social account posts are implied by committing this file. Check [PLAN.md](PLAN.md) for the publication and verification status of this launch.
+Social copy here is prepared for the owner to publish; no social account posts are implied by committing this file. The original public launch is recorded in [PLAN.md](PLAN.md). See [ROUND-2.md](ROUND-2.md) for the Field Office redesign and its publication status.

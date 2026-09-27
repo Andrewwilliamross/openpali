@@ -1,0 +1,38 @@
+{
+  "webgl": true,
+  "drag": {
+    "value": "92",
+    "note": "The release"
+  },
+  "keyboardClosed": {
+    "value": "0",
+    "note": "Event date. When a source says something happened."
+  },
+  "keyboardOpen": {
+    "value": "100",
+    "note": "Published date. When a snapshot was shared."
+  },
+  "mobile": {
+    "overflow": false,
+    "github": "https://github.com/Andrewwilliamross/openpali",
+    "target": "_top"
+  },
+  "narrowOverflow": false,
+  "noWebGL": {
+    "ready": 0,
+    "fallback": true,
+    "note": "Published date. When a snapshot was shared."
+  },
+  "reduced": {
+    "matches": true,
+    "rafBefore": 3,
+    "rafAfter": 3,
+    "control": "0"
+  },
+  "noJS": {
+    "heading": "Unfold aclearer picture.",
+    "fallback": true,
+    "github": "https://github.com/Andrewwilliamross/openpali"
+  },
+  "errors": []
+}

@@ -1,0 +1,230 @@
+{
+  "scope": "Bounded local browser audit of the design gallery, button/component labs, and concepts 03/04.",
+  "environment": {
+    "browser": "Headless Google Chrome through Playwright",
+    "desktop": [
+      1440,
+      1000
+    ],
+    "mobile": [
+      390,
+      844
+    ],
+    "additionalConceptWidth": 320
+  },
+  "audit": {
+    "gallery": {
+      "cards": 6,
+      "overviewOverflow": false,
+      "loadedThumbnails": [
+        {
+          "src": "assets/previews/01-fieldnotes.jpg",
+          "loaded": true
+        },
+        {
+          "src": "assets/previews/02-ledger.jpg",
+          "loaded": true
+        },
+        {
+          "src": "assets/previews/03-assembly.jpg",
+          "loaded": true
+        },
+        {
+          "src": "assets/previews/04-signal.jpg",
+          "loaded": true
+        },
+        {
+          "src": "assets/previews/05-material.jpg",
+          "loaded": true
+        },
+        {
+          "src": "assets/previews/06-aperture.jpg",
+          "loaded": true
+        }
+      ],
+      "concept": {
+        "hash": "#03-assembly",
+        "visible": true,
+        "activeElement": {
+          "tag": "BUTTON",
+          "label": "Show Assembly",
+          "pressed": "true"
+        },
+        "frameTitle": "OpenPali \u2014 Assembly interactive concept"
+      },
+      "mobile": {
+        "pressed": "true",
+        "iframe": {
+          "x": 525,
+          "y": 172,
+          "width": 390,
+          "height": 844
+        },
+        "overflow": false
+      },
+      "assemblyGitHubTarget": "_top",
+      "return": {
+        "visible": true,
+        "viewerHidden": true,
+        "frameSource": null,
+        "hash": "#overview"
+      },
+      "narrowOverviewOverflow": false,
+      "narrowViewerOverflow": false,
+      "signalGitHubTarget": "_top"
+    },
+    "buttons": [
+      {
+        "label": "Rest",
+        "expected": "rest",
+        "actual": "rest",
+        "pressed": 1,
+        "linkCount": 8,
+        "solidBackground": "rgb(21, 87, 255)",
+        "outline": "none"
+      },
+      {
+        "label": "Hover",
+        "expected": "hover",
+        "actual": "hover",
+        "pressed": 1,
+        "linkCount": 8,
+        "solidBackground": "rgb(0, 59, 202)",
+        "outline": "none"
+      },
+      {
+        "label": "Focus",
+        "expected": "focus",
+        "actual": "focus",
+        "pressed": 1,
+        "linkCount": 8,
+        "solidBackground": "rgb(21, 87, 255)",
+        "outline": "solid"
+      },
+      {
+        "label": "Press",
+        "expected": "pressed",
+        "actual": "pressed",
+        "pressed": 1,
+        "linkCount": 8,
+        "solidBackground": "rgb(21, 87, 255)",
+        "outline": "none"
+      }
+    ],
+    "tabs": [
+      {
+        "key": "ArrowRight",
+        "focused": "Observation",
+        "selected": "Observation",
+        "label": "tab-observation",
+        "heading": "Show the reasoning.",
+        "tabStops": 1
+      },
+      {
+        "key": "ArrowRight",
+        "focused": "Context",
+        "selected": "Context",
+        "label": "tab-context",
+        "heading": "Keep the limits visible.",
+        "tabStops": 1
+      },
+      {
+        "key": "ArrowRight",
+        "focused": "Source",
+        "selected": "Source",
+        "label": "tab-source",
+        "heading": "Start at the source.",
+        "tabStops": 1
+      },
+      {
+        "key": "End",
+        "focused": "Context",
+        "selected": "Context",
+        "label": "tab-context",
+        "heading": "Keep the limits visible.",
+        "tabStops": 1
+      },
+      {
+        "key": "Home",
+        "focused": "Source",
+        "selected": "Source",
+        "label": "tab-source",
+        "heading": "Start at the source.",
+        "tabStops": 1
+      },
+      {
+        "key": "ArrowLeft",
+        "focused": "Context",
+        "selected": "Context",
+        "label": "tab-context",
+        "heading": "Keep the limits visible.",
+        "tabStops": 1
+      }
+    ],
+    "fallback": {
+      "03-assembly": {
+        "canvasReady": 0,
+        "fallbackVisible": true,
+        "githubHref": "https://github.com/Andrewwilliamross/openpali",
+        "control": "0",
+        "firstCubeTransform": "translate(-56 -39)"
+      },
+      "04-signal": {
+        "canvasReady": 0,
+        "fallbackVisible": true,
+        "githubHref": "https://github.com/Andrewwilliamross/openpali",
+        "control": "false",
+        "scattered": 1
+      }
+    },
+    "reducedMotion": {
+      "03-assembly": {
+        "matches": true,
+        "canvasReady": 1,
+        "rafBeforePointer": 3,
+        "rafAfterPointer": 3,
+        "control": "0"
+      },
+      "04-signal": {
+        "matches": true,
+        "canvasReady": 1,
+        "rafBeforePointer": 3,
+        "rafAfterPointer": 3,
+        "control": "false"
+      }
+    },
+    "errors": [],
+    "buttonsOverflow": false,
+    "componentsOverflow": false
+  },
+  "focusFollowUp": {
+    "open": {
+      "label": "Show Assembly",
+      "pressed": "true",
+      "top": 105
+    },
+    "return": {
+      "label": "Explore Assembly: A mark made of parts, brought together by you.",
+      "card": true
+    },
+    "deepLink": {
+      "hash": "#04-signal",
+      "activeTag": "BODY",
+      "viewerVisible": true
+    },
+    "mobile": {
+      "label": "Show Aperture",
+      "top": 27,
+      "scrollY": 106
+    }
+  },
+  "resolvedFindings": [
+    "Concepts 03 and 04 now use target=_top on their canonical GitHub links; href and target were checked inside the gallery without external navigation.",
+    "User-triggered concept opening focuses its selected chooser button; returning to Overview focuses the matching concept card. A fresh hash deep link opens the viewer without forcing focus."
+  ],
+  "limits": [
+    "This is not a complete accessibility audit or cross-browser/device certification.",
+    "No FPS, GPU timing, battery, memory, or network performance benchmark was performed.",
+    "Concepts 01, 02, 05, and 06 were not subjected to the 03/04 WebGL fallback and reduced-motion checks in this audit."
+  ]
+}

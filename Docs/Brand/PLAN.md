@@ -1,5 +1,7 @@
 # OpenPali public launch design
 
+> Historical record of the first public launch. The current design direction and its delivery status are documented in [ROUND-2.md](ROUND-2.md).
+
 ## Brief
 
 Make OpenPali recognizable and welcoming to developers across its GitHub repository, a one-button website, and social sharing. Use white, blue, transparent surfaces, and the visual rhythm of GitHub contribution squares. Make the invitation to build feel enjoyable while treating recovery records and affected residents with care.

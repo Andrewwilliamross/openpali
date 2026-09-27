@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e9edf2">
+  <meta name="description" content="OpenPali. Public evidence for the Palisades rebuild, with its source and history.">
+  <title>OpenPali / Three Dates</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231557ff'/%3E%3Cpath d='M8 8v16M16 8v16M24 8v16' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="masthead">
+    <div class="identity">openpali<span class="identity-divider"></span><span class="room">THE RECORD ROOM</span></div>
+    <p>Public evidence for the<br>Palisades rebuild.</p>
+  </header>
+
+  <main>
+    <div class="heading-row">
+      <div><p class="kicker">A SMALL INSTRUMENT FOR A USEFUL DISTINCTION</p><h1>One event.<br><span>Three dates.</span></h1></div>
+      <p class="introduction">When it happened.<br>When we observed it.<br>When we published it.</p>
+    </div>
+
+    <section class="reader" aria-label="Interactive illustration of three dates in a public record" data-stage="0">
+      <div class="screw screw-a" aria-hidden="true"></div><div class="screw screw-b" aria-hidden="true"></div>
+      <div class="screw screw-c" aria-hidden="true"></div><div class="screw screw-d" aria-hidden="true"></div>
+      <div class="reader-topline"><span class="reader-model"><b>OP / 03</b> DATE READER</span><span class="demo-tag">FICTIONAL RECORD · DEMONSTRATION</span><span class="power" aria-hidden="true">●</span></div>
+
+      <div class="viewfinder">
+        <div class="glass-reflection" aria-hidden="true"></div>
+        <div class="window-top"><span>RECORD 001 / AN ILLUSTRATIVE EVENT</span><span class="window-mode" id="window-mode">EVENT OCCURRED</span></div>
+        <div class="date-windows">
+          <div class="date-window is-known is-current" id="date-event">
+            <div class="date-label"><span>01</span><span>EVENT</span><span class="lamp" aria-hidden="true"></span></div>
+            <div class="date-value"><span class="day">03</span><span class="month">MAY</span></div>
+            <div class="date-note">When it happened</div>
+          </div>
+          <div class="date-window" id="date-observed">
+            <div class="date-label"><span>02</span><span>OBSERVED</span><span class="lamp" aria-hidden="true"></span></div>
+            <div class="date-value"><span class="day">—</span><span class="month">—</span></div>
+            <div class="date-note">Not yet observed</div>
+          </div>
+          <div class="date-window" id="date-published">
+            <div class="date-label"><span>03</span><span>PUBLISHED</span><span class="lamp" aria-hidden="true"></span></div>
+            <div class="date-value"><span class="day">—</span><span class="month">—</span></div>
+            <div class="date-note">Not yet published</div>
+          </div>
+        </div>
+        <div class="timeline" aria-hidden="true"><div class="timeline-ruler"></div><div class="timeline-line"></div><span class="timeline-point point-event">03</span><span class="timeline-point point-observed">14</span><span class="timeline-point point-published">16</span></div>
+        <div class="window-bottom"><span>THE ORIGINAL EVENT DATE STAYS THE SAME</span><span>ILLUSTRATION, NOT LIVE DATA</span></div>
+      </div>
+
+      <div class="control-bay">
+        <div class="mechanism">
+          <div class="dial" aria-hidden="true"><div class="dial-grip"></div><span class="dial-center"></span></div>
+          <div class="selector">
+            <label for="date-stage">Advance the record<span>SLIDE OR USE ARROW KEYS</span></label>
+            <input id="date-stage" type="range" min="0" max="2" step="1" value="0" aria-valuetext="Event occurred. May 3. Not yet observed or published.">
+            <div class="stage-buttons" aria-label="Select a point in the example">
+              <button type="button" data-stage="0" aria-pressed="true">Event</button>
+              <button type="button" data-stage="1" aria-pressed="false">Observed</button>
+              <button type="button" data-stage="2" aria-pressed="false">Published</button>
+            </div>
+          </div>
+        </div>
+        <div class="explanation" aria-live="polite" aria-atomic="true"><span class="step-number" id="step-number">01 / 03</span><p id="explanation">An event can happen before its public record is available to us.</p></div>
+      </div>
+      <div class="paper-slot" aria-hidden="true"></div>
+      <div class="paper-output" aria-hidden="true"><div class="source-slip"><span>DEMO / 001</span><strong>A SOURCE STAYS<br>WITH THE STORY.</strong><span class="slip-line"></span><small>EXAMPLE ONLY<br>NO REAL PROPERTY OR PERSON</small><i></i></div></div>
+    </section>
+
+    <div class="invitation">
+      <p>Keep the source.<br><span>Keep the context.</span></p>
+      <a href="https://github.com/Andrewwilliamross/openpali" target="_top">Explore OpenPali on GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </main>
+  <footer><span>INDEPENDENT CIVIC SOFTWARE</span><span>OPENPALI / RE\SPRING</span></footer>
+  <script src="script.js"></script>
+</body>
+</html>

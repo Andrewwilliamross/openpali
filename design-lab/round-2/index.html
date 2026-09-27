@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f6f2" />
+    <title>OpenPali — Field studies / Round 02</title>
+    <meta
+      name="description"
+      content="A working design review of OpenPali’s Field Office, interactive studies, and project identity."
+    />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="../../assets/brand/field-office/favicon.svg" />
+    <link
+      rel="preload"
+      href="../../assets/brand/field-office/fonts/Fraunces.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="gallery.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#study-tabs">Skip to the studies</a>
+    <div class="review">
+      <header class="review-header">
+        <a
+          class="wordmark"
+          href="#field-office"
+          aria-label="OpenPali, Field Office study"
+          >openpali<span aria-hidden="true">*</span></a
+        >
+        <p class="edition">FIELD STUDIES <span>/</span> ROUND 02</p>
+      </header>
+      <main>
+        <div class="review-intro">
+          <div>
+            <p class="eyebrow">A DESIGN REVIEW</p>
+            <h1>A place with <em>character.</em></h1>
+          </div>
+          <p class="intro-note">
+            One world, carried through the project. <br />Explore the live pages
+            and the identity they share.
+          </p>
+        </div>
+
+        <section class="workspace" aria-label="Live design studies">
+          <div
+            class="study-tabs"
+            id="study-tabs"
+            role="tablist"
+            aria-label="Select a design study"
+          >
+            <button
+              id="tab-field-office"
+              role="tab"
+              aria-selected="true"
+              aria-controls="study-panel"
+              tabindex="0"
+              data-study="field-office"
+            >
+              <span class="tab-number">01</span>Field Office<span
+                class="tab-dot"
+                aria-label="Recommended"
+              ></span>
+            </button>
+            <button
+              id="tab-atlas"
+              role="tab"
+              aria-selected="false"
+              aria-controls="study-panel"
+              tabindex="-1"
+              data-study="atlas"
+            >
+              <span class="tab-number">02</span>Living Atlas
+            </button>
+            <button
+              id="tab-instrument"
+              role="tab"
+              aria-selected="false"
+              aria-controls="study-panel"
+              tabindex="-1"
+              data-study="instrument"
+            >
+              <span class="tab-number">03</span>Three Dates
+            </button>
+            <button
+              id="tab-components"
+              role="tab"
+              aria-selected="false"
+              aria-controls="study-panel"
+              tabindex="-1"
+              data-study="components"
+            >
+              <span class="tab-number">04</span>Components
+            </button>
+          </div>
+
+          <div
+            id="study-panel"
+            role="tabpanel"
+            aria-labelledby="tab-field-office"
+          >
+            <div class="preview-toolbar">
+              <div class="study-details">
+                <span class="study-status" id="study-status">Recommended</span
+                ><span id="study-medium">Illustrated world · HTML/CSS</span>
+              </div>
+              <div class="preview-tools">
+                <div
+                  class="viewport-switch"
+                  role="group"
+                  aria-label="Preview viewport"
+                >
+                  <button
+                    type="button"
+                    data-viewport="desktop"
+                    aria-pressed="true"
+                  >
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <rect x="2.5" y="3.5" width="15" height="10" rx="1" />
+                      <path d="M7 17h6m-3-3.5V17" /></svg
+                    >Desktop
+                  </button>
+                  <button
+                    type="button"
+                    data-viewport="mobile"
+                    aria-pressed="false"
+                  >
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <rect x="5.5" y="2" width="9" height="16" rx="1.5" />
+                      <path d="M9 15.5h2" /></svg
+                    >Mobile
+                  </button>
+                </div>
+                <a
+                  id="open-study"
+                  class="open-study"
+                  href="../../dist/site/"
+                  target="_blank"
+                  rel="noopener"
+                  >Open study <span aria-hidden="true">↗</span
+                  ><span class="sr-only"> in a new tab</span></a
+                >
+              </div>
+            </div>
+            <div class="stage" id="stage" data-viewport="desktop">
+              <div class="viewport-shell" id="viewport-shell">
+                <iframe
+                  id="study-frame"
+                  title="Field Office — live website preview"
+                  src="../../dist/site/"
+                  width="1440"
+                  height="1000"
+                  loading="eager"
+                ></iframe>
+              </div>
+            </div>
+            <div class="preview-caption">
+              <p id="study-description">
+                Production candidate. A coastal paper world, a small field
+                guide, and one invitation to GitHub.
+              </p>
+              <span id="viewport-size">1440 × 1000</span>
+            </div>
+            <p
+              class="sr-only"
+              id="preview-announcement"
+              role="status"
+              aria-live="polite"
+            ></p>
+          </div>
+        </section>
+
+        <noscript
+          ><p class="no-script">
+            Choose a study directly: <a href="atlas/">Living Atlas</a>,
+            <a href="instrument/">Three Dates</a>, or
+            <a href="components/">Components</a>.
+          </p></noscript
+        >
+
+        <section class="applications" aria-labelledby="applications-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">THE FIELD OFFICE, OUT IN THE WORLD</p>
+              <h2 id="applications-title">A shared visual language.</h2>
+            </div>
+            <p>Actual project assets. <br />Same place. Different formats.</p>
+          </div>
+          <div class="application-grid">
+            <figure class="application banner-application">
+              <a
+                href="../../assets/brand/field-office/banner.png"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open full GitHub banner"
+                ><img
+                  src="../../assets/brand/field-office/banner.png"
+                  alt="OpenPali banner: A place with footnotes, beside a white paper coastal atlas and cobalt pelican."
+                  width="1600"
+                  height="600"
+                  loading="lazy"
+              /></a>
+              <figcaption>
+                <span>01 / GitHub banner</span><span>1600 × 600</span>
+              </figcaption>
+            </figure>
+            <figure class="application social-application">
+              <a
+                href="../../assets/brand/field-office/social-square.png"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open full social square"
+                ><img
+                  src="../../assets/brand/field-office/social-square.png"
+                  alt="Square OpenPali launch artwork with the coastal paper atlas."
+                  width="1080"
+                  height="1080"
+                  loading="lazy"
+              /></a>
+              <figcaption>
+                <span>02 / Social square</span><span>1080 × 1080</span>
+              </figcaption>
+            </figure>
+            <figure class="application avatar-application">
+              <a
+                href="../../assets/brand/field-office/avatar.png"
+                target="_blank"
+                rel="noopener"
+                aria-label="Open full project avatar"
+                ><img
+                  src="../../assets/brand/field-office/avatar.png"
+                  alt="A small white and cobalt pelican, drawn with folded-paper shapes."
+                  width="512"
+                  height="512"
+                  loading="lazy"
+              /></a>
+              <figcaption>
+                <span>03 / Project avatar</span
+                ><span>A small point of recognition.</span>
+              </figcaption>
+            </figure>
+          </div>
+          <div class="role-heading">
+            <span class="eyebrow">WAYS TO TAKE PART</span
+            ><span>Three illustrations for the contributor journey.</span>
+          </div>
+          <div class="role-grid">
+            <figure class="role">
+              <img
+                src="../../assets/brand/field-office/follow-source.png"
+                width="640"
+                height="427"
+                loading="lazy"
+                alt="Paper fieldwork illustration for following a public source."
+              />
+              <figcaption><span>01</span>Follow the source</figcaption>
+            </figure>
+            <figure class="role">
+              <img
+                src="../../assets/brand/field-office/build-tools.png"
+                width="640"
+                height="427"
+                loading="lazy"
+                alt="Paper fieldwork illustration for building project tools."
+              />
+              <figcaption><span>02</span>Build the tools</figcaption>
+            </figure>
+            <figure class="role">
+              <img
+                src="../../assets/brand/field-office/correct-record.png"
+                width="640"
+                height="427"
+                loading="lazy"
+                alt="Paper fieldwork illustration for correcting a public record."
+              />
+              <figcaption><span>03</span>Correct the record</figcaption>
+            </figure>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <span>OPENPALI / FIELD STUDIES</span>
+        <p>Design review · Illustrative landscapes, no property data.</p>
+        <span>ROUND 02</span>
+      </footer>
+    </div>
+    <script src="gallery.js"></script>
+  </body>
+</html>

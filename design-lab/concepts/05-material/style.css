@@ -1,0 +1,83 @@
+@charset "UTF-8";
+
+:root {
+  color-scheme: light;
+  --paper: #f1f3f6;
+  --ink: #152030;
+  --blue: #1557ff;
+  --quiet: #576271;
+  --line: #d7dce4;
+  font-family: Arial, Helvetica, sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-width: 320px; }
+body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+.page { min-height: 860px; height: 100svh; position: relative; overflow: hidden; isolation: isolate; }
+.masthead { position: relative; z-index: 8; display: flex; align-items: flex-start; justify-content: space-between; padding: 42px 4.4vw 0; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--blue); font-size: 23px; letter-spacing: -1px; font-weight: 700; }
+.mark { width: 25px; height: 25px; }
+.masthead-note { margin: 1px 0 0; font-size: 11px; line-height: 1.65; text-align: right; color: var(--quiet); }
+.masthead-note span { color: var(--ink); }
+.hero { position: absolute; inset: 0; }
+.edition { position: absolute; left: 4.4vw; top: 20%; z-index: 1; display: flex; align-items: center; gap: 8px; color: #475566; font: 9px/1.3 'Courier New', monospace; letter-spacing: 1.1px; }
+.edition-dot { width: 5px; height: 5px; background: var(--blue); display: inline-block; }
+.wordmark { position: absolute; top: 22.7%; left: 3.5vw; z-index: 1; margin: 0; font-size: clamp(155px, 21.2vw, 350px); font-weight: 500; line-height: .86; letter-spacing: -.085em; color: var(--blue); }
+.wordmark-dot { margin-left: -.06em; }
+.sculpture-wrap { position: absolute; z-index: 3; width: min(75vw, 1200px); right: -12vw; top: 6.4%; aspect-ratio: 1600 / 1300; pointer-events: none; will-change: transform; transform: translate3d(var(--move-x, 0px), var(--move-y, 0px), 0); transition: transform 900ms cubic-bezier(.2,.7,.2,1); }
+.sculpture { display: block; width: 100%; height: auto; position: relative; z-index: 2; }
+.sculpture-shadow { position: absolute; width: 60%; height: 30%; left: 23%; top: 58%; background: #6480a6; border-radius: 50%; opacity: .12; filter: blur(35px); transform: rotate(-13deg); z-index: 1; }
+.invitation { position: absolute; z-index: 5; left: 4.5vw; bottom: 15%; width: 343px; }
+.eyebrow { font: 8px/1.5 'Courier New', monospace; letter-spacing: 1.15px; color: #5a6575; margin: 0 0 18px; }
+.invitation h2 { margin: 0 0 16px; font-size: 34px; font-weight: 400; line-height: 1.08; letter-spacing: -1.25px; }
+.description { color: var(--quiet); font-size: 13px; line-height: 1.65; margin: 0 0 24px; max-width: 306px; }
+.github-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 32px; min-height: 49px; padding: 0 16px 0 19px; background: var(--blue); color: white; text-decoration: none; font-size: 12px; font-weight: 500; transition: background 160ms ease, transform 160ms ease; }
+.github-link svg { width: 20px; height: 20px; }
+.github-link:hover { background: #003cda; transform: translateY(-2px); }
+.github-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 5px; }
+.object-note { position: absolute; z-index: 4; right: 8.4%; bottom: 10%; display: flex; align-items: flex-start; gap: 13px; color: #5a6575; font: 8px/1.65 'Courier New', monospace; letter-spacing: .8px; }
+.object-note-rule { display: block; width: 45px; height: 1px; margin-top: 5px; background: #9cabc0; }
+.footer { position: absolute; z-index: 7; bottom: 31px; left: 4.4vw; right: 4.4vw; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 16px; font-size: 9px; letter-spacing: .1px; color: #626b77; }
+.footer-plus { color: #9aa5b3; padding: 0 12px; }
+
+@media (min-width: 1650px) {
+  .sculpture-wrap { right: -4vw; top: 4%; }
+  .wordmark { left: 4vw; }
+  .invitation { bottom: 14%; }
+}
+
+@media (max-width: 1050px) {
+  .page { min-height: 850px; }
+  .wordmark { top: 24%; font-size: 23vw; }
+  .sculpture-wrap { width: 86vw; right: -24vw; top: 18%; }
+  .invitation { bottom: 14%; width: 320px; }
+  .invitation h2 { font-size: 31px; }
+  .object-note { right: 7%; bottom: 22%; }
+}
+
+@media (max-width: 680px) {
+  .page { min-height: 850px; height: max(100svh, 850px); }
+  .masthead { padding: 25px 25px 0; }
+  .brand { font-size: 20px; gap: 9px; }
+  .mark { width: 21px; height: 21px; }
+  .masthead-note { font-size: 8px; }
+  .edition { top: 15%; left: 25px; font-size: 7px; letter-spacing: .7px; }
+  .wordmark { top: 19%; left: 18px; font-size: 23vw; letter-spacing: -.08em; }
+  .sculpture-wrap { width: 105vw; right: -18vw; top: 17%; }
+  .sculpture-shadow { filter: blur(22px); }
+  .invitation { left: 26px; right: 26px; bottom: 117px; width: auto; }
+  .eyebrow { font-size: 7px; margin-bottom: 12px; }
+  .invitation h2 { font-size: 32px; line-height: 1.1; letter-spacing: -1px; margin-bottom: 14px; }
+  .description { font-size: 12px; max-width: 305px; margin-bottom: 19px; }
+  .github-link { min-height: 48px; font-size: 12px; }
+  .object-note { display: none; }
+  .footer { left: 25px; right: 25px; bottom: 26px; font-size: 8px; line-height: 1.5; }
+  .footer-right { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .sculpture-wrap { transform: none !important; will-change: auto; }
+}

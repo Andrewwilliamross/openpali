@@ -5,8 +5,12 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "dist" / "site"
-SITE_FILES = ("index.html", "style.css", "grid.js")
-BRAND_FILES = ("mark.svg", "favicon.svg", "social-card.png")
+SITE_FILES = ("index.html", "style.css", "field-office.js")
+BRAND_FILES = tuple("field-office/" + name for name in (
+    "favicon.svg", "social-card.png", "hero.webp", "hero-900.webp",
+    "fonts/Fraunces.woff2", "fonts/DMSans.woff2",
+    "fonts/Fraunces-OFL.txt", "fonts/DMSans-OFL.txt",
+))
 
 
 def main():
@@ -21,7 +25,9 @@ def main():
     for name in SITE_FILES:
         shutil.copyfile(ROOT / "site" / name, OUTPUT / name)
     for name in BRAND_FILES:
-        shutil.copyfile(ROOT / "assets" / "brand" / name, OUTPUT / "assets" / "brand" / name)
+        destination = OUTPUT / "assets" / "brand" / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / "assets" / "brand" / name, destination)
     (OUTPUT / ".nojekyll").touch()
     print(f"Staged {len(sources)} files at {OUTPUT}")
 
