@@ -1,115 +1,133 @@
-# Palisades Rebuild Tracker — data pipeline
+# OpenPali · the evidence engine
 
-Python ETL that turns fragmented LA city/county fire-recovery data into the static
-artifacts the web app serves. Two subsystems share one toolbox:
+This directory contains the Python platform behind OpenPali: source
+acquisition, the PostGIS evidence ledger, snapshots, release publication,
+analytics, spatial assets, orchestration, and the FastAPI API.
 
-| Subsystem | Produces | Entrypoint |
-|---|---|---|
-| **`palisades/`** — 2D rebuild tracker (Phase 1) | `web/public/data/*.json` — per-lot rebuild stage, score, timeline, metrics | `run.py` |
-| **`core/spatial/`** — 4D/3D spatial twin (Phase 2–3) | `data/spatial/` GeoParquet store + `web/public/tiles/palisades/` splat pyramid | `run_spatial.py` |
+The main package is `openpali/`, exposed through the `openpali` CLI.
+Python 3.12 matches the local stack and CI.
 
-Everything keys on the **10-digit unhyphenated APN**. No backend, no database — the
-pipeline emits versioned static files; their git history doubles as a time-series of the
-recovery.
+## Set up and explore
 
-## Quick start
+From the repository root:
 
-```bash
-# 2D tracker: fetch live gov APIs → score → emit → reconcile vs official numbers
-uv run run.py                 # live
-uv run run.py --offline       # rebuild artifacts from cache (no network)
-uv run run.py --no-validate   # skip the LADBS oracle reconciliation
-
-# 4D spatial core: LARIAC 3D priors → GeoParquet store (full 5,877-parcel universe)
-uv run run_spatial.py             # nightly pass (drains the prior backlog)
-uv run run_spatial.py --limit 25  # bound new extractions this run
-uv run run_spatial.py --apn 4413008013   # specific parcels
-
-# web-streamable splat tiles from the store (+ picking index, score-tinted)
-uv run python -m core.spatial.web_export
-
-# tests
-uv run pytest                 # 24 tests (scoring + geodesy + registration + LOD)
+```sh
+./scripts/bootstrap
+pipeline/.venv/bin/openpali --help
+pipeline/.venv/bin/python -m pytest pipeline/tests/test_domain_semantics.py -q
 ```
 
-From the repo root the `Makefile` wraps these: `make data` / `make spatial` / `make test`.
+Bootstrap creates `pipeline/.venv`, installs `requirements-lock.txt`, and
+installs this package in editable mode. It also installs the web dependencies.
+The full suite without services is available through `./scripts/check-fast`.
 
-## `palisades/` — the 2D ingestion pipeline
+For the database, object store, API, and workers, follow
+[infra/README.md](../infra/README.md). That guide initializes the schema and
+buckets and explains the `slice-dev` job that publishes a first development
+release. The local database is only reachable inside the Compose network;
+run database-dependent operations through the defined job services.
 
-```
-sources.py        fetch + normalize every source into Parcel objects (the orchestration)
-model.py          domain model: Parcel, Event, Permit; stage bands; milestone classifier
-score.py          rebuild score 0–100: stage band + cohort velocity + predicted completion
-emit.py           write parcels.geojson / details.json / summary.json / meta.json
-validate.py       reconcile computed counts against the LADBS oracle (server-side group-bys)
-neighborhoods.py  Pacific Palisades sub-neighborhoods (jump-to + roll-up stats)
+With the stack running, API documentation is at
+[`http://127.0.0.1:58000/v1/docs`](http://127.0.0.1:58000/v1/docs).
+Readiness requires initialized dependencies and a valid current release.
 
-http.py           cached, retrying httpx layer (polite to public agency APIs)
-arcgis.py         ArcGIS REST FeatureServer paging + counts
-socrata.py        Socrata SODA paging + counts
-apn.py            APN normalization (the universal join key)
-dates.py          epoch-ms / Oracle-string / ISO date parsing
-```
+## Follow a record
 
-**Flow:** the LA County debris-removal layer defines the universe (5,877 destroyed
-parcels, with polygon geometry, jurisdiction, debris status, and pre-fire attributes);
-the LADBS Palisades Recovery feed overlays the rich permit/inspection/CofO timeline that
-drives the score; Malibu + unincorporated lots get a coarser stage from their own status
-fields. Endpoints and the join strategy are documented in
-[`../Docs/initialbuild_docs/DATA_SOURCES.md`](../Docs/initialbuild_docs/DATA_SOURCES.md);
-the score method in
-[`../Docs/initialbuild_docs/METHODOLOGY.md`](../Docs/initialbuild_docs/METHODOLOGY.md);
-the emitted artifact contract in
-[`../Docs/initialbuild_docs/ARTIFACTS.md`](../Docs/initialbuild_docs/ARTIFACTS.md).
-
-**Self-validating.** Every live run re-queries the LADBS feed (the same data behind the
-city's official dashboard) and reconciles our parcel counts against it under identical
-filters — destroyed and CofO match exactly, permits-issued within ~2%. Drift >5% surfaces
-as a data-quality notice rather than a silently-wrong number.
-
-**Honest links.** Official-record permit links are *presence-gated*: each permit is
-batch-checked against the City open-data portal and a deep link is attached only when the
-record actually resolves; the rest render as plain text (no dead links).
-
-## `core/spatial/` — the 4D/3D spatial twin
-
-```
-geodesy.py        exact WGS84 ⇄ ECEF ⇄ ENU transforms; EPSG:2229 (CA State Plane V) → WGS84
-schema.py         unified Gaussian-splat state vector + hive-partitioned GeoParquet store (H3 keyed)
-scene_client.py   LARIAC 3D building extraction (I3S SceneServer, uncompressed buffer — no Draco)
-surfels.py        oriented, coloured disk-Gaussian surfels from mesh vertices + normals
-registration.py   rigid alignment: SOR → Mahalanobis → RANSAC coarse → ICP fine (full math)
-splat_tiler.py    3DGS octree LOD → 3D Tiles 1.1 + 32-byte .splat tiles
-web_export.py     store → web/public/tiles/ (tileset + picking.json + manifest, score-tinted)
-runner.py         idempotent nightly job over the full parcel universe (fail-safe, anomaly-flagged)
+```text
+Public source
+    │ acquire + hash original bytes
+    ▼
+Immutable object store ──► normalized records + observations
+                                      │
+                                      ▼
+                              PostGIS evidence ledger
+                                      │ cutoff + policy versions
+                                      ▼
+                                Civic snapshot
+                                      │ publication gates
+                                      ▼
+                              Release manifest + API
 ```
 
-Every spatial primitive — a LARIAC mesh vertex, a registered crowdsourced point, a
-trained Gaussian splat — is one row of the state vector `[ECEF xyz, T_epoch, scale, quat,
-alpha, SH coeffs, APN]`. The nightly job evaluates the **complete parcel universe** (lots
-with no spatial data get explicit `static_baseline` rows — never dropped), is idempotent,
-and isolates per-source/per-parcel failures (preserving the last valid asset). Full design
-in
-[`../Docs/initialbuild_docs/SPATIAL_CORE.md`](../Docs/initialbuild_docs/SPATIAL_CORE.md).
+Source records, observations, parcels, and properties have distinct
+identities. Snapshots freeze their inputs and policy versions. Publication
+checks those inputs before selecting a release; the API uses release-qualified
+routes and spatial asset URLs.
 
-## Conventions
+## Package map
 
-- **Join key:** 10-digit APN, dashes stripped (`apn.normalize_apn`). DINS counts
-  *structures*; we count *parcels* — never validate one against the other.
-- **Dates:** ArcGIS layers return epoch-ms, USACE ROE timestamps are Oracle strings,
-  Socrata is ISO — all normalized in `dates.py`.
-- **Rebuild stage** is driven only by `PERMIT_TYPE='Bldg-New'`; pools/demo/grading appear
-  as permit records but don't advance the stage.
-- **Caching:** raw upstream responses cache under `data/raw/` (gitignored); `--offline`
-  runs entirely from cache. The LARIAC scene layer is a static snapshot, cached forever.
+| Directory | Responsibility |
+| --- | --- |
+| `openpali/adapters/` | Source acquisition, response parsing, and schema checks |
+| `openpali/ingestion/` | Raw acquisition, normalization, ledger loading, and snapshots |
+| `openpali/domain/` | Evidence lanes, dates, conflicts, revisions, and policy |
+| `openpali/identity/` | Deterministic identifiers |
+| `openpali/storage/` | SQLAlchemy/PostGIS models and hash-verified S3 objects |
+| `openpali/publication/` | Release manifests, gates, promotion, and rollback |
+| `openpali/metrics/` | Metric definitions and computations |
+| `openpali/ml/` | Point-in-time datasets, experiments, review, and batch predictions |
+| `openpali/spatial/` | USGS acquisition, derivation, asset registration, and reconstruction |
+| `openpali/orchestration/` | Prefect flows, deployments, and jobs |
+| `openpali/api/` | FastAPI routes, schemas, errors, and health checks |
+| `migrations/` | Alembic database migrations |
+| `tests/` | Unit, semantic, contract, spatial, and opt-in integration checks |
 
-## Layout
+Configuration comes from environment variables, including
+`OPENPALI_DATABASE_URL`, `OPENPALI_S3_ENDPOINT`, `OPENPALI_S3_ACCESS_KEY`,
+`OPENPALI_S3_SECRET_KEY`, `PREFECT_API_URL`, and `MLFLOW_TRACKING_URI`.
+The Compose configuration supplies local fixture values. See
+[SECURITY.md](../SECURITY.md) before deploying elsewhere.
 
-```
-palisades/        2D ingestion package
-core/spatial/     4D/3D spatial core package
-tests/            pytest suite (test_score, test_spatial, test_spatial_integration)
-run.py            2D pipeline entrypoint
-run_spatial.py    spatial-core entrypoint
-pyproject.toml    uv project (httpx, pandas, shapely, numpy, scipy, pyproj, pyarrow, h3, …)
-```
+## Operator commands
+
+Use `openpali <command> --help` for arguments. These commands are implemented
+in [`openpali/cli.py`](openpali/cli.py):
+
+| Task | Command family |
+| --- | --- |
+| Acquire and load evidence | `source-refresh`, `refresh-all` |
+| Build and publish | `snapshot-build`, `release-publish`, `dev-slice` |
+| Recover and verify | `release-rollback`, `replay`, `restore-verify` |
+| Schedule work | `orchestrate-deploy`, `orchestrate-run` |
+| Evaluate and serve models | `ml-dataset`, `ml-experiments`, `ml-promote`, `ml-serve` |
+| Prepare spatial assets | `spatial-acquire`, `spatial-derive` |
+| Export the API schema | `export-openapi` |
+
+Most commands require initialized services and may acquire public-source
+data or create releases. Use the existing Compose jobs for the local stack.
+Model promotion and release publication have their own checks; successful
+acquisition alone does not make data ready to publish.
+
+## Static bundle and earlier spatial code
+
+There are also two retained paths in this directory:
+
+- `run.py` and `palisades/` build the static fallback under
+  `web/public/data/`. They now emit evidence lanes with provenance and
+  validation checks. `run.py --offline` needs previously cached source
+  responses; a fresh checkout does not contain that cache.
+- `run_spatial.py` and `core/spatial/` contain the earlier GeoParquet,
+  LARIAC, and splat tooling, including geometry helpers. Keep rights and
+  asset-selection requirements in mind before generating distributable data.
+
+The old `palisades/score.py` remains as deprecated, characterization-tested
+reference code. Its scores and heuristic completion dates are not emitted
+by `run.py` and must not be reintroduced into public recovery claims.
+
+The root `Makefile` still includes these static and spatial entrypoints.
+Use the `openpali` package and Compose workflow for platform work.
+[`Docs/initialbuild_docs/`](../Docs/initialbuild_docs/) is historical context,
+not the current platform specification.
+
+## Validation
+
+Run a focused test file while developing, then the shared fast gate from
+the repository root. Integration tests in `tests/integration/` are enabled
+by `OPENPALI_INTEGRATION=1` in the `test-integration` Compose job.
+`./scripts/check-full` adds the service-backed checks, ML and spatial drills,
+replay, browser checks, and other extended validation.
+
+When changing API schemas, update `contracts/openapi.json` and regenerate
+the web client; see [the API contract workflow](../web/README.md#api-contract).
+For contribution expectations and source-data care, see
+[CONTRIBUTING.md](../CONTRIBUTING.md).

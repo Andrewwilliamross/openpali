@@ -1,0 +1,36 @@
+name: An idea to build
+description: Propose a feature, an interface improvement, or a better contributor experience.
+title: "[Idea] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us who this helps and what becomes easier. A small, concrete proposal is a good start.
+        Check existing issues so we can keep related ideas together.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What should become easier?
+      description: Describe the person, task, and current difficulty.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Your idea
+      description: What would change? Sketches and examples are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and alternatives
+      description: Link related work or public sources. For new data, include coverage, update cadence, and known rights or access constraints.
+  - type: dropdown
+    id: involvement
+    attributes:
+      label: Would you like to help?
+      options:
+        - I can share more context
+        - I can help design or test this
+        - I would like to implement it

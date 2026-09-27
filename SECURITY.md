@@ -7,8 +7,11 @@ contact, and no credentials besides local fixture secrets.
 
 ## Reporting
 
-Open a private report to the repository owner (see repo metadata). Do not
-file public issues for suspected vulnerabilities.
+Use [GitHub private vulnerability reporting](https://github.com/Andrewwilliamross/openpali/security/advisories/new)
+to send a report to the repository maintainers. Include a minimal reproduction,
+affected version or commit, and the impact you observed. Do not file public
+issues for suspected vulnerabilities or include credentials or resident contact
+details in a report.
 
 ## Deployment trust model
 
@@ -73,5 +76,6 @@ exfiltration:
   has no network segmentation beyond compose internals.
 - TLS terminates at the operator's boundary; the local accel listeners are
   loopback HTTP by design.
-- Dependency and image scanning runs in CI (`scripts/check-full`); no
-  runtime IDS is included.
+- Dependency and image scanning are extended operator checks in
+  `scripts/check-full`. Pull-request CI runs the fast gate and web build;
+  no runtime IDS is included.
