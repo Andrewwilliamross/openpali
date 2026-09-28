@@ -1,5 +1,24 @@
 # OpenPali launch kit
 
+## Rollout status
+
+Verified on **2026-09-27**:
+
+| Surface | Status |
+| --- | --- |
+| Project website | Signal page published at [andrewwilliamross.github.io/openpali](https://andrewwilliamross.github.io/openpali/). |
+| Repository README | Signal banner and data integration / rebuild analysis overview published on `main`. |
+| Repository description, homepage, and topics | Updated to the platform framing and current website. |
+| Contributor guide and community templates | Contributor guide, three issue forms, and pull-request template published. |
+| Brand assets and guidance | [Signal assets](../../assets/brand/signal/) and [brand guide](README.md) published. |
+| Map application and API | Signal header, font, favicon, and browser metadata included in the application source. API title and description use the rebuild-analysis framing. |
+| Documentation index | Current platform guides and clearly marked historical references. |
+| GitHub repository social preview | **Pending upload.** The [Signal social card](../../assets/brand/signal/social-card.png) is ready; GitHub still uses its default repository preview. |
+
+The source-code license remains **unselected**; see the [licensing notice](../../README.md#license-and-data-rights).
+The announcement and social captions below are prepared copy. No social-account
+publication is recorded by this checklist.
+
 ## Repository presentation
 
 **Name:** OpenPali  

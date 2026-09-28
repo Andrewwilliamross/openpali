@@ -1,6 +1,6 @@
 # OpenPali public launch design
 
-> Historical record of the first public launch. The current design direction and its delivery status are documented in [ROUND-2.md](ROUND-2.md).
+> Historical record of the first public launch. Use the current [Signal brand kit](README.md) and [rollout status](LAUNCH.md#rollout-status) for published presentation work.
 
 ## Brief
 

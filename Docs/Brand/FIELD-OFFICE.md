@@ -1,6 +1,6 @@
 # The OpenPali field office
 
-> Archived round-two direction. The current flat pelican and parcel drawing are documented in [Field Notes](ROUND-3.md).
+> Archived round-two direction. The current identity is [Signal: scattered blue squares on white](README.md).
 
 **A place with footnotes.**
 

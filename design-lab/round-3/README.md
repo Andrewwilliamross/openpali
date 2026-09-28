@@ -2,21 +2,19 @@
 
 > Archived direction. The current website uses the white-and-blue [Signal identity](../../Docs/Brand/README.md).
 
-The earlier candidate in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12): a flat pelican with a field notebook, actual Palisades parcel lines, and one small task played over 26 seconds. This remains a review candidate until the relevant main-branch release is deployed.
+The earlier candidate explored in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12): a flat pelican with a field notebook, actual Palisades parcel lines, and one small task played over 26 seconds. That PR ultimately published Signal; this candidate remains available as design history.
 
 ## Review locally
 
 From the repository root:
 
 ```sh
-python3 scripts/compose-field-notes.py
-python3 scripts/build-site.py
 python3 -m http.server 4173 --bind 127.0.0.1
 ```
 
-Open <http://127.0.0.1:4173/dist/site/> for the candidate or <http://127.0.0.1:4173/design-lab/> for the gallery. The previous paper-atlas page is archived in [`../round-2/field-office/`](../round-2/field-office/).
+Open <http://127.0.0.1:4173/design-lab/round-3/field-notes/> for the archived candidate or <http://127.0.0.1:4173/design-lab/> for the gallery. The previous paper-atlas page is archived in [`../round-2/field-office/`](../round-2/field-office/).
 
-The scene is composed into an inline SVG. It uses local fonts and committed geometry; viewing it needs no map API, external font service, or rendering package. Only the public landing-page allowlist enters the Pages artifact; this design lab stays outside it.
+The archived scene is an inline SVG. It uses local fonts and committed geometry; viewing it needs no map API, external font service, or rendering package. The current build stages the Signal website; this design lab stays outside the Pages artifact.
 
 ## What to inspect
 

@@ -1,7 +1,7 @@
 [project]
 name = "palisades-pipeline"
 version = "0.1.0"
-description = "OpenPali recovery-intelligence pipeline and platform"
+description = "OpenPali data integration and analysis platform for the Palisades rebuild"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

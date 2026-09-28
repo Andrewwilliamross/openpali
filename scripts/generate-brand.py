@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Generate OpenPali's editable, dependency-free vector identity.
+"""Reproduce OpenPali's archived Parcel P identity (first design study).
 
-Run from any directory: python3 scripts/generate-brand.py
+For current Signal artwork, use assets/brand/signal/generate-assets.py.
+Historical reproduction: python3 scripts/generate-brand.py
 The decorative square fields are deterministic artwork, never real map or data.
 """
 

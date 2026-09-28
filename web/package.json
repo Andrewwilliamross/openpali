@@ -2,6 +2,13 @@
   "name": "web",
   "private": true,
   "version": "0.0.0",
+  "description": "OpenPali's map interface for analyzing the Palisades rebuild.",
+  "homepage": "https://andrewwilliamross.github.io/openpali/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andrewwilliamross/openpali.git",
+    "directory": "web"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
