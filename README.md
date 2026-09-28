@@ -1,55 +1,58 @@
 <p align="center">
   <a href="https://andrewwilliamross.github.io/openpali/">
-    <img src="assets/brand/banner.svg" alt="OpenPali — Recovery, in the open. Public evidence for the Palisades rebuild." width="100%">
+    <img src="assets/brand/signal/banner.png" alt="OpenPali — Understand the rebuild. A data platform for analyzing the Palisades rebuild. Scattered blue squares on white." width="100%">
   </a>
 </p>
 
 <p align="center">
   <a href="#start-building">Start building</a> ·
-  <a href="#how-it-works">How it works</a> ·
-  <a href="CONTRIBUTING.md">Contribute</a> ·
-  <a href="https://andrewwilliamross.github.io/openpali/">Website</a> ·
-  <a href="Docs/Brand/README.md">Brand kit</a>
+  <a href="#connect-explore-analyze">Platform overview</a> ·
+  <a href="#contribute">Contribute</a> ·
+  <a href="https://andrewwilliamross.github.io/openpali/">Website</a>
 </p>
 
-<p align="center">
+**OpenPali brings siloed public records, geospatial data, and imagery into one platform for analyzing the Palisades rebuild.** It connects agency records to parcels and dated observations so developers and researchers can study rebuilding activity after the January 2025 Palisades Fire.
+
+The platform combines source ingestion, a PostGIS data ledger, published snapshots, a map interface, and analysis APIs. Explore individual properties, compare documented milestones, and examine permit applications, issuance, backlog, and time to issuance with the underlying sources and limitations attached.
+
+An independent civic project by [RE\SPRING](https://respring.ai), built for people working with rebuild data.
+
+<p>
   <a href="https://github.com/Andrewwilliamross/openpali/actions/workflows/ci.yml"><img src="https://github.com/Andrewwilliamross/openpali/actions/workflows/ci.yml/badge.svg" alt="Project CI"></a>
   <img src="https://img.shields.io/badge/Python-3.12-1557FF?style=flat-square" alt="Python 3.12">
   <img src="https://img.shields.io/badge/Node-24-1557FF?style=flat-square" alt="Node 24">
 </p>
 
-# A clearer picture, built together.
+> **Public project, under active development.** A bundled snapshot supports local map exploration. Release APIs, analytics, and corrections require the platform stack. The source-code license is [not yet selected](#license-and-data-rights).
 
-**OpenPali is a public evidence platform for the rebuild after the January 2025 Palisades Fire.** It brings fragmented agency records into a map, with separate evidence lanes for cleanup, design review, permitting, construction, and occupancy.
+## Connect, explore, analyze
 
-The point is simple: make it easier to understand **what the public record actually documents**, and to follow a claim back to its source.
-
-Built by [RE\SPRING](https://respring.ai), with room for people who care about maps, public data, thoughtful software, and their neighbors. OpenPali is an independent civic project.
-
-> **Public project, under active development.** The frontend includes a bundled data snapshot for local exploration. Service-backed releases, corrections, and estimates require the platform stack. See [licensing](#license-and-data-rights) for the current reuse terms.
-
-## What you can explore
-
-| Surface | What it helps you understand |
+| Work with the data | What OpenPali implements |
 | --- | --- |
-| **A shared map** | Parcel-level records across the Palisades recovery area, with a 2D view and optional 3D layers. |
-| **Separate evidence lanes** | Cleanup, design review, permitting, construction, and occupancy can each have their own documented events. |
-| **A traceable timeline** | Source records, observations, and dates behind a property's documented milestones. |
-| **Published releases** | A platform designed around versioned snapshots, retained source bytes, release gates, and rollback. |
-| **Careful analytics** | Denominators and uncertainty travel with the result. Permit estimates are suppressed when the evidence or model approval is insufficient. |
+| **Connect sources** | Adapters for County parcel and debris records, LADBS permits and inspection requests, CAL FIRE damage assessments, LA City permit and occupancy records, and Malibu rebuild markers. Records retain their source identity and dates. |
+| **Explore in context** | Parcel geometry, property timelines, and separate cleanup, design review, permitting, construction, and occupancy lanes in a React + MapLibre interface. Optional imagery and 3D layers add spatial context. |
+| **Analyze the rebuild** | Milestone prevalence, weekly permit application and issuance counts, backlog and throughput, and time-to-issuance analysis. Published releases expose metrics through APIs and research CSV exports. |
 
-### The record is the starting point
+```mermaid
+flowchart LR
+    A[Agency records] --> C[Parcel-linked observations]
+    B[Parcel and structure geometry] --> C
+    C --> E[Published releases]
+    D[Registered terrain and 3D assets] -->|Available and rights-cleared| E
+    E --> F[Map and property timelines]
+    E --> G[Analysis APIs and CSV]
+    H[External imagery layers] --> F
+```
 
-- **Evidence before inference.** A milestone needs a documented event. OpenPali does not assign a rebuild score or rank owners.
-- **Unknown stays unknown.** Missing public evidence is not evidence that nothing happened.
-- **Dates mean different things.** An event date, an observation date, and a release date are kept distinct.
-- **Corrections belong in the process.** Use the property's report path in a running deployment, or report a public source discrepancy through the [data correction form](https://github.com/Andrewwilliamross/openpali/issues/new?template=03-data.yml). Keep personal contact details out of public issues.
+Spatial inputs have their own scope and dates. Optional imagery layers come from external tile providers; the implemented USGS LiDAR workflow derives terrain for a fixed Alphabet Streets area. Registered terrain and 3D assets depend on the release and their reuse terms. Historical imagery and terrain provide context, not a measure of present construction activity.
+
+See the [pipeline guide](pipeline/README.md) for ingestion, spatial processing, publication, and analysis commands, and the [metric definitions](pipeline/openpali/metrics/catalog.py) for populations, denominators, and time windows.
 
 ## Start building
 
-### Explore the frontend
+### Open the map locally
 
-Use **Node.js 24** and npm. The map can run from the bundled snapshot without the Python services:
+Use **Node.js 24** and npm:
 
 ```sh
 git clone https://github.com/Andrewwilliamross/openpali.git
@@ -58,41 +61,36 @@ npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite. Snapshot content is not a claim of current conditions; some platform features need the API. See the [frontend guide](web/README.md) for the boundary.
+Open the URL printed by Vite. The bundled snapshot lets you explore the map without the Python services; its contents do not establish current conditions. API features need the platform below. See the [frontend guide](web/README.md).
 
 ### Work on the platform
 
-Use **Python 3.12**, Node.js 24, and Docker Compose for the service stack. From the repository root:
+Use **Python 3.12**, Node.js 24, and Docker Compose. From the repository root:
 
 ```sh
 ./scripts/bootstrap       # Install host dependencies; does not start services
 ./scripts/check-fast      # Unit suites, frontend lint/typecheck, OpenAPI drift
 ```
 
-Follow the [local stack guide](infra/README.md) to build and start services, migrate the database, initialize storage, and load a development release. [`scripts/check-full`](scripts/check-full) runs the broader local checks; read its requirements before running it.
+The [local stack guide](infra/README.md) covers building and starting services, database migrations, storage initialization, and a development release. [`scripts/check-full`](scripts/check-full) runs the broader local checks; read its requirements first.
 
-Working only on the project website? It needs just Python:
+<details>
+<summary>Working on the project website?</summary>
+
+It needs Python:
 
 ```sh
 python3 scripts/build-site.py
 python3 -m http.server 4173 --bind 127.0.0.1 --directory dist/site
 ```
 
-## How it works
+See the [website guide](site/README.md).
 
-```mermaid
-flowchart LR
-    A[Public agency records] --> B[Source adapters]
-    B --> C[Immutable source bytes]
-    B --> D[PostGIS evidence ledger]
-    C --> E[Release gates]
-    D --> E
-    E --> F[Published snapshot]
-    F --> G[FastAPI]
-    G --> H[React + MapLibre]
-```
+</details>
 
-The current platform is a modular Python monolith with workers and a React client. The ledger retains observations over time, source bytes are content-addressed, and the release API serves artifacts selected by a published manifest. The frontend also retains a static snapshot path for local exploration.
+## Inside the project
+
+The platform is a modular Python monolith with workers, FastAPI, and a React client. Source bytes are content-addressed, observations are retained over time, and release APIs select artifacts through a published manifest. PostGIS stores the evidence ledger; release gates and rollback preserve an inspectable publication history. The frontend also keeps a static snapshot path for local exploration.
 
 | Directory | Start here for |
 | --- | --- |
@@ -101,40 +99,26 @@ The current platform is a modular Python monolith with workers and a React clien
 | [`infra/`](infra/README.md) | PostGIS, object storage, Prefect, MLflow, API, and local operations. |
 | [`contracts/`](contracts/) | The checked-in OpenAPI contract. |
 | [`site/`](site/README.md) | The small project website. |
-| [`assets/brand/`](assets/brand/) | Original marks, banners, social images, and ASCII art. |
+| [`assets/brand/`](assets/brand/) | Artwork and identity files; see the [brand guide](Docs/Brand/README.md). |
 | [`Docs/`](Docs/README.md) | Research, decisions, planning, and historical prototype documents. |
 
-For technical priorities and their context, see the [roadmap](ROADMAP.md). Historical prototype code and documents remain in the repository; their old scoring model is not the current product contract.
+See the [roadmap](ROADMAP.md) for technical priorities. Historical prototype code and documents remain in the repository; their old scoring model is retired.
 
-## Bring your square.
+## Working with the evidence
 
-A useful contribution can be small: a clearer sentence, a keyboard fix, a reproducible bug report, a source adapter, or a better test for an ambiguous record.
+- **Keep sources and dates attached.** Event dates, observation dates, and release dates answer different questions. The five evidence lanes remain separate rather than collapsing into a rebuild score.
+- **Account for missing data.** Missing public evidence does not mean nothing happened. Analyses carry denominators and uncertainty; permit estimates are suppressed when evidence or model approval is insufficient.
+- **Make corrections traceable.** A running deployment can accept reports from a property's card. Public source discrepancies can also go through the [data correction form](https://github.com/Andrewwilliamross/openpali/issues/new?template=03-data.yml). Keep personal contact details out of public issues.
 
-1. Read the [contributor guide](CONTRIBUTING.md).
-2. Browse [issues](https://github.com/Andrewwilliamross/openpali/issues), or propose a focused improvement.
-3. Explain what changes for a user and how you checked it.
+## Contribute
 
-We welcome careful work from developers, designers, researchers, and people who know the public records. Please follow the [community guidelines](CODE_OF_CONDUCT.md). Report vulnerabilities privately through the [security policy](SECURITY.md).
+| Connect another source | Improve the analysis | Build a better interface |
+| --- | --- | --- |
+| [Source adapters](pipeline/openpali/adapters/) | [Metric definitions and computations](pipeline/openpali/metrics/) | [Frontend guide](web/README.md) |
 
-<details>
-<summary>A little terminal spirit</summary>
+Start with a focused change: strengthen a source adapter, check a metric definition, improve a map interaction, or clarify the setup. Read the [contributor guide](CONTRIBUTING.md), browse [existing issues](https://github.com/Andrewwilliamross/openpali/issues), and explain how you verified the result.
 
-```text
-  [][][][]
-  []      []
-  []      []
-  [][][][]
-  []
-  []
-  []
-
-  openpali
-  Recovery, in the open.
-```
-
-The [brand kit](Docs/Brand/README.md) includes transparent vectors, social cards, and the text mark. Its square fields are decorative, not a representation of recovery progress.
-
-</details>
+Follow the [community guidelines](CODE_OF_CONDUCT.md); report vulnerabilities through the [security policy](SECURITY.md).
 
 ## License and data rights
 
@@ -144,4 +128,4 @@ Government records, imagery, basemaps, and vendor-derived assets have their own 
 
 ---
 
-**Build in the open. Keep the evidence clear.**
+**Understand the rebuild. Build with the data.**

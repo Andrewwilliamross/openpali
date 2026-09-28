@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" role="img" aria-labelledby="map-title map-description">
+<title id="map-title">Alphabet Streets, Pacific Palisades</title>
+<desc id="map-description">Actual Los Angeles County parcel boundaries and named street centerlines around Fiske, Galloway and Hartzell Streets, between Albright Street and Bestor Boulevard. Neutral geometry, with no property conditions or rebuilding claims. Right margin reserved for separate illustrations.</desc>
+<metadata>Sources: Los Angeles County Office of the Assessor; Countywide Address Management System (CAMS). Retrieved 2026-09-27. WGS84 geographic coordinates projected to Web Mercator for this plan. Provider terms: https://egis-lacounty.hub.arcgis.com/pages/terms-of-use . See provenance.json.</metadata>
+<defs><clipPath id="map-extent-clip"><rect x="56.92" y="92.00" width="712.15" height="544.00"/></clipPath></defs>
+<g id="paper"><rect width="1100" height="720" fill="#fff"/></g>
+<g id="map-heading" fill="#1557ff" font-family="Arial,sans-serif"><text x="44" y="40" font-size="11" letter-spacing="2">PACIFIC PALISADES</text><text x="44" y="64" font-size="19" letter-spacing="-.3">Alphabet Streets / a closer look</text></g>
+<g id="actual-parcels" clip-path="url(#map-extent-clip)" fill="none" stroke="#1557ff" stroke-width="1.15" stroke-linejoin="round" opacity=".65">
+<path id="parcel-976529" data-source-object-id="976529" d="M750.82,155.75L743.76,156.42L723.35,157.97L702.92,159.17L698.33,136.92L692.81,114.99L686.37,93.42L686.13,92.67L686.03,91.13L686.14,89.59L686.46,88.09L686.98,86.67L687.68,85.38L688.55,84.24L689.56,83.29L690.69,82.55L691.9,82.04L693.16,81.77L694.44,81.76L719.15,80.35L743.83,78.35L750.82,155.75Z"/>
+<path id="parcel-976530" data-source-object-id="976530" d="M786.33,152L784.47,152.24L764.13,154.51L750.82,155.75L743.83,78.35L751.63,77.65L770.64,75.61L777,74.82L786.33,152Z"/>
+<path id="parcel-976546" data-source-object-id="976546" d="M381.33,50.54L399.79,54.97L382.47,130.71L362.69,125.96L348.84,122.38L368.32,47.18L381.33,50.54Z"/>
+<path id="parcel-976547" data-source-object-id="976547" d="M418.59,59.14L433.31,62.12L418.36,138.37L402.59,135.16L382.47,130.71L399.79,54.97L418.59,59.14Z"/>
+<path id="parcel-976548" data-source-object-id="976548" d="M437.33,62.94L456.12,66.42L466.13,68.08L453.5,144.75L442.77,142.96L422.64,139.24L418.36,138.37L433.31,62.12L437.33,62.94Z"/>
+<path id="parcel-976549" data-source-object-id="976549" d="M474.98,69.56L493.89,72.38L499.11,73.06L488.81,150.07L483.2,149.34L462.96,146.33L453.5,144.75L466.13,68.08L474.98,69.56Z"/>
+<path id="parcel-976550" data-source-object-id="976550" d="M512.84,74.86L531.83,77.01L532.23,77.04L524.27,154.34L523.83,154.3L503.49,152L488.81,150.07L499.11,73.06L512.84,74.86Z"/>
+<path id="parcel-976551" data-source-object-id="976551" d="M550.86,78.82L565.46,79.95L559.85,157.47L544.2,156.25L524.27,154.34L532.23,77.04L550.86,78.82Z"/>
+<path id="parcel-976552" data-source-object-id="976552" d="M569.92,80.3L589,81.45L598.76,81.87L595.5,159.51L585.03,159.06L564.6,157.84L559.85,157.47L565.46,79.95L569.92,80.3Z"/>
+<path id="parcel-976553" data-source-object-id="976553" d="M608.09,82.26L627.2,82.74L632.1,82.79L631.19,160.49L625.93,160.45L605.48,159.94L595.5,159.51L598.76,81.87L608.09,82.26Z"/>
+<path id="parcel-976554" data-source-object-id="976554" d="M639.5,82.89L642.32,83.17L645.08,83.98L647.69,85.31L650.09,87.13L652.22,89.38L654.03,92.01L655.47,94.95L655.74,95.79L662.41,116.9L668.12,138.42L672.85,160.27L631.19,160.49L632.1,82.79L638.68,82.87L639.5,82.89Z"/>
+<path id="parcel-976555" data-source-object-id="976555" d="M327.84,37.26L311.27,113.16L292.3,109.21L273.24,105.82L285.79,29.15L306.86,32.89L327.84,37.26Z"/>
+<path id="parcel-976556" data-source-object-id="976556" d="M368.32,47.18L348.84,122.38L342.89,120.79L311.27,113.16L327.84,37.26L362.83,45.72L368.32,47.18Z"/>
+<path id="parcel-976564" data-source-object-id="976564" d="M113.36,51.03L109.5,60.06L106.56,69.57L104.58,79.44L103.58,89.53L103.36,91.04L102.95,92.5L102.35,93.86L101.58,95.08L100.66,96.15L99.61,97.02L98.46,97.69L97.24,98.13L95.98,98.33L95.36,98.38L66.19,101.38L56.81,23.72L113.36,51.03Z"/>
+<path id="parcel-976565" data-source-object-id="976565" d="M66.19,101.38L48.5,103.74L30.85,106.55L17.97,30.9L56.81,23.72L66.19,101.38Z"/>
+<path id="parcel-976575" data-source-object-id="976575" d="M166.66,96.13L136.77,96.19L135.94,96.2L134.64,96.13L133.36,95.8L132.15,95.23L131.03,94.43L130.03,93.41L129.18,92.22L128.5,90.88L128.01,89.42L127.72,87.89L127.64,86.32L127.77,85.47L129.75,75.94L132.72,66.79L136.66,58.19L141.47,50.26L147.1,43.16L153.43,36.98L160.37,31.84L167.81,27.83L166.66,96.13Z"/>
+<path id="parcel-976576" data-source-object-id="976576" d="M207.41,20.08L202.34,97.62L191.69,96.98L178.92,96.43L166.66,96.13L167.81,27.83L176.99,23.94L186.48,21.31L196.15,19.98L205.89,19.96L207.41,20.08Z"/>
+<path id="parcel-976577" data-source-object-id="976577" d="M246.72,23.67L237.89,100.86L220.13,99L202.34,97.62L207.41,20.08L227.08,21.62L246.72,23.67Z"/>
+<path id="parcel-976578" data-source-object-id="976578" d="M285.79,29.15L273.24,105.82L255.59,103.09L237.89,100.86L246.72,23.67L266.28,26.14L285.79,29.15Z"/>
+<path id="parcel-977039" data-source-object-id="977039" d="M119.53,641.88L43.41,655.94L38.03,626.54L114.15,612.48L119.53,641.88Z"/>
+<path id="parcel-977040" data-source-object-id="977040" d="M114.15,612.48L38.03,626.54L32.65,597.13L108.77,583.08L114.15,612.48Z"/>
+<path id="parcel-977041" data-source-object-id="977041" d="M108.77,583.08L32.65,597.13L27.27,567.73L103.39,553.68L108.77,583.08Z"/>
+<path id="parcel-977042" data-source-object-id="977042" d="M103.39,553.68L27.27,567.73L21.89,538.33L98.01,524.27L103.39,553.68Z"/>
+<path id="parcel-977043" data-source-object-id="977043" d="M98.01,524.27L21.89,538.33L16.51,508.92L92.62,494.87L98.01,524.27Z"/>
+<path id="parcel-977044" data-source-object-id="977044" d="M92.62,494.87L16.51,508.92L11.13,479.52L87.24,465.46L92.62,494.87Z"/>
+<path id="parcel-977045" data-source-object-id="977045" d="M87.24,465.46L11.13,479.52L5.75,450.12L81.86,436.05L87.24,465.46Z"/>
+<path id="parcel-977046" data-source-object-id="977046" d="M81.86,436.05L5.75,450.12L0.37,420.71L76.49,406.65L81.86,436.05Z"/>
+<path id="parcel-977047" data-source-object-id="977047" d="M76.49,406.65L0.37,420.71L-5.01,391.3L71.1,377.25L76.49,406.65Z"/>
+<path id="parcel-977048" data-source-object-id="977048" d="M71.1,377.25L-5.01,391.3L-10.39,361.9L65.72,347.85L71.1,377.25Z"/>
+<path id="parcel-977049" data-source-object-id="977049" d="M65.72,347.85L-10.39,361.9L-15.77,332.49L60.34,318.44L65.72,347.85Z"/>
+<path id="parcel-977050" data-source-object-id="977050" d="M60.34,318.44L-15.77,332.49L-21.15,303.1L54.96,289.04L60.34,318.44Z"/>
+<path id="parcel-977055" data-source-object-id="977055" d="M112.77,175L36.66,189.06L28.32,143.46L53.86,139.21L79.49,135.93L105.2,133.64L112.77,175Z"/>
+<path id="parcel-977056" data-source-object-id="977056" d="M114.92,186.77L120.3,216.17L44.2,230.23L38.81,200.83L36.66,189.06L112.77,175L114.92,186.77Z"/>
+<path id="parcel-977057" data-source-object-id="977057" d="M125.69,245.58L49.57,259.63L44.2,230.23L120.3,216.17L125.69,245.58Z"/>
+<path id="parcel-977058" data-source-object-id="977058" d="M131.06,274.98L54.96,289.04L49.57,259.63L125.69,245.58L131.06,274.98Z"/>
+<path id="parcel-977059" data-source-object-id="977059" d="M136.45,304.38L60.34,318.44L54.96,289.04L131.06,274.98L136.45,304.38Z"/>
+<path id="parcel-977060" data-source-object-id="977060" d="M141.83,333.79L65.72,347.85L60.34,318.44L136.45,304.38L141.83,333.79Z"/>
+<path id="parcel-977061" data-source-object-id="977061" d="M147.21,363.19L71.1,377.25L65.72,347.85L141.83,333.79L147.21,363.19Z"/>
+<path id="parcel-977062" data-source-object-id="977062" d="M152.59,392.6L76.49,406.65L71.1,377.25L147.21,363.19L152.59,392.6Z"/>
+<path id="parcel-977063" data-source-object-id="977063" d="M157.97,422L81.86,436.05L76.49,406.65L152.59,392.6L157.97,422Z"/>
+<path id="parcel-977064" data-source-object-id="977064" d="M163.36,451.4L87.24,465.46L81.86,436.05L157.97,422L163.36,451.4Z"/>
+<path id="parcel-977065" data-source-object-id="977065" d="M168.74,480.81L92.62,494.87L87.24,465.46L163.36,451.4L168.74,480.81Z"/>
+<path id="parcel-977066" data-source-object-id="977066" d="M174.12,510.21L98.01,524.27L92.62,494.87L168.74,480.81L174.12,510.21Z"/>
+<path id="parcel-977067" data-source-object-id="977067" d="M179.5,539.61L103.39,553.68L98.01,524.27L174.12,510.21L179.5,539.61Z"/>
+<path id="parcel-977068" data-source-object-id="977068" d="M184.88,569.02L108.77,583.08L103.39,553.68L179.5,539.61L184.88,569.02Z"/>
+<path id="parcel-977069" data-source-object-id="977069" d="M190.26,598.43L114.15,612.48L108.77,583.08L184.88,569.02L190.26,598.43Z"/>
+<path id="parcel-977070" data-source-object-id="977070" d="M195.65,627.83L119.53,641.88L114.15,612.48L190.26,598.43L195.65,627.83Z"/>
+<path id="parcel-977071" data-source-object-id="977071" d="M201.83,661.64L125.71,675.7L119.53,641.88L195.65,627.83L201.83,661.64Z"/>
+<path id="parcel-977072" data-source-object-id="977072" d="M307.19,642.19L231.1,656.24L224.91,622.43L301,608.37L307.19,642.19Z"/>
+<path id="parcel-977073" data-source-object-id="977073" d="M301,608.37L224.91,622.43L219.53,593.02L295.62,578.97L301,608.37Z"/>
+<path id="parcel-977074" data-source-object-id="977074" d="M295.62,578.97L219.53,593.02L214.15,563.61L290.24,549.56L295.62,578.97Z"/>
+<path id="parcel-977075" data-source-object-id="977075" d="M290.24,549.56L214.15,563.61L208.77,534.21L284.86,520.16L290.24,549.56Z"/>
+<path id="parcel-977076" data-source-object-id="977076" d="M284.86,520.16L208.77,534.21L203.38,504.81L279.48,490.76L284.86,520.16Z"/>
+<path id="parcel-977077" data-source-object-id="977077" d="M279.48,490.76L203.38,504.81L198.01,475.4L274.11,461.35L279.48,490.76Z"/>
+<path id="parcel-977078" data-source-object-id="977078" d="M274.11,461.35L198.01,475.4L192.62,446L268.72,431.94L274.11,461.35Z"/>
+<path id="parcel-977079" data-source-object-id="977079" d="M268.72,431.94L192.62,446L187.24,416.6L263.34,402.54L268.72,431.94Z"/>
+<path id="parcel-977080" data-source-object-id="977080" d="M263.34,402.54L187.24,416.6L181.86,387.19L257.95,373.14L263.34,402.54Z"/>
+<path id="parcel-977081" data-source-object-id="977081" d="M257.95,373.14L181.86,387.19L176.48,357.79L252.58,343.73L257.95,373.14Z"/>
+<path id="parcel-977082" data-source-object-id="977082" d="M252.58,343.73L176.48,357.79L171.1,328.38L247.2,314.33L252.58,343.73Z"/>
+<path id="parcel-977083" data-source-object-id="977083" d="M247.2,314.33L171.1,328.38L165.72,298.97L241.82,284.93L247.2,314.33Z"/>
+<path id="parcel-977084" data-source-object-id="977084" d="M241.82,284.93L165.72,298.97L160.33,269.58L236.44,255.52L241.82,284.93Z"/>
+<path id="parcel-977085" data-source-object-id="977085" d="M236.44,255.52L160.33,269.58L154.95,240.17L231.06,226.11L236.44,255.52Z"/>
+<path id="parcel-977086" data-source-object-id="977086" d="M231.06,226.11L154.95,240.17L149.56,210.77L225.68,196.72L231.06,226.11Z"/>
+<path id="parcel-977087" data-source-object-id="977087" d="M225.68,196.72L149.56,210.77L144.19,181.36L220.3,167.31L225.68,196.72Z"/>
+<path id="parcel-977088" data-source-object-id="977088" d="M214.3,134.52L220.3,167.31L144.19,181.36L135.18,132.16L161.57,131.93L187.95,132.72L214.3,134.52Z"/>
+<path id="parcel-977089" data-source-object-id="977089" d="M295.15,146.36L301.79,182.66L225.68,196.72L220.3,167.31L214.3,134.52L241.35,137.39L268.31,141.33L295.15,146.36Z"/>
+<path id="parcel-977090" data-source-object-id="977090" d="M307.17,212.06L231.06,226.11L225.68,196.72L301.79,182.66L307.17,212.06Z"/>
+<path id="parcel-977091" data-source-object-id="977091" d="M312.54,241.47L236.44,255.52L231.06,226.11L307.17,212.06L312.54,241.47Z"/>
+<path id="parcel-977092" data-source-object-id="977092" d="M317.93,270.87L241.82,284.93L236.44,255.52L312.54,241.47L317.93,270.87Z"/>
+<path id="parcel-977093" data-source-object-id="977093" d="M323.3,300.27L247.2,314.33L241.82,284.93L317.93,270.87L323.3,300.27Z"/>
+<path id="parcel-977094" data-source-object-id="977094" d="M328.68,329.68L252.58,343.73L247.2,314.33L323.3,300.27L328.68,329.68Z"/>
+<path id="parcel-977095" data-source-object-id="977095" d="M334.07,359.09L257.95,373.14L252.58,343.73L328.68,329.68L334.07,359.09Z"/>
+<path id="parcel-977096" data-source-object-id="977096" d="M339.44,388.49L263.34,402.54L257.95,373.14L334.07,359.09L339.44,388.49Z"/>
+<path id="parcel-977097" data-source-object-id="977097" d="M344.82,417.9L268.72,431.94L263.34,402.54L339.44,388.49L344.82,417.9Z"/>
+<path id="parcel-977098" data-source-object-id="977098" d="M350.2,447.3L274.11,461.35L268.72,431.94L344.82,417.9L350.2,447.3Z"/>
+<path id="parcel-977099" data-source-object-id="977099" d="M355.58,476.7L279.48,490.76L274.11,461.35L350.2,447.3L355.58,476.7Z"/>
+<path id="parcel-977100" data-source-object-id="977100" d="M360.95,506.1L284.86,520.16L279.48,490.76L355.58,476.7L360.95,506.1Z"/>
+<path id="parcel-977101" data-source-object-id="977101" d="M366.33,535.51L290.24,549.56L284.86,520.16L360.95,506.1L366.33,535.51Z"/>
+<path id="parcel-977102" data-source-object-id="977102" d="M371.71,564.91L295.62,578.97L290.24,549.56L366.33,535.51L371.71,564.91Z"/>
+<path id="parcel-977103" data-source-object-id="977103" d="M377.09,594.32L301,608.37L295.62,578.97L371.71,564.91L377.09,594.32Z"/>
+<path id="parcel-977104" data-source-object-id="977104" d="M383.27,628.13L307.19,642.19L301,608.37L377.09,594.32L383.27,628.13Z"/>
+<path id="parcel-977105" data-source-object-id="977105" d="M488.67,608.67L412.54,622.73L406.36,588.91L482.48,574.86L488.67,608.67Z"/>
+<path id="parcel-977106" data-source-object-id="977106" d="M482.48,574.86L406.36,588.91L400.98,559.51L477.1,545.45L482.48,574.86Z"/>
+<path id="parcel-977107" data-source-object-id="977107" d="M477.1,545.45L400.98,559.51L395.6,530.1L471.72,516.05L477.1,545.45Z"/>
+<path id="parcel-977108" data-source-object-id="977108" d="M471.72,516.05L395.6,530.1L390.22,500.7L466.34,486.65L471.72,516.05Z"/>
+<path id="parcel-977109" data-source-object-id="977109" d="M466.34,486.65L390.22,500.7L384.84,471.3L460.96,457.24L466.34,486.65Z"/>
+<path id="parcel-977110" data-source-object-id="977110" d="M460.96,457.24L384.84,471.3L379.47,441.89L455.58,427.84L460.96,457.24Z"/>
+<path id="parcel-977111" data-source-object-id="977111" d="M455.58,427.84L379.47,441.89L374.09,412.49L450.2,398.43L455.58,427.84Z"/>
+<path id="parcel-977112" data-source-object-id="977112" d="M450.2,398.43L374.09,412.49L368.71,383.09L444.82,369.03L450.2,398.43Z"/>
+<path id="parcel-977113" data-source-object-id="977113" d="M444.82,369.03L368.71,383.09L363.33,353.68L439.44,339.62L444.82,369.03Z"/>
+<path id="parcel-977114" data-source-object-id="977114" d="M439.44,339.62L363.33,353.68L357.95,324.27L434.06,310.22L439.44,339.62Z"/>
+<path id="parcel-977115" data-source-object-id="977115" d="M434.06,310.22L357.95,324.27L352.57,294.87L428.68,280.82L434.06,310.22Z"/>
+<path id="parcel-977116" data-source-object-id="977116" d="M428.68,280.82L352.57,294.87L347.19,265.46L423.3,251.41L428.68,280.82Z"/>
+<path id="parcel-977117" data-source-object-id="977117" d="M423.3,251.41L347.19,265.46L341.82,236.06L417.92,222L423.3,251.41Z"/>
+<path id="parcel-977118" data-source-object-id="977118" d="M417.92,222L341.82,236.06L336.44,206.66L412.54,192.6L417.92,222Z"/>
+<path id="parcel-977119" data-source-object-id="977119" d="M333.67,155.5L371.22,164.92L408.96,173.06L412.54,192.6L336.44,206.66L326.75,153.69L333.67,155.5Z"/>
+<path id="parcel-977120" data-source-object-id="977120" d="M457.99,181.85L449.36,246.6L423.3,251.41L417.92,222L412.54,192.6L408.96,173.06L433.44,177.74L457.99,181.85Z"/>
+<path id="parcel-977121" data-source-object-id="977121" d="M478.27,184.88L490.09,186.47L499.41,237.36L449.36,246.6L457.99,181.85L478.27,184.88Z"/>
+<path id="parcel-977122" data-source-object-id="977122" d="M504.78,266.76L428.68,280.82L423.3,251.41L449.36,246.6L499.41,237.36L504.78,266.76Z"/>
+<path id="parcel-977123" data-source-object-id="977123" d="M510.17,296.17L434.06,310.22L428.68,280.82L504.78,266.76L510.17,296.17Z"/>
+<path id="parcel-977124" data-source-object-id="977124" d="M515.55,325.57L439.44,339.62L434.06,310.22L510.17,296.17L515.55,325.57Z"/>
+<path id="parcel-977125" data-source-object-id="977125" d="M520.93,354.97L444.82,369.03L439.44,339.62L515.55,325.57L520.93,354.97Z"/>
+<path id="parcel-977126" data-source-object-id="977126" d="M526.32,384.38L450.2,398.43L444.82,369.03L520.93,354.97L526.32,384.38Z"/>
+<path id="parcel-977127" data-source-object-id="977127" d="M531.69,413.78L455.58,427.84L450.2,398.43L526.32,384.38L531.69,413.78Z"/>
+<path id="parcel-977128" data-source-object-id="977128" d="M537.08,443.19L460.96,457.24L455.58,427.84L531.69,413.78L537.08,443.19Z"/>
+<path id="parcel-977129" data-source-object-id="977129" d="M542.46,472.59L466.34,486.65L460.96,457.24L537.08,443.19L542.46,472.59Z"/>
+<path id="parcel-977130" data-source-object-id="977130" d="M547.84,501.99L471.72,516.05L466.34,486.65L542.46,472.59L547.84,501.99Z"/>
+<path id="parcel-977131" data-source-object-id="977131" d="M553.22,531.4L477.1,545.45L471.72,516.05L547.84,501.99L553.22,531.4Z"/>
+<path id="parcel-977132" data-source-object-id="977132" d="M558.61,560.8L482.48,574.86L477.1,545.45L553.22,531.4L558.61,560.8Z"/>
+<path id="parcel-977133" data-source-object-id="977133" d="M564.8,594.61L488.67,608.67L482.48,574.86L558.61,560.8L564.8,594.61Z"/>
+<path id="parcel-977134" data-source-object-id="977134" d="M670.16,575.16L594.06,589.21L587.88,555.39L663.97,541.35L670.16,575.16Z"/>
+<path id="parcel-977135" data-source-object-id="977135" d="M663.97,541.35L587.88,555.39L582.5,525.99L658.59,511.94L663.97,541.35Z"/>
+<path id="parcel-977136" data-source-object-id="977136" d="M658.59,511.94L582.5,525.99L577.11,496.59L653.21,482.54L658.59,511.94Z"/>
+<path id="parcel-977137" data-source-object-id="977137" d="M653.21,482.54L577.11,496.59L571.73,467.19L647.83,453.13L653.21,482.54Z"/>
+<path id="parcel-977138" data-source-object-id="977138" d="M647.83,453.13L571.73,467.19L566.35,437.78L642.45,423.73L647.83,453.13Z"/>
+<path id="parcel-977139" data-source-object-id="977139" d="M642.45,423.73L566.35,437.78L560.97,408.38L637.06,394.33L642.45,423.73Z"/>
+<path id="parcel-977140" data-source-object-id="977140" d="M637.06,394.33L560.97,408.38L555.58,378.97L631.68,364.92L637.06,394.33Z"/>
+<path id="parcel-977141" data-source-object-id="977141" d="M631.68,364.92L555.58,378.97L550.2,349.57L626.3,335.52L631.68,364.92Z"/>
+<path id="parcel-977142" data-source-object-id="977142" d="M626.3,335.52L550.2,349.57L544.82,320.17L620.92,306.11L626.3,335.52Z"/>
+<path id="parcel-977143" data-source-object-id="977143" d="M620.92,306.11L544.82,320.17L539.43,290.76L615.53,276.71L620.92,306.11Z"/>
+<path id="parcel-977144" data-source-object-id="977144" d="M615.53,276.71L539.43,290.76L534.06,261.36L610.16,247.3L615.53,276.71Z"/>
+<path id="parcel-977145" data-source-object-id="977145" d="M610.16,247.3L534.06,261.36L528.67,231.95L604.77,217.9L610.16,247.3Z"/>
+<path id="parcel-977146" data-source-object-id="977146" d="M600.7,195.64L604.77,217.9L528.67,231.95L521.01,190.08L560.82,193.54L600.7,195.64Z"/>
+<path id="parcel-977147" data-source-object-id="977147" d="M679.44,195.99L686.26,233.26L610.16,247.3L604.77,217.9L600.7,195.64L640.07,196.48L679.44,195.99Z"/>
+<path id="parcel-977148" data-source-object-id="977148" d="M691.64,262.66L615.53,276.71L610.16,247.3L686.26,233.26L691.64,262.66Z"/>
+<path id="parcel-977149" data-source-object-id="977149" d="M697.02,292.06L620.92,306.11L615.53,276.71L691.64,262.66L697.02,292.06Z"/>
+<path id="parcel-977150" data-source-object-id="977150" d="M702.4,321.46L626.3,335.52L620.92,306.11L697.02,292.06L702.4,321.46Z"/>
+<path id="parcel-977151" data-source-object-id="977151" d="M707.78,350.87L631.68,364.92L626.3,335.52L702.4,321.46L707.78,350.87Z"/>
+<path id="parcel-977152" data-source-object-id="977152" d="M713.16,380.28L637.06,394.33L631.68,364.92L707.78,350.87L713.16,380.28Z"/>
+<path id="parcel-977153" data-source-object-id="977153" d="M718.54,409.68L642.45,423.73L637.06,394.33L713.16,380.28L718.54,409.68Z"/>
+<path id="parcel-977154" data-source-object-id="977154" d="M723.92,439.08L647.83,453.13L642.45,423.73L718.54,409.68L723.92,439.08Z"/>
+<path id="parcel-977155" data-source-object-id="977155" d="M729.3,468.48L653.21,482.54L647.83,453.13L723.92,439.08L729.3,468.48Z"/>
+<path id="parcel-977156" data-source-object-id="977156" d="M734.69,497.89L658.59,511.94L653.21,482.54L729.3,468.48L734.69,497.89Z"/>
+<path id="parcel-977157" data-source-object-id="977157" d="M740.06,527.3L663.97,541.35L658.59,511.94L734.69,497.89L740.06,527.3Z"/>
+<path id="parcel-977158" data-source-object-id="977158" d="M746.26,561.11L670.16,575.16L663.97,541.35L740.06,527.3L746.26,561.11Z"/>
+<path id="parcel-977160" data-source-object-id="977160" d="M845.43,507.84L769.34,521.89L763.96,492.48L840.05,478.44L845.43,507.84Z"/>
+<path id="parcel-977161" data-source-object-id="977161" d="M840.05,478.44L763.96,492.48L758.57,463.08L834.67,449.03L840.05,478.44Z"/>
+<path id="parcel-977162" data-source-object-id="977162" d="M834.67,449.03L758.57,463.08L753.2,433.68L829.29,419.63L834.67,449.03Z"/>
+<path id="parcel-977163" data-source-object-id="977163" d="M829.29,419.63L753.2,433.68L747.81,404.28L823.91,390.22L829.29,419.63Z"/>
+<path id="parcel-977164" data-source-object-id="977164" d="M823.91,390.22L747.81,404.28L742.43,374.87L818.52,360.82L823.91,390.22Z"/>
+<path id="parcel-977165" data-source-object-id="977165" d="M818.52,360.82L742.43,374.87L737.05,345.47L813.15,331.41L818.52,360.82Z"/>
+<path id="parcel-977166" data-source-object-id="977166" d="M813.15,331.41L737.05,345.47L731.67,316.06L807.77,302.01L813.15,331.41Z"/>
+<path id="parcel-977167" data-source-object-id="977167" d="M807.77,302.01L731.67,316.06L726.29,286.66L802.39,272.61L807.77,302.01Z"/>
+<path id="parcel-977168" data-source-object-id="977168" d="M802.39,272.61L726.29,286.66L720.91,257.25L797.01,243.2L802.39,272.61Z"/>
+<path id="parcel-977181" data-source-object-id="977181" d="M797.01,243.2L720.91,257.25L715.53,227.85L791.63,213.8L797.01,243.2Z"/>
+<path id="parcel-977182" data-source-object-id="977182" d="M791.63,213.8L715.53,227.85L709.47,194.75L748.23,192.04L786.92,188.04L791.63,213.8Z"/>
+<path id="parcel-977289" data-source-object-id="977289" d="M681.72,638.34L605.63,652.39L600.53,624.5L676.62,610.45L681.72,638.34Z"/>
+<path id="parcel-977290" data-source-object-id="977290" d="M758.9,630.17L682.79,644.22L681.72,638.34L676.62,610.45L752.71,596.39L758.9,630.17Z"/>
+<path id="parcel-977291" data-source-object-id="977291" d="M764.27,659.58L688.18,673.62L686.02,661.86L682.79,644.22L758.9,630.17L764.27,659.58Z"/>
+<path id="parcel-977317" data-source-object-id="977317" d="M576.36,657.79L500.23,671.85L495.12,643.96L571.25,629.9L576.36,657.79Z"/>
+</g>
+<g id="actual-street-centerlines" clip-path="url(#map-extent-clip)" fill="none" stroke="#1557ff" stroke-width=".7" stroke-dasharray="3 5" opacity=".28">
+<path id="street-32020" data-street-name="Bestor Blvd" d="M116.74,114.45L59.59,120.32L10.55,128.59L-26.05,137.08L-64.63,148.18"/>
+<path id="street-53772" data-street-name="Bestor Blvd" d="M874.86,156.23L807.26,167.33L765.97,172.33L691.33,177.77"/>
+<path id="street-88910" data-street-name="Iliff St" d="M764.17,575.98L691.33,177.77"/>
+<path id="street-104311" data-street-name="Albright St" d="M582.61,609.49L401.06,643"/>
+<path id="street-109494" data-street-name="Albright St" d="M945.54,542.47L764.17,575.98"/>
+<path id="street-169268" data-street-name="Hartzell St" d="M582.61,609.49L502.2,169.94"/>
+<path id="street-211227" data-street-name="Bestor Blvd" d="M307.49,130.77L265.12,122.72L215.72,116.62L165.78,114.01L116.74,114.45"/>
+<path id="street-215558" data-street-name="Whitfield Ave" d="M663.74,71.36L589.64,69.4L551.96,67.01L495.53,60.48L439.64,51.13L384.11,38.94L324.07,24.14L281.71,16.31L224.91,9.35L199.13,7.82L182.91,9.78L168.48,14.35L154.06,21.97L141.26,32.41L131.52,43.73L123.23,58.09L118.18,72.23L115.48,88.55L116.74,114.45"/>
+<path id="street-220111" data-street-name="Bestor Blvd" d="M502.2,169.94L439.64,160.58L378.52,148.18L307.49,130.77"/>
+<path id="street-236925" data-street-name="Iliff St" d="M836.28,970.04L764.17,575.98"/>
+<path id="street-254421" data-street-name="Albright St" d="M764.17,575.98L582.61,609.49"/>
+<path id="street-297800" data-street-name="Hartzell St" d="M654.73,1003.55L582.61,609.49"/>
+<path id="street-334913" data-street-name="Galloway St" d="M401.06,643L307.49,130.77"/>
+<path id="street-358308" data-street-name="Fiske St" d="M219.69,676.51L116.74,114.45"/>
+<path id="street-374317" data-street-name="Mc Kendree Ave" d="M691.33,177.77L680.87,128.16L663.74,71.36"/>
+<path id="street-374425" data-street-name="Bestor Blvd" d="M691.33,177.77L625.7,178.42L563.32,175.81L502.2,169.94"/>
+</g>
+<g id="verified-street-labels" fill="#1557ff" font-family="Arial,sans-serif" font-size="10" letter-spacing="1.3" text-anchor="middle" dominant-baseline="middle" paint-order="stroke" stroke="white" stroke-width="5" stroke-linejoin="round">
+<text x="171.19" y="411.73" transform="rotate(79.62 171.19 411.73)">FISKE ST</text>
+<text x="351.79" y="373.28" transform="rotate(79.65 351.79 373.28)">GALLOWAY ST</text>
+<text x="543.12" y="393.65" transform="rotate(79.63 543.12 393.65)">HARTZELL ST</text>
+<text x="551.21" y="615.29" transform="rotate(-10.46 551.21 615.29)">ALBRIGHT ST</text>
+<text x="390.63" y="150.64" transform="rotate(11.47 390.63 150.64)">BESTOR BLVD</text>
+</g>
+<g id="orientation" fill="#1557ff" stroke="#1557ff"><path d="M766 49V24m0 0-4 9m4-9 4 9" fill="none" stroke-width="1"/><text x="766" y="17" font-family="Arial,sans-serif" text-anchor="middle" font-size="8" stroke="none">N</text></g>
+<g id="source-caption" font-family="Arial,sans-serif" fill="#5e76a2"><text x="44" y="677" font-size="9">Parcel boundaries: LA County Assessor · street names and centerlines: LA County CAMS</text><text x="44" y="694" font-size="8">Geographic context only. No addresses, building designs, or property conditions are shown.</text></g>
+<g id="illustrative-margin" data-purpose="Reserved blank margin. Put explicitly illustrative construction detail here; do not merge it with actual parcel geometry."/>
+<g id="character-layer" data-purpose="Reserved for decorative pelican animation. Keep source geometry stationary."/>
+</svg>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>OpenPali / Field Office components</title>
+  <meta name="description" content="A live study of Field Office buttons and illustrative evidence details.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="../../../assets/brand/field-office/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <div class="page">
+    <header class="masthead"><span class="wordmark">openpali<span aria-hidden="true">✳</span></span><p>THE FIELD OFFICE<br><span>Interface study / 02</span></p></header>
+    <main>
+      <section class="intro" aria-labelledby="title"><div><p class="eyebrow">SMALL PIECES. A SHARED LANGUAGE.</p><h1 id="title">An invitation.<br><em>Then a trail.</em></h1></div><p class="intro-note">A folded corner, a source tab,<br>a stamp, a line.<br><span>Four ways to begin.</span></p></section>
+
+      <section class="button-section" aria-labelledby="button-title">
+        <div class="section-bar"><h2 id="button-title"><span>01</span> Invitations</h2><fieldset class="preview-control"><legend>Preview</legend><label><input type="radio" name="preview" value="live" checked><span>Live</span></label><label><input type="radio" name="preview" value="hover"><span>Hover</span></label><label><input type="radio" name="preview" value="focus"><span>Focus</span></label><label><input type="radio" name="preview" value="pressed"><span>Pressed</span></label></fieldset></div>
+        <div class="button-grid" data-preview="live">
+          <article class="button-card folded-card"><header><h3>Folded corner</h3><span class="choice">PRIMARY</span></header><div class="button-stage"><a class="github-link folded" href="https://github.com/Andrewwilliamross/openpali" target="_top"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.08c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.68.08-.68 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.72.39-1.22.71-1.5-2.5-.28-5.12-1.25-5.12-5.57 0-1.23.44-2.24 1.15-3.03-.12-.28-.5-1.43.11-2.97 0 0 .94-.3 3.08 1.15A10.7 10.7 0 0 1 12 6.15c.95 0 1.9.13 2.81.38 2.14-1.45 3.08-1.15 3.08-1.15.61 1.54.23 2.69.12 2.97.71.79 1.15 1.8 1.15 3.03 0 4.33-2.63 5.29-5.14 5.57.4.35.76 1.03.76 2.08v3.06c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"/></svg>Explore on GitHub<span class="arrow" aria-hidden="true">↗</span></a></div><p class="card-note">The clearest invitation.</p></article>
+          <article class="button-card source-card"><header><h3>Source tab</h3><span class="sample-number">02</span></header><div class="button-stage"><a class="github-link source-tab" href="https://github.com/Andrewwilliamross/openpali" target="_top"><span class="tab-ear" aria-hidden="true">SOURCE / 01</span><span>Open the source</span><span class="arrow" aria-hidden="true">↗</span><span class="tab-caption">GITHUB REPOSITORY</span></a></div><p class="card-note">A document you can open.</p></article>
+          <article class="button-card stamp-card"><header><h3>Print stamp</h3><span class="sample-number">03</span></header><div class="button-stage"><a class="github-link print-stamp" href="https://github.com/Andrewwilliamross/openpali" target="_top"><span class="stamp-label">THE FIELD OFFICE</span><span class="stamp-main">Visit GitHub <span aria-hidden="true">↗</span></span><span class="stamp-bottom">OPENPALI / SOURCE &amp; SOFTWARE</span></a></div><p class="card-note">For a small, printed moment.</p></article>
+          <article class="button-card editorial-card"><header><h3>Editorial line</h3><span class="sample-number">04</span></header><div class="button-stage"><a class="github-link editorial" href="https://github.com/Andrewwilliamross/openpali" target="_top"><span>Meet us on GitHub</span><span class="arrow" aria-hidden="true">↗</span><span class="editorial-star" aria-hidden="true">*</span></a></div><p class="card-note">An invitation in the margin.</p></article>
+        </div>
+        <p class="interaction-hint" id="preview-status" aria-live="polite">Live controls. Tab to a link; Enter opens the repository.</p>
+      </section>
+
+      <section class="evidence-section" aria-labelledby="evidence-title"><div class="section-bar"><h2 id="evidence-title"><span>02</span> A useful trail</h2><span class="example-label">FICTIONAL RECORDS / INTERFACE EXAMPLES</span></div>
+        <div class="evidence-grid">
+          <article class="evidence-card citation-card"><header><span class="record-id">DEMO / 001</span><span class="record-kind">SOURCE ATTACHED <span aria-hidden="true">*</span></span></header><h3>A note with its source.</h3><p class="record-claim">A design-review event was recorded.</p><div class="record-facts"><div><span>EVENT DATE</span><strong>03 May</strong></div><div><span>OBSERVED</span><strong>14 May</strong></div><span class="source-marker" aria-hidden="true">[1]</span></div>
+            <details class="source-details"><summary><span>Inspect the source</span><span class="summary-symbol" aria-hidden="true">+</span></summary><div class="source-content"><div class="source-heading"><span aria-hidden="true">[1]</span><div><strong>Example review bulletin</strong><p>Fictional publisher · reference DEMO-001</p></div></div><blockquote>“The review event was recorded on May 3.”</blockquote><div class="citation-action"><button type="button" id="copy-citation">Copy example citation <span aria-hidden="true">⧉</span></button><span id="copy-status" role="status"></span></div><p class="disclosure">Illustrative text. No real public record or property.</p></div></details>
+          </article>
+          <article class="evidence-card correction-card"><header><span class="record-id">DEMO / 001</span><span class="accepted"><span aria-hidden="true">✓</span> ACCEPTED · EXAMPLE</span></header><h3>A correction, kept in view.</h3><p class="record-claim">The event date was corrected from its source.</p><div class="correction-value"><div><span>EARLIER VALUE</span><del>04 May</del></div><span class="correction-arrow" aria-hidden="true">→</span><div><span>CURRENT VALUE</span><strong>03 May</strong></div><span class="version-marker">v2</span></div>
+            <details class="history-details"><summary><span>Read the history</span><span class="summary-symbol" aria-hidden="true">+</span></summary><ol class="history"><li><span class="version">v2</span><div><strong>Event date corrected</strong><p>03 May · corrected against the example bulletin.</p><span class="history-time">17 MAY / ACCEPTED</span></div></li><li><span class="version">v1</span><div><strong>Earlier value retained</strong><p>04 May · original transcription.</p><span class="history-time">16 MAY / PUBLISHED</span></div></li></ol><p class="history-disclosure">Illustrative correction. Nothing is submitted or changed.</p></details>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer><p>A little context goes a long way.</p><span>WHITE · COBALT · ROOM FOR A FOOTNOTE</span></footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,11 +1,11 @@
-# Build a clearer public record
+# Build with the rebuild data
 
-OpenPali makes the Palisades rebuild easier to understand, one documented
-observation at a time. You can help with code, maps, accessibility, source
-research, clearer language, or a good bug report.
+OpenPali brings public records, geospatial data, and imagery into a platform
+for analyzing the Palisades rebuild. Help connect a source, improve a spatial
+pipeline, check an analysis, or make the interface easier to use.
 
-Start small. A confusing label, a broken local setup step, and a missing
-source citation are all useful places to begin.
+Start with a focused improvement: an adapter fixture, a metric definition,
+a map interaction, or a setup step that could be clearer.
 
 ## Find your first piece
 

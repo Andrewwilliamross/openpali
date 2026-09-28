@@ -1,0 +1,49 @@
+{
+  "direction": "Signal / white and cobalt",
+  "headline": "Understand the rebuild.",
+  "compact_purpose": "A data platform for analyzing the Palisades rebuild.",
+  "descriptor": "RECORDS / GEOSPATIAL DATA / IMAGERY",
+  "palette": {
+    "blue": "#1557ff",
+    "ink": "#10234a",
+    "background": "#ffffff"
+  },
+  "font": {
+    "name": "DM Sans",
+    "headline_weight": 675,
+    "source": "../fonts/DMSans.woff2",
+    "license": "../fonts/DMSans-OFL.txt"
+  },
+  "field": {
+    "viewBox": [
+      0,
+      0,
+      800,
+      900
+    ],
+    "tiles": 646,
+    "columns": 25,
+    "rows": 29,
+    "step": 28,
+    "kind": "Decorative; no records, measurements, maps, or glyph mask"
+  },
+  "exports": {
+    "banner": [
+      1600,
+      600
+    ],
+    "social-card": [
+      1280,
+      640
+    ],
+    "avatar": [
+      512,
+      512
+    ],
+    "favicon": [
+      32,
+      32
+    ]
+  },
+  "rebuild": "Run generate-assets.py with FontTools, then export-assets.cjs with Sharp. Text is outlined in all SVGs."
+}

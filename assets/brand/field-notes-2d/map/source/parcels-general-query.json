@@ -1,0 +1,16 @@
+{
+  "url": "https://cache.gis.lacounty.gov/cache/rest/services/LACounty_Cache/LACounty_Parcel/FeatureServer/0/query?where=1%3D1&geometry=-118.5236%2C34.0488%2C-118.5184%2C34.0517&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=OBJECTID&returnGeometry=true&outSR=4326&f=json&resultRecordCount=2000",
+  "parameters": {
+    "where": "1=1",
+    "geometry": "-118.5236,34.0488,-118.5184,34.0517",
+    "geometryType": "esriGeometryEnvelope",
+    "inSR": 4326,
+    "spatialRel": "esriSpatialRelIntersects",
+    "outFields": "OBJECTID",
+    "returnGeometry": "true",
+    "outSR": 4326,
+    "f": "json",
+    "resultRecordCount": 2000
+  },
+  "retrieved_at": "2026-09-27T05:32:12.340961+00:00"
+}

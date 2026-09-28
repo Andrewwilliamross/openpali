@@ -1,0 +1,15 @@
+{
+  "url": "https://services.arcgis.com/RmCCgQtiZLDCtblq/arcgis/rest/services/eGIS_Addressing_ROAD_LINES/FeatureServer/0/query?where=1%3D1&geometry=-118.533%2C34.036%2C-118.516%2C34.053&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=OBJECTID%2CFullName%2CSource%2CSourceID%2CUpdateDate&returnGeometry=true&outSR=4326&f=geojson&resultRecordCount=2000",
+  "parameters": {
+    "where": "1=1",
+    "geometry": "-118.533,34.036,-118.516,34.053",
+    "geometryType": "esriGeometryEnvelope",
+    "inSR": 4326,
+    "spatialRel": "esriSpatialRelIntersects",
+    "outFields": "OBJECTID,FullName,Source,SourceID,UpdateDate",
+    "returnGeometry": "true",
+    "outSR": 4326,
+    "f": "geojson",
+    "resultRecordCount": 2000
+  }
+}

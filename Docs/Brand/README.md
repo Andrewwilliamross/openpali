@@ -1,90 +1,73 @@
 # OpenPali brand kit
 
-**Recovery, in the open.**
+**Understand the rebuild.**
 
-OpenPali's identity combines a clear public purpose with the pleasure of building together. The Parcel P is made from fifteen squares on a five-column, seven-row grid. Small contributions form something recognizable.
+The current **Signal** identity uses scattered cobalt squares on white, large direct typography, and a single primary GitHub action. It introduces OpenPali as a platform that brings siloed records, geospatial data, and imagery together for rebuild analysis.
 
-![OpenPali banner](../../assets/brand/banner.svg)
+![OpenPali — Understand the rebuild. A data platform for analyzing the Palisades rebuild. Scattered blue squares on white.](../../assets/brand/signal/banner.png)
 
-## Use the right asset
+## Current assets
+
+The active artwork lives in [`assets/brand/signal/`](../../assets/brand/signal/).
 
 | Asset | Size | Use |
 | --- | --- | --- |
-| [Blue mark](../../assets/brand/mark.svg) / [white mark](../../assets/brand/mark-white.svg) | 256 × 256 | Transparent vector mark for light / dark surfaces. |
-| [Blue wordmark](../../assets/brand/wordmark.svg) / [white wordmark](../../assets/brand/wordmark-white.svg) | 640 × 128 | Transparent horizontal identity. |
-| [Avatar](../../assets/brand/avatar.png) | 512 × 512 | A dedicated project account or community space. Do not replace a person's avatar with it by default. |
-| [README banner](../../assets/brand/banner.svg) | 1600 × 560 | Repository hero, with an explicit white background for both GitHub themes. |
-| [Social preview](../../assets/brand/social-card.png) | 1280 × 640 | GitHub social preview, Open Graph, and landscape announcements. |
-| [Social square](../../assets/brand/social-square.png) | 1080 × 1080 | Square announcement artwork. |
-| [Favicon](../../assets/brand/favicon.svg) | 16 × 16 | A solid, simplified P for small browser icons. |
-| [ASCII mark](../../assets/brand/openpali.txt) | Plain text | Terminal welcomes, release notes, and developer posts. |
+| [README banner](../../assets/brand/signal/banner.png) / [SVG](../../assets/brand/signal/banner.svg) | 1600 × 600 | Repository introduction. |
+| [Social preview](../../assets/brand/signal/social-card.png) / [SVG](../../assets/brand/signal/social-card.svg) | 1280 × 640 | GitHub and Open Graph preview. |
+| [Avatar PNG](../../assets/brand/signal/avatar.png) / [SVG](../../assets/brand/signal/avatar.svg) | 512 × 512 | Dedicated project account artwork. |
+| [Favicon](../../assets/brand/signal/favicon.svg) / [PNG](../../assets/brand/signal/favicon.png) | 32 × 32 | Browser icon. |
+| [Square field](../../assets/brand/signal/field.svg) / [placement data](../../assets/brand/signal/field.json) | 800 × 900 | Website background and future compositions. |
+| [ASCII companion](../../assets/brand/signal/openpali.txt) | Plain text | Terminal or text-only project introduction. |
 
-Editable SVG versions and transparent PNG exports are together in [`assets/brand/`](../../assets/brand/). [manifest.json](../../assets/brand/manifest.json) records vector dimensions and the mark's grid.
+The squares have fixed, independent positions and varied size and opacity. Keep their arrangement open and scattered; do not assemble them into a P. They are decorative, so their number, color, and position do not represent records, coverage, progress, or measurements.
 
-## Palette
+## Color and type
 
-| Token | Hex | Role |
+| Token | Value | Role |
 | --- | --- | --- |
-| Pali blue | `#1557FF` | Identity, primary action, and emphasis. |
-| Ink | `#10234A` | Main text. |
-| White | `#FFFFFF` | Canvas and reversed mark. |
-| Pale blue | `#EAF0FF` | Decorative square fields. |
-| Mid blue | `#C6D6FF` | Decorative supporting cells. |
-| Soft blue | `#94B2FF` | Decorative accents. |
+| White | `#FFFFFF` | Page and asset background. |
+| Cobalt | `#1557FF` | Headline, squares, and primary action. |
+| Ink | `#10234A` | Dark text. |
 
-The website uses `#5A6B85` for readable secondary text. Pale colors are for artwork and borders, not essential text. These are brand colors; product evidence lanes keep their own semantics.
+Use **DM Sans** for display and interface text. The [local font](../../assets/brand/fonts/DMSans.woff2) ships with its [SIL Open Font License notice](../../assets/brand/fonts/DMSans-OFL.txt). Preserve that notice when redistributing the font. Exported asset lettering is outlined; the website retains selectable HTML text.
 
-## Shape, spacing, and type
-
-- Keep the mark's square cells and gaps proportional. Leave at least one cell of clear space around it.
-- Use the full Parcel P at larger sizes; use the solid favicon at 16–32 pixels.
-- Use blue on white or white on blue/ink. Preserve transparent backgrounds when a mark is placed on a surface.
-- The designed wordmark is lowercase **openpali**. Write **OpenPali** in prose.
-- Use a system sans-serif for headings and text, with system monospace for code and small labels. No paid or downloaded font is required.
-- Keep the white banner background: its artwork and typography are designed to remain legible in GitHub's light and dark themes.
-- Square fields are abstract. Never use their color or density to imply the number of homes rebuilt, a person's progress, or a measure of evidence quality.
+Give the headline and explanation room to breathe. Keep dense square clusters clear of essential text, preserve the white background, and use the same small scattered-square identity across the website, repository, and social assets.
 
 ## Voice
 
-**Public description:** A public evidence platform for the Palisades rebuild.
+| Purpose | Copy |
+| --- | --- |
+| Headline | Understand the rebuild. |
+| Explanation | OpenPali brings siloed public records, geospatial data, and imagery into one platform for analyzing the Palisades rebuild. |
+| Compact description | A data platform for analyzing the Palisades rebuild. |
+| Eyebrow | DATA INTEGRATION / REBUILD ANALYSIS |
+| Primary action | View on GitHub |
 
-**Public headline:** Recovery, in the open.
+Lead with what people can do: connect sources, explore properties and timelines, and analyze rebuild activity. Name the actual analysis when space permits: milestones, permit flow, backlog, or time to issuance. Source lineage supports that work.
 
-**Developer invitation:** Build in the open.
+Scope claims to the implementation. The local map uses a bundled snapshot; release analytics require the platform services. Imagery, terrain, and 3D assets have specific coverage, dates, and rights. Avoid claims of live monitoring, complete coverage, production photo/video fusion, or approved AI forecasts. Use the [project overview](../../README.md#connect-explore-analyze) for the current capability summary.
 
-**Community invitation:** Bring your square.
+## Motion and production
 
-Use specific, readable language. Celebrate a useful fix and the person who made it. Keep recovery records calm and factual. Do not invent growth statistics, endorsements, or claims of complete coverage. Say “no public evidence” when that is what the system knows.
+The website uses a decorative inline SVG. On devices with a fine pointer, nearby squares gently increase in size and opacity around the pointer while their centers stay fixed. The field stays still for touch and reduced-motion preferences. There is no autonomous animation loop, and the artwork conveys no information required to use the page.
 
-## Reproduce the assets
-
-The editable vector and ASCII sources need only Python:
-
-```sh
-python3 scripts/generate-brand.py
-```
-
-Raster exports use Sharp. Install the optional export dependency in a temporary
-directory so it does not alter the map application's dependencies:
+[`generate-assets.py`](../../assets/brand/signal/generate-assets.py) creates the deterministic square field, outlined SVG compositions, and ASCII companion. It requires FontTools with WOFF2 support. [`export-assets.cjs`](../../assets/brand/signal/export-assets.cjs) exports PNGs using Sharp. These are asset-authoring dependencies; the website build uses Python's standard library.
 
 ```sh
-npm install --prefix /tmp/openpali-brand-tools sharp
-NODE_PATH=/tmp/openpali-brand-tools/node_modules node scripts/export-brand.cjs
+python3 assets/brand/signal/generate-assets.py
+node assets/brand/signal/export-assets.cjs
+python3 scripts/build-site.py
 ```
 
-The script writes PNGs next to the SVG sources. Inspect the results after any
-typography change. System fonts may vary across operating systems, so commit
-the reviewed exports along with their source. The website build uses committed
-PNGs and does not install Sharp.
+After changing assets, check the banner at GitHub content width, the social card as a thumbnail, and the icon at 16 and 32 pixels. See the [website guide](../../site/README.md) for local preview and deployment details, and the [launch kit](LAUNCH.md) for publication copy and repository settings.
 
-The website's square field is a separate composition in `site/index.html`, with the same mark matrix. Regenerating the brand kit does not rewrite the website.
+The current square artwork is generated from the committed code and placement seed. This guide grants no software, asset, or trademark license. Follow the repository's [licensing notice](../../README.md#license-and-data-rights).
 
-## Rights and attribution
+## Design history
 
-This artwork was created for OpenPali. Reference projects inspired the presentation approach; their marks, images, and copy are not included. This guide does not grant a trademark or asset license. Follow the repository's [current licensing notice](../../README.md#license-and-data-rights). Third-party source data and map assets have separate terms.
+Earlier directions remain available as historical explorations. They are not the active marketing identity.
 
-## Launch materials
-
-- [Research and reference study](REFERENCES.md)
-- [Implementation plan and completion checklist](PLAN.md)
-- [Launch copy and repository settings](LAUNCH.md)
+- [Original studies and review](../../design-lab/README.md), including the first Signal experiment.
+- [Round-two studies](../../design-lab/round-2/README.md) and the [archived Field Office guide](FIELD-OFFICE.md).
+- [Round-three studies](../../design-lab/round-3/README.md) and the [archived Field Notes website](../../design-lab/round-3/field-notes/).
+- [Original reference research](REFERENCES.md).
