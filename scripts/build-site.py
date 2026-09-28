@@ -5,12 +5,11 @@ import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "dist" / "site"
-SITE_FILES = ("index.html", "style.css", "field-office.js")
-BRAND_FILES = tuple("field-office/fonts/" + name for name in (
-    "Fraunces.woff2", "DMSans.woff2", "Fraunces-OFL.txt", "DMSans-OFL.txt",
-)) + tuple("field-notes-2d/" + name for name in (
-    "favicon.svg", "social-card.png", "scene.svg",
-))
+SITE_FILES = ("index.html", "style.css", "signal.js")
+BRAND_FILES = (
+    "fonts/DMSans.woff2", "fonts/DMSans-OFL.txt",
+    "signal/favicon.svg", "signal/social-card.png", "signal/field.svg",
+)
 
 
 def main():
@@ -19,17 +18,19 @@ def main():
     missing = [str(path.relative_to(ROOT)) for path in sources if not path.is_file()]
     if missing:
         raise SystemExit("Missing site assets: " + ", ".join(missing))
+    html = (ROOT / "site" / "index.html").read_text()
+    marker = "<!-- OPENPALI_FIELD -->"
+    if html.count(marker) != 1:
+        raise SystemExit("Site HTML must contain exactly one square-field marker")
+    field = (ROOT / "assets/brand/signal/field.svg").read_text()
+    field = field.replace('<svg ', '<svg class="signal-svg" preserveAspectRatio="xMidYMid slice" ', 1)
+    html = html.replace(marker, field)
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
     (OUTPUT / "assets" / "brand").mkdir(parents=True)
     for name in SITE_FILES:
         if name == "index.html":
-            html = (ROOT / "site" / name).read_text()
-            marker = "<!-- OPENPALI_DRAWING -->"
-            if html.count(marker) != 1:
-                raise SystemExit("Site HTML must contain exactly one drawing marker")
-            scene = (ROOT / "assets/brand/field-notes-2d/scene.svg").read_text()
-            (OUTPUT / name).write_text(html.replace(marker, scene))
+            (OUTPUT / name).write_text(html)
         else:
             shutil.copyfile(ROOT / "site" / name, OUTPUT / name)
     for name in BRAND_FILES:

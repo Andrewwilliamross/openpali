@@ -8,67 +8,67 @@
 
 **About description**
 
-> Public evidence for the Palisades rebuild. A source-linked map of cleanup, design review, permits, construction, and occupancy. By RE\SPRING.
+> A data platform connecting public records, geospatial data, and imagery to analyze the Palisades rebuild. By RE\SPRING.
 
-**Topics**
+**Suggested topics**
 
-`civic-tech`, `open-data`, `geospatial`, `gis`, `palisades`, `disaster-recovery`, `maplibre`, `python`, `typescript`, `postgis`
+`civic-tech`, `open-data`, `data-integration`, `data-analysis`, `geospatial`, `gis`, `palisades`, `disaster-recovery`, `maplibre`, `python`, `typescript`, `postgis`
 
 **Social preview**
 
-Upload [`social-card.png`](../../assets/brand/field-notes-2d/social-card.png) under **Settings → General → Social preview**. GitHub does not use a repository image as its social preview just because the file exists. The website's preview is configured separately through its HTML metadata.
+Upload [`social-card.png`](../../assets/brand/signal/social-card.png) under **Settings → General → Social preview**. Committing an image does not change GitHub's repository preview. The website's preview is configured separately in its HTML metadata.
 
 **Avatar**
 
-[`avatar.png`](../../assets/brand/field-notes-2d/avatar.png) is ready for a dedicated OpenPali account or community space. GitHub repositories do not have independent avatars. Keep the owner's personal profile identity intact.
+Use [`avatar.png`](../../assets/brand/signal/avatar.png) for a dedicated OpenPali account or community space. GitHub repositories do not have independent avatars; keep the owner's personal profile identity intact.
 
 ## Launch announcement
 
-OpenPali is public.
+Understand the rebuild.
 
-We're building a clearer picture of the Palisades rebuild from public records: cleanup, design review, permits, construction, and occupancy, each with the evidence behind it.
+OpenPali brings siloed public records, geospatial data, and imagery into one platform for analyzing the Palisades rebuild.
 
-A missing record stays unknown. A documented milestone keeps its source. Corrections are part of the work.
+Connect agency records to parcels. Explore property timelines. Analyze documented milestones, permit flow, backlog, and time to issuance—with the sources and limitations attached.
 
-If you like maps, careful data, accessible interfaces, or useful civic software, there's room to help. Start with a small fix. Help make the record clearer.
+The project is public and under active development. You can run the map locally from a bundled snapshot, or work on ingestion, spatial processing, and analysis with the platform stack.
 
-Explore the project: https://github.com/Andrewwilliamross/openpali
+Explore the code and help build it: https://github.com/Andrewwilliamross/openpali
 
-*Before publishing an announcement, check the repository's current license notice. “Public” and “open source” are different claims.*
+*The source-code license is not yet selected. Describe the project as public; do not announce an open-source license until one is adopted.*
 
 ## Short social caption
 
-A place with footnotes.
+Understand the rebuild.
 
-Meet OpenPali: a public evidence platform for the Palisades rebuild. Follow the records. Trace the sources. Help build a clearer picture.
+OpenPali connects siloed records, geospatial data, and imagery for Palisades rebuild analysis. Explore the code. Connect a source. Build with the data.
 
 https://github.com/Andrewwilliamross/openpali
 
-Attach the landscape or square card. Add alt text: “OpenPali. A place with footnotes. A paper coastal atlas, source slips, and a white-and-blue pelican lifting a tracing sheet.”
+Attach the [social card](../../assets/brand/signal/social-card.png). Alt text: “OpenPali. Understand the rebuild. A data platform for analyzing the Palisades rebuild. Scattered cobalt squares on a white background.”
 
 ## Developer invitation
 
-Maps need good data. Public data needs careful software.
+Rebuild data lives across agencies, formats, and systems. OpenPali brings it together for analysis.
 
-OpenPali connects Palisades recovery records to a source-linked map. We're looking for small, useful contributions: clearer docs, keyboard fixes, source adapter tests, and better ways to explain uncertainty.
+Work on source adapters, parcel-linked observations, spatial assets, release APIs, or the map interface. Start with a focused contribution: an adapter test, a checked metric definition, a keyboard fix, or clearer setup documentation.
 
 Start here: https://github.com/Andrewwilliamross/openpali/blob/main/CONTRIBUTING.md
 
 ## Release-note template
 
 ```markdown
-## A clearer picture: [release name]
+## [Release name]
 
-[One sentence explaining the real user benefit.]
+[One sentence explaining the implemented improvement and who it helps.]
 
 ### What changed
 
 - [Shipped improvement, with PR link.]
 - [Shipped improvement, with PR link.]
 
-### Evidence and compatibility
+### Data and compatibility
 
-[Relevant source coverage, dates, migration needs, or limitations.]
+[Source coverage, observation dates, analysis definitions, migration needs, or limitations relevant to this release.]
 
 ### Thanks
 
@@ -76,15 +76,17 @@ Start here: https://github.com/Andrewwilliamross/openpali/blob/main/CONTRIBUTING
 
 ### Build with us
 
-[One specific, tractable contribution invitation and issue link.]
+[One specific contribution invitation and issue link.]
 ```
 
-## A repeatable launch rhythm
+## Keep the story grounded
 
-1. Demonstrate one real improvement from the published release.
-2. State the source and scope of any data claim.
-3. Thank the people who actually contributed.
-4. Link to a small next task.
-5. Reuse the same mark and visual system.
+1. Demonstrate a real data connection, analysis, or interface improvement.
+2. State the source, date, and geographic scope of any data claim.
+3. Distinguish bundled examples from published service-backed releases.
+4. Thank verified contributors and link to a focused next task.
+5. Use the current [Signal assets and voice](README.md).
 
-Social copy here is prepared for the owner to publish; no social account posts are implied by committing this file. The original public launch is recorded in [PLAN.md](PLAN.md). See [ROUND-2.md](ROUND-2.md) for the Field Office redesign and its publication status.
+The square field is decorative; it is not a visualization of coverage or rebuild progress. Historical imagery and terrain do not establish present construction activity. Avoid live-dashboard, complete-coverage, or AI-forecast claims that the release does not support.
+
+This file prepares copy for the owner to publish. Committing it does not post to social accounts or change repository settings. Earlier launch and design records remain in the [brand history](README.md#design-history).

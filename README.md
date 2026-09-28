@@ -1,21 +1,21 @@
 <p align="center">
   <a href="https://andrewwilliamross.github.io/openpali/">
-    <img src="assets/brand/field-notes-2d/banner.png" alt="OpenPali — A place with footnotes. A curious pelican with a field notebook and a flat drawing of actual Palisades parcels." width="100%">
+    <img src="assets/brand/signal/banner.png" alt="OpenPali — Understand the rebuild. A data platform for analyzing the Palisades rebuild. Scattered blue squares on white." width="100%">
   </a>
 </p>
 
 <p align="center">
   <a href="#start-building">Start building</a> ·
-  <a href="#follow-the-record">Follow the record</a> ·
-  <a href="#find-your-way-in">Contribute</a> ·
+  <a href="#connect-explore-analyze">Platform overview</a> ·
+  <a href="#contribute">Contribute</a> ·
   <a href="https://andrewwilliamross.github.io/openpali/">Website</a>
 </p>
 
-**OpenPali brings public evidence for the Palisades rebuild into a shared map.** Follow the records behind cleanup, design review, permitting, construction, and occupancy after the January 2025 Palisades Fire.
+**OpenPali brings siloed public records, geospatial data, and imagery into one platform for analyzing the Palisades rebuild.** It connects agency records to parcels and dated observations so developers and researchers can study rebuilding activity after the January 2025 Palisades Fire.
 
-The idea is simple: make a claim easier to check, a source easier to find, and a confusing record easier to question.
+The platform combines source ingestion, a PostGIS data ledger, published snapshots, a map interface, and analysis APIs. Explore individual properties, compare documented milestones, and examine permit applications, issuance, backlog, and time to issuance with the underlying sources and limitations attached.
 
-An independent civic project by [RE\SPRING](https://respring.ai), with room for developers, researchers, designers, and people who know the public records.
+An independent civic project by [RE\SPRING](https://respring.ai), built for people working with rebuild data.
 
 <p>
   <a href="https://github.com/Andrewwilliamross/openpali/actions/workflows/ci.yml"><img src="https://github.com/Andrewwilliamross/openpali/actions/workflows/ci.yml/badge.svg" alt="Project CI"></a>
@@ -23,7 +23,30 @@ An independent civic project by [RE\SPRING](https://respring.ai), with room for 
   <img src="https://img.shields.io/badge/Node-24-1557FF?style=flat-square" alt="Node 24">
 </p>
 
-> **Public project, under active development.** A bundled snapshot supports local map exploration. Service-backed releases, corrections, and estimates require the platform stack. The source-code license is [not yet selected](#license-and-data-rights).
+> **Public project, under active development.** A bundled snapshot supports local map exploration. Release APIs, analytics, and corrections require the platform stack. The source-code license is [not yet selected](#license-and-data-rights).
+
+## Connect, explore, analyze
+
+| Work with the data | What OpenPali implements |
+| --- | --- |
+| **Connect sources** | Adapters for County parcel and debris records, LADBS permits and inspection requests, CAL FIRE damage assessments, LA City permit and occupancy records, and Malibu rebuild markers. Records retain their source identity and dates. |
+| **Explore in context** | Parcel geometry, property timelines, and separate cleanup, design review, permitting, construction, and occupancy lanes in a React + MapLibre interface. Optional imagery and 3D layers add spatial context. |
+| **Analyze the rebuild** | Milestone prevalence, weekly permit application and issuance counts, backlog and throughput, and time-to-issuance analysis. Published releases expose metrics through APIs and research CSV exports. |
+
+```mermaid
+flowchart LR
+    A[Agency records] --> C[Parcel-linked observations]
+    B[Parcel and structure geometry] --> C
+    C --> E[Published releases]
+    D[Registered terrain and 3D assets] -->|Available and rights-cleared| E
+    E --> F[Map and property timelines]
+    E --> G[Analysis APIs and CSV]
+    H[External imagery layers] --> F
+```
+
+Spatial inputs have their own scope and dates. Optional imagery layers come from external tile providers; the implemented USGS LiDAR workflow derives terrain for a fixed Alphabet Streets area. Registered terrain and 3D assets depend on the release and their reuse terms. Historical imagery and terrain provide context, not a measure of present construction activity.
+
+See the [pipeline guide](pipeline/README.md) for ingestion, spatial processing, publication, and analysis commands, and the [metric definitions](pipeline/openpali/metrics/catalog.py) for populations, denominators, and time windows.
 
 ## Start building
 
@@ -65,40 +88,9 @@ See the [website guide](site/README.md).
 
 </details>
 
-## Follow the record
-
-The map brings together parcel records, source-linked timelines, and optional 3D context. Its five evidence lanes stay separate: cleanup, design review, permitting, construction, and occupancy can each have their own documented events.
-
-- **Keep the source attached.** A milestone needs a documented event. An event date, observation date, and release date mean different things.
-- **Let unknown stay unknown.** Missing public evidence does not mean nothing happened. OpenPali does not assign a rebuild score or rank owners.
-- **Leave room for correction.** A running deployment can accept reports from a property's card. You can also report a public source discrepancy through the [data correction form](https://github.com/Andrewwilliamross/openpali/issues/new?template=03-data.yml). Keep personal contact details out of public issues.
-- **Keep the limits visible.** Published snapshots retain their lineage. Analytics carry denominators and uncertainty; permit estimates are suppressed when evidence or model approval is insufficient.
-
-## Find your way in
-
-| Follow a source | Improve the software | Question a record |
-| --- | --- | --- |
-| [Source adapters](pipeline/openpali/adapters/) | [Contributor guide](CONTRIBUTING.md) | [Data issue form](https://github.com/Andrewwilliamross/openpali/issues/new?template=03-data.yml) |
-
-A source citation, clearer label, keyboard fix, or better test all count. For a public discrepancy, explain what looks wrong and include the source. Browse [existing issues](https://github.com/Andrewwilliamross/openpali/issues), choose a focused change, and explain how you checked it.
-
-Follow the [community guidelines](CODE_OF_CONDUCT.md); report vulnerabilities through the [security policy](SECURITY.md).
-
 ## Inside the project
 
-```mermaid
-flowchart LR
-    A[Public agency records] --> B[Source adapters]
-    B --> C[Immutable source bytes]
-    B --> D[PostGIS evidence ledger]
-    C --> E[Release gates]
-    D --> E
-    E --> F[Published snapshot]
-    F --> G[FastAPI]
-    G --> H[React + MapLibre]
-```
-
-The platform is a modular Python monolith with workers and a React client. Source bytes are content-addressed, observations are retained over time, and release APIs select artifacts through a published manifest. Release gates and rollback preserve an inspectable publication history. The frontend also keeps a static snapshot path for local exploration.
+The platform is a modular Python monolith with workers, FastAPI, and a React client. Source bytes are content-addressed, observations are retained over time, and release APIs select artifacts through a published manifest. PostGIS stores the evidence ledger; release gates and rollback preserve an inspectable publication history. The frontend also keeps a static snapshot path for local exploration.
 
 | Directory | Start here for |
 | --- | --- |
@@ -112,28 +104,21 @@ The platform is a modular Python monolith with workers and a React client. Sourc
 
 See the [roadmap](ROADMAP.md) for technical priorities. Historical prototype code and documents remain in the repository; their old scoring model is retired.
 
-<details>
-<summary>A note from the field office</summary>
+## Working with the evidence
 
-```text
-                __
-               /o \
-              /___/\        openpali *
-             //  /  \       a place with footnotes.
-            //  /____\
-           //    | |        public evidence for
-          /     _|_|_       the Palisades rebuild.
+- **Keep sources and dates attached.** Event dates, observation dates, and release dates answer different questions. The five evidence lanes remain separate rather than collapsing into a rebuild score.
+- **Account for missing data.** Missing public evidence does not mean nothing happened. Analyses carry denominators and uncertainty; permit estimates are suppressed when evidence or model approval is insufficient.
+- **Make corrections traceable.** A running deployment can accept reports from a property's card. Public source discrepancies can also go through the [data correction form](https://github.com/Andrewwilliamross/openpali/issues/new?template=03-data.yml). Keep personal contact details out of public issues.
 
-    ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+## Contribute
 
-    [1] Follow the source.
-    [2] Keep the dates apart.
-    [3] Leave a clearer record.
-```
+| Connect another source | Improve the analysis | Build a better interface |
+| --- | --- | --- |
+| [Source adapters](pipeline/openpali/adapters/) | [Metric definitions and computations](pipeline/openpali/metrics/) | [Frontend guide](web/README.md) |
 
-A paper pelican and a note to follow. The [ASCII companion](assets/brand/field-office/openpali.txt) and [field-office guide](Docs/Brand/FIELD-OFFICE.md) carry the same identity into other places. The scene is illustrative; it does not represent property conditions or recovery progress.
+Start with a focused change: strengthen a source adapter, check a metric definition, improve a map interaction, or clarify the setup. Read the [contributor guide](CONTRIBUTING.md), browse [existing issues](https://github.com/Andrewwilliamross/openpali/issues), and explain how you verified the result.
 
-</details>
+Follow the [community guidelines](CODE_OF_CONDUCT.md); report vulnerabilities through the [security policy](SECURITY.md).
 
 ## License and data rights
 
@@ -143,4 +128,4 @@ Government records, imagery, basemaps, and vendor-derived assets have their own 
 
 ---
 
-**Help make the record clearer.**
+**Understand the rebuild. Build with the data.**

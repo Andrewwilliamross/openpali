@@ -1,6 +1,8 @@
 # Round three / Field Notes
 
-The current candidate in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12): a flat pelican with a field notebook, actual Palisades parcel lines, and one small task played over 26 seconds. This remains a review candidate until the relevant main-branch release is deployed.
+> Archived direction. The current website uses the white-and-blue [Signal identity](../../Docs/Brand/README.md).
+
+The earlier candidate in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12): a flat pelican with a field notebook, actual Palisades parcel lines, and one small task played over 26 seconds. This remains a review candidate until the relevant main-branch release is deployed.
 
 ## Review locally
 

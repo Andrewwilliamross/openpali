@@ -1,6 +1,8 @@
 # Field Notes: the flat drawing
 
-**Current candidate: [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12).** This revision is prepared for review and has not been represented here as published on main.
+> Archived direction. The current website uses the white-and-blue [Signal identity](README.md).
+
+**Earlier candidate: [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12).** This revision is prepared for review and has not been represented here as published on main.
 
 The third direction keeps the pelican and field notebook, replaces the layered paper landscape with a flat drawing, and gets closer to actual Pacific Palisades parcels. White, cobalt, Fraunces, DM Sans, the headline, and the primary GitHub action continue across the family.
 

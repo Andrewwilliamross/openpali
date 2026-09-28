@@ -1,33 +1,30 @@
 # OpenPali project website
 
-**Field Notes** is the current website candidate in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12). It has one primary GitHub action, a flat pelican with a notebook, and a close drawing of actual Palisades parcels. This revision is pending review; these files do not establish that it is published on main. The map application lives in [`web/`](../web/README.md).
+The website introduces OpenPali as a platform for integrating siloed records, geospatial data, and imagery to analyze the Palisades rebuild. It uses the **Signal** identity: white, cobalt, DM Sans, and a scattered square field. The application lives in [`web/`](../web/README.md).
 
 ## Preview
 
 From the repository root, with Python 3.12 or newer:
 
 ```sh
-python3 scripts/compose-field-notes.py
 python3 scripts/build-site.py
 python3 -m http.server 4173 --bind 127.0.0.1 --directory dist/site
 ```
 
-Open <http://127.0.0.1:4173>. The composer rebuilds [`scene.svg`](../assets/brand/field-notes-2d/scene.svg) from the pelican rig and the committed parcel drawing. The build inserts that SVG at `<!-- OPENPALI_DRAWING -->` in `index.html`.
+Open <http://127.0.0.1:4173>. The build inserts the committed square-field SVG at `<!-- OPENPALI_FIELD -->` in `index.html`. Its allowlist stages eight files plus `.nojekyll`: HTML, CSS, JavaScript, DM Sans and its license, favicon, social preview, and field SVG.
 
-Both scripts use the Python standard library. The page uses local Fraunces and DM Sans files, has no runtime package dependencies, and makes no automatic external data or font requests. Its deployment allowlist contains **10 source files**, plus the generated `.nojekyll` marker: HTML, CSS, JavaScript, two fonts and their notices, favicon, social preview, and scene SVG.
+The site needs no rendering package, map service, or external font request. The headline, platform description, GitHub action, and credit are ordinary HTML. The square field is decorative and stays visible with JavaScript disabled.
 
-## Scene and controls
+## The field
 
-A 26-second loop takes the pelican through a planted waddle, inspection, pencil lift, margin-note underline, and return. The parcel geometry remains fixed. **Pause motion / Resume motion** stops and continues the shared animation clock. Hidden tabs and offscreen scenes suspend it.
+646 independent squares stay on a fixed grid. A fine pointer makes nearby squares slightly larger and more opaque; their centers never move. There is no letter-forming state or layout toggle. Touch and reduced-motion preferences keep the field still. Rendering stops when the hover effect settles, and hidden/offscreen scenes reset their emphasis.
 
-Reduced-motion mode starts with a complete still and offers an explicit **Play once** action. After one cycle it returns to the still. With JavaScript disabled, the drawing, project text, GitHub link, source disclosure, and native field notes remain available. Opening a field note with JavaScript enabled also emphasizes a corresponding margin detail.
-
-The drawing uses 61 County parcel features around Galloway and Hartzell Streets at Bestor Boulevard. The pelican and separate architectural margin study are illustrative. See [geography and source terms](../design-lab/round-3/GEOGRAPHY.md); the artwork carries no property-status or approved-plan claims.
+The shared coordinates and asset generator are in [`assets/brand/signal/`](../assets/brand/signal/). Static branding and the website use the same field. See the [brand guide](../Docs/Brand/README.md) for export steps and the [review notes](../design-lab/round-4/README.md) for checks.
 
 ## Build and release
 
-The [Pages workflow](../.github/workflows/pages.yml) builds pull requests without deploying them. Eligible main-branch runs deploy the staged site. Application code, source data, design studies, and artwork masters are outside the allowlist.
+The [Pages workflow](../.github/workflows/pages.yml) builds pull requests and deploys eligible main-branch revisions. The application, raw data, design studies, and authoring tools stay outside the deployment allowlist.
 
-The canonical URL and social URL in `index.html` use <https://andrewwilliamross.github.io/openpali/>. Update them together if the domain changes. See the [brand kit](../Docs/Brand/README.md) for static-asset exports.
+Canonical and social URLs target <https://andrewwilliamross.github.io/openpali/>. Update them together if the domain changes. The GitHub repository social preview is a separate setting from the website metadata.
 
-Before release, inspect the full loop at desktop and phone widths, keyboard focus, expanded notes, pause/resume, reduced-motion playback, hidden/offscreen suspension, and the no-JavaScript still. The previous paper-atlas website is archived in [`design-lab/round-2/field-office/`](../design-lab/round-2/field-office/).
+Before release, check desktop and mobile layout, keyboard focus, pointer response, reduced motion, and the no-JavaScript fallback. Earlier designs are preserved in the [design lab](../design-lab/README.md).

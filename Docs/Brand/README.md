@@ -1,69 +1,73 @@
 # OpenPali brand kit
 
-**A place with footnotes.**
+**Understand the rebuild.**
 
-The current **Field Notes** direction pairs a flat white-and-cobalt pelican, a field notebook, and actual Pacific Palisades parcel lines. The bird observes and annotates; the geography stays fixed. The implementation is pending review in [PR #12](https://github.com/Andrewwilliamross/openpali/pull/12), rather than a claim about the currently published main branch.
+The current **Signal** identity uses scattered cobalt squares on white, large direct typography, and a single primary GitHub action. It introduces OpenPali as a platform that brings siloed records, geospatial data, and imagery together for rebuild analysis.
 
-![OpenPali — A place with footnotes. A flat pelican with a notebook beside actual Palisades parcel lines.](../../assets/brand/field-notes-2d/banner.png)
+![OpenPali — Understand the rebuild. A data platform for analyzing the Palisades rebuild. Scattered blue squares on white.](../../assets/brand/signal/banner.png)
 
 ## Current assets
 
-The active artwork is in [`assets/brand/field-notes-2d/`](../../assets/brand/field-notes-2d/).
+The active artwork lives in [`assets/brand/signal/`](../../assets/brand/signal/).
 
 | Asset | Size | Use |
 | --- | --- | --- |
-| [README banner](../../assets/brand/field-notes-2d/banner.png) / [SVG](../../assets/brand/field-notes-2d/banner.svg) | 1600 × 600 | Project introduction. |
-| [Social preview](../../assets/brand/field-notes-2d/social-card.png) / [SVG](../../assets/brand/field-notes-2d/social-card.svg) | 1280 × 640 | GitHub and Open Graph preview. |
-| [Avatar PNG](../../assets/brand/field-notes-2d/avatar.png) / [SVG](../../assets/brand/field-notes-2d/avatar.svg) | 512 × 512 | Project account artwork. |
-| [Favicon](../../assets/brand/field-notes-2d/favicon.svg) | 32 × 32 | Browser icon. |
-| [Pelican rig](../../assets/brand/field-notes-2d/pelican.svg) | 260 × 260 | Editable character groups and animation hooks. |
-| [Website scene](../../assets/brand/field-notes-2d/scene.svg) | 1100 × 850 | Composed flat drawing, character, and margin study. |
-| [Close parcel drawing](../../assets/brand/field-notes-2d/map/close/alphabet-streets-linework.svg) | 1100 × 720 | Attributed, stationary map layer. |
+| [README banner](../../assets/brand/signal/banner.png) / [SVG](../../assets/brand/signal/banner.svg) | 1600 × 600 | Repository introduction. |
+| [Social preview](../../assets/brand/signal/social-card.png) / [SVG](../../assets/brand/signal/social-card.svg) | 1280 × 640 | GitHub and Open Graph preview. |
+| [Avatar PNG](../../assets/brand/signal/avatar.png) / [SVG](../../assets/brand/signal/avatar.svg) | 512 × 512 | Dedicated project account artwork. |
+| [Favicon](../../assets/brand/signal/favicon.svg) / [PNG](../../assets/brand/signal/favicon.png) | 32 × 32 | Browser icon. |
+| [Square field](../../assets/brand/signal/field.svg) / [placement data](../../assets/brand/signal/field.json) | 800 × 900 | Website background and future compositions. |
+| [ASCII companion](../../assets/brand/signal/openpali.txt) | Plain text | Terminal or text-only project introduction. |
 
-The earlier square/P studies and layered paper-atlas artwork are archival. The former website is preserved in [`design-lab/round-2/field-office/`](../../design-lab/round-2/field-office/). Its [Field Office guide](FIELD-OFFICE.md) records that earlier direction. The shared font files still live in [`field-office/fonts/`](../../assets/brand/field-office/fonts/).
+The squares have fixed, independent positions and varied size and opacity. Keep their arrangement open and scattered; do not assemble them into a P. They are decorative, so their number, color, and position do not represent records, coverage, progress, or measurements.
 
-## Color, type, and voice
+## Color and type
 
-Use white `#FFFFFF`, cobalt `#1557FF`, dark blue text, and pale blue drawing lines. **Fraunces** supplies editorial type; **DM Sans** supplies body and interface text. Both fonts are locally bundled with SIL Open Font License notices. Follow the delivered scene and site tokens when extending the artwork.
+| Token | Value | Role |
+| --- | --- | --- |
+| White | `#FFFFFF` | Page and asset background. |
+| Cobalt | `#1557FF` | Headline, squares, and primary action. |
+| Ink | `#10234A` | Dark text. |
+
+Use **DM Sans** for display and interface text. The [local font](../../assets/brand/fonts/DMSans.woff2) ships with its [SIL Open Font License notice](../../assets/brand/fonts/DMSans-OFL.txt). Preserve that notice when redistributing the font. Exported asset lettering is outlined; the website retains selectable HTML text.
+
+Give the headline and explanation room to breathe. Keep dense square clusters clear of essential text, preserve the white background, and use the same small scattered-square identity across the website, repository, and social assets.
+
+## Voice
 
 | Purpose | Copy |
 | --- | --- |
-| Headline | A place with footnotes. |
-| Explanation | Public evidence for the Palisades rebuild. |
-| Primary action | Explore on GitHub. |
-| Contribution invitation | Help make the record clearer. |
+| Headline | Understand the rebuild. |
+| Explanation | OpenPali brings siloed public records, geospatial data, and imagery into one platform for analyzing the Palisades rebuild. |
+| Compact description | A data platform for analyzing the Palisades rebuild. |
+| Eyebrow | DATA INTEGRATION / REBUILD ANALYSIS |
+| Primary action | View on GitHub |
 
-Keep essential text readable outside the illustration. Preserve the pelican’s long bill, soft pouch, rounded body, held notebook, and separate feet. Use clear ink shapes and purposeful pauses. Humor belongs in the character’s work; it should never judge a household’s recovery or make light of loss.
+Lead with what people can do: connect sources, explore properties and timelines, and analyze rebuild activity. Name the actual analysis when space permits: milestones, permit flow, backlog, or time to issuance. Source lineage supports that work.
+
+Scope claims to the implementation. The local map uses a bundled snapshot; release analytics require the platform services. Imagery, terrain, and 3D assets have specific coverage, dates, and rights. Avoid claims of live monitoring, complete coverage, production photo/video fusion, or approved AI forecasts. Use the [project overview](../../README.md#connect-explore-analyze) for the current capability summary.
 
 ## Motion and production
 
-The website uses an inline SVG and a shared 26-second JavaScript timeline. The pelican waddles, inspects, lifts its pencil, underlines a margin note, and returns. Visitors can pause and resume. Reduced-motion mode starts still and offers **Play once**; hidden or offscreen scenes suspend the clock. The map itself does not move.
+The website uses a decorative inline SVG. On devices with a fine pointer, nearby squares gently increase in size and opacity around the pointer while their centers stay fixed. The field stays still for touch and reduced-motion preferences. There is no autonomous animation loop, and the artwork conveys no information required to use the page.
 
-Recompose the scene and stage the website with Python’s standard library:
+[`generate-assets.py`](../../assets/brand/signal/generate-assets.py) creates the deterministic square field, outlined SVG compositions, and ASCII companion. It requires FontTools with WOFF2 support. [`export-assets.cjs`](../../assets/brand/signal/export-assets.cjs) exports PNGs using Sharp. These are asset-authoring dependencies; the website build uses Python's standard library.
 
 ```sh
-python3 scripts/compose-field-notes.py
+python3 assets/brand/signal/generate-assets.py
+node assets/brand/signal/export-assets.cjs
 python3 scripts/build-site.py
 ```
 
-The composer reads the committed pelican and close parcel SVG. The site builder inserts the resulting scene into HTML and stages only its explicit asset allowlist. There is no runtime renderer package or external map fetch.
+After changing assets, check the banner at GitHub content width, the social card as a thumbnail, and the icon at 16 and 32 pixels. See the [website guide](../../site/README.md) for local preview and deployment details, and the [launch kit](LAUNCH.md) for publication copy and repository settings.
 
-For banner, avatar, favicon, and social changes, [`generate-assets.py`](../../assets/brand/field-notes-2d/generate-assets.py) creates self-contained SVG compositions with outlined type; it requires FontTools with WOFF2 support. [`export-assets.cjs`](../../assets/brand/field-notes-2d/export-assets.cjs) rasterizes the PNGs with Sharp. Those authoring dependencies are separate from the website build. Review the smallest intended size after exporting.
+The current square artwork is generated from the committed code and placement seed. This guide grants no software, asset, or trademark license. Follow the repository's [licensing notice](../../README.md#license-and-data-rights).
 
-## Geography and illustration
+## Design history
 
-The close drawing uses 61 general County parcel features, plus named CAMS street lines around Galloway, Hartzell, and Bestor. The [geography record](../../design-lab/round-3/GEOGRAPHY.md) preserves the extent, source coordinates, queries, hashes, projection, terms, and rebuild recipe.
+Earlier directions remain available as historical explorations. They are not the active marketing identity.
 
-Keep this credit with compositions that contain the map: **Map: LA County Assessor · LA County CAMS**. Retain the full source references in accompanying documentation or metadata. The County data terms are separate from the rights to the new artwork and software.
-
-The character, pencil action, margin annotations, and architectural study are illustrative. Keep the architectural study separate from real parcel boundaries and labeled as such. Do not draw invented buildings onto specific lots or turn animation into recovery-status evidence. Preserve unknowns and distinguish event, observation, and release dates.
-
-This guide grants no software, asset, or trademark license. Follow the repository’s [licensing notice](../../README.md#license-and-data-rights).
-
-## Further reading
-
-- [Round-three implementation and release status](ROUND-3.md)
-- [Website development](../../site/README.md)
-- [Round-three review index](../../design-lab/round-3/README.md)
-- [Character source guide](../../design-lab/round-3/CHARACTER.md)
-- [Original reference research](REFERENCES.md)
+- [Original studies and review](../../design-lab/README.md), including the first Signal experiment.
+- [Round-two studies](../../design-lab/round-2/README.md) and the [archived Field Office guide](FIELD-OFFICE.md).
+- [Round-three studies](../../design-lab/round-3/README.md) and the [archived Field Notes website](../../design-lab/round-3/field-notes/).
+- [Original reference research](REFERENCES.md).
