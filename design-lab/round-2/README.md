@@ -1,6 +1,8 @@
 # OpenPali / design review 02
 
-**The Field Office** is the recommended complete identity. This review also includes two genuinely different working alternatives and a component board.
+> Archived round-two review. Use the current [Signal brand kit](../../Docs/Brand/README.md) for published presentation work.
+
+**The Field Office** was the recommendation from this review. The review also includes two working alternatives and a component board.
 
 ## Open the review
 
@@ -31,6 +33,6 @@ The illustrations and examples contain no property data. The primary site works 
 - [Atlas critique](atlas/critique.md) and [instrument critique](instrument/critique.md): screenshot iterations and checks.
 - [Brand guide](../../Docs/Brand/FIELD-OFFICE.md): how to extend the finished family.
 
-The first round remains in `design-lab/concepts/` as exploration history. Its monogram direction is not the recommendation. This round is archived; the next revision is in `design-lab/round-3/`. Its original assets are `site/`, `README.md`, `assets/brand/field-office/`, and the brand documentation.
+The first round remains in `design-lab/concepts/` as exploration history. This round and the following pelican revision in `design-lab/round-3/` are archived. The selected direction is documented in [round four](../round-4/README.md); archived round-two assets remain in `assets/brand/field-office/`.
 
 The presentation deck and review captures are generated artifacts in `output/design-round-2/`. The local `.build/` script uses the bundled Artifact Tool runtime. They are not part of the GitHub Pages artifact.

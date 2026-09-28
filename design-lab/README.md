@@ -1,6 +1,6 @@
 # OpenPali design studies
 
-> Archived first exploration. See [Round 2](round-2/README.md) for the current Field Office direction and live gallery.
+> Archived first exploration. The selected identity is [Signal: scattered blue squares on white](round-4/README.md). Use the [current brand kit](../Docs/Brand/README.md) for published artwork.
 
 Six working visual directions, eight button treatments, and a small evidence-component lab. Start with the [interactive gallery](index.html), then read the [design review](REVIEW.md).
 

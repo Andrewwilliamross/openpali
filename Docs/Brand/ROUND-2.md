@@ -1,5 +1,7 @@
 # Field Office redesign
 
+> Archived round-two review. Use the current [Signal brand kit](README.md) and [rollout status](LAUNCH.md#rollout-status) for published presentation work.
+
 The first public launch established the repository and its website. The next design review rejected a monogram-led identity and asked for more individuality, a coherent world, and real medium exploration. Cua joined Omarchy, Prime Agent, and GeoLibre as a reference for the breadth of the presentation.
 
 ## Selected direction

@@ -1,19 +1,45 @@
-# Production Readiness Sprint
+# OpenPali documentation
 
-This directory is the working space for taking the Palisades Rebuild Tracker
-from its initial prototype to a production-ready product.
+OpenPali brings public records, geospatial data, and imagery together for
+analysis of the Palisades rebuild. Start with the guides below to explore the
+map, work on the platform, or contribute.
 
-## Structure
+## Guides
 
-- [`Brand/`](Brand/README.md) — visual identity, reference research, launch materials, and website presentation.
-- `Plans/` — approved or proposed implementation plans, sequencing, milestones,
-  dependencies, and decision records.
-- `Tickets/` — scoped engineering and product work suitable for assignment.
-- `Research/` — codebase findings, product and technical Q&A, evaluations,
-  experiments, and supporting evidence.
-- `initialbuild_docs/` — a preserved reference snapshot of the prototype's
-  architecture, data sources, methodology, artifacts, and spatial system.
+| Task | Guide |
+| --- | --- |
+| Understand the platform and get started | [Project overview](../README.md) |
+| Run or develop the map interface | [Frontend guide](../web/README.md) |
+| Work on ingestion, publication, analytics, or spatial processing | [Python platform guide](../pipeline/README.md) |
+| Start the database, API, storage, and workers | [Local stack guide](../infra/README.md) |
+| Make a contribution and verify it | [Contributor guide](../CONTRIBUTING.md) |
+| Build or preview the project website | [Website guide](../site/README.md) |
+| Use the current identity or prepare launch materials | [Signal brand kit](Brand/README.md) and [launch kit](Brand/LAUNCH.md) |
+| Report a vulnerability or understand community expectations | [Security policy](../SECURITY.md) and [Code of Conduct](../CODE_OF_CONDUCT.md) |
 
-The initial-build documents describe the existing implementation. They are not
-the source of truth for production decisions. New findings and decisions should
-be recorded in the other three directories.
+For implementation details, see the [source adapters](../pipeline/openpali/adapters/),
+[metric definitions](../pipeline/openpali/metrics/catalog.py), and
+[API contract](../contracts/). Source-code and data rights are described in the
+[licensing notice](../README.md#license-and-data-rights).
+
+## Plans and research
+
+- [Plans](Plans/README.md) — implementation proposals, sequencing, dependencies,
+  and decision records.
+- [Tickets](Tickets/README.md) — scoped product and engineering work.
+- [Research](Research/README.md) — investigations, evaluations, and supporting evidence.
+- [Roadmap](../ROADMAP.md) — dated technical and product direction.
+
+These documents record decisions and proposed work. Check the current guides
+and implementation before treating a proposal as shipped behavior.
+
+## Historical reference
+
+[`initialbuild_docs/`](initialbuild_docs/) preserves the earlier prototype's
+architecture, data sources, methodology, artifacts, and spatial system.
+It does not describe the current platform; the prototype's scoring and
+completion estimates are retired.
+
+Earlier visual directions are preserved in the [design studies](../design-lab/README.md)
+and [brand history](Brand/README.md#design-history). Use the Signal brand kit
+for current presentation work.

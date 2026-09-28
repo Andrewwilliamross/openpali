@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Optional authoring tool; install sharp outside the repository, then expose
-// its node_modules directory through NODE_PATH. See Docs/Brand/README.md.
+// Archived Parcel P exporter (first design study).
+// Current Signal artwork: node assets/brand/signal/export-assets.cjs.
+// Historical reproduction requires sharp, resolved through NODE_PATH.
 const path = require('node:path');
 const sharp = require('sharp');
 const root = path.resolve(__dirname, '..');
