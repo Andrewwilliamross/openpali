@@ -1,0 +1,79 @@
+{
+  "generator": "python3 scripts/generate-brand.py",
+  "colors": {
+    "blue": "#1557FF",
+    "ink": "#10234A",
+    "white": "#FFFFFF",
+    "pale": "#EAF0FF",
+    "mid": "#C6D6FF",
+    "soft": "#94B2FF"
+  },
+  "mark": {
+    "name": "Parcel P",
+    "columns": 5,
+    "rows": 7,
+    "filled_cells": 15,
+    "matrix": [
+      "11110",
+      "10001",
+      "10001",
+      "11110",
+      "10000",
+      "10000",
+      "10000"
+    ]
+  },
+  "note": "Decorative square fields do not encode maps, people, progress, or evidence quality.",
+  "assets": {
+    "mark.svg": {
+      "width": 256,
+      "height": 256,
+      "background": "transparent"
+    },
+    "mark-white.svg": {
+      "width": 256,
+      "height": 256,
+      "background": "transparent"
+    },
+    "avatar.svg": {
+      "width": 512,
+      "height": 512,
+      "background": "#1557FF"
+    },
+    "wordmark.svg": {
+      "width": 640,
+      "height": 128,
+      "background": "transparent"
+    },
+    "wordmark-white.svg": {
+      "width": 640,
+      "height": 128,
+      "background": "transparent"
+    },
+    "banner.svg": {
+      "width": 1600,
+      "height": 560,
+      "background": "#FFFFFF"
+    },
+    "social-card.svg": {
+      "width": 1280,
+      "height": 640,
+      "background": "#FFFFFF"
+    },
+    "social-square.svg": {
+      "width": 1080,
+      "height": 1080,
+      "background": "#FFFFFF"
+    },
+    "favicon.svg": {
+      "width": 16,
+      "height": 16,
+      "background": "transparent"
+    },
+    "favicon-white.svg": {
+      "width": 16,
+      "height": 16,
+      "background": "transparent"
+    }
+  }
+}

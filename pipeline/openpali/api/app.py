@@ -29,10 +29,11 @@ API_VERSION = "1.0.0"
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="OpenPali Recovery Intelligence API",
+        title="OpenPali Rebuild Analysis API",
         version=API_VERSION,
         description=(
-            "Versioned public read API for Pacific Palisades recovery evidence. "
+            "Connect public records and spatial data through versioned releases "
+            "for analysis of the Palisades rebuild. "
             "Resolve /v1/releases/current once, then use release-qualified routes."
         ),
         docs_url="/v1/docs",

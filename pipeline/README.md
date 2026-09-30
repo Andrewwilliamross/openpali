@@ -1,115 +1,148 @@
-# OpenPali data pipelines
+# OpenPali · the evidence engine
 
-The repository contains an active static producer, a canonical ledger/API
-pipeline, and a historical spatial producer. They are not interchangeable.
-See the [September 2026 audit](../Docs/Research/2026-09-24-CTO-AUDIT.md) and
-[source inventory](../Docs/Research/2026-09-24-SOURCE-INVENTORY.md) for measured
-coverage and remaining consistency problems.
+This directory contains the Python platform behind OpenPali: source
+acquisition, the PostGIS evidence ledger, snapshots, release publication,
+analytics, spatial assets, orchestration, and the FastAPI API.
 
-| Path | Produces | Entrypoint |
-|---|---|---|
-| `palisades/` using shared `openpali.domain` and normalization | Static parcel geometry, milestone flags, evidence timelines, summary and manifest | `run.py` |
-| `openpali/` | Immutable acquisitions, PostGIS ledger, snapshots, metrics, experimental models, publication/API and selected spatial assets | `openpali` CLI and Prefect flows |
-| `core/spatial/` | LARIAC-derived priors, synthetic fallbacks, GeoParquet store and historical splat atlas | `run_spatial.py`, `core.spatial.web_export` |
+The main package is `openpali/`, exposed through the `openpali` CLI.
+Python 3.12 matches the local stack and CI.
 
-The 0–100 function in `palisades/score.py` is historical and is not called by
-`run.py`. Milestones depend on specific evidence and permit qualification,
-including `Bldg-New` AND the rebuild flag for city replacement-building
-milestones. Scheduled inspections do not establish completed inspections.
-
-## Setup and checks
+## Set up and explore
 
 From the repository root:
 
 ```sh
-scripts/bootstrap
-scripts/check-fast
-scripts/check-full
+./scripts/bootstrap
+pipeline/.venv/bin/openpali --help
+pipeline/.venv/bin/python -m pytest pipeline/tests/test_domain_semantics.py -q
 ```
 
-`check-full` requires the local service stack and exercises integration gates.
-The Python package requires Python 3.12 or later; the September audit used
-3.12 and `requirements-lock.txt`. See `infra/compose.yaml` for PostGIS,
-object storage, orchestration, API and model tracking services.
+Bootstrap creates `pipeline/.venv`, installs `requirements-lock.txt`, and
+installs this package in editable mode. It also installs the web dependencies.
+The full suite without services is available through `./scripts/check-fast`.
 
-## Static producer
+For the database, object store, API, and workers, follow
+[infra/README.md](../infra/README.md). That guide initializes the schema and
+buckets and explains the `slice-dev` job that publishes a first development
+release. The local database is only reachable inside the Compose network;
+run database-dependent operations through the defined job services.
 
-From `pipeline/`:
+With the stack running, API documentation is at
+[`http://127.0.0.1:58000/v1/docs`](http://127.0.0.1:58000/v1/docs).
+Readiness requires initialized dependencies and a valid current release.
 
-```sh
-uv run run.py                 # acquire civic sources, derive evidence, check, emit
-uv run run.py --offline       # reuse cached responses
-uv run run.py --no-validate   # omit oracle reconciliation queries
-```
-
-These commands write the public static artifacts after the applicable gates.
-They are not read-only audits. Raw caches live under `data/raw/` and are
-ignored by git. `Makefile` targets `data` and `data-offline` wrap these paths.
-
-The County destroyed-Palisades debris layer defines the static parcel universe.
-LADBS permits and the static inspection endpoint add city events; County and
-Malibu supply coarser assertions. Reconciliation is against explicitly filtered
-agency data, with denominators that must match the metric. Mirrored agency
-records are not independent evidence of physical construction.
-
-| Module | Role |
-|---|---|
-| `palisades/sources.py` | Fetch and join sources; call shared normalization/projection |
-| `palisades/model.py` | Static parcel and permit representations |
-| `palisades/emit.py` | Write geometry, detail, summary and metadata artifacts |
-| `palisades/checks.py` | Static expectation gates |
-| `palisades/validate.py` | Agency reconciliation |
-| `palisades/neighborhoods.py` | Nearest-center grouping, not validated neighborhood polygons |
-| `openpali/domain/` | Typed times, taxonomy, evidence, conflicts and lane projections |
-
-## Canonical pipeline
-
-The `openpali` executable is declared in `pyproject.toml`. Inspect its available
-commands with `uv run openpali --help`. Implementation areas:
+## Follow a record
 
 ```text
-openpali/adapters/       civic source contracts and fetchers
-openpali/ingestion/      acquisitions, normalization, ledger loading, snapshots
-openpali/storage/        PostGIS models and content-addressed object storage
-openpali/metrics/        metric definitions and computation
-openpali/ml/             datasets, experiments, registry and serving
-openpali/publication/    release manifests, gates and rollback
-openpali/api/            release-qualified JSON and vector tiles
-openpali/orchestration/  Prefect flows and deployment registration
-openpali/spatial/        USGS assets, derivation and reconstruction experiments
+Public source
+    │ acquire + hash original bytes
+    ▼
+Immutable object store ──► normalized records + observations
+                                      │
+                                      ▼
+                              PostGIS evidence ledger
+                                      │ cutoff + policy versions
+                                      ▼
+                                Civic snapshot
+                                      │ publication gates
+                                      ▼
+                              Release manifest + API
 ```
 
-The audit identifies unresolved snapshot membership, assertion supersession,
-frontend mixing and model evaluation defects. Registering Prefect deployments
-does not itself configure a refresh schedule. Do not infer deployed freshness
-or valid forecasting performance from the presence of these modules.
+Source records, observations, parcels, and properties have distinct
+identities. Snapshots freeze their inputs and policy versions. Publication
+checks those inputs before selecting a release; the API uses release-qualified
+routes and spatial asset URLs.
 
-## Spatial producer
+## Package map
 
-`run_spatial.py` and `core.spatial.web_export` operate the older LARIAC prior
-and atlas path. The committed atlas contains pre-fire models and synthetic
-fallback geometries, with score-era color metadata. It is not a current
-construction survey. The canonical USGS asset is January 2025 bare-earth
-elevation. See the source inventory before presenting either as recovery
-progress or using processing dates as image capture dates.
+| Directory | Responsibility |
+| --- | --- |
+| `openpali/intelligence/` | Portable evidence releases, spatial/market features, acquisition and local drafts |
+| `openpali/discovery/` | Bounded source collectors with retained raw bytes |
+| `openpali/adapters/` | Source acquisition, response parsing, and schema checks |
+| `openpali/ingestion/` | Raw acquisition, normalization, ledger loading, and snapshots |
+| `openpali/domain/` | Evidence lanes, dates, conflicts, revisions, and policy |
+| `openpali/identity/` | Deterministic identifiers |
+| `openpali/storage/` | SQLAlchemy/PostGIS models and hash-verified S3 objects |
+| `openpali/publication/` | Release manifests, gates, promotion, and rollback |
+| `openpali/metrics/` | Metric definitions and computations |
+| `openpali/ml/` | Point-in-time datasets, experiments, review, and batch predictions |
+| `openpali/spatial/` | USGS acquisition, derivation, asset registration, and reconstruction |
+| `openpali/orchestration/` | Prefect flows, deployments, and jobs |
+| `openpali/api/` | FastAPI routes, schemas, errors, and health checks |
+| `migrations/` | Alembic database migrations |
+| `tests/` | Unit, semantic, contract, spatial, and opt-in integration checks |
 
-## Read-only audit tools
+Configuration comes from environment variables, including
+`OPENPALI_DATABASE_URL`, `OPENPALI_S3_ENDPOINT`, `OPENPALI_S3_ACCESS_KEY`,
+`OPENPALI_S3_SECRET_KEY`, `PREFECT_API_URL`, and `MLFLOW_TRACKING_URI`.
+The Compose configuration supplies local fixture values. See
+[SECURITY.md](../SECURITY.md) before deploying elsewhere.
 
-The [data expansion report](../Docs/Research/2026-09-24-DATA-EXPANSION.md)
-documents the new `openpali.discovery` collectors for public assessor histories,
-all property types in ZIP 90272, and clearance-document inventories. They stage
-timestamped source evidence under ignored `data/raw/` and do not write the
-application database. Use `PYTHONPATH=pipeline` when invoking these modules from
-the repository root without an editable installation. The PCIS DOM adapter is
-in `scripts/pcis-extract.mjs`; worker scheduling is not yet implemented.
+## Operator commands
 
-From the repository root with the pipeline environment installed:
+Use `openpali <command> --help` for arguments. These commands are implemented
+in [`openpali/cli.py`](openpali/cli.py):
 
-```sh
-pipeline/.venv/bin/python scripts/audit_data.py --output /tmp/openpali-bundle-audit.json
-pipeline/.venv/bin/python scripts/probe_sources.py --output /tmp/openpali-source-probes.json
-```
+| Task | Command family |
+| --- | --- |
+| Acquire and load evidence | `source-refresh`, `refresh-all` |
+| Build and publish | `snapshot-build`, `release-publish`, `dev-slice` |
+| Recover and verify | `release-rollback`, `replay`, `restore-verify` |
+| Schedule work | `orchestrate-deploy`, `orchestrate-run` |
+| Evaluate and serve models | `ml-dataset`, `ml-experiments`, `ml-promote`, `ml-serve` |
+| Prepare spatial assets | `spatial-acquire`, `spatial-derive` |
+| Export the API schema | `export-openapi` |
 
-The first profiles local artifacts; the second contacts public services for
-metadata/counts without ingesting or publishing records. Historical prototype
-architecture and scoring documents remain in `Docs/initialbuild_docs/`.
+Most commands require initialized services and may acquire public-source
+data or create releases. Use the existing Compose jobs for the local stack.
+Model promotion and release publication have their own checks; successful
+acquisition alone does not make data ready to publish.
+
+## Static bundle and earlier spatial code
+
+There are also two retained paths in this directory:
+
+- `run.py` and `palisades/` build legacy static artifacts under
+  `web/public/data/`; the current evidence workspace does not read them. They emit evidence lanes with provenance and
+  validation checks. `run.py --offline` needs previously cached source
+  responses; a fresh checkout does not contain that cache.
+- `run_spatial.py` and `core/spatial/` contain the earlier GeoParquet,
+  LARIAC, and splat tooling, including geometry helpers. Keep rights and
+  asset-selection requirements in mind before generating distributable data.
+
+The old `palisades/score.py` remains as deprecated, characterization-tested
+reference code. Its scores and heuristic completion dates are not emitted
+by `run.py` and must not be reintroduced into public recovery claims.
+
+The root `Makefile` still includes these static and spatial entrypoints.
+Use the `openpali` package and Compose workflow for platform work.
+[`Docs/initialbuild_docs/`](../Docs/initialbuild_docs/) is historical context,
+not the current platform specification.
+
+## Validation
+
+Run a focused test file while developing, then the shared fast gate from
+the repository root. Integration tests in `tests/integration/` are enabled
+by `OPENPALI_INTEGRATION=1` in the `test-integration` Compose job.
+`./scripts/check-full` adds the service-backed checks, ML and spatial drills,
+replay, browser checks, and other extended validation.
+
+When changing API schemas, update `contracts/openapi.json` and check the typed evidence API helper; see [the API contract workflow](../web/README.md#api-contract).
+For contribution expectations and source-data care, see
+[CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Portable evidence workspace
+
+The recovery workspace builds a separate hash-verified research release through
+`make evidence-build`, serves it with `make evidence-api`, and stages it in the
+canonical ledger through `make evidence-import` without publication. It requires
+the acquired inputs listed in `Docs/Research/evidence-extra-inputs.json`.
+See the [root setup and acquisition guide](../README.md) and
+[implementation record](../Docs/Plans/2026-09-24-IMPLEMENTATION.md).
+
+The [systems research](../Docs/Research/2026-09-29-SYSTEMS-DESIGN-SPACE.md) and
+[scene experiment](../Docs/Research/2026-09-29-PALISADES-SCENE.md) are separate
+from the application and publication workflow. Their caches and generated
+assets remain under ignored `data/` directories.

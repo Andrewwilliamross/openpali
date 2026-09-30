@@ -1,0 +1,660 @@
+@font-face {
+  font-family: Fraunces;
+  src: url("../../../assets/brand/field-office/fonts/Fraunces.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("../../../assets/brand/field-office/fonts/DMSans.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root {
+  color-scheme: light;
+  --blue: #1557ff;
+  --ink: #183554;
+  --muted: #64748a;
+  --line: #dbe5f5;
+  --pale: #f2f6ff;
+  font-family: "DM Sans", sans-serif;
+  color: var(--ink);
+  background: #fff;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+a,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+::selection {
+  background: #dce7ff;
+  color: #1149d7;
+}
+[hidden] {
+  display: none !important;
+}
+a {
+  color: inherit;
+}
+button {
+  font: inherit;
+}
+button,
+summary {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 6px;
+  border-radius: 2px;
+}
+.page {
+  max-width: 1680px;
+  margin: auto;
+  padding: 0 clamp(24px, 4.5vw, 76px);
+}
+.masthead {
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.wordmark {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 35px;
+  font-weight: 550;
+  letter-spacing: -1.8px;
+  color: var(--blue);
+  font-variation-settings:
+    "SOFT" 30,
+    "WONK" 1;
+}
+.wordmark > span {
+  font-family: Georgia, serif;
+  font-size: 25px;
+  vertical-align: top;
+  margin-left: 4px;
+  display: inline-block;
+  transform: translateY(1px);
+}
+.office-label {
+  font-size: 11px;
+  line-height: 1.8;
+  text-align: right;
+  margin: 0;
+}
+.office-label span {
+  color: var(--muted);
+}
+main {
+  display: grid;
+  grid-template-columns: minmax(350px, 0.82fr) minmax(0, 1.45fr);
+  column-gap: clamp(25px, 3vw, 52px);
+  row-gap: 42px;
+  padding: 62px 0 64px;
+  align-items: start;
+}
+.introduction {
+  grid-column: 1;
+  grid-row: 1;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 29px;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+}
+.registration {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--blue);
+  position: relative;
+}
+.registration::before,
+.registration::after {
+  content: "";
+  position: absolute;
+  background: var(--blue);
+}
+.registration::before {
+  width: 14px;
+  height: 1px;
+  top: 3px;
+  left: -4px;
+}
+.registration::after {
+  height: 14px;
+  width: 1px;
+  left: 3px;
+  top: -4px;
+}
+h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(65px, 6.1vw, 102px);
+  line-height: 1.01;
+  letter-spacing: -0.061em;
+  font-weight: 440;
+  margin: 0 0 25px;
+  font-variation-settings:
+    "SOFT" 35,
+    "WONK" 1;
+  color: var(--blue);
+}
+h1 em {
+  font-style: normal;
+}
+h1 sup {
+  font-family: Georgia, serif;
+  font-size: 0.45em;
+  vertical-align: top;
+  position: relative;
+  top: 0.07em;
+  left: 0.04em;
+  font-weight: 400;
+}
+.description {
+  font-size: 20px;
+  line-height: 1.45;
+  letter-spacing: -0.35px;
+  margin: 0 0 27px;
+}
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 51px;
+  padding: 0 20px;
+  background: var(--blue);
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 560;
+  border: 1px solid var(--blue);
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+.github-link .arrow {
+  margin-left: 16px;
+  font-size: 19px;
+  font-weight: 400;
+}
+.github-link:hover {
+  background: #1046d5;
+}
+.invitation {
+  font-size: 10px;
+  color: var(--muted);
+  margin: 13px 0 0;
+  line-height: 1.6;
+}
+.field-table {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin: 0;
+  min-width: 0;
+  padding-top: 4px;
+}
+.drawing-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+  color: #6a7d9b;
+  padding: 0 2px 18px;
+}
+.sheet-number {
+  letter-spacing: 0.8px;
+}
+.drawing-canvas {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.field-scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.art-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 18px 2px 0;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 19px;
+  font-variation-settings: "SOFT" 30;
+}
+.art-caption > div {
+  position: relative;
+  padding-left: 25px;
+}
+.caption-arrow {
+  position: absolute;
+  left: 0;
+  top: 1px;
+  color: var(--blue);
+}
+.art-caption small {
+  display: block;
+  font-family: "DM Sans", sans-serif;
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.6;
+}
+.motion-toggle {
+  font-family: "DM Sans", sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 11px;
+  padding: 10px 3px;
+  margin-top: -5px;
+  white-space: nowrap;
+  min-height: 44px;
+}
+.motion-icon {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: var(--blue);
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+}
+.motion-toggle:hover {
+  color: var(--blue);
+}
+.drawing-source {
+  margin: 20px 0 0 27px;
+  max-width: 510px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.7;
+}
+.drawing-source summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 5px 0;
+}
+.drawing-source summary::-webkit-details-marker {
+  display: none;
+}
+.drawing-source[open] summary span {
+  transform: rotate(45deg);
+}
+.drawing-source p {
+  margin: 8px 0 0;
+}
+.drawing-source a {
+  text-underline-offset: 3px;
+}
+.field-notes {
+  grid-column: 1;
+  grid-row: 2;
+  max-width: 385px;
+  margin-top: 3px;
+}
+.notes-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  padding: 0 0 12px;
+}
+.note-asterisk {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--blue);
+  font-weight: 400;
+  transform: translateY(4px);
+}
+.notes-hint {
+  font-size: 9px;
+  margin-left: auto;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #718197;
+}
+.note-list {
+  border-top: 1px solid var(--line);
+}
+.note-list details {
+  border-bottom: 1px solid var(--line);
+}
+.note-list summary {
+  display: grid;
+  grid-template-columns: 27px 1fr 17px;
+  align-items: center;
+  min-height: 47px;
+  gap: 9px;
+  list-style: none;
+  font-size: 12px;
+}
+.note-list summary::-webkit-details-marker {
+  display: none;
+}
+.note-list summary:hover {
+  color: var(--blue);
+}
+.note-number {
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  color: var(--blue);
+}
+.note-plus {
+  font-size: 19px;
+  font-weight: 300;
+  color: var(--blue);
+  text-align: center;
+}
+.note-list details[open] .note-plus {
+  transform: rotate(45deg);
+}
+.note-content {
+  padding: 0 25px 18px 36px;
+}
+.note-content p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 0 0 11px;
+}
+.note-tag {
+  font-size: 7px;
+  letter-spacing: 1px;
+  font-weight: 600;
+  color: var(--blue);
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding: 22px 0 26px;
+  gap: 20px;
+  font-size: 10px;
+  line-height: 1.7;
+}
+footer p {
+  margin: 0;
+}
+footer span {
+  color: var(--muted);
+}
+.footer-mark {
+  font-size: 22px;
+  color: var(--blue);
+}
+.colophon {
+  text-align: right;
+}
+/* The drawing has one flat coordinate space. All movement is in its SVG rig. */
+#field-scene .map-base {
+  opacity: 0.82;
+}
+#field-scene .map-parcels {
+  stroke: #789de4;
+}
+#field-scene .annotation-rest {
+  fill: none;
+  stroke: #aec6f3;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#field-scene .annotation-ink {
+  fill: none;
+  stroke: #1557ff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#field-scene .plan-label {
+  font-family: "DM Sans", sans-serif;
+  fill: #577299;
+}
+#field-scene .pencil-text {
+  font-family: Fraunces, Georgia, serif;
+  fill: #1557ff;
+}
+#field-scene .selected-note {
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+body[data-note="source"] #source-emphasis,
+body[data-note="dates"] #dates-emphasis,
+body[data-note="correction"] #correction-emphasis {
+  opacity: 1;
+}
+@media (min-width: 1550px) {
+  main {
+    padding-top: 76px;
+    row-gap: 54px;
+  }
+  .field-table {
+    padding-top: 6px;
+  }
+  .description {
+    font-size: 22px;
+  }
+  .field-notes {
+    max-width: 405px;
+  }
+  .drawing-heading {
+    font-size: 9px;
+  }
+  .art-caption {
+    font-size: 21px;
+  }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  .page {
+    padding: 0 35px;
+  }
+  main {
+    grid-template-columns: minmax(290px, 0.9fr) minmax(0, 1.3fr);
+    column-gap: 22px;
+    padding-top: 48px;
+  }
+  h1 {
+    font-size: 65px;
+  }
+  .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .description {
+    font-size: 18px;
+  }
+  .drawing-heading {
+    font-size: 6px;
+    letter-spacing: 0.8px;
+  }
+  .sheet-number {
+    display: none;
+  }
+  .art-caption {
+    font-size: 17px;
+  }
+  .art-caption small {
+    font-size: 10px;
+  }
+  .motion-toggle {
+    font-size: 11px;
+  }
+  .field-table {
+    padding-top: 14px;
+  }
+  .field-scene {
+    width: 100%;
+    margin-left: 0;
+  }
+  .drawing-source {
+    margin-left: 0;
+  }
+  .colophon {
+    font-size: 9px;
+  }
+}
+@media (max-width: 900px) {
+  .page {
+    padding: 0 25px;
+  }
+  .masthead {
+    height: 89px;
+  }
+  .wordmark {
+    font-size: 31px;
+  }
+  .wordmark > span {
+    font-size: 22px;
+  }
+  .office-label {
+    font-size: 8px;
+    line-height: 1.7;
+  }
+  main {
+    display: flex;
+    flex-direction: column;
+    padding: 36px 0 36px;
+    gap: 35px;
+  }
+  .introduction {
+    width: 100%;
+  }
+  .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.15px;
+    margin-bottom: 25px;
+  }
+  h1 {
+    font-size: clamp(61px, 12.8vw, 84px);
+    margin-bottom: 20px;
+  }
+  .description {
+    font-size: 17px;
+    line-height: 1.45;
+    margin-bottom: 23px;
+  }
+  .github-link {
+    min-height: 49px;
+    font-size: 12px;
+    padding: 0 17px;
+  }
+  .invitation {
+    font-size: 9px;
+    margin-top: 11px;
+  }
+  .field-table {
+    width: 100%;
+    padding-top: 6px;
+  }
+  #illustrative-details {
+    display: none;
+  }
+  #actual-parcels path {
+    vector-effect: non-scaling-stroke;
+    stroke-width: 0.65px;
+  }
+  #verified-street-labels {
+    font-size: 22px;
+    letter-spacing: 0.6px;
+  }
+  .scene-attribution {
+    display: none;
+  }
+  .drawing-heading {
+    font-size: 7px;
+    letter-spacing: 1px;
+    padding-bottom: 11px;
+  }
+  .sheet-number {
+    font-size: 6px;
+    letter-spacing: 0.6px;
+  }
+  .drawing-canvas {
+    margin: 0 -14px;
+    width: calc(100% + 28px);
+  }
+  .field-scene {
+    width: 100%;
+    height: auto;
+  }
+  .art-caption {
+    font-size: 18px;
+    padding-top: 15px;
+  }
+  .art-caption small {
+    font-size: 10px;
+  }
+  .motion-toggle {
+    font-size: 11px;
+  }
+  .drawing-source {
+    font-size: 9px;
+    margin: 12px 0 0 25px;
+  }
+  .field-notes {
+    width: 100%;
+    max-width: none;
+    margin-top: 0;
+  }
+  .notes-heading {
+    font-size: 8px;
+  }
+  .note-list summary {
+    font-size: 12px;
+    min-height: 49px;
+  }
+  .note-content p {
+    font-size: 11px;
+  }
+  footer {
+    padding: 21px 0 24px;
+    font-size: 9px;
+  }
+  .footer-mark {
+    display: none;
+  }
+  .colophon {
+    max-width: 160px;
+    font-size: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

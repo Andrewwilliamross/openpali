@@ -1,8 +1,19 @@
-# OpenPali — recovery evidence workspace
+<p align="center">
+  <a href="https://andrewwilliamross.github.io/openpali/">
+    <img src="assets/brand/signal/banner.png" alt="OpenPali — Understand the rebuild. A data platform for analyzing the Palisades rebuild. Scattered blue squares on white." width="100%">
+  </a>
+</p>
 
-By RE\SPRING. A parcel-level evidence platform for Pacific Palisades recovery.
+<p align="center">
+  <a href="#start-building">Start building</a> ·
+  <a href="#connect-explore-analyze">Platform overview</a> ·
+  <a href="#contribute">Contribute</a> ·
+  <a href="https://andrewwilliamross.github.io/openpali/">Website</a>
+</p>
 
-## Run the implemented workspace
+**OpenPali brings siloed public records, geospatial data, and imagery into one platform for analyzing the Palisades rebuild.** It connects agency records to parcels and dated observations so developers and researchers can study rebuilding activity after the January 2025 Palisades Fire.
+
+## Start building
 
 ```sh
 npm --prefix web ci --cache .npm-cache
@@ -22,7 +33,7 @@ Palisades Fire parcels, and exact-AIN lookups. It does **not** establish that
 this is every parcel within an authoritative Palisades neighborhood boundary.
 Unknown damage and unknown current vacancy remain unknown.
 
-### Working features
+## Connect, explore, analyze
 
 - React, official coss components, and MapLibre parcel search and map.
 - Immutable, hash-verified evidence releases and a release-pinned read API.
@@ -104,4 +115,26 @@ missing evidence and acquisition paths, rather than manufacturing those results.
 - [Market research](Docs/Research/2026-09-24-MARKET-SPIKE.md)
 - [Visual acquisition and modeling program](Docs/Research/2026-09-24-VISUAL-PROGRAM.md)
 - [Long-term recovery intelligence plan](Docs/Plans/2026-09-24-RECOVERY-INTELLIGENCE.md)
+- [Systems design space](Docs/Research/2026-09-29-SYSTEMS-DESIGN-SPACE.md)
+- [Palisades scene experiment](Docs/Research/2026-09-29-PALISADES-SCENE.md)
 - [Frontend source and coss attribution](web/README.md)
+
+## Contribute
+
+| Connect another source | Improve the analysis | Build a better interface |
+| --- | --- | --- |
+| [Source adapters](pipeline/openpali/adapters/) | [Metric definitions and computations](pipeline/openpali/metrics/) | [Frontend guide](web/README.md) |
+
+Start with a focused change: strengthen a source adapter, check a metric definition, improve a map interaction, or clarify the setup. Read the [contributor guide](CONTRIBUTING.md), browse [existing issues](https://github.com/Andrewwilliamross/openpali/issues), and explain how you verified the result.
+
+Follow the [community guidelines](CODE_OF_CONDUCT.md); report vulnerabilities through the [security policy](SECURITY.md).
+
+## License and data rights
+
+The source-code license is **not yet selected**. This is a public repository; no open-source license is granted at present. A public repository alone does not settle reuse rights.
+
+Government records, imagery, basemaps, and vendor-derived assets have their own terms and attribution requirements. Rights-unresolved assets are excluded from public releases by default. Any future software license will not automatically grant rights to those assets.
+
+---
+
+**Understand the rebuild. Build with the data.**

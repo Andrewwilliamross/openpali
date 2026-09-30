@@ -1,0 +1,39 @@
+name: Something broke
+description: Help us reproduce a problem in the map, pipeline, API, or local setup.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve OpenPali. Search existing issues first.
+        Keep credentials and personal details out of logs and screenshots.
+        For vulnerabilities, follow [SECURITY.md](https://github.com/Andrewwilliamross/openpali/blob/main/SECURITY.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe what you saw and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How can we reproduce it?
+      description: Include the steps, command, or page involved. A small reproducible example helps.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Commit or release
+      description: A commit SHA or the release/snapshot shown in the map, if available.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, browser, Node/Python versions, and whether you used the static fallback or full stack.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or screenshots
+      description: Include only the relevant, redacted excerpt.

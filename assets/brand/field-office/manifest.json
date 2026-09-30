@@ -1,0 +1,81 @@
+{
+  "concept": "The Field Office — A place with footnotes.",
+  "palette": {
+    "blue": "#1557ff",
+    "ink": "#172c52",
+    "paper": "#ffffff"
+  },
+  "hero": {
+    "description": "Original AI-generated conceptual coastal paper atlas. Not geographic or property evidence.",
+    "tool": "Built-in ImageGen"
+  },
+  "fonts": {
+    "Fraunces": "SIL Open Font License 1.1",
+    "DMSans": "SIL Open Font License 1.1"
+  },
+  "files": {
+    "PROMPTS.json": {
+      "bytes": 6540
+    },
+    "PROVENANCE.md": {
+      "bytes": 3459
+    },
+    "avatar.png": {
+      "bytes": 18669
+    },
+    "avatar.svg": {
+      "bytes": 660
+    },
+    "banner.png": {
+      "bytes": 1056269
+    },
+    "banner.svg": {
+      "bytes": 75397
+    },
+    "build-tools.png": {
+      "bytes": 134889
+    },
+    "correct-record.png": {
+      "bytes": 144544
+    },
+    "favicon.svg": {
+      "bytes": 353
+    },
+    "follow-source.png": {
+      "bytes": 140359
+    },
+    "hero-900.webp": {
+      "bytes": 53950
+    },
+    "hero-source.png": {
+      "bytes": 1876697
+    },
+    "hero.webp": {
+      "bytes": 142208
+    },
+    "openpali.txt": {
+      "bytes": 367
+    },
+    "social-card.png": {
+      "bytes": 716810
+    },
+    "social-card.svg": {
+      "bytes": 75434
+    },
+    "social-square.png": {
+      "bytes": 1144525
+    },
+    "social-square.svg": {
+      "bytes": 75224
+    },
+    "sticker.svg": {
+      "bytes": 22895
+    },
+    "type-outlines.json": {
+      "bytes": 123308
+    },
+    "wordmark.svg": {
+      "bytes": 22304
+    }
+  }
+}

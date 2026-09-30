@@ -161,8 +161,8 @@ no client data, credentials or private CVP assets were copied.
 ## Pull request packaging
 
 The review branch includes the recovery workspace and the subsequent Palisades
-scene research. It removes the 3,146 unused legacy `web/public` assets, matching
-the working tree's frontend replacement. The scene experiment retains source
+scene research. It removes unused legacy `web/public` datasets and tiles, matching
+the working tree's frontend replacement, while retaining the current brand assets. The scene experiment retains source
 code, reports, measurements and two documented screenshots; raw acquisitions,
 generated scene buffers, evidence releases, duplicate preview output and local
 operational drafts are excluded. The experiment remains separate from the

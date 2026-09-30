@@ -32,3 +32,25 @@ Without that setting, the API is read-only. Operational drafts are stored in
 Component provenance and license scope: [COSS-SOURCE.md](COSS-SOURCE.md).
 Basemap: OpenStreetMap; parcel polygons are the acquired County geometry.
 The basemap is contextual and is never used as dated construction evidence.
+
+## Checks
+
+```sh
+npm --prefix web test -- --run
+npm --prefix web run lint
+npm --prefix web run build
+sh scripts/check-fast
+```
+
+## API contract
+
+FastAPI owns `contracts/openapi.json`. After an API change, export it from the
+repository root with `pipeline/.venv/bin/python -m openpali.api.app export-openapi`
+and update `web/src/lib/api.ts` as needed. The fast gate checks schema drift.
+Application browser and mobile acceptance coverage remains a draft promotion gate.
+
+## Project identity
+
+The current [Signal brand kit](../Docs/Brand/README.md) supplies the OpenPali
+mark, favicon and local DM Sans font. See the
+[contributor guide](../CONTRIBUTING.md) for the shared workflow.

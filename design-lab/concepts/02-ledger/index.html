@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1656ec">
+  <title>OpenPali — Ledger</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath fill=%27%231656ec%27 d=%27M2 1h9v2h2v6h-2v2H5v4H2V1zm3 3v4h5V4H5z%27/%3E%3C/svg%3E">
+  <style>
+    :root{color-scheme:light;--blue:#1656ec;--ink:#192b4a;--muted:#5c6c86;--rule:#d7e1f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f7faff;color:var(--ink);font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 77% 41%,#e1ecff 0,transparent 46%),linear-gradient(#ffffffb3,#ffffffb3)}button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,.sheet:focus-visible{outline:3px solid var(--blue);outline-offset:5px}
+    .workspace{max-width:1600px;min-height:100svh;margin:0 auto;padding:0 56px;display:flex;flex-direction:column}.topbar{display:flex;justify-content:space-between;align-items:center;min-height:106px;gap:24px}.identity{display:flex;align-items:center;gap:12px;font-size:26px;font-weight:600;letter-spacing:-1.25px;color:var(--blue)}.identity svg{width:23px;height:31px;fill:currentColor}.topnote{font-size:11px;line-height:1.5;color:var(--muted);text-align:right;letter-spacing:.035em}
+    main{flex:1;display:grid;grid-template-columns:.86fr 1.25fr;align-items:center;gap:30px;min-height:650px;padding-bottom:34px}.intro{padding-bottom:20px}.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:10px;color:var(--muted);margin:0 0 24px}.eyebrow::before{content:"";width:6px;height:6px;background:var(--blue);box-shadow:10px 0 0 #b9ccfb;margin-right:10px}h1{font-size:clamp(55px,5.9vw,90px);line-height:1.02;letter-spacing:-.05em;font-weight:480;margin:0}h1 span{color:var(--blue)}.intro-copy{font-size:18px;line-height:1.6;max-width:310px;color:var(--muted);margin:27px 0 32px}.github{display:inline-flex;align-items:center;gap:34px;color:white;background:var(--blue);padding:17px 19px 17px 23px;border:1px solid var(--blue);border-radius:5px;text-decoration:none;font-size:14px;box-shadow:0 5px 10px #1656ec16,inset 0 1px 0 #ffffff40;transition:box-shadow .18s,transform .18s,background .18s}.github span{font-size:21px;line-height:1}.github:hover{background:#1048cb;transform:translateY(-2px);box-shadow:0 8px 16px #1656ec2b}.invitation{font-size:11px;line-height:1.6;color:var(--muted);margin:19px 0 0}
+    .ledger{min-width:0;isolation:isolate;position:relative;padding-top:5px}.ledger-heading{display:flex;justify-content:space-between;align-items:center;padding:0 10px 0 21px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}.ledger-heading span:last-child{color:var(--blue)}
+    .tabs{display:flex;gap:4px;padding:5px;border:1px solid #cbdaf1;background:#ffffffa8;border-radius:7px;max-width:405px;margin:25px 0 0 auto;position:relative;z-index:20;box-shadow:0 2px 4px #152c5b04}.tabs button{flex:1;min-height:39px;padding:7px 15px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--muted);font-size:12px;white-space:nowrap;transition:background .2s,box-shadow .2s,color .2s}.tabs button[aria-selected=true]{background:white;color:var(--blue);border-color:#d4dff1;box-shadow:0 2px 4px #162d560b}.tabs button:hover{color:var(--blue);background:#f2f6ff}
+    .stage{height:476px;position:relative;perspective:1400px;perspective-origin:55% 40%;--rx:10deg;--ry:-14deg;--rz:-7deg;isolation:isolate}.stage::before{content:"";position:absolute;left:8%;right:0;top:7%;bottom:12%;background-image:radial-gradient(#a8bddc 1px,transparent 1px);background-size:19px 19px;opacity:.3;mask-image:radial-gradient(ellipse,#000,transparent 72%)}
+    .sheet{position:absolute;left:24%;top:26%;width:72%;height:71%;background:#ffffffd9;backdrop-filter:blur(12px);border:1px solid #b7c9e8;border-radius:9px;box-shadow:0 24px 40px -25px #18376670,0 1px 1px #ffffff inset;transform:translate3d(var(--x,0px),var(--y,0px),var(--z,0px)) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));transform-origin:50% 50%;transition:transform .58s cubic-bezier(.22,.72,.12,1),background .4s,border-color .4s;will-change:transform;overflow:hidden}
+    .sheet:not(.active){background:#f6faffb3;border-color:#9eb5dc}.sheet:not(.active) .sheet-content{opacity:.28}.sheet.active{background:#fffffff2;border-color:#93b2e7}.sheet-head{height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d7e3f5;padding:0 26px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.07em;font-size:10px;color:var(--blue)}.sheet-head .number{color:#617798}.sheet-content{padding:24px 26px 18px}.sheet h2{font-size:clamp(23px,2.25vw,34px);font-weight:450;letter-spacing:-.04em;line-height:1.17;margin:0 0 24px}.sheet dl{margin:0;font-size:11px}.sheet dl div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0;border-top:1px solid #e0e8f4}.sheet dt{color:var(--muted)}.sheet dd{margin:0;color:var(--ink);text-align:right}.sheet-foot{display:flex;justify-content:space-between;gap:12px;margin-top:14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;font-size:9px;letter-spacing:.035em;color:var(--muted)}.sheet-foot .track{display:flex;gap:3px;align-items:center}.sheet-foot i{width:5px;height:5px;border:1px solid #749adf}.sheet-foot i:first-child{background:var(--blue);border-color:var(--blue)}
+    .depth-control{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;max-width:415px;margin:4px 0 0 auto;padding:0 4px;color:var(--muted)}.depth-control label{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px;line-height:1.5;letter-spacing:.025em}.depth-control output{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:10px;min-width:44px;text-align:right;color:var(--blue)}input[type=range]{width:100%;height:32px;margin:0;accent-color:var(--blue);background:transparent;cursor:ew-resize}.depth-caption{max-width:415px;margin:3px 0 0 auto;padding:0 4px;font-size:10px;line-height:1.6;color:var(--muted)}
+    footer{display:flex;justify-content:space-between;align-items:center;gap:24px;min-height:88px;border-top:1px solid var(--rule);font-size:11px;line-height:1.6;color:var(--muted)}footer p{margin:0}.footer-name{color:var(--ink)}.status-dot{width:5px;height:5px;background:var(--blue);display:inline-block;margin-right:9px;vertical-align:2px}
+    @media(min-width:1500px){main{gap:50px}.stage{height:490px}}
+    @media(max-width:1100px) and (min-width:801px){.workspace{padding:0 34px}main{grid-template-columns:.8fr 1.15fr;gap:12px}.stage{height:410px}.sheet{left:22%;width:76%;height:75%}.sheet-head{padding:0 20px}.sheet-content{padding:20px}.sheet h2{font-size:25px}.sheet dl div{padding:9px 0}.intro-copy{font-size:16px}.ledger-heading{font-size:9px;padding-left:5px}.tabs{max-width:350px}.tabs button{padding:7px 10px}.depth-control{gap:12px}.sheet-foot{font-size:8px}}
+    @media(max-width:800px){.workspace{padding:0 24px}.topbar{min-height:75px}.identity{font-size:24px}.identity svg{width:19px;height:27px}.topnote{font-size:9px}main{display:flex;flex-direction:column;align-items:stretch;gap:24px;min-height:0;padding:12px 0 22px}.intro{padding:0}.eyebrow{font-size:9px;margin-bottom:17px}h1{font-size:clamp(49px,12vw,72px);line-height:1.01;max-width:440px}h1 br{display:initial}h1 span{white-space:nowrap}.intro-copy{font-size:14px;line-height:1.5;max-width:300px;margin:15px 0}.github{min-height:46px;padding:12px 16px 12px 18px;font-size:12px;gap:38px}.github span{font-size:18px}.invitation{display:none}.ledger{padding-top:0}.ledger-heading{padding:0;font-size:8px}.tabs{max-width:none;margin-top:13px;padding:4px;gap:3px}.tabs button{min-height:36px;font-size:11px;padding:5px 8px}.stage{height:270px;--rx:8deg;--ry:-9deg;--rz:-6deg;perspective:1000px}.sheet{left:14%;top:26%;width:84%;height:75%;border-radius:7px}.sheet-head{height:35px;padding:0 17px;font-size:8px}.sheet-content{padding:12px 17px 9px}.sheet h2{font-size:22px;margin:0 0 10px;line-height:1.1}.sheet dl{font-size:11px}.sheet dl div{padding:4px 0}.sheet-foot{font-size:8px;margin-top:8px}.sheet-foot i{width:4px;height:4px}.depth-control{max-width:none;margin-top:8px;gap:17px;padding:0}.depth-control label,.depth-control output{font-size:9px}.depth-caption{max-width:none;padding:0;margin-top:0;font-size:9px}footer{min-height:69px;font-size:9px;gap:24px}.footer-right{text-align:right}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}.github:hover{transform:none}}
+    @media(forced-colors:active){.sheet{background:Canvas;border:1px solid CanvasText}.github,.tabs button{border:1px solid ButtonText}.tabs button[aria-selected=true]{outline:2px solid Highlight}.stage::before{display:none}}
+  </style>
+</head>
+<body>
+  <div class="workspace">
+    <header class="topbar"><div class="identity"><svg viewBox="0 0 23 31" aria-hidden="true"><path d="M0 0h19v5H5v8h14v5H5v13H0V0Zm18 5h5v8h-5V5Z"/></svg><span>openpali</span></div><div class="topnote">A public project.<br>Pacific Palisades, California.</div></header>
+    <main>
+      <section class="intro" aria-labelledby="headline"><p class="eyebrow">The evidence, unfolded</p><h1 id="headline">Recovery,<br>in the <span>open.</span></h1><p class="intro-copy">Public evidence for the Palisades rebuild. One record leads to a clearer picture.</p><a class="github" href="https://github.com/Andrewwilliamross/openpali">Explore on GitHub <span aria-hidden="true">↗</span></a><p class="invitation">A little more context.<br>A better place to start.</p></section>
+      <section class="ledger" aria-label="Explore an illustrative evidence stack">
+        <div class="ledger-heading"><span>The evidence stack</span><span>Illustrative interface</span></div>
+        <div class="tabs" role="tablist" aria-label="Evidence layers"><button type="button" role="tab" id="source-tab" aria-controls="source-sheet" aria-selected="false" tabindex="-1" data-layer="0">01 &nbsp; Source</button><button type="button" role="tab" id="observation-tab" aria-controls="observation-sheet" aria-selected="false" tabindex="-1" data-layer="1">02 &nbsp; Observation</button><button type="button" role="tab" id="release-tab" aria-controls="release-sheet" aria-selected="true" tabindex="0" data-layer="2">03 &nbsp; Release</button></div>
+        <div class="stage">
+          <article class="sheet" id="source-sheet" role="tabpanel" aria-labelledby="source-tab" aria-hidden="true" tabindex="-1" inert><div class="sheet-head"><span>SOURCE RECORD</span><span class="number">01 / 03</span></div><div class="sheet-content"><h2>Start with<br>the source.</h2><dl><div><dt>Origin</dt><dd>Public record</dd></div><div><dt>Context</dt><dd>Kept with the evidence</dd></div><div><dt>Date</dt><dd>As documented</dd></div></dl><div class="sheet-foot"><span>Illustrative · no live data</span><span class="track" aria-hidden="true"><i></i><i></i><i></i></span></div></div></article>
+          <article class="sheet" id="observation-sheet" role="tabpanel" aria-labelledby="observation-tab" aria-hidden="true" tabindex="-1" inert><div class="sheet-head"><span>OBSERVATION</span><span class="number">02 / 03</span></div><div class="sheet-content"><h2>Keep the evidence.<br>Keep the unknowns.</h2><dl><div><dt>Claim</dt><dd>What the record supports</dd></div><div><dt>Time</dt><dd>Recorded separately</dd></div><div><dt>Unknowns</dt><dd>Still visible</dd></div></dl><div class="sheet-foot"><span>Illustrative · no live data</span><span class="track" aria-hidden="true"><i></i><i></i><i></i></span></div></div></article>
+          <article class="sheet active" id="release-sheet" role="tabpanel" aria-labelledby="release-tab" tabindex="0"><div class="sheet-head"><span>PUBLISHED VIEW</span><span class="number">03 / 03</span></div><div class="sheet-content"><h2>A shared picture.<br>A traceable version.</h2><dl><div><dt>Evidence</dt><dd>Connected to its source</dd></div><div><dt>Context</dt><dd>Visible in the record</dd></div><div><dt>Changes</dt><dd>Part of the history</dd></div></dl><div class="sheet-foot"><span>Illustrative · no live data</span><span class="track" aria-hidden="true"><i></i><i></i><i></i></span></div></div></article>
+        </div>
+        <div class="depth-control"><label for="depth">Layer spacing</label><input id="depth" type="range" min="0" max="100" value="72" aria-describedby="depth-help"><output for="depth">Open</output></div><p class="depth-caption" id="depth-help">A closer look at how the pieces connect. Drag, or use the arrow keys.</p>
+      </section>
+    </main>
+    <footer><p><span class="status-dot" aria-hidden="true"></span>Every layer adds context.</p><p class="footer-right"><span class="footer-name">An independent civic project.</span><br>Built by RE\SPRING.</p></footer>
+  </div>
+  <script>
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const sheets = [...document.querySelectorAll('.sheet')];
+    const stage = document.querySelector('.stage');
+    const range = document.getElementById('depth');
+    const output = document.querySelector('output');
+    let active = 2;
+    function positionSheets() {
+      const depth = Number(range.value) / 100;
+      const step = stage.clientWidth * .105;
+      sheets.forEach((sheet, index) => {
+        const rank = (active - index + sheets.length) % sheets.length;
+        sheet.style.setProperty('--x', `${-rank * depth * step}px`);
+        sheet.style.setProperty('--y', `${-rank * depth * step * .68}px`);
+        sheet.style.setProperty('--z', `${-rank * depth * 34}px`);
+        sheet.style.zIndex = String(5 - rank);
+      });
+      const spacing = depth === 0 ? 'Stacked' : depth < .35 ? 'Close' : depth < .75 ? 'Open' : 'Spread';
+      output.value = spacing;
+      range.setAttribute('aria-valuetext', `${spacing} sheet spacing`);
+      const narrow = window.matchMedia('(max-width: 800px)').matches;
+      stage.style.setProperty('--rx', `${narrow ? 0 : depth * 14}deg`);
+      stage.style.setProperty('--ry', `${narrow ? 0 : depth * -19.5}deg`);
+      stage.style.setProperty('--rz', `${depth * (narrow ? -5.5 : -9.7)}deg`);
+    }
+    function selectLayer(index, focus = false) {
+      active = index;
+      tabs.forEach((tab, i) => {
+        const selected = i === active;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        sheets[i].classList.toggle('active', selected);
+        sheets[i].setAttribute('aria-hidden', String(!selected));
+        sheets[i].inert = !selected;
+        sheets[i].tabIndex = selected ? 0 : -1;
+      });
+      if (focus) tabs[index].focus();
+      positionSheets();
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectLayer(index));
+      tab.addEventListener('keydown', event => {
+        let target;
+        if (event.key === 'ArrowRight') target = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') target = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') target = 0;
+        else if (event.key === 'End') target = tabs.length - 1;
+        else return;
+        event.preventDefault(); selectLayer(target, true);
+      });
+    });
+    range.addEventListener('input', positionSheets);
+    new ResizeObserver(positionSheets).observe(stage);
+    selectLayer(active);
+  </script>
+</body>
+</html>

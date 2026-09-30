@@ -1,0 +1,34 @@
+name: Check the evidence
+description: Report a source, methodology, provenance, or data-quality problem.
+title: "[Evidence] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for problems with sources or how OpenPali interprets them.
+        For a specific property correction, use **Report an issue with this record** on its map card when the API is available.
+        This issue is public. Do not include private correspondence, contact details, or documents containing personal information.
+  - type: textarea
+    id: claim
+    attributes:
+      label: Which claim or source needs attention?
+      description: Describe the displayed result, source mapping, or method and why it needs review.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Public evidence
+      description: Link the agency record, source documentation, or reproducible example. Say if the needed evidence is unavailable.
+    validations:
+      required: true
+  - type: input
+    id: release
+    attributes:
+      label: Release or snapshot
+      description: Copy the release/snapshot identifier shown by the map, if available.
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Suggested interpretation
+      description: Describe a supported correction or the uncertainty that should be shown.

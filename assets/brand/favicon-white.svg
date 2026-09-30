@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="title description">
+  <title id="title">OpenPali</title>
+  <desc id="description">A solid, pixel-aligned white P for dark browser icons.</desc>
+  <path fill="#FFFFFF" fill-rule="evenodd" d="M3 1h8v2h2v6h-2v2H6v4H3V1Zm3 3v4h4V4H6Z"/>
+</svg>

@@ -1,0 +1,194 @@
+{
+ "currentVersion": 11.5,
+ "cimVersion": "3.5.0",
+ "serviceDescription": "",
+ "hasVersionedData": false,
+ "hasArchivedData": false,
+ "hasBranchVersionedData": false,
+ "supportsDisconnectedEditing": false,
+ "supportsDatumTransformation": true,
+ "supportsReturnServiceEditsOption": true,
+ "returnServiceEditsHaveSR": true,
+ "supportsQueryDataElements": true,
+ "datesInUnknownTimezone": false,
+ "supportsRelationshipsResource": true,
+ "syncEnabled": false,
+ "syncCapabilities": {
+  "supportsRegisterReplicaForServer": true,
+  "supportsSyncDirectionControl": true,
+  "supportsPerLayerSync": true,
+  "supportsPerReplicaSync": true,
+  "supportsAttachmentsSyncDirection": true,
+  "supportsSyncModelNone": true,
+  "supportsDurableUrlForSyncModelNone": false
+ },
+ "supportedExportFormats": "sqlite,filegdb,shapefile,csv,geojson",
+ "extractChangesCapabilities": {
+  "supportsReturnIdsOnly": false,
+  "supportsReturnExtentOnly": false,
+  "supportsReturnAttachments": false,
+  "supportsLayerQueries": false,
+  "supportsGeometry": false,
+  "supportsFeatureReturn": false,
+  "supportsReturnHasGeometryUpdates": false,
+  "supportsFieldsToCompare": false,
+  "supportsServerGens": false
+ },
+ "supportedQueryFormats": "JSON",
+ "maxRecordCount": 2000,
+ "maxRecordCountFactor": 1,
+ "capabilities": "Query",
+ "description": "",
+ "copyrightText": "Los Angeles County Office of the Assessor",
+ "advancedEditingCapabilities": {
+  "supportsSplit": false,
+  "supportsReturnServiceEditsInSourceSR": true,
+  "supportsAsyncApplyEdits": true,
+  "supportsApplyEditsbyUploadID": true,
+  "supportedApplyEditsUploadIDFormats": "JSON,PBF",
+  "supportsMultipatchOptionForServiceEdits": true,
+  "supportedApplyEditsOptions": {"supportedEditingOptions": 0}
+ },
+ "spatialReference": {
+  "wkid": 102100,
+  "latestWkid": 3857,
+  "xyTolerance": 0.001,
+  "zTolerance": 0.001,
+  "mTolerance": 0.001,
+  "falseX": -20037700,
+  "falseY": -30241100,
+  "xyUnits": 1.4892314192838538E8,
+  "falseZ": -100000,
+  "zUnits": 10000,
+  "falseM": -100000,
+  "mUnits": 10000
+ },
+ "initialExtent": {
+  "xmin": -1.317078626407651E7,
+  "ymin": 4003742.836650321,
+  "xmax": -1.3166415021521335E7,
+  "ymax": 4005263.268843425,
+  "spatialReference": {
+   "wkid": 102100,
+   "latestWkid": 3857,
+   "xyTolerance": 0.001,
+   "zTolerance": 0.001,
+   "mTolerance": 0.001,
+   "falseX": -20037700,
+   "falseY": -30241100,
+   "xyUnits": 1.4892314192838538E8,
+   "falseZ": -100000,
+   "zUnits": 10000,
+   "falseM": -100000,
+   "mUnits": 10000
+  }
+ },
+ "fullExtent": {
+  "xmin": -1.3400407025469452E7,
+  "ymin": 3854157.8250249373,
+  "xmax": -1.2937519219911631E7,
+  "ymax": 4153533.5605398538,
+  "spatialReference": {
+   "wkid": 102100,
+   "latestWkid": 3857,
+   "xyTolerance": 0.001,
+   "zTolerance": 0.001,
+   "mTolerance": 0.001,
+   "falseX": -20037700,
+   "falseY": -30241100,
+   "xyUnits": 1.4892314192838538E8,
+   "falseZ": -100000,
+   "zUnits": 10000,
+   "falseM": -100000,
+   "mUnits": 10000
+  }
+ },
+ "allowGeometryUpdates": true,
+ "allowTrueCurvesUpdates": true,
+ "onlyAllowTrueCurveUpdatesByTrueCurveClients": true,
+ "supportsApplyEditsWithGlobalIds": false,
+ "supportsTrueCurve": true,
+ "supportedCurveTypes": [
+  "esriGeometryCircularArc",
+  "esriGeometryEllipticArc",
+  "esriGeometryBezier3Curve"
+ ],
+ "units": "esriMeters",
+ "documentInfo": {
+  "Title": "Los Angeles County Assessor Parcel Data",
+  "Author": "",
+  "Comments": "",
+  "Subject": "",
+  "Category": "",
+  "Keywords": ""
+ },
+ "supportsQueryDomains": true,
+ "supportsQueryContingentValues": true,
+ "layers": [
+  {
+   "id": 0,
+   "name": "Parcels",
+   "parentLayerId": -1,
+   "defaultVisibility": true,
+   "subLayerIds": null,
+   "minScale": 18057,
+   "maxScale": 0,
+   "type": "Feature Layer",
+   "geometryType": "esriGeometryPolygon"
+  }
+ ],
+ "tables": [],
+ "relationships": [],
+ "enableZDefaults": false,
+ "allowUpdateWithoutMValues": false,
+ "supportsVCSProjection": true,
+ "datumTransformations": [
+  {
+   "geoTransforms": [
+    {
+     "wkid": 108001,
+     "latestWkid": 1241,
+     "transformForward": true,
+     "name": "NAD_1927_To_NAD_1983_NADCON"
+    }
+   ]
+  },
+  {
+   "geoTransforms": [
+    {
+     "wkid": 108001,
+     "latestWkid": 1241,
+     "transformForward": false,
+     "name": "NAD_1927_To_NAD_1983_NADCON"
+    }
+   ]
+  },
+  {
+   "geoTransforms": [
+    {
+     "wkid": 108190,
+     "latestWkid": 108190,
+     "transformForward": true,
+     "name": "WGS_1984_(ITRF00)_To_NAD_1983"
+    }
+   ]
+  },
+  {
+   "geoTransforms": [
+    {
+     "wkid": 108190,
+     "latestWkid": 108190,
+     "transformForward": false,
+     "name": "WGS_1984_(ITRF00)_To_NAD_1983"
+    }
+   ]
+  }
+ ],
+ "referenceScale": 0,
+ "infoInEstimates": [
+  "extent",
+  "count"
+ ],
+ "supportsAppend": true,
+ "supportedAppendFormats": "FILEGDB,PBF"
+}
