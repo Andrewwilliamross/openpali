@@ -1,0 +1,1287 @@
+[
+  {
+    "name": "all_parcels",
+    "url": "https://assessor.gis.lacounty.gov/assessor/rest/services/PAIS/pais_parcels/MapServer/0",
+    "bbox": "-118.62,33.99,-118.44,34.13",
+    "scope": "study rectangle, not Palisades boundary",
+    "requests": [
+      {
+        "url": "https://assessor.gis.lacounty.gov/assessor/rest/services/PAIS/pais_parcels/MapServer/0?f=json",
+        "retrieved_at": "2026-09-25T03:28:36.463392+00:00",
+        "status": 200,
+        "sha256": "4ff9d423b6b1cea9710d5affca6283fbdbb6eb79079e2084274bcc6ac9fb6ab6",
+        "path": "data/raw/expanded/4ff9d423b6b1cea9710d5affca6283fbdbb6eb79079e2084274bcc6ac9fb6ab6"
+      }
+    ],
+    "fields": [
+      {
+        "name": "OBJECTID",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "AIN",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "FORMATTED_AIN",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SAADDR",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SAADDR2",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SASTR",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SANUM",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SAFRACT",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SAUNIT",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "ISRECENTSALE",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "FORMATTED_RECENTSALE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SHAPE",
+        "type": "esriFieldTypeGeometry"
+      },
+      {
+        "name": "ESRI_OID",
+        "type": "esriFieldTypeOID"
+      }
+    ],
+    "geometry_type": "esriGeometryPolygon",
+    "has_attachments": false,
+    "status": "failed",
+    "error": "The read operation timed out"
+  },
+  {
+    "name": "sewer_pipes",
+    "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/9",
+    "bbox": "-118.62,33.99,-118.44,34.13",
+    "scope": "study rectangle, not Palisades boundary",
+    "requests": [
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/9?f=json",
+        "retrieved_at": "2026-09-25T03:28:36.254143+00:00",
+        "status": 200,
+        "sha256": "e018b3a9a5305fbb62273467eb1cc875de38eaa70403de39c233061880e94f86",
+        "path": "data/raw/expanded/e018b3a9a5305fbb62273467eb1cc875de38eaa70403de39c233061880e94f86"
+      },
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/9/query?f=json&where=1%3D1&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnCountOnly=true",
+        "retrieved_at": "2026-09-25T03:28:36.392392+00:00",
+        "status": 200,
+        "sha256": "fa9ba9c5d9adec9a834e3676f3756f4e262d29c51acf483a3d10c961ffdfd90d",
+        "path": "data/raw/expanded/fa9ba9c5d9adec9a834e3676f3756f4e262d29c51acf483a3d10c961ffdfd90d"
+      },
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/9/query?f=json&where=1%3D1&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=true&outSR=4326&resultRecordCount=2",
+        "retrieved_at": "2026-09-25T03:28:36.687757+00:00",
+        "status": 200,
+        "sha256": "85b6318c8a49026e10795bbd64ae9f9ae290c6852a8aa67f6d113120e801e88a",
+        "path": "data/raw/expanded/85b6318c8a49026e10795bbd64ae9f9ae290c6852a8aa67f6d113120e801e88a"
+      }
+    ],
+    "fields": [
+      {
+        "name": "OBJECTID",
+        "type": "esriFieldTypeOID"
+      },
+      {
+        "name": "SHAPE",
+        "type": "esriFieldTypeGeometry"
+      },
+      {
+        "name": "ENABLED",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "ASSETID",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "SERVICEID",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPE_ID",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "CLASS",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "PIPE_SUBTYPE",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "UP_STRUCT",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "DN_STRUCT",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "PIPE_LABEL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "REMARKS",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "ENG_DIST",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "BASIN",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "UP_INV",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "DN_INV",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "PIPE_LENG",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "SLOPE_PCT",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "PIPE_SIZE",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "PIPE_WIDTH",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "PIPE_MAT",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPE_SHAPE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "REHAB",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "STREET",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "BLOCK",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "LINER",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "C_SLOPE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "C_UP_INV",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "C_DN_INV",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "C_PIPE_LEN",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "UP_STA_100",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "UP_STA_PLS",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "DN_STA_100",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "DN_STA_PLS",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "YEAR_INST",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "NO_LAT",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "GRV_FM",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "EASEMENT",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPE_STATUS",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "COMMENTS",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "WYE_CON",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "MON_INST",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PLAN1",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PLAN2",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PROF",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "WYEMAP",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "HR_VER",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PCT_ENTRY",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "WYE_MAT",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "WYE_DIAM",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "WYE_LENG",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "WYE_UPDATE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "EST_UPINV",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "EST_DNINV",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "EST_MATL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "LINER_DATE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "EST_YEAR",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "EST_YR_LEV",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SLOPE2",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "V_CURVE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PCT_ENTRY2",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "CAPACITY",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "SYSTEM",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "TRTMNT_LOC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "OWNER",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "CRTN_DT",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "LAST_UPDATE",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "USER_ID",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "VDATUM",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "UP_MH",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "DN_MH",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "SAN_PIPE_ID",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "LAYER",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "SHAPE_Length",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "MATERIAL_DESCRIPTION",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "TOOLTIP",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "NLA_URL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "CLASS_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "ENG_DIST_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "REHAB_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "GRV_FM_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "HR_VER_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SYSTEM_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "TRTMNT_LOC_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "OWNER_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPE_SUBTYPE_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPE_STATUS_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPE_LEN_CALC",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "UP_INV_CALC",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "DN_INV_CALC",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "SLOPE_EST",
+        "type": "esriFieldTypeDouble"
+      }
+    ],
+    "geometry_type": "esriGeometryPolyline",
+    "has_attachments": false,
+    "count": {
+      "count": 11851
+    },
+    "sample_count": 2,
+    "sample_attributes": [
+      {
+        "OBJECTID": 479,
+        "ENABLED": 1,
+        "ASSETID": 169358,
+        "SERVICEID": null,
+        "PIPE_ID": "5610209856102105A",
+        "CLASS": 3,
+        "PIPE_SUBTYPE": 1,
+        "UP_STRUCT": 56102098,
+        "DN_STRUCT": 56102105,
+        "PIPE_LABEL": "A",
+        "REMARKS": " ",
+        "ENG_DIST": "W",
+        "BASIN": "C01",
+        "UP_INV": -3.94,
+        "DN_INV": -4.24,
+        "PIPE_LENG": 99.2,
+        "SLOPE_PCT": 0.0032,
+        "PIPE_SIZE": 12,
+        "PIPE_WIDTH": 0,
+        "PIPE_MAT": "VCP",
+        "PIPE_SHAPE": "CIR",
+        "REHAB": "N",
+        "STREET": "MAIN ST",
+        "BLOCK": "1100",
+        "LINER": null,
+        "C_SLOPE": "N",
+        "C_UP_INV": " ",
+        "C_DN_INV": "N",
+        "C_PIPE_LEN": "N",
+        "UP_STA_100": 5,
+        "UP_STA_PLS": 99.06,
+        "DN_STA_100": 4,
+        "DN_STA_PLS": 99.86,
+        "YEAR_INST": "2022",
+        "NO_LAT": 2,
+        "GRV_FM": "GR",
+        "EASEMENT": "N",
+        "PIPE_STATUS": "F",
+        "COMMENTS": "OLD P&P D-3878 1935, R&R PIPE PER E-11118 2022, CCTV REACH PER E-9624 2020",
+        "WYE_CON": 4,
+        "MON_INST": "09",
+        "PLAN1": "E-11118",
+        "PLAN2": "E-9624",
+        "PROF": "E-11118",
+        "WYEMAP": "7187-4",
+        "HR_VER": null,
+        "PCT_ENTRY": "N",
+        "WYE_MAT": " ",
+        "WYE_DIAM": 0,
+        "WYE_LENG": 99.19999695,
+        "WYE_UPDATE": "Y",
+        "EST_UPINV": "N",
+        "EST_DNINV": "N",
+        "EST_MATL": "N",
+        "LINER_DATE": null,
+        "EST_YEAR": "N",
+        "EST_YR_LEV": " ",
+        "SLOPE2": null,
+        "V_CURVE": "N",
+        "PCT_ENTRY2": "N",
+        "CAPACITY": 2.0154199999999998,
+        "SYSTEM": null,
+        "TRTMNT_LOC": " ",
+        "OWNER": " ",
+        "CRTN_DT": null,
+        "LAST_UPDATE": 1737504000000,
+        "USER_ID": "SDELEON",
+        "VDATUM": null,
+        "UP_MH": 56102098,
+        "DN_MH": 56102105,
+        "SAN_PIPE_ID": "5610209856102105A",
+        "LAYER": 1,
+        "SHAPE_Length": 37.93767828775873,
+        "MATERIAL_DESCRIPTION": "Vitrified Clay Pipe",
+        "TOOLTIP": "56102098-56102105A\\nUpstream Stationing: 5 + 99.06\\nDownstream Stationing: 4 + 99.86",
+        "NLA_URL": "navigatela/reports/wastewater_pipes.cfm?PK=5610209856102105A",
+        "CLASS_DESC": "Secondary Sewer",
+        "ENG_DIST_DESC": "West Los Angeles",
+        "REHAB_DESC": "No",
+        "GRV_FM_DESC": "Gravity",
+        "HR_VER_DESC": null,
+        "SYSTEM_DESC": null,
+        "TRTMNT_LOC_DESC": null,
+        "OWNER_DESC": null,
+        "PIPE_SUBTYPE_DESC": "Gravity",
+        "PIPE_STATUS_DESC": "As Built",
+        "PIPE_LEN_CALC": null,
+        "UP_INV_CALC": null,
+        "DN_INV_CALC": null,
+        "SLOPE_EST": null
+      },
+      {
+        "OBJECTID": 480,
+        "ENABLED": 1,
+        "ASSETID": 169370,
+        "SERVICEID": null,
+        "PIPE_ID": "5610209156102092A",
+        "CLASS": 3,
+        "PIPE_SUBTYPE": 1,
+        "UP_STRUCT": 56102091,
+        "DN_STRUCT": 56102092,
+        "PIPE_LABEL": "A",
+        "REMARKS": " ",
+        "ENG_DIST": "W",
+        "BASIN": "C01",
+        "UP_INV": -0.35000000000000003,
+        "DN_INV": -0.85,
+        "PIPE_LENG": 254.1,
+        "SLOPE_PCT": 0.002,
+        "PIPE_SIZE": 15,
+        "PIPE_WIDTH": 0,
+        "PIPE_MAT": "VCP",
+        "PIPE_SHAPE": "CIR",
+        "REHAB": "N",
+        "STREET": "BROOKS AV",
+        "BLOCK": "120",
+        "LINER": null,
+        "C_SLOPE": "N",
+        "C_UP_INV": " ",
+        "C_DN_INV": "N",
+        "C_PIPE_LEN": "N",
+        "UP_STA_100": 8,
+        "UP_STA_PLS": 71.10000000000001,
+        "DN_STA_100": 6,
+        "DN_STA_PLS": 17,
+        "YEAR_INST": "1962",
+        "NO_LAT": 13,
+        "GRV_FM": "GR",
+        "EASEMENT": "N",
+        "PIPE_STATUS": "F",
+        "COMMENTS": " ",
+        "WYE_CON": 0,
+        "MON_INST": " ",
+        "PLAN1": "D-14887",
+        "PLAN2": null,
+        "PROF": "D-14887",
+        "WYEMAP": "7187-4",
+        "HR_VER": null,
+        "PCT_ENTRY": "Y",
+        "WYE_MAT": " ",
+        "WYE_DIAM": 0,
+        "WYE_LENG": 194.1000061,
+        "WYE_UPDATE": "Y",
+        "EST_UPINV": "N",
+        "EST_DNINV": "N",
+        "EST_MATL": "N",
+        "LINER_DATE": null,
+        "EST_YEAR": "N",
+        "EST_YR_LEV": " ",
+        "SLOPE2": 0,
+        "V_CURVE": "N",
+        "PCT_ENTRY2": null,
+        "CAPACITY": 2.88891,
+        "SYSTEM": null,
+        "TRTMNT_LOC": " ",
+        "OWNER": " ",
+        "CRTN_DT": null,
+        "LAST_UPDATE": 1597104000000,
+        "USER_ID": "RZGARCIA",
+        "VDATUM": null,
+        "UP_MH": 56102091,
+        "DN_MH": 56102092,
+        "SAN_PIPE_ID": "5610209156102092A",
+        "LAYER": 1,
+        "SHAPE_Length": 93.44456906160323,
+        "MATERIAL_DESCRIPTION": "Vitrified Clay Pipe",
+        "TOOLTIP": "56102091-56102092A\\nUpstream Stationing: 8 + 71.1\\nDownstream Stationing: 6 + 17",
+        "NLA_URL": "navigatela/reports/wastewater_pipes.cfm?PK=5610209156102092A",
+        "CLASS_DESC": "Secondary Sewer",
+        "ENG_DIST_DESC": "West Los Angeles",
+        "REHAB_DESC": "No",
+        "GRV_FM_DESC": "Gravity",
+        "HR_VER_DESC": null,
+        "SYSTEM_DESC": null,
+        "TRTMNT_LOC_DESC": null,
+        "OWNER_DESC": null,
+        "PIPE_SUBTYPE_DESC": "Gravity",
+        "PIPE_STATUS_DESC": "As Built",
+        "PIPE_LEN_CALC": null,
+        "UP_INV_CALC": null,
+        "DN_INV_CALC": null,
+        "SLOPE_EST": null
+      }
+    ],
+    "status": "verified"
+  },
+  {
+    "name": "sewer_permit_images",
+    "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/8",
+    "bbox": "-118.62,33.99,-118.44,34.13",
+    "scope": "study rectangle, not Palisades boundary",
+    "requests": [
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/8?f=json",
+        "retrieved_at": "2026-09-25T03:28:36.278831+00:00",
+        "status": 200,
+        "sha256": "1155d57f3f88fa568d089ddd378ab2640c14517d055a0c63a8a918b985e315cc",
+        "path": "data/raw/expanded/1155d57f3f88fa568d089ddd378ab2640c14517d055a0c63a8a918b985e315cc"
+      },
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/8/query?f=json&where=1%3D1&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnCountOnly=true",
+        "retrieved_at": "2026-09-25T03:28:36.507432+00:00",
+        "status": 200,
+        "sha256": "a5fb8eb97856970b61d9f466deb64f7659e835ee8ec5497003b78438fe888cad",
+        "path": "data/raw/expanded/a5fb8eb97856970b61d9f466deb64f7659e835ee8ec5497003b78438fe888cad"
+      },
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/8/query?f=json&where=1%3D1&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=true&outSR=4326&resultRecordCount=2",
+        "retrieved_at": "2026-09-25T03:28:36.609692+00:00",
+        "status": 200,
+        "sha256": "79198574535fbdc1279b873dfc4fb353d279c2c605e25cbf2348ddbf4b5a40aa",
+        "path": "data/raw/expanded/79198574535fbdc1279b873dfc4fb353d279c2c605e25cbf2348ddbf4b5a40aa"
+      }
+    ],
+    "fields": [
+      {
+        "name": "ID",
+        "type": "esriFieldTypeOID"
+      },
+      {
+        "name": "Col001",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "Address",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "lon",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "lat",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "ImageID",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PermitNum",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "lat_min",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "lat_max",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "lon_min",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "lon_max",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "Shape",
+        "type": "esriFieldTypeGeometry"
+      },
+      {
+        "name": "URL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "TOOLTIP",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "NLA_URL",
+        "type": "esriFieldTypeString"
+      }
+    ],
+    "geometry_type": "esriGeometryPoint",
+    "has_attachments": false,
+    "count": {
+      "count": 4
+    },
+    "sample_count": 2,
+    "sample_attributes": [
+      {
+        "ID": 28446,
+        "Col001": 1379,
+        "Address": "14325 MULHOLLAND DR",
+        "lon": -118.44508,
+        "lat": 34.13072,
+        "ImageID": "00182874",
+        "PermitNum": 87509,
+        "lat_min": 34.13072,
+        "lat_max": 34.13072,
+        "lon_min": -118.44508,
+        "lon_max": -118.44508,
+        "URL": "javascript:parent.main.newWindow('http://boe.lacity.org//permitgallery/index.cfm?fuseaction=public.permit&image=00182874.jpg' ,'Report','800','600','yes')",
+        "TOOLTIP": "Address: 14325 MULHOLLAND DR\\nPermit Number: 87509",
+        "NLA_URL": "http://boe.lacity.org/permitgallery/index.cfm?nla_target=1&nla_win=p,75,75&fuseaction=public.permit&image=00182874.jpg"
+      },
+      {
+        "ID": 60512,
+        "Col001": 33445,
+        "Address": "15249 MULHOLLAND DR",
+        "lon": -118.46523,
+        "lat": 34.13052,
+        "ImageID": "00182904",
+        "PermitNum": 101707,
+        "lat_min": 34.13052,
+        "lat_max": 34.13052,
+        "lon_min": -118.46523,
+        "lon_max": -118.46523,
+        "URL": "javascript:parent.main.newWindow('http://boe.lacity.org//permitgallery/index.cfm?fuseaction=public.permit&image=00182904.jpg' ,'Report','800','600','yes')",
+        "TOOLTIP": "Address: 15249 MULHOLLAND DR\\nPermit Number: 101707",
+        "NLA_URL": "http://boe.lacity.org/permitgallery/index.cfm?nla_target=1&nla_win=p,75,75&fuseaction=public.permit&image=00182904.jpg"
+      }
+    ],
+    "status": "verified"
+  },
+  {
+    "name": "storm_pipes",
+    "url": "https://maps.lacity.org/lahub/rest/services/Stormwater_Information/MapServer/10",
+    "bbox": "-118.62,33.99,-118.44,34.13",
+    "scope": "study rectangle, not Palisades boundary",
+    "requests": [
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Stormwater_Information/MapServer/10?f=json",
+        "retrieved_at": "2026-09-25T03:28:36.754405+00:00",
+        "status": 200,
+        "sha256": "d04117f7225a6fa4e62a09aae41feec0ba1f122ce0b27dfe7aad284ad1e7d333",
+        "path": "data/raw/expanded/d04117f7225a6fa4e62a09aae41feec0ba1f122ce0b27dfe7aad284ad1e7d333"
+      },
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Stormwater_Information/MapServer/10/query?f=json&where=1%3D1&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnCountOnly=true",
+        "retrieved_at": "2026-09-25T03:28:36.899039+00:00",
+        "status": 200,
+        "sha256": "fb7a2395a0db9b9a6dcf922a256e40c25d2452840039d854078505daf3ce8b11",
+        "path": "data/raw/expanded/fb7a2395a0db9b9a6dcf922a256e40c25d2452840039d854078505daf3ce8b11"
+      },
+      {
+        "url": "https://maps.lacity.org/lahub/rest/services/Stormwater_Information/MapServer/10/query?f=json&where=1%3D1&geometry=-118.62%2C33.99%2C-118.44%2C34.13&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outFields=%2A&returnGeometry=true&outSR=4326&resultRecordCount=2",
+        "retrieved_at": "2026-09-25T03:28:37.243172+00:00",
+        "status": 200,
+        "sha256": "7e296d6e33c438501e0f5e0e9e5b8d8e0b2dcbd5ac7f4bb9e8c7fbd94edfd13f",
+        "path": "data/raw/expanded/7e296d6e33c438501e0f5e0e9e5b8d8e0b2dcbd5ac7f4bb9e8c7fbd94edfd13f"
+      }
+    ],
+    "fields": [
+      {
+        "name": "OBJECTID",
+        "type": "esriFieldTypeOID"
+      },
+      {
+        "name": "SHAPE",
+        "type": "esriFieldTypeGeometry"
+      },
+      {
+        "name": "ENABLED",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "ASSETID",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "ADD_DATE",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "MOD_DATE",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "LENGTH",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "PLAN_ID",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "PLAN_NO",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SHEET_NO",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "OWNER",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "WIDTH",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "F_STATION",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "T_STATION",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "CROSS_SECTION_SHAPE",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "MATERIAL",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "SLOPE",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "SLOPE_CALC",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "Q10",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "Q50",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "Q_DESIGN",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "ACQUIRE",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "PHYSICAL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "CAPACITY",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "OVERALL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "LIFE",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "COST",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "ASBDATE",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "ASBFLAG",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "UPDATED_BY",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "INSTALL_DATE",
+        "type": "esriFieldTypeDate"
+      },
+      {
+        "name": "NAME",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "UP_ELEV",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "DN_ELEV",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "TO_DIR",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "N_COEF",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "ADMINISTRATIVEAREA",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "OPERATIONALAREA",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "LIFECYCLESTATUS",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "WATERTYPE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "UP_COVER",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "DN_COVER",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "BEDDING",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "RW_WIDTH",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "SUBTYPE",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "SD_TYPE",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "PLAN_NO2",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PLAN_NO3",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "MAINTAINED_BY",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "DIAMETER_HEIGHT",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "REC_ID",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "OBJ_ID",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "TO_CENT",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "TO_CURB",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "RD_SLOPE",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "STREET_WIDTH",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "CURB_HEIGHT",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "FLOW_ACCUMULATION",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "DIAMETER",
+        "type": "esriFieldTypeInteger"
+      },
+      {
+        "name": "SD_SLOPE",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "Z_VALUE",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "TYPE",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "LAYER",
+        "type": "esriFieldTypeSmallInteger"
+      },
+      {
+        "name": "SHAPE_Length",
+        "type": "esriFieldTypeDouble"
+      },
+      {
+        "name": "TOOLTIP",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "NLA_URL",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "SUBTYPE_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "OWNER_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "MATERIAL_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "DESCRIPTION",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "PIPESHAPE_DESC",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "DUMMY_FIELD_1",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "DUMMY_FIELD_2",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "DUMMY_FIELD_3",
+        "type": "esriFieldTypeString"
+      },
+      {
+        "name": "COMMENTS",
+        "type": "esriFieldTypeString"
+      }
+    ],
+    "geometry_type": "esriGeometryPolyline",
+    "has_attachments": false,
+    "count": {
+      "count": 14045
+    },
+    "sample_count": 2,
+    "sample_attributes": [
+      {
+        "OBJECTID": 34,
+        "ENABLED": 1,
+        "ASSETID": 99295,
+        "ADD_DATE": null,
+        "MOD_DATE": null,
+        "LENGTH": 19.75406659,
+        "PLAN_ID": 533150144,
+        "PLAN_NO": "P-7784",
+        "SHEET_NO": 9,
+        "OWNER": 1,
+        "WIDTH": 48,
+        "F_STATION": 0,
+        "T_STATION": 0,
+        "CROSS_SECTION_SHAPE": 6,
+        "MATERIAL": 3,
+        "SLOPE": 0.014400000000000001,
+        "SLOPE_CALC": 0,
+        "Q10": 0,
+        "Q50": 0,
+        "Q_DESIGN": 0,
+        "ACQUIRE": null,
+        "PHYSICAL": " ",
+        "CAPACITY": " ",
+        "OVERALL": " ",
+        "LIFE": 0,
+        "COST": 0,
+        "ASBDATE": -963619200000,
+        "ASBFLAG": 0,
+        "UPDATED_BY": " ",
+        "INSTALL_DATE": null,
+        "NAME": null,
+        "UP_ELEV": null,
+        "DN_ELEV": null,
+        "TO_DIR": null,
+        "N_COEF": null,
+        "ADMINISTRATIVEAREA": null,
+        "OPERATIONALAREA": null,
+        "LIFECYCLESTATUS": null,
+        "WATERTYPE": null,
+        "UP_COVER": null,
+        "DN_COVER": null,
+        "BEDDING": null,
+        "RW_WIDTH": null,
+        "SUBTYPE": 1,
+        "SD_TYPE": 10,
+        "PLAN_NO2": null,
+        "PLAN_NO3": null,
+        "MAINTAINED_BY": null,
+        "DIAMETER_HEIGHT": 6,
+        "REC_ID": null,
+        "OBJ_ID": null,
+        "TO_CENT": null,
+        "TO_CURB": null,
+        "RD_SLOPE": null,
+        "STREET_WIDTH": null,
+        "CURB_HEIGHT": null,
+        "FLOW_ACCUMULATION": null,
+        "DIAMETER": null,
+        "SD_SLOPE": null,
+        "Z_VALUE": null,
+        "TYPE": null,
+        "LAYER": 6,
+        "SHAPE_Length": 7.285293388007631,
+        "TOOLTIP": "P-7784",
+        "NLA_URL": "navigatela/reports/conduit1.cfm?PK=99295",
+        "SUBTYPE_DESC": "Open",
+        "OWNER_DESC": "City of Los Angeles",
+        "MATERIAL_DESC": "Reinforced Concrete Box (R.C.B.)",
+        "DESCRIPTION": "Culvert",
+        "PIPESHAPE_DESC": "Semi-Elliptical",
+        "DUMMY_FIELD_1": null,
+        "DUMMY_FIELD_2": null,
+        "DUMMY_FIELD_3": null,
+        "COMMENTS": null
+      },
+      {
+        "OBJECTID": 35,
+        "ENABLED": 1,
+        "ASSETID": 99296,
+        "ADD_DATE": null,
+        "MOD_DATE": 1145577600000,
+        "LENGTH": 35.63475191,
+        "PLAN_ID": 533150254,
+        "PLAN_NO": "P-7784",
+        "SHEET_NO": 9,
+        "OWNER": 1,
+        "WIDTH": 48,
+        "F_STATION": 0,
+        "T_STATION": 0,
+        "CROSS_SECTION_SHAPE": 6,
+        "MATERIAL": 3,
+        "SLOPE": 0.014400000000000001,
+        "SLOPE_CALC": 0,
+        "Q10": 0,
+        "Q50": 0,
+        "Q_DESIGN": 0,
+        "ACQUIRE": null,
+        "PHYSICAL": " ",
+        "CAPACITY": " ",
+        "OVERALL": " ",
+        "LIFE": 0,
+        "COST": 0,
+        "ASBDATE": -963619200000,
+        "ASBFLAG": 0,
+        "UPDATED_BY": " ",
+        "INSTALL_DATE": null,
+        "NAME": null,
+        "UP_ELEV": null,
+        "DN_ELEV": null,
+        "TO_DIR": null,
+        "N_COEF": null,
+        "ADMINISTRATIVEAREA": null,
+        "OPERATIONALAREA": null,
+        "LIFECYCLESTATUS": null,
+        "WATERTYPE": null,
+        "UP_COVER": null,
+        "DN_COVER": null,
+        "BEDDING": null,
+        "RW_WIDTH": null,
+        "SUBTYPE": 1,
+        "SD_TYPE": 10,
+        "PLAN_NO2": null,
+        "PLAN_NO3": null,
+        "MAINTAINED_BY": null,
+        "DIAMETER_HEIGHT": 6,
+        "REC_ID": null,
+        "OBJ_ID": null,
+        "TO_CENT": null,
+        "TO_CURB": null,
+        "RD_SLOPE": null,
+        "STREET_WIDTH": null,
+        "CURB_HEIGHT": null,
+        "FLOW_ACCUMULATION": null,
+        "DIAMETER": null,
+        "SD_SLOPE": null,
+        "Z_VALUE": null,
+        "TYPE": null,
+        "LAYER": 6,
+        "SHAPE_Length": 13.104599959806437,
+        "TOOLTIP": "P-7784",
+        "NLA_URL": "navigatela/reports/conduit1.cfm?PK=99296",
+        "SUBTYPE_DESC": "Open",
+        "OWNER_DESC": "City of Los Angeles",
+        "MATERIAL_DESC": "Reinforced Concrete Box (R.C.B.)",
+        "DESCRIPTION": "Culvert",
+        "PIPESHAPE_DESC": "Semi-Elliptical",
+        "DUMMY_FIELD_1": null,
+        "DUMMY_FIELD_2": null,
+        "DUMMY_FIELD_3": null,
+        "COMMENTS": null
+      }
+    ],
+    "status": "verified"
+  }
+]

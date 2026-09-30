@@ -1,99 +1,56 @@
-# OpenPali · the map
+# OpenPali evidence workspace
 
-The public interface for exploring Palisades recovery evidence: a searchable
-2D map, property timelines, source context, and optional 3D. Built with React,
-TypeScript, Vite, MapLibre GL, and a WebGL2 renderer.
+React + TypeScript + Vite + Tailwind 4 + official coss components + MapLibre.
 
-## Start here
-
-Use Node.js 24 to match CI. From this directory:
+From the repository root:
 
 ```sh
-npm ci
-npm run dev
+npm --prefix web ci --cache .npm-cache
+make evidence-build
+make evidence-api  # terminal 1, localhost:8000
+make evidence-web  # terminal 2, localhost:5173
 ```
 
-Open the URL Vite prints (normally `http://localhost:5173`). The repository
-includes a static data bundle under `public/data/`, so you can work on the
-map without starting the backend. This is a saved fallback, not a live feed.
-External basemap tiles still need network access.
+The source acquisition cache must exist before `evidence-build`; build errors
+identify missing or altered inputs. It never silently substitutes fixtures.
+The UI pins a portable evidence release for its lifetime. Reload to adopt a
+new release. Production civic releases are a separate publication authority.
 
-The development server proxies `/v1` and `/health` to the API at
-`http://localhost:58000`. To use live releases, correction submission,
-forecasts, source status, and release-selected post-fire spatial assets,
-start the [local platform](../infra/README.md). Without it, the map displays
-the bundled fallback and API-dependent features remain unavailable.
+- Explore: search all records, filter the map, inspect a property.
+- Evidence: public cleanup packets, agency status, assessment and permit tables.
+- Market: sourced listing samples, recorded transfers and neighborhood exposure.
+- Site: dated point-cloud QA, measurements, downloads and sampled sewer records.
+- People: local project-role drafts, explicitly unverified; no performance ranking.
+- Collect: queue missing evidence against alternate sources.
+- Coverage: source counts, limitations and a full versioned JSON export.
 
-## Routes and code
+Draft writes require `OPENPALI_LOCAL_WORKSPACE=1`. Bind this mode to loopback;
+public authentication, owner verification and abuse controls are not shipped.
+Without that setting, the API is read-only. Operational drafts are stored in
+`data/out/workspace.sqlite` and never mutate an evidence release.
 
-| Route or directory | Purpose |
-| --- | --- |
-| `/map` | Main map; `/` redirects here |
-| `/property/:apn` | Shareable property selection using a 10-digit APN |
-| `/methods` | What the evidence, dates, statistics, and imagery mean |
-| `/status` | Source and release status |
-| `src/components/MapView.tsx` | MapLibre map and optional 3D loading |
-| `src/components/spatial/` | Property card, forecasts, corrections, rendering, and tile handling |
-| `src/lib/` | API-to-view mapping, coverage, formatting, and spatial source discovery |
-| `src/api/generated/` | Generated API client; regenerate instead of hand-editing |
-| `e2e/` | Playwright checks against the running platform |
+Component provenance and license scope: [COSS-SOURCE.md](COSS-SOURCE.md).
+Basemap: OpenStreetMap; parcel polygons are the acquired County geometry.
+The basemap is contextual and is never used as dated construction evidence.
 
-The UI starts in 2D. The 3D renderer loads on request and requires WebGL2.
-Post-fire spatial URLs are selected from a release manifest. Historical
-imagery and models must retain their dates and rights labels.
-
-`App.tsx` loads bundled geometry and details, then overlays API release
-metadata and counts when available. Preserve the distinction between the
-saved fallback and API data when changing this path.
-
-## Everyday checks
+## Checks
 
 ```sh
-npm test
-npm run lint
-npm run build
+npm --prefix web test -- --run
+npm --prefix web run lint
+npm --prefix web run build
+sh scripts/check-fast
 ```
-
-The build runs TypeScript checking before Vite. `npm run preview` serves the
-production build for a local frontend check; Vite's development API proxy
-does not apply to that preview server.
-
-The repository-wide `../scripts/check-fast` runs the Python and web unit
-suites, lint, type checks, and API drift checks. Playwright runs separately
-against an initialized platform:
-
-```sh
-npx playwright test
-```
-
-Install the browser dependencies for your environment first, or use the
-`e2e-browser` Compose job documented by the platform configuration.
-`playwright.config.ts` defaults to `http://localhost:58080`; set
-`E2E_BASE_URL` to use another local instance. Headless 3D checks use software
-rendering, so their timings are not hardware GPU benchmarks.
 
 ## API contract
 
-FastAPI owns the schema. After changing the API, run these commands from
-the repository root with the Python environment and web dependencies installed:
+FastAPI owns `contracts/openapi.json`. After an API change, export it from the
+repository root with `pipeline/.venv/bin/python -m openpali.api.app export-openapi`
+and update `web/src/lib/api.ts` as needed. The fast gate checks schema drift.
+Application browser and mobile acceptance coverage remains a draft promotion gate.
 
-```sh
-pipeline/.venv/bin/openpali export-openapi > contracts/openapi.json
-cd web
-npx openapi-ts
-npm run build
-```
+## Project identity
 
-The generator reads `openapi-ts.config.ts` and writes `src/api/generated/`.
-Commit the contract and client with the API change. `scripts/check-fast`
-compares the exported schema with the committed contract.
-
-## Working on the interface
-
-Use evidence labels that say exactly what a source documents. Missing public
-evidence is an explicit state, and scheduled inspections are not inspection
-outcomes. Keep source links, release identity, fallback states, and property
-correction paths visible.
-
-Check keyboard access, narrow layouts, and reduced-motion behavior for UI
-changes. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the shared workflow.
+The current [Signal brand kit](../Docs/Brand/README.md) supplies the OpenPali
+mark, favicon and local DM Sans font. See the
+[contributor guide](../CONTRIBUTING.md) for the shared workflow.

@@ -247,3 +247,28 @@ class TestPublicationAuthority:
         assert result.status == "published"
         current = session.get(CurrentRelease, 1)
         assert current.current_release_id == result.release_id
+
+class TestExactRunMembership:
+    def test_selected_run_excludes_later_rows_and_reobserves_unchanged(self, session):
+        from openpali.adapters.base import SourceRecord
+        from openpali.ingestion.load import load_county_records
+        from openpali.ingestion.snapshot import build_snapshot
+        from openpali.storage.models import SnapshotPropertyState, SnapshotMember, ParcelVersion
+        from sqlalchemy import select
+        a,b=_unique_apn(91),_unique_apn(92)
+        first=_fake_run(session,f'{RUN_TAG}-membership-first')
+        load_county_records(session,[SourceRecord(a,_county_payload(a),0)],first.run_id,observed_at=OBSERVED_T0)
+        second=_fake_run(session,f'{RUN_TAG}-membership-second',retrieved_at=OBSERVED_T1)
+        load_county_records(session,[SourceRecord(a,_county_payload(a),0),SourceRecord(b,_county_payload(b),0)],second.run_id,observed_at=OBSERVED_T1)
+        # Cutoff is AFTER both runs. Membership, not time/source name, must exclude b.
+        old=build_snapshot(session,[first.run_id],OBSERVED_T1)
+        old_apns=set(session.execute(select(SnapshotPropertyState.apn).where(SnapshotPropertyState.snapshot_id==old.snapshot_id)).scalars())
+        new=build_snapshot(session,[second.run_id],OBSERVED_T1)
+        new_apns=set(session.execute(select(SnapshotPropertyState.apn).where(SnapshotPropertyState.snapshot_id==new.snapshot_id)).scalars())
+        assert old_apns=={a}
+        assert new_apns=={a,b}
+        # A later row closing the old parcel must not remove it from an exact replay.
+        third=_fake_run(session,f'{RUN_TAG}-membership-third',retrieved_at=OBSERVED_T1+timedelta(days=1))
+        load_county_records(session,[SourceRecord(a,_county_payload(a,SITUSFULLADDRESS='Changed address'),0)],third.run_id,observed_at=OBSERVED_T1+timedelta(days=1))
+        replay=build_snapshot(session,[first.run_id],OBSERVED_T1+timedelta(days=2))
+        assert replay.properties==1

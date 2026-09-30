@@ -1,0 +1,838 @@
+{
+  "scope": "synthetic counterexamples of existing evaluation helpers; not model performance on civic data",
+  "final_holdout_origin_window_days": 60,
+  "target_horizon_days": 180,
+  "cases": [
+    {
+      "case": "all_early_censored",
+      "rows": [
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 30,
+          "event_issued": 0
+        }
+      ],
+      "predicted_risk_at_180": 0.99,
+      "brier": 0.0,
+      "evaluable_rows": 0,
+      "floor_hits": 0,
+      "calibration_bins": []
+    },
+    {
+      "case": "early_events_and_censoring",
+      "rows": [
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 10,
+          "event_issued": 1
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        },
+        {
+          "duration_days": 40,
+          "event_issued": 0
+        }
+      ],
+      "predicted_risk_at_180": 1.0,
+      "brier": 0.0,
+      "evaluable_rows": 30,
+      "floor_hits": 0,
+      "calibration_bins": [
+        {
+          "n": 15,
+          "mean_predicted": 1.0,
+          "observed_rate": 1.0
+        },
+        {
+          "n": 15,
+          "mean_predicted": 1.0,
+          "observed_rate": 1.0
+        }
+      ]
+    }
+  ]
+}

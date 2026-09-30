@@ -1,45 +1,41 @@
 {
-  "name": "web",
+  "name": "openpali-web",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.0.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "tailwindcss": "^4.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "maplibre-gl": "^5.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.0.0",
+    "lucide-react": "^0.468.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "vite": "^7.0.0",
+    "typescript": "~5.9.0",
+    "vitest": "^3.0.0"
+  },
   "description": "OpenPali's map interface for analyzing the Palisades rebuild.",
   "homepage": "https://andrewwilliamross.github.io/openpali/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Andrewwilliamross/openpali.git",
     "directory": "web"
-  },
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "maplibre-gl": "^5.24.0",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-router-dom": "^7.18.1"
-  },
-  "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
-    "@eslint/js": "^10.0.1",
-    "@hey-api/openapi-ts": "^0.99.0",
-    "@playwright/test": "^1.61.1",
-    "@types/geojson": "^7946.0.16",
-    "@types/node": "^24.12.3",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^10.3.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.6.0",
-    "typescript": "~6.0.2",
-    "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12",
-    "vitest": "^4.1.8"
   }
 }

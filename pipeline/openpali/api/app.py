@@ -22,7 +22,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .problem import http_exception_handler, validation_exception_handler
-from .routers import health, metrics, releases, status
+from .routers import evidence, health, metrics, releases, status
 
 API_VERSION = "1.0.0"
 
@@ -61,6 +61,7 @@ def create_app() -> FastAPI:
         return response
 
     app.include_router(health.router)
+    app.include_router(evidence.router)
     app.include_router(releases.router)
     app.include_router(metrics.router)
     app.include_router(status.router)

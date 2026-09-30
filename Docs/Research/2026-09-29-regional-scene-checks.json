@@ -1,0 +1,95 @@
+{
+  "nodes": 78,
+  "structures": 10368,
+  "triangles": 1016500,
+  "geometry_bytes": 31860624,
+  "damage_counts": {
+    "": 531,
+    "No Damage": 2998,
+    "Destroyed (>50%)": 6051,
+    "Affected (1-9%)": 594,
+    "Major (26-50%)": 60,
+    "Minor (10-25%)": 134
+  },
+  "binary_identity_checks": "passed",
+  "source_hash_checks": "passed",
+  "terrain_sample": {
+    "lon": -118.5273689031601,
+    "lat": 34.04241412567712,
+    "source_height_m": 93.46636199951172,
+    "encoded_height_m": 93.46484375,
+    "difference_m": 0.00151824951171875
+  },
+  "terrain_source_rasters": [
+    {
+      "name": "Prelim_11SLT003585037672.tif",
+      "url": "https://prd-tnm.s3.amazonaws.com/CA_FireImpactZone_2025_PRELIMINARY/Palisades/bare_earth/be_rasters/Prelim_11SLT003585037672.tif",
+      "bytes": 9443436,
+      "sha256": "a78b70e6c1337f6b549d303c223f317b8c7b330f53323b104d7ad4fb67914e07"
+    },
+    {
+      "name": "Prelim_11SLT003592037672.tif",
+      "url": "https://prd-tnm.s3.amazonaws.com/CA_FireImpactZone_2025_PRELIMINARY/Palisades/bare_earth/be_rasters/Prelim_11SLT003592037672.tif",
+      "bytes": 9443436,
+      "sha256": "c6b214fcd8bc559eea00f65015abad743e24fb1b0a1d93fd0ff8a2be23045850"
+    },
+    {
+      "name": "Prelim_11SLT003585037680.tif",
+      "url": "https://prd-tnm.s3.amazonaws.com/CA_FireImpactZone_2025_PRELIMINARY/Palisades/bare_earth/be_rasters/Prelim_11SLT003585037680.tif",
+      "bytes": 9443436,
+      "sha256": "974728fe9f3cfff9e88603e6bf23cb300d1af0477317ced2f35eccefac258a28"
+    },
+    {
+      "name": "Prelim_11SLT003592037680.tif",
+      "url": "https://prd-tnm.s3.amazonaws.com/CA_FireImpactZone_2025_PRELIMINARY/Palisades/bare_earth/be_rasters/Prelim_11SLT003592037680.tif",
+      "bytes": 9443436,
+      "sha256": "f6bbb88ba09ad599bbeea3dfc45b7ea702dbf955a863b3a0f20bd1728d2d8893"
+    }
+  ],
+  "imagery_metadata": {
+    "sources": [
+      {
+        "id": "july2026",
+        "title": "Eaton / Palisades Post-Fire Imagery July '26",
+        "capture": "Capture dates: 07/09/2026 - 07/16/2026, Copyright Pictometry 2026",
+        "layer": "PICT-LARIAC8--pGc1fsJ6vr",
+        "metadata_url": "https://rpgis.isd.lacounty.gov/Geocortex/Essentials/REST/sites/GISNET_Public/map/mapservices/81?f=json",
+        "metadata_sha256": "76de6ecd18f682119cb845569e22b0b67248b3fc9f9df3657b4ee8001e32dc4c"
+      },
+      {
+        "id": "october2025",
+        "title": "Eaton / Palisades Post-Fire Imagery Oct '25",
+        "capture": "Capture dates: 10/27/2025 - 10/28/2025, Copyright Pictometry 2025",
+        "layer": "PICT-LARIAC7--YRwyJETYPH",
+        "metadata_url": "https://rpgis.isd.lacounty.gov/Geocortex/Essentials/REST/sites/GISNET_Public/map/mapservices/78?f=json",
+        "metadata_sha256": "7a6d2256d78d17cde6cd1b51f322f5a0eb3109c36cb79e3eadffa3d0b262cd6b"
+      },
+      {
+        "id": "january2025",
+        "title": "Palisades Post-Fire Imagery Jan '25",
+        "capture": "Capture date: 01/18/2025, Copyright Pictometry 2025",
+        "layer": "PICT-LARIAC7--TiSy8NkPsY",
+        "metadata_url": "https://rpgis.isd.lacounty.gov/Geocortex/Essentials/REST/sites/GISNET_Public/map/mapservices/74?f=json",
+        "metadata_sha256": "e6eed9448748d8b86eeccf0590986b97d0451d41dc41a843a68f8581954a86aa"
+      },
+      {
+        "id": "summer2024",
+        "title": "LAC Aerial Summer '24",
+        "capture": "Capture dates: 05/26/2024 - 07/03/2024, Copyright Pictometry 2024",
+        "layer": "PICT-LARIAC7--TTfEQPUUgh",
+        "metadata_url": "https://rpgis.isd.lacounty.gov/Geocortex/Essentials/REST/sites/GISNET_Public/map/mapservices/80?f=json",
+        "metadata_sha256": "19046c0cde67557a1ca87d3d8ee133b3e22bf4aaee3236da95044926aa2fcf75"
+      }
+    ],
+    "bounds": [
+      -118.585,
+      34.024,
+      -118.493,
+      34.103
+    ],
+    "parcel_release": "evidence-ae1dee2a6a226cbb9fd92626",
+    "parcel_count": 9287
+  },
+  "accuracy_against_independent_controls_measured": false,
+  "regional_frame_performance_measured": false
+}

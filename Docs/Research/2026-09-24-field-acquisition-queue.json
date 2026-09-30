@@ -1,0 +1,306 @@
+{
+  "scope": "field acquisition candidates; not a finding of uncleared property and not an optimized driving route",
+  "candidate_count": 91,
+  "sample": [
+    {
+      "ain": "4410015032",
+      "address": "400 CHAUTAUQUA BLVD LOS ANGELES CA 90272",
+      "longitude": -118.51932648,
+      "latitude": 34.03408997,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4415021030",
+      "address": "17015 PACIFIC COAST HWY #24 LOS ANGELES CA 90272",
+      "longitude": -118.54926143,
+      "latitude": 34.04021423,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4416003020",
+      "address": "17311 W SUNSET BLVD LOS ANGELES CA 90272",
+      "longitude": -118.5542858,
+      "latitude": 34.0415945,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423024004",
+      "address": "850 CHAUTAUQUA BLVD LOS ANGELES CA 90272",
+      "longitude": -118.51695116,
+      "latitude": 34.04510271,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016059",
+      "address": "15330 ALBRIGHT ST NO 102 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016060",
+      "address": "15330 ALBRIGHT ST NO 103 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016061",
+      "address": "15330 ALBRIGHT ST NO 104 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016062",
+      "address": "15330 ALBRIGHT ST NO 105 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016063",
+      "address": "15330 ALBRIGHT ST NO 201 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016064",
+      "address": "15330 ALBRIGHT ST NO 202 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016065",
+      "address": "15330 ALBRIGHT ST NO 203 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016066",
+      "address": "15330 ALBRIGHT ST NO 204 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016067",
+      "address": "15330 ALBRIGHT ST NO 205 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016068",
+      "address": "15330 ALBRIGHT ST NO 301 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016069",
+      "address": "15330 ALBRIGHT ST NO 302 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016070",
+      "address": "15330 ALBRIGHT ST NO 303 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016071",
+      "address": "15330 ALBRIGHT ST NO 304 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016072",
+      "address": "15330 ALBRIGHT ST NO 305 LOS ANGELES CA 90272",
+      "longitude": -118.52570468,
+      "latitude": 34.04834526,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016028",
+      "address": "15340 ALBRIGHT ST NO 102 LOS ANGELES CA 90272",
+      "longitude": -118.52619206,
+      "latitude": 34.04848425,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    },
+    {
+      "ain": "4423016029",
+      "address": "15340 ALBRIGHT ST NO 103 LOS ANGELES CA 90272",
+      "longitude": -118.52619206,
+      "latitude": 34.04848425,
+      "reason": "No EPICLA completion evidence or FSO document in County snapshot; physical state unknown",
+      "capture": [
+        "whole lot from public frontage",
+        "foundation or framing visible",
+        "access grading and retained features"
+      ],
+      "capture_date_required": true,
+      "priority": "coverage gap, not evidence of delay",
+      "source_snapshot": "7febf35adbb31d1ad27ed79e833bf18fa56d25d47f04a4f5126ac0e778dc505a"
+    }
+  ]
+}

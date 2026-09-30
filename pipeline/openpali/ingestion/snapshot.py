@@ -41,16 +41,18 @@ from openpali.domain.temporal import (
 from openpali.identity.ids import snapshot_id_from_inputs
 from openpali.ingestion.load import insert_observations
 from openpali.storage.models import (
+    AcquisitionRecord,
     AcquisitionRun,
     CivicSnapshot,
     ObservationRevision,
     ParcelVersion,
+    PropertyIdentity,
     RecoveryObservationRow,
     SnapshotMember,
     SnapshotPropertyState,
 )
 
-SNAPSHOT_SCHEMA_VERSION = "civic-v1"
+SNAPSHOT_SCHEMA_VERSION = "civic-v2"
 
 
 def policy_versions() -> dict[str, str]:
@@ -133,19 +135,22 @@ def build_snapshot(
         session.add(snapshot)
         session.flush()
 
-    # Sources covered by the input runs bound the observation universe.
-    source_ids = set(
-        session.execute(
-            select(AcquisitionRun.source_id).where(
-                AcquisitionRun.run_id.in_(input_run_ids)
-            )
-        ).scalars()
+    # Exact run membership, not all historical rows from the same sources.
+    runs = list(session.execute(select(AcquisitionRun).where(
+        AcquisitionRun.run_id.in_(input_run_ids)
+    )).scalars())
+    if not input_run_ids or len(runs) != len(set(input_run_ids)):
+        raise ValueError("snapshot inputs must name existing acquisition runs")
+    if any(r.status != "succeeded" or (r.retrieved_at or r.requested_at) > cutoff for r in runs):
+        raise ValueError("snapshot inputs must have succeeded before cutoff")
+    record_ids = select(AcquisitionRecord.record_version_id).where(
+        AcquisitionRecord.acquisition_run_id.in_([r.id for r in runs])
     )
 
     observation_rows = list(
         session.execute(
             select(RecoveryObservationRow).where(
-                RecoveryObservationRow.source_id.in_(source_ids),
+                RecoveryObservationRow.record_version_id.in_(record_ids),
                 RecoveryObservationRow.observed_at <= cutoff,
             )
         ).scalars()
@@ -153,7 +158,7 @@ def build_snapshot(
     retracted_ids = set(
         session.execute(
             select(ObservationRevision.target_observation_id).where(
-                ObservationRevision.revision_type == "retraction",
+                ObservationRevision.revision_type.in_(["retraction", "correction", "supersession"]),
                 ObservationRevision.revised_at <= cutoff,
             )
         ).scalars()
@@ -192,20 +197,21 @@ def build_snapshot(
         session.execute(
             select(ParcelVersion).where(
                 ParcelVersion.observed_from <= cutoff,
+                ParcelVersion.record_version_id.in_(record_ids),
             )
         ).scalars()
     )
     latest_parcel: dict[str, ParcelVersion] = {}
     for parcel in parcel_rows:
-        if parcel.observed_to is not None and parcel.observed_to <= cutoff:
-            continue
         best = latest_parcel.get(parcel.apn)
         if best is None or parcel.observed_from > best.observed_from:
             latest_parcel[parcel.apn] = parcel
 
     members: list[dict] = []
     state_rows: list[dict] = []
+    identities = {p.id: p for p in session.execute(select(PropertyIdentity)).scalars()}
     for apn, parcel in latest_parcel.items():
+        identity = identities.get(parcel.property_identity_id)
         parcel_pairs = by_apn.get(apn, [])
         observations = [obs for _, obs in parcel_pairs]
         state = project_lanes(observations)
@@ -230,6 +236,11 @@ def build_snapshot(
                 "address": parcel.situs_address,
                 "neighborhood": parcel.neighborhood,
                 "projection_policy_version": PROJECTION_POLICY_VERSION,
+                "frozen_identity": {
+                    "seed_policy_version": identity.seed_policy_version if identity else None,
+                    "confidence": identity.confidence if identity else None,
+                    "state": identity.state if identity else None,
+                },
                 "lane_signals": signals,
                 "milestones": milestones,
                 "observation_count": len(observations),

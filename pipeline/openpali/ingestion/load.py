@@ -34,6 +34,7 @@ from openpali.identity.ids import (
 )
 from openpali.ingestion import normalize
 from openpali.storage.models import (
+    AcquisitionRecord,
     AcquisitionRun,
     ParcelVersion,
     PropertyIdentity,
@@ -150,6 +151,9 @@ def _upsert_record_version(
         .returning(SourceRecordVersion.record_version_id)
     )
     inserted = session.execute(statement).scalars().all()
+    session.execute(pg_insert(AcquisitionRecord).values(
+        acquisition_run_id=run_row.id, record_version_id=version_id,
+    ).on_conflict_do_nothing())
     return version_id, bool(inserted)
 
 
@@ -228,8 +232,12 @@ def load_county_records(
             .order_by(ParcelVersion.observed_from.desc())
             .limit(1)
         ).scalar_one_or_none()
-        needs_new_version = current is None or current.record_version_id != version_id
-        if needs_new_version and current is not None:
+        prior = session.execute(select(ParcelVersion).where(
+            ParcelVersion.apn == apn, ParcelVersion.record_version_id == version_id,
+        )).scalar_one_or_none()
+        needs_new_version = prior is None
+        advances_current = current is None or observed_at >= current.observed_from
+        if needs_new_version and current is not None and advances_current:
             current.observed_to = observed_at
             result.parcels_superseded += 1
         if needs_new_version:
@@ -261,6 +269,7 @@ def load_county_records(
                     geometry=_geometry_value(payload),
                     record_version_id=version_id,
                     observed_from=observed_at,
+                    observed_to=current.observed_from if current and not advances_current else None,
                 )
             )
             result.parcels_new += 1

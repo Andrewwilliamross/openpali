@@ -1,0 +1,126 @@
+{
+  "beforeRepresentation": {
+    "ready": true,
+    "date": "summer2024",
+    "pitch": 50,
+    "zoom": 18,
+    "center": [
+      -118.52857270771719,
+      34.04257990715173
+    ],
+    "moves": 2,
+    "errors": [],
+    "rasterErrors": [],
+    "buildings": {
+      "policy": "all",
+      "date": "summer2024",
+      "structures": 10368,
+      "sourceNodes": 78,
+      "loadedNodes": 13,
+      "pendingNodes": 0,
+      "pendingTextures": 0,
+      "geometryUploads": 39,
+      "geometryBytes": 10091412,
+      "stateUploads": 3,
+      "stateBytes": 24577,
+      "atlasUploads": 7,
+      "selectedIds": [
+        8002
+      ],
+      "selectedModes": [
+        1
+      ],
+      "errors": []
+    },
+    "parcels": 9287,
+    "terrain": {
+      "source": "terrain-dem",
+      "exaggeration": 1
+    }
+  },
+  "afterOutline": {
+    "ready": true,
+    "date": "summer2024",
+    "pitch": 50,
+    "zoom": 18,
+    "center": [
+      -118.52857270771719,
+      34.04257990715173
+    ],
+    "moves": 2,
+    "errors": [],
+    "rasterErrors": [],
+    "buildings": {
+      "policy": "all",
+      "date": "summer2024",
+      "structures": 10368,
+      "sourceNodes": 78,
+      "loadedNodes": 13,
+      "pendingNodes": 0,
+      "pendingTextures": 0,
+      "geometryUploads": 39,
+      "geometryBytes": 10091412,
+      "stateUploads": 4,
+      "stateBytes": 24578,
+      "atlasUploads": 7,
+      "selectedIds": [
+        8002
+      ],
+      "selectedModes": [
+        2
+      ],
+      "errors": []
+    },
+    "parcels": 9287,
+    "terrain": {
+      "source": "terrain-dem",
+      "exaggeration": 1
+    }
+  },
+  "afterHide": {
+    "ready": true,
+    "date": "summer2024",
+    "pitch": 50,
+    "zoom": 18,
+    "center": [
+      -118.52857270771719,
+      34.04257990715173
+    ],
+    "moves": 2,
+    "errors": [],
+    "rasterErrors": [],
+    "buildings": {
+      "policy": "all",
+      "date": "summer2024",
+      "structures": 10368,
+      "sourceNodes": 78,
+      "loadedNodes": 13,
+      "pendingNodes": 0,
+      "pendingTextures": 0,
+      "geometryUploads": 39,
+      "geometryBytes": 10091412,
+      "stateUploads": 5,
+      "stateBytes": 24579,
+      "atlasUploads": 7,
+      "selectedIds": [
+        8002
+      ],
+      "selectedModes": [
+        0
+      ],
+      "errors": []
+    },
+    "parcels": 9287,
+    "terrain": {
+      "source": "terrain-dem",
+      "exaggeration": 1
+    }
+  },
+  "sourceParcel": "4412013017",
+  "datesVerified": [
+    "summer2024",
+    "january2025",
+    "october2025",
+    "july2026"
+  ]
+}

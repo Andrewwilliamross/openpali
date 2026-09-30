@@ -35,7 +35,7 @@ from .observations import (
 
 #: Version stamp carried by every projection output. Bump on any change to
 #: the rules in this module and record the change in methodology docs.
-PROJECTION_POLICY_VERSION = "lanes-v1"
+PROJECTION_POLICY_VERSION = "lanes-v2"
 
 
 class LaneSignal(str, Enum):
@@ -74,7 +74,7 @@ LANE_IN_PROGRESS_EVENTS: dict[MilestoneLane, tuple[str, ...]] = {
         "application_pending_fees",
     ),
     MilestoneLane.PERMITTING: (),
-    MilestoneLane.CONSTRUCTION: (),
+    MilestoneLane.CONSTRUCTION: ("construction_in_progress",),
     MilestoneLane.OCCUPANCY: (),
 }
 

@@ -1,0 +1,68 @@
+{
+  "observed_date_local": "2026-09-24",
+  "archived_at": "2026-09-25T03:48:11.902591+00:00",
+  "scope": "read-only public-page benchmark; no scrape-trigger POST; no redistribution license established",
+  "sources": [
+    {
+      "url": "https://map.palipost.com/api/parcels",
+      "sha256": "e131114075d83c3a4aaf1b1f69999a66e31a79d25f39941ac14f0e041873e6f5",
+      "bytes": 7170541,
+      "path": "data/raw/palipost-benchmark/e131114075d83c3a4aaf1b1f69999a66e31a79d25f39941ac14f0e041873e6f5"
+    },
+    {
+      "url": "https://map.palipost.com/api/analysis",
+      "sha256": "5703d00a8a016ae7f1fc9e8d9936709797209040413e08237d86ed8d98e36abf",
+      "bytes": 2935,
+      "path": "data/raw/palipost-benchmark/5703d00a8a016ae7f1fc9e8d9936709797209040413e08237d86ed8d98e36abf"
+    },
+    {
+      "url": "https://map.palipost.com/api/stats",
+      "sha256": "79a3f94f751ad0271eb7a70de67f4023cc2ad02b8389ee7b972732db9521963b",
+      "bytes": 14686,
+      "path": "data/raw/palipost-benchmark/79a3f94f751ad0271eb7a70de67f4023cc2ad02b8389ee7b972732db9521963b"
+    },
+    {
+      "url": "https://map.palipost.com/static/data/parcels.geojson",
+      "sha256": "2761b5486a04544b04f626d7ff95355633c3f30fb778e838199a7593699b7959",
+      "bytes": 3556527,
+      "path": "data/raw/palipost-benchmark/2761b5486a04544b04f626d7ff95355633c3f30fb778e838199a7593699b7959"
+    }
+  ],
+  "parcel_records": 1968,
+  "parcel_fields": {
+    "primaryPermitNbr": 1968,
+    "primaryKind": 1968,
+    "structureKind": 1968,
+    "primaryUse": 1968,
+    "status": 1968,
+    "statusAt": 1968,
+    "isRebuild": 1968,
+    "address": 1968,
+    "history": 1968,
+    "scrapedAt": 1968,
+    "createdAt": 1968,
+    "refreshedAt": 1968,
+    "estimate": 1968,
+    "adu": 213
+  },
+  "geometry_features": 5622,
+  "record_statuses": {
+    "Issued": 1302,
+    "Applicant returned to address corrections": 162,
+    "Plan Check Approved": 150,
+    "Quality Review Completed": 155,
+    "Permit Finaled": 55,
+    "Building Plans Picked Up": 77,
+    "Corrections Issued": 7,
+    "Ready to Issue": 11,
+    "Application Pending": 12,
+    "Submitted": 8,
+    "No Progress": 3,
+    "Assigned to Plan Check Engineer": 16,
+    "Permit Expired": 1,
+    "Re-Activate Permit": 1,
+    "CofO Issued": 4,
+    "PC Approved": 3,
+    "Refund in Progress": 1
+  }
+}

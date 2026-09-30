@@ -1,0 +1,10 @@
+{
+ "schema_version":"listing-observation-v1",
+ "capture_method":"structured transcription of browser-verified research; original page HTML not archived",
+ "research_record":"Docs/Research/2026-09-24-MARKET-SPIKE.md",
+ "observed_date":"2026-09-25",
+ "observations":[
+  {"apn":"4412006025","source":"redfin","source_url":"https://www.redfin.com/CA/Pacific-Palisades/758-Radcliffe-Ave-90272/home/6841381","listing_id":"6841381","address":"758 Radcliffe Avenue","asking_price":2095000,"status":"pending","property_type":"vacant_lot","lot_sqft":7508,"events":[{"date":"2026-09-09","kind":"listed","asking_price":2095000},{"date":"2026-09-14","kind":"contingent"},{"date":"2026-09-17","kind":"pending"}],"limitation":"Asking price is not the accepted offer or closing price. Status is as observed, not a live feed."},
+  {"apn":"4416020028","source":"zillow","source_url":"https://www.zillow.com/homedetails/17713-Posetano-Rd-Pacific-Palisades-CA-90272/95670767_zpid/","listing_id":"95670767","address":"17713 Posetano Road","asking_price":3995000,"status":"for_sale","property_type":"house","lot_sqft":3685,"building_sqft":2622,"events":[],"limitation":"Live price/history sections unavailable. Indexed history is excluded here. Listing does not establish absence of fire damage."}
+ ]
+}

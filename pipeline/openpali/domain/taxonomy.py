@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 #: Version stamp for observation derivation; bump when any mapping changes.
-TAXONOMY_VERSION = "taxonomy-v1"
+TAXONOMY_VERSION = "taxonomy-v2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +82,7 @@ class CountyProgressCategory(str, Enum):
     APPLICATION_RECEIVED = "application_received"
     PLANS_APPROVED = "plans_approved"
     PERMIT_ISSUED = "permit_issued"
+    CONSTRUCTION_IN_PROGRESS = "construction_in_progress"
     CONSTRUCTION_COMPLETED = "construction_completed"
     UNDOCUMENTED = "undocumented"
 
@@ -105,6 +106,17 @@ class Interpretation:
 # ---------------------------------------------------------------------------
 
 EVIDENCE: list[DomainEvidence] = [
+    DomainEvidence(
+        source_id="county_base",
+        field="REBUILD_PROGRESS",
+        verified_on="2026-09-24",
+        method="live layer metadata and groupBy counts under the destroyed Palisades filter",
+        reference=(
+            "Docs/Research/2026-09-24-source-probes.json: "
+            "'Rebuild In Construction' (82 rows); retain as coarse agency-reported "
+            "work underway, with no inspection outcome or occurrence date asserted"
+        ),
+    ),
     DomainEvidence(
         source_id="ladbs_inspections",
         field="INSP_STATUS",
@@ -212,11 +224,12 @@ ROE_STATUS_DOMAIN: dict[str, CleanupAssertion] = {
     "no roe": CleanupAssertion.NO_ROE,
 }
 
-#: County REBUILD_PROGRESS (full documented domain, 2026-07-11).
+#: County REBUILD_PROGRESS (expanded by the 2026-09-24 source probe).
 COUNTY_REBUILD_PROGRESS_DOMAIN: dict[str, CountyProgressCategory] = {
     "rebuild applications received": CountyProgressCategory.APPLICATION_RECEIVED,
     "building plans approved": CountyProgressCategory.PLANS_APPROVED,
     "building permits issued": CountyProgressCategory.PERMIT_ISSUED,
+    "rebuild in construction": CountyProgressCategory.CONSTRUCTION_IN_PROGRESS,
     "construction completed": CountyProgressCategory.CONSTRUCTION_COMPLETED,
 }
 

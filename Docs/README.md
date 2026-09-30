@@ -22,6 +22,15 @@ For implementation details, see the [source adapters](../pipeline/openpali/adapt
 [API contract](../contracts/). Source-code and data rights are described in the
 [licensing notice](../README.md#license-and-data-rights).
 
+## Current research and implementation
+
+- [September 2026 CTO audit](Research/2026-09-24-CTO-AUDIT.md)
+- [Verified source inventory](Research/2026-09-24-SOURCE-INVENTORY.md)
+- [Data expansion research](Research/2026-09-24-DATA-EXPANSION.md)
+- [Recovery implementation record](Plans/2026-09-24-IMPLEMENTATION.md)
+- [Systems design space](Research/2026-09-29-SYSTEMS-DESIGN-SPACE.md)
+- [Dated Palisades scene experiment](Research/2026-09-29-PALISADES-SCENE.md)
+
 ## Plans and research
 
 - [Plans](Plans/README.md) — implementation proposals, sequencing, dependencies,

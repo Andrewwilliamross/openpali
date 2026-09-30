@@ -123,7 +123,7 @@ def _ipcw_brier(rows: list[dict], horizon: int, survival_at) -> tuple[float | No
             n += 1
         # censored before horizon: contributes 0 (weight handled by IPCW)
     denominator = len(rows)
-    return (total / denominator if denominator else None), n, floor_hits
+    return (total / denominator if n else None), n, floor_hits
 
 
 def _calibration_bins(rows: list[dict], horizon: int, risk_at) -> list[dict]:

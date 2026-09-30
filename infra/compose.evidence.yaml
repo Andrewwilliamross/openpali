@@ -1,0 +1,8 @@
+# Optional read-only portable evidence surface on the existing API.
+# Build the release on the host first. Local draft writes stay disabled.
+services:
+  api:
+    environment:
+      OPENPALI_EVIDENCE_ROOT: /evidence
+    volumes:
+      - ../data/out/evidence:/evidence:ro

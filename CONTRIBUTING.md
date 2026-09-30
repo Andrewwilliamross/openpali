@@ -88,7 +88,7 @@ For web changes, also run `npm run build` from `web/`. Include a screenshot
 or short recording for visible changes, and check narrow screens, keyboard
 navigation, and reduced motion where relevant.
 
-When API schemas change, regenerate both the contract and the client using
+When API schemas change, update the contract and the typed evidence API helper using
 the commands in [web/README.md](web/README.md#api-contract). Include the
 generated changes in the same pull request.
 

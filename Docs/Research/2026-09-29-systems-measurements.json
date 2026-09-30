@@ -1,0 +1,193 @@
+{
+  "schema": "systems-characterization-v1",
+  "produced_at_utc": "2026-09-29T23:57:59.823080+00:00",
+  "repository_head": "e3201b9e1ee90072c96ae580d4cc7a42ab1182cb",
+  "working_tree": "modified; source hashes below identify the inspected implementations",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.11",
+    "numpy": "2.4.6",
+    "laspy": "2.7.0"
+  },
+  "source_hashes": {
+    "pipeline/core/spatial/splat_tiler.py": "85dcd93b7db80ee3ed63918880749f5f75c94216b991216b436772fc78c49b5b",
+    "pipeline/core/spatial/schema.py": "c7a04b696c6a4480c1c6a6acf95c7aa9cdd2eca47abda3f608212d1df8696fe0",
+    "pipeline/core/spatial/registration.py": "cf7f02cee8dc94321f02d86ceeeb33bbd4cc0e99e514c21e736eba7f1c64cc6f",
+    "pipeline/openpali/intelligence/visual.py": "f33515f0839158566f8190774d87e9da91322282ae1c493ff15e10047b1e28b0",
+    "pipeline/openpali/spatial/reconstruction.py": "18846fd5ae9a4c57fb88c597c64f18283455fdb7295be0d2c70789152becd42f",
+    "Docs/Research/experiments/spatial_summary_probe.py": "36f48fac3e980372dba227dba76525afd1126f66b9a6c60625bed5d7702282cf"
+  },
+  "real_lidar": {
+    "tile_header": {
+      "path": "data/raw/visual-baseline/sample-tile.laz",
+      "bytes": 83648649,
+      "sha256": "4f97f5cf24c25881657486597b49b12419b895b2079e6dbf7a04d031c1c5ae14",
+      "points": 20118164,
+      "point_format": 6,
+      "point_record_bytes": 30,
+      "embedded_crs": "COMPD_CS[\"NAD83(2011) / UTM zone 11N + NAVD88 height - Geoid18 (m)\",PROJCS[\"NAD83(2011) / UTM zone 11N\",GEOGCS[\"NAD83(2011)\",DATUM[\"NAD83 (National Spatial Reference System 2011)\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],AUTHORITY[\"EPSG\",\"1116\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"6318\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",-117],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"meter\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"X\",EAST],AXIS[\"Y\",NORTH],AUTHORITY[\"EPSG\",\"6340\"]],VERT_CS[\"NAVD88 height - Geoid18 (m)\",VERT_DATUM[\"North American Vertical Datum 1988\",2005,AUTHORITY[\"EPSG\",\"5103\"]],UNIT[\"meter\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Up\",UP],AUTHORITY[\"EPSG\",\"5703\"]]]",
+      "vlrs": [
+        {
+          "user_id": "laszip encoded",
+          "record_id": 22204
+        }
+      ],
+      "evlrs": [
+        {
+          "user_id": "LASF_Projection",
+          "record_id": 2112
+        }
+      ],
+      "copc_info_vlr_present": false
+    },
+    "crop_header": {
+      "path": "data/out/visual-baseline/4412013017-20250121-context.laz",
+      "bytes": 243986,
+      "sha256": "7b942bf6073704c79986d72a7247d25431fa503912a6aa2e8323bd4eef87e407",
+      "points": 52808,
+      "point_format": 6,
+      "point_record_bytes": 30,
+      "embedded_crs": "None",
+      "vlrs": [
+        {
+          "user_id": "laszip encoded",
+          "record_id": 22204
+        }
+      ],
+      "evlrs": [],
+      "copc_info_vlr_present": false
+    },
+    "reproduced_measurement": {
+      "schema_version": "lidar-height-v1",
+      "captured_at": "2025-01-21",
+      "sha256": "7b942bf6073704c79986d72a7247d25431fa503912a6aa2e8323bd4eef87e407",
+      "crs": "EPSG:6340",
+      "crs_evidence": "USGS Palisades C25 project report, section 1.4",
+      "method": "surface minus nearest classified ground elevation within 2 m",
+      "ground_points": 23454,
+      "surface_points": 29097,
+      "normalized_points": 29097,
+      "ground_support_fraction": 1.0,
+      "quality": "usable",
+      "height_quantiles_m": {
+        "0.1": -0.01,
+        "0.5": 0.27,
+        "0.9": 5.374,
+        "0.95": 7.412
+      },
+      "limitations": [
+        "5 m context crop is not a building footprint",
+        "vegetation and debris can be elevated returns",
+        "single historical acquisition cannot establish change or current construction"
+      ]
+    },
+    "matches_recorded_fields": {
+      "ground_points": true,
+      "surface_points": true,
+      "normalized_points": true,
+      "ground_support_fraction": true,
+      "height_quantiles_m": true
+    },
+    "one_run_seconds_including_crop_hash_read_decode_and_query": 0.03657425008714199,
+    "crop_fraction_of_tile_points": 0.002624891615358141,
+    "full_scan_points_per_retained_point": 380.968110892289
+  },
+  "synthetic_merge": {
+    "input": "three equal-alpha isotropic Gaussians at x=0,1,2 metres",
+    "cap_radius_m": 100.0,
+    "direct": {
+      "position_m": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale_m": [
+        0.17950549357115014,
+        0.17950549357115014,
+        0.7951240294584375
+      ],
+      "alpha": 0.1681506765410441,
+      "synthetic_time_seconds": 10.0
+    },
+    "merge_01_then_2": {
+      "position_m": [
+        1.6543442293142956,
+        0.0,
+        0.0
+      ],
+      "scale_m": [
+        0.1641608362691264,
+        0.1641608362691264,
+        0.6578126473437207
+      ],
+      "alpha": 0.22224882150372804,
+      "synthetic_time_seconds": 16.543442293142956
+    },
+    "merge_12_then_0": {
+      "position_m": [
+        0.3456557706857042,
+        0.0,
+        0.0
+      ],
+      "scale_m": [
+        0.1641608362691264,
+        0.1641608362691264,
+        0.6578126473437208
+      ],
+      "alpha": 0.22224882150372802,
+      "synthetic_time_seconds": 3.456557706857042
+    },
+    "direct_vs_staged_position_difference_m": 0.6543442293142956,
+    "left_vs_right_position_difference_m": 1.3086884586285914,
+    "additive_statistics_max_absolute_difference": 0.0,
+    "packed_bytes": 96,
+    "packed_bytes_per_record": 32,
+    "packed_fields_from_source": [
+      "position_f32x3",
+      "scale_f32x3",
+      "rgba_u8x4",
+      "quaternion_u8x4"
+    ],
+    "limitations": [
+      "not a rendering or geometric accuracy benchmark",
+      "regrouping exercises merge_cluster; the production octree uses a fixed spatial grouping",
+      "render opacity is not a sensor confidence weight"
+    ]
+  },
+  "precision": {
+    "ecef_origin_m": [
+      -2526717.264038108,
+      -4647829.178216042,
+      3551099.1615901324
+    ],
+    "float32_spacing_m_at_ecef_origin": [
+      0.25,
+      0.5,
+      0.25
+    ],
+    "float32_spacing_m_at_local_100_m": 7.62939453125e-06
+  },
+  "synthetic_registration": {
+    "seed": 20250121,
+    "gates": {
+      "translation_error_m": {
+        "value": 0.002,
+        "max": 0.15,
+        "passed": true
+      },
+      "rotation_error_deg": {
+        "value": 0.002,
+        "max": 0.5,
+        "passed": true
+      },
+      "aligned_rmse_nochange_m": {
+        "value": 0.1622,
+        "max": 0.2,
+        "passed": true
+      }
+    },
+    "elapsed_seconds_one_run": 0.9789378750137985,
+    "scope": "existing synthetic fixture only; no real sensor capture or GPU measured"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "retrieved_at": "2026-09-25T03:35:44.416290+00:00",
+  "catalog_url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/LPC/Projects/CA_2025LosAngelesPostWildfire_C25/CA_LAPostWildfire_Palisades_C25/CA_LAPostWildfire_Palisades_C25.vpc",
+  "catalog_sha256": "55caacd72bd5bf8afba2f981fe7571bf0ef959533f14ea7c1bf98ee1378f8b75",
+  "catalog_path": "data/raw/visual-baseline/55caacd72bd5bf8afba2f981fe7571bf0ef959533f14ea7c1bf98ee1378f8b75",
+  "tile_count": 541,
+  "point_count_catalog_sum": 11549266147,
+  "acquisition_date_from_project_report": "2025-01-21",
+  "report_url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/metadata/CA_2025LosAngelesPostWildfire_C25/CA_LAPostWildfire_Palisades_C25/reports/CA_LAPostWildfire_Palisades_WU300865_Report.pdf",
+  "sample_ain": "4412013017",
+  "selected_tiles": [
+    {
+      "id": "USGS_LPC_CA_2025LosAngelesPostWildfire_C25_11SLT003585037672",
+      "url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/LPC/Projects/CA_2025LosAngelesPostWildfire_C25/CA_LAPostWildfire_Palisades_C25/LAZ/USGS_LPC_CA_2025LosAngelesPostWildfire_C25_11SLT003585037672.laz",
+      "catalog_datetime": "2025-03-25T00:00:00Z",
+      "catalog_points": 20118164,
+      "status": 404,
+      "content_range": null,
+      "error": "server did not honor bounded range",
+      "manifest_download": {
+        "url": "https://rockyweb.usgs.gov/vdelivery/Datasets/Staged/Elevation/LPC/Projects/CA_2025LosAngelesPostWildfire_C25/CA_LAPostWildfire_Palisades_C25/LAZ/USGS_LPC_CA_2025LosAngelesPostWildfire_C25_11SLT003585037672.laz",
+        "source": "official 0_file_download_links.txt",
+        "status": 206,
+        "content_range": "bytes 0-65535/83648649",
+        "header_sha256": "28443c512441b29018da0581255dd08560ce4608ef3403d1a1f2ad0064899504",
+        "header_path": "data/raw/visual-baseline/28443c512441b29018da0581255dd08560ce4608ef3403d1a1f2ad0064899504",
+        "point_count": 20118164,
+        "point_format": 6,
+        "las_version": "1.4",
+        "creation_date": "2025-03-25",
+        "minimum": [
+          358500.0,
+          3767250.0,
+          27.47
+        ],
+        "maximum": [
+          359250.0,
+          3768000.0,
+          122.36
+        ],
+        "dimensions": [
+          "X",
+          "Y",
+          "Z",
+          "intensity",
+          "return_number",
+          "number_of_returns",
+          "synthetic",
+          "key_point",
+          "withheld",
+          "overlap",
+          "scanner_channel",
+          "scan_direction_flag",
+          "edge_of_flight_line",
+          "classification",
+          "user_data",
+          "scan_angle",
+          "point_source_id",
+          "gps_time"
+        ],
+        "crs": "None",
+        "validation": "Header only; full point cloud not downloaded",
+        "full_download": {
+          "path": "data/raw/visual-baseline/sample-tile.laz",
+          "bytes": 83648649,
+          "sha256": "4f97f5cf24c25881657486597b49b12419b895b2079e6dbf7a04d031c1c5ae14",
+          "retrieved_at": "2026-09-25T03:47:41.211407+00:00"
+        }
+      }
+    }
+  ],
+  "parcel_crop": {
+    "ain": "4412013017",
+    "acquisition_date": "2025-01-21",
+    "capture_date_evidence": "USGS Palisades C25 project report, section 1.4",
+    "tile_path": "data/raw/visual-baseline/sample-tile.laz",
+    "tile_points_read": 20118164,
+    "horizontal_crs": "EPSG:6340",
+    "vertical_reference": "NAVD88 / GEOID18, meters",
+    "parcel_source_path": "data/raw/parcel-universe/20260925T033433706215Z/parcels.geojson",
+    "context_buffer_meters": 5,
+    "points_in_crop": 52808,
+    "source_classification_counts": {
+      "1": 29097,
+      "7": 257,
+      "2": 23454
+    },
+    "z_range_meters": [
+      92.21000000000001,
+      106.55
+    ],
+    "crop_path": "data/out/visual-baseline/4412013017-20250121-context.laz",
+    "crop_sha256": "7b942bf6073704c79986d72a7247d25431fa503912a6aa2e8323bd4eef87e407",
+    "interpretation": "historical measured surface, not current condition or a structural inspection",
+    "preview_path": "data/out/visual-baseline/4412013017-20250121-preview.png",
+    "preview_sha256": "a427a890c855bb616f86b5451f2e0e5ae17fc8c8bbbf6599e7877f36ea37d51c"
+  }
+}

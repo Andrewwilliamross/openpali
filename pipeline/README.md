@@ -58,6 +58,8 @@ routes and spatial asset URLs.
 
 | Directory | Responsibility |
 | --- | --- |
+| `openpali/intelligence/` | Portable evidence releases, spatial/market features, acquisition and local drafts |
+| `openpali/discovery/` | Bounded source collectors with retained raw bytes |
 | `openpali/adapters/` | Source acquisition, response parsing, and schema checks |
 | `openpali/ingestion/` | Raw acquisition, normalization, ledger loading, and snapshots |
 | `openpali/domain/` | Evidence lanes, dates, conflicts, revisions, and policy |
@@ -102,8 +104,8 @@ acquisition alone does not make data ready to publish.
 
 There are also two retained paths in this directory:
 
-- `run.py` and `palisades/` build the static fallback under
-  `web/public/data/`. They now emit evidence lanes with provenance and
+- `run.py` and `palisades/` build legacy static artifacts under
+  `web/public/data/`; the current evidence workspace does not read them. They emit evidence lanes with provenance and
   validation checks. `run.py --offline` needs previously cached source
   responses; a fresh checkout does not contain that cache.
 - `run_spatial.py` and `core/spatial/` contain the earlier GeoParquet,
@@ -127,7 +129,20 @@ by `OPENPALI_INTEGRATION=1` in the `test-integration` Compose job.
 `./scripts/check-full` adds the service-backed checks, ML and spatial drills,
 replay, browser checks, and other extended validation.
 
-When changing API schemas, update `contracts/openapi.json` and regenerate
-the web client; see [the API contract workflow](../web/README.md#api-contract).
+When changing API schemas, update `contracts/openapi.json` and check the typed evidence API helper; see [the API contract workflow](../web/README.md#api-contract).
 For contribution expectations and source-data care, see
 [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Portable evidence workspace
+
+The recovery workspace builds a separate hash-verified research release through
+`make evidence-build`, serves it with `make evidence-api`, and stages it in the
+canonical ledger through `make evidence-import` without publication. It requires
+the acquired inputs listed in `Docs/Research/evidence-extra-inputs.json`.
+See the [root setup and acquisition guide](../README.md) and
+[implementation record](../Docs/Plans/2026-09-24-IMPLEMENTATION.md).
+
+The [systems research](../Docs/Research/2026-09-29-SYSTEMS-DESIGN-SPACE.md) and
+[scene experiment](../Docs/Research/2026-09-29-PALISADES-SCENE.md) are separate
+from the application and publication workflow. Their caches and generated
+assets remain under ignored `data/` directories.
