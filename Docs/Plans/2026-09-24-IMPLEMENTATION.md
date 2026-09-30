@@ -160,9 +160,10 @@ no client data, credentials or private CVP assets were copied.
 
 ## Pull request packaging
 
-The review branch preserves the 3,146 existing `web/public` files (including
-legacy map data and 3D tiles) in Git. The new Vite configuration sets
-`publicDir: false` so these unused legacy assets are not copied into its build.
-The replacement frontend removes obsolete source modules and old frontend test
-configuration. Raw acquisitions, generated releases and local operational drafts
-are not committed; the acquisition manifests and build recipe are included.
+The review branch includes the recovery workspace and the subsequent Palisades
+scene research. It removes the 3,146 unused legacy `web/public` assets, matching
+the working tree's frontend replacement. The scene experiment retains source
+code, reports, measurements and two documented screenshots; raw acquisitions,
+generated scene buffers, evidence releases, duplicate preview output and local
+operational drafts are excluded. The experiment remains separate from the
+application, with its run commands in the scene research note.

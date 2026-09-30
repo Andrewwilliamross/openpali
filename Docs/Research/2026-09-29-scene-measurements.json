@@ -1,0 +1,240 @@
+{
+  "schema": "openpali-dated-scene-research-v1",
+  "evidence_classes": {
+    "county_vintage_description": "source-reported metadata",
+    "compiler_and_browser_probes": "measurements produced locally",
+    "scene_architecture_and_scale_targets": "proposals; not validated beyond this pilot"
+  },
+  "compiler": {
+    "schema": "palisades-scene-probe-v1",
+    "built_at": "2026-09-30T00:50:33.443321+00:00",
+    "scope": "One building node, complete structures inside one archived LiDAR tile; not the full Palisades",
+    "node_index": 105,
+    "node_resource": 30,
+    "source_points": 6884,
+    "source_triangles": 12722,
+    "source_features": 155,
+    "retained_structures": 131,
+    "retained_apns": 99,
+    "building_triangles": 11067,
+    "building_buffer_bytes": 1328040,
+    "ground_triangles": 60755,
+    "ground_buffer_bytes": 7290600,
+    "lidar_points_scanned": 20118164,
+    "ground_points_in_roi": 2117363,
+    "ground_grid_spacing_m": 2.0,
+    "ground_fill_max_distance_m": 3,
+    "roi_utm_bounds_m": [
+      358643.1925633028,
+      3767656.989965739,
+      359001.6365021345,
+      3768000.0
+    ],
+    "ground_unsupported_cells": 34,
+    "building_float32_max_displacement_m": 1.0779546898908611e-05,
+    "building_geometry_sha256": "ab4d26e147ea02db1946bc6b5000d35768e70fdb47c6476ef2e959551a41931f",
+    "representation_patch_bytes_per_structure": 1,
+    "egm96_undulation_range_m": [
+      -35.861085140319034,
+      -35.83877705579083
+    ],
+    "geoid18_undulation_range_m": [
+      -35.53287360315548,
+      -35.49713349010032
+    ],
+    "source_item_modified": 1789154064000,
+    "geometry_vintage_basis": "County item description and snippet say 2023; publication/processing date is separate",
+    "ground_vintage_basis": "data/out/visual-baseline/report.json, USGS acquisition evidence",
+    "horizontal_transform": "PROJ EPSG:4326 <-> EPSG:6340 default operation; metre-level accuracy claim not independently checked",
+    "vertical_transforms": "Explicit EGM96 and GEOID18 grid shifts (+multiplier=1) to ellipsoid; horizontal datum accuracy remains separate",
+    "grids": {
+      "us_nga_egm96_15.tif": {
+        "bytes": 2710815,
+        "sha256": "db493027562c9b004d7220fa881f5603adada4e1c5029b933fa7de4547b0e78d"
+      },
+      "us_noaa_g2018u0.tif": {
+        "bytes": 16742155,
+        "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2"
+      }
+    },
+    "source_downloads": {
+      "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/Palisades_3D_Buildings/SceneServer/layers/0?f=pjson": {
+        "sha256": "496edac58fa625312b111dea340f52d78196674c76d20762c97a4adcd69bc372",
+        "bytes": 35266,
+        "path": "data/raw/scene-prototype/3e7552cffa5f8d34bc7a312ec3d1928e267179726b5aef4875dff74317507b09.bin"
+      },
+      "https://www.arcgis.com/sharing/rest/content/items/d4018709bc26465daf33abe15b25d1e9?f=json": {
+        "sha256": "88f80f92ba5de375def5e56af9210efa53cb223a7db97e41ae1d719c388a3fc7",
+        "bytes": 6285,
+        "path": "data/raw/scene-prototype/3b360d988f454df4abac340e9130a07939e078849347b581a9474890e28ed754.bin"
+      },
+      "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/Palisades_3D_Buildings/SceneServer/layers/0/nodepages/0?f=json": {
+        "sha256": "7a363505a5cb1a5159c0be1a15cd64f8e35512e561100a62b78283da20b92a60",
+        "bytes": 32551,
+        "path": "data/raw/scene-prototype/4ff39063605d2897781f2c95307fdc7893632f52dc88328f2f52e5befa1ad252.bin"
+      },
+      "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/Palisades_3D_Buildings/SceneServer/layers/0/nodepages/1?f=json": {
+        "sha256": "de8926d1992a60ba9a36a203bbab120d2894518923a27baa3f0f3b81711bbd84",
+        "bytes": 29161,
+        "path": "data/raw/scene-prototype/1ae35189a5b19d95d07b08b24c06a18f1e5d8cf3eb2d395cf3e13a7b4d5742b8.bin"
+      },
+      "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/Palisades_3D_Buildings/SceneServer/layers/0/nodes/30/geometries/1": {
+        "sha256": "5f31d2f2bd98087421f1446bc48ef63bc326d326f06d7b8cbcf356c74111880f",
+        "bytes": 44036,
+        "path": "data/raw/scene-prototype/d27c82f2df00b65d0b33400c1aac80e6c6e5d2f6de5e814f20c31cf8da85ac6a.bin"
+      },
+      "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/Palisades_3D_Buildings/SceneServer/layers/0/nodes/30/attributes/f_7/0": {
+        "sha256": "fb42abad264db2e6de0aee8eb761ca7874a3613c600279a91f37bc8f846bf56a",
+        "bytes": 2643,
+        "path": "data/raw/scene-prototype/55798aa15995b3cd511b322286fcddf0d2187147d4b8ba6abadbce32e7358d4b.bin"
+      },
+      "https://tiles.arcgis.com/tiles/RmCCgQtiZLDCtblq/arcgis/rest/services/Palisades_3D_Buildings/SceneServer/layers/0/nodes/30/attributes/f_2/0": {
+        "sha256": "ba4a8fa09ff76c3b261b150b89fe6ba4248be37186b800a6daa20ac7d3120d47",
+        "bytes": 2667,
+        "path": "data/raw/scene-prototype/269ba3c91fe559588041c6e0ed592d5a00b6963bb80948790df72e4db824bc6b.bin"
+      }
+    },
+    "lidar_source": {
+      "path": "data/raw/visual-baseline/sample-tile.laz",
+      "bytes": 83648649,
+      "sha256": "4f97f5cf24c25881657486597b49b12419b895b2079e6dbf7a04d031c1c5ae14"
+    },
+    "claims": {
+      "physical_conditions_produced": false,
+      "framing_geometry_produced": false,
+      "geometric_accuracy_measured_against_controls": false,
+      "frame_performance_measured": false
+    },
+    "assumptions": [
+      "County feature-index attribute ordering matches node attribute buffers",
+      "LAS class 2 is used as dated terrain support",
+      "Grid median and <=3m fill approximate terrain; retained measurements remain archived"
+    ]
+  },
+  "browser": {
+    "measured_at": "2026-09-30T01:01:17.381Z",
+    "apparatus": "Connected Chrome on the user computer; browser version not captured",
+    "timing": {
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+      "viewport": [
+        2856,
+        1558
+      ],
+      "devicePixelRatio": 2,
+      "structures": 131,
+      "geometryUploads": 2,
+      "stateUploads": 1,
+      "stateBytes": 1,
+      "geometrySha256": "ab4d26e147ea02db1946bc6b5000d35768e70fdb47c6476ef2e959551a41931f",
+      "geometryBufferBytes": 8618640,
+      "activeFrameSamples": 1200,
+      "rafP50Ms": 8.30000000000291,
+      "rafP95Ms": 9.200000000004366,
+      "cpuSubmitP95Ms": 0.40000009536743164,
+      "glError": 0
+    },
+    "edits": {
+      "wireframe_index": 92,
+      "wireframe_uploads": 1,
+      "wireframe_bytes": 1,
+      "hidden_uploads": 2,
+      "hidden_bytes": 2,
+      "hidden_count": 1,
+      "geometry_uploads_before": 2,
+      "geometry_uploads_after": 2,
+      "geometry_hash_unchanged": true,
+      "gl_error_after_edit": 0
+    },
+    "limitations": [
+      "One pilot scene and one orbit run; first 1200 active RAF intervals retained",
+      "RAF pacing and CPU command submission, not GPU timestamps or independently observed presented frames",
+      "Simple shading; no imagery, shadows, vegetation detail, LOD traversal or network streaming",
+      "No independently surveyed geometric accuracy or actual recovery conditions measured"
+    ]
+  },
+  "parcel_relationship_check": {
+    "protocol_checks_passed": true,
+    "parcels_release": "evidence-ae1dee2a6a226cbb9fd92626",
+    "parcels_path": "data/out/evidence/evidence-ae1dee2a6a226cbb9fd92626/parcels.geojson",
+    "parcels_sha256": "dc133cc88cbc870ba3bc69204710e59d4469046c4e6a03a45b73c4880df75cf0",
+    "structures_matched": 131,
+    "missing_apns": [],
+    "centroid_inside_or_on_parcel": 127,
+    "centroid_max_distance_m": 7.402089272213954,
+    "nonzero": [
+      {
+        "id": "d4018709bc26465daf33abe15b25d1e9:9316",
+        "apn": "4412015027",
+        "distance_m": 7.402089272213954
+      },
+      {
+        "id": "d4018709bc26465daf33abe15b25d1e9:9819",
+        "apn": "4412013023",
+        "distance_m": 2.7499664426145007
+      },
+      {
+        "id": "d4018709bc26465daf33abe15b25d1e9:9759",
+        "apn": "4412014028",
+        "distance_m": 0.45529580042142337
+      },
+      {
+        "id": "d4018709bc26465daf33abe15b25d1e9:9687",
+        "apn": "4412014031",
+        "distance_m": 0.20489794783911225
+      }
+    ],
+    "interpretation": "Mesh-average positions checked against release parcel polygons. Outliers require investigation of source association, geometry extent, and parcel versions; this is not surveyed registration accuracy."
+  },
+  "source_adapter_probe": {
+    "resource": 52,
+    "uncompressed_buffer_index": 0,
+    "response": {
+      "error": {
+        "code": 404,
+        "message": "Requested scene layer node resource not available.",
+        "details": null
+      }
+    },
+    "response_sha256": "2e5d52a72d3b0b2398d0bd95fd1b46ffc319d6181668d66ff1a8c85f1cfb6f7c",
+    "compressed_buffer_index": 1,
+    "compressed_response_bytes": 40390,
+    "interpretation": "Sampled buffer 0 returns an ArcGIS resource error; the metadata-advertised Draco buffer 1 was available. The old fixed uncompressed decoder cannot consume that sample."
+  },
+  "reference_implementations": [
+    {
+      "name": "i3s-compressed.md",
+      "url": "https://raw.githubusercontent.com/Esri/i3s-spec/6cfdef9024ca1abc6c9f3b408ce941abfe287f0e/docs/1.7/compressedAttributes.cmn.md",
+      "sha256": "0adcd3c9723df1f2a0e92ca05afbf95b725591d8e76239ce9e08df170f5a5081",
+      "bytes": 1866
+    },
+    {
+      "name": "meshoptimizer-clusterlod.h",
+      "url": "https://raw.githubusercontent.com/zeux/meshoptimizer/4c203430ca565cb59a468a91922c76c208169536/demo/clusterlod.h",
+      "sha256": "71f95c1f97ef567235540c038b41906091fcef1ef68046f2933cd5989f94ea93",
+      "bytes": 40367
+    },
+    {
+      "name": "meshoptimizer-simplifier.cpp",
+      "url": "https://raw.githubusercontent.com/zeux/meshoptimizer/4c203430ca565cb59a468a91922c76c208169536/src/simplifier.cpp",
+      "sha256": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+      "bytes": 107217
+    },
+    {
+      "name": "loaders.gl parse-i3s-tile-content.ts",
+      "url": "https://github.com/visgl/loaders.gl/blob/d18246f4ef6382f787a6ae2e9e21d8a7f40e5917/modules/i3s/src/lib/parsers/parse-i3s-tile-content.ts",
+      "sha256": "8c7ad3ec0cfc1149e3812fcb2a8583f365f57f46acd19f36f07a498ddecdc56f",
+      "bytes": 20551
+    }
+  ],
+  "local_sources": {
+    "Docs/Research/experiments/palisades_scene/build_scene.py": "6c4db3940494c402ded8551583bfc99a662dd7979ad8c4873d9c869a1723e524",
+    "Docs/Research/experiments/palisades_scene/decode_i3s.cjs": "d76e7ff47b67de28a4f956a81f45d6bf5c5b9b07b66775c6558822b193e58444",
+    "Docs/Research/experiments/palisades_scene/preview.html": "37ddfc7de3eb14289ea3f3ebabfa19269235e11f31ff9ecfe77e6c7a80630d13",
+    "Docs/Research/experiments/palisades_scene/verify_scene.py": "e051676ac193daf233e22fa5ef01bccfa29a2f41b524c1b664c70d67b7412225"
+  },
+  "validation": {
+    "repeat_draco_decode_bytes_identical": true,
+    "protocol_verifier_passed": true,
+    "parcel_outliers_resolved": false
+  }
+}

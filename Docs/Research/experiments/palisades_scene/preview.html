@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palisades · dated scene experiment</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e8e9df;color:#243b33;font:14px/1.5 system-ui,sans-serif}canvas{display:block;width:100vw;height:100vh;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}
+.panel{position:absolute;top:24px;left:24px;width:330px;background:#f8f8f0f2;border:1px solid #ccd2c6;padding:24px;box-shadow:0 8px 40px #19312518;border-radius:8px}h1{font:500 27px/1.15 Georgia,serif;margin:8px 0 16px}p{margin:10px 0}.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#586e62}.dates{font-size:12px;border-top:1px solid #ccd2c6;border-bottom:1px solid #ccd2c6;padding:12px 0;color:#586458}label{display:block;font-size:12px;margin:16px 0 5px}select,button{font:inherit;color:inherit;background:#fffef8;border:1px solid #bfc9bc;border-radius:4px;padding:8px;width:100%}button{cursor:pointer;width:auto}button:hover{background:#e5edde}.controls{display:flex;gap:8px;margin-top:16px}.note{font-size:11px;color:#687365}.meta{font-size:11px;color:#4c6256;margin-top:10px;overflow-wrap:anywhere}.footer{position:absolute;bottom:20px;left:24px;right:24px;display:flex;justify-content:space-between;gap:20px;pointer-events:none;font-size:11px;color:#526353}.chip{background:#f8f8f0ed;border:1px solid #ccd2c6;padding:8px 12px;border-radius:5px}.fatal{display:none;color:#7b3225;background:#fff0e7;padding:12px}.legend{position:absolute;top:24px;right:24px;background:#f8f8f0ed;border:1px solid #ccd2c6;padding:14px 18px;border-radius:6px;font-size:11px}.dot{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:#ded9c1}.dot.ground{background:#849273}.dot.selected{background:#cc854a}.legend div+div{margin-top:5px}
+@media(max-width:700px){.panel{top:12px;left:12px;width:265px;padding:16px}h1{font-size:22px}.legend{display:none}.footer{left:12px;right:12px;bottom:12px;flex-direction:column;gap:6px}.panel .note{font-size:10px}}
+</style>
+<canvas id="scene" aria-label="Three dimensional dated scene of an Alphabet Streets pilot area. Select a building using the adjacent controls."></canvas>
+<aside class="panel">
+  <div class="eyebrow">OpenPali / Scene research</div>
+  <h1>One place.<br>Independent layers.</h1>
+  <p class="dates">Building shapes: <b>2023</b><br>Ground observations: <b>21 Jan 2025</b><br>Alphabet Streets pilot · mixed source dates</p>
+  <label for="building">Structure</label><select id="building"></select>
+  <label for="representation">Display this historical geometry as</label>
+  <select id="representation"><option value="1">Historical shell</option><option value="2">Historical wireframe</option><option value="0">Hide building; retain terrain</option></select>
+  <p class="meta" id="selection"></p>
+  <p class="note">These controls demonstrate scene composition. They do not assert that a home is vacant, framed, rebuilt, or unaffected. A historical wireframe is the old shell, not measured framing.</p>
+  <div class="controls"><button id="reset">Reset scene</button><button id="orbit" aria-pressed="false">Orbit</button></div>
+  <p class="note">Drag to orbit · Shift-drag to pan · scroll to zoom · click a roof to select.</p>
+  <p class="fatal" id="error" role="alert"></p>
+</aside>
+<div class="legend"><div><span class="dot"></span>Historical building geometry</div><div><span class="dot ground"></span>Dated ground surface</div><div><span class="dot selected"></span>Selected structure</div></div>
+<div class="footer"><span class="chip" id="counts"></span><span class="chip" id="timing">Checking WebGL2…</span></div>
+<script>
+const DATA=/*SCENE_DATA*/null;
+const canvas=document.querySelector('#scene'), error=document.querySelector('#error');
+function fatal(e){error.style.display='block';error.textContent=e.message;document.querySelector('#timing').textContent='Preview could not initialize';}
+try{start()}catch(e){fatal(e)}
+function start(){
+if(!DATA)throw Error('Compile this template with build_scene.py before opening it.');
+const gl=canvas.getContext('webgl2',{antialias:true,alpha:false});if(!gl)throw Error('This preview requires WebGL2.');
+const VS=`#version 300 es
+layout(location=0) in vec3 position;layout(location=1) in vec3 normal;layout(location=2) in float feature;layout(location=3) in vec3 bary;
+uniform mat4 viewProjection;out vec3 n;out vec3 b;flat out int id;
+void main(){gl_Position=viewProjection*vec4(position,1.);n=normal;b=bary;id=int(feature);}`;
+const FS=`#version 300 es
+precision highp float;precision highp int;precision highp usampler2D;
+uniform usampler2D states;uniform int selected;uniform int picking;in vec3 n;in vec3 b;flat in int id;out vec4 color;
+void main(){uint mode=id==0?1u:texelFetch(states,ivec2(id,0),0).r;if(mode==0u)discard;
+if(picking==1){color=vec4(float(id&255)/255.,float((id>>8)&255)/255.,float((id>>16)&255)/255.,1.);return;}
+vec3 light=normalize(vec3(-.5,-.4,1.));float shade=.52+.48*abs(dot(normalize(n),light));
+vec3 base=id==0?vec3(.53,.59,.45):vec3(.86,.84,.74);if(id==selected&&id>0)base=vec3(.82,.51,.26);
+if(mode==2u){vec3 d=fwidth(b);vec3 edge=smoothstep(vec3(0.),d*1.3,b);float wire=1.-min(edge.x,min(edge.y,edge.z));if(wire<.2)discard;base=mix(vec3(.30,.46,.45),base,wire*.3);}
+color=vec4(base*shade,1.);}`;
+function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
+const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,VS));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,FS));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+const uniforms=Object.fromEntries(['viewProjection','states','selected','picking'].map(k=>[k,gl.getUniformLocation(program,k)]));
+let geometryUploads=0,stateUploads=0,stateBytes=0;
+function buffer(encoded){const bytes=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0)),vao=gl.createVertexArray(),vbo=gl.createBuffer();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,vbo);gl.bufferData(gl.ARRAY_BUFFER,bytes,gl.STATIC_DRAW);geometryUploads++;
+for(const [i,size,offset] of [[0,3,0],[1,3,12],[2,1,24],[3,3,28]]){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,size,gl.FLOAT,false,40,offset)}return{vao,count:bytes.length/40,bytes:bytes.length};}
+const buildings=buffer(DATA.buildings),ground=buffer(DATA.ground),states=new Uint8Array(DATA.structures.length+1).fill(1),stateTexture=gl.createTexture();
+gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,stateTexture);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.texImage2D(gl.TEXTURE_2D,0,gl.R8UI,states.length,1,0,gl.RED_INTEGER,gl.UNSIGNED_BYTE,states);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.uniform1i(uniforms.states,0);
+gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
+const structureSelect=document.querySelector('#building'),modeSelect=document.querySelector('#representation');
+for(const s of DATA.structures){const o=document.createElement('option');o.value=s.gpu_index;o.textContent=`${s.apn} · ${s.building_id||s.source_feature_id}`;structureSelect.appendChild(o)}
+let selected=DATA.structures[0].gpu_index,angle=-.72,tilt=.83,distance=760,target=DATA.bounds_enu[0].map((v,i)=>(v+DATA.bounds_enu[1][i])/2),orbit=false,dirty=true;
+const initial={angle,tilt,distance,target:[...target]};
+function select(id){const s=DATA.structures.find(s=>s.gpu_index===id);if(!s)return;selected=id;structureSelect.value=id;modeSelect.value=states[id];document.querySelector('#selection').textContent=`APN ${s.apn} · ${s.triangles.toLocaleString()} source triangles · condition unknown`;dirty=true}
+function setMode(id,mode){if(!Number.isInteger(id)||id<1||id>=states.length||![0,1,2].includes(mode))throw Error('Invalid representation edit');states[id]=mode;gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,stateTexture);gl.texSubImage2D(gl.TEXTURE_2D,0,id,0,1,1,gl.RED_INTEGER,gl.UNSIGNED_BYTE,new Uint8Array([mode]));stateUploads++;stateBytes++;if(id===selected)modeSelect.value=mode;dirty=true;}
+structureSelect.addEventListener('change',()=>select(Number(structureSelect.value)));modeSelect.addEventListener('change',()=>setMode(selected,Number(modeSelect.value)));select(selected);
+document.querySelector('#counts').textContent=`${DATA.structures.length} structures · ${((ground.count+buildings.count)/3).toLocaleString()} triangles · Palisades data only`;
+const orbitButton=document.querySelector('#orbit');function setOrbit(value){orbit=value;orbitButton.setAttribute('aria-pressed',String(value));orbitButton.textContent=value?'Stop orbit':'Orbit';dirty=true}orbitButton.onclick=()=>setOrbit(!orbit);
+document.querySelector('#reset').onclick=()=>{for(let i=1;i<states.length;i++)if(states[i]!==1)setMode(i,1);angle=initial.angle;tilt=initial.tilt;distance=initial.distance;target=[...initial.target];setOrbit(false);select(DATA.structures[0].gpu_index);dirty=true};
+function normalize(v){const l=Math.hypot(...v);return v.map(x=>x/l)}function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}function dot(a,b){return a.reduce((v,x,i)=>v+x*b[i],0)}
+function multiply(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o}
+function matrix(){const eye=[target[0]+distance*Math.cos(tilt)*Math.cos(angle),target[1]+distance*Math.cos(tilt)*Math.sin(angle),target[2]+distance*Math.sin(tilt)],z=normalize(eye.map((v,i)=>v-target[i])),x=normalize(cross([0,0,1],z)),y=cross(z,x);
+const view=new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]),f=1/Math.tan(.7/2),near=.5,far=8000,proj=new Float32Array([f/(canvas.width/canvas.height),0,0,0,0,f,0,0,-Math.min(.45,355/innerWidth),0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]);return multiply(proj,view)}
+let pickFramebuffer=null,pickTexture=null,pickDepth=null;
+function resize(){const ratio=Math.min(devicePixelRatio,2),w=Math.round(innerWidth*ratio),h=Math.round(innerHeight*ratio);if(canvas.width===w&&canvas.height===h)return;canvas.width=w;canvas.height=h;
+if(pickFramebuffer){gl.deleteFramebuffer(pickFramebuffer);gl.deleteTexture(pickTexture);gl.deleteRenderbuffer(pickDepth)}pickFramebuffer=gl.createFramebuffer();pickTexture=gl.createTexture();pickDepth=gl.createRenderbuffer();gl.bindTexture(gl.TEXTURE_2D,pickTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA8,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.bindRenderbuffer(gl.RENDERBUFFER,pickDepth);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT24,w,h);gl.bindFramebuffer(gl.FRAMEBUFFER,pickFramebuffer);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,pickTexture,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,pickDepth);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Picking framebuffer incomplete');gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.bindTexture(gl.TEXTURE_2D,stateTexture);dirty=true;}
+function draw(picking=false){gl.useProgram(program);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,stateTexture);gl.bindFramebuffer(gl.FRAMEBUFFER,picking?pickFramebuffer:null);gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(...(picking?[0,0,0,1]:[.91,.92,.87,1]));gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(uniforms.viewProjection,false,matrix());gl.uniform1i(uniforms.selected,selected);gl.uniform1i(uniforms.picking,picking?1:0);for(const b of [ground,buildings]){gl.bindVertexArray(b.vao);gl.drawArrays(gl.TRIANGLES,0,b.count)}}
+function pick(x,y){resize();draw(true);const pixel=new Uint8Array(4);gl.readPixels(Math.floor(x*canvas.width/innerWidth),canvas.height-1-Math.floor(y*canvas.height/innerHeight),1,1,gl.RGBA,gl.UNSIGNED_BYTE,pixel);gl.bindFramebuffer(gl.FRAMEBUFFER,null);select(pixel[0]+pixel[1]*256+pixel[2]*65536);dirty=true}
+let pointer=null;
+canvas.onpointerdown=e=>{pointer={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY};canvas.setPointerCapture(e.pointerId)};
+canvas.onpointermove=e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;if(e.shiftKey){target[0]+=(-dx*Math.sin(angle)+dy*Math.cos(angle))*distance/900;target[1]+=(dx*Math.cos(angle)+dy*Math.sin(angle))*distance/900}else{angle-=dx*.005;tilt=Math.max(.15,Math.min(1.5,tilt+dy*.004))}pointer.x=e.clientX;pointer.y=e.clientY;dirty=true};
+canvas.onpointerup=e=>{if(pointer&&Math.hypot(e.clientX-pointer.startX,e.clientY-pointer.startY)<4)pick(e.clientX,e.clientY);pointer=null};canvas.onpointercancel=()=>pointer=null;
+canvas.onwheel=e=>{e.preventDefault();distance=Math.max(40,Math.min(2000,distance*Math.exp(e.deltaY*.001)));dirty=true};
+addEventListener('resize',()=>{resize();dirty=true});canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fatal(Error('Graphics context lost; reload the preview.'))});
+const debug=gl.getExtension('WEBGL_debug_renderer_info'),renderer=debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);
+const samples=[],submit=[];let last=0;const percentile=(a,p)=>{const s=[...a].sort((a,b)=>a-b);return s[Math.min(s.length-1,Math.floor(p*s.length))]||null};
+window.sceneProbe={
+setRepresentation:setMode,select,setOrbit,
+get metrics(){return{renderer,viewport:[canvas.width,canvas.height],devicePixelRatio,structures:DATA.structures.length,geometryUploads,stateUploads,stateBytes,geometrySha256:DATA.geometry_sha256,geometryBufferBytes:ground.bytes+buildings.bytes,states:Array.from(states),activeFrameSamples:samples.length,rafP50Ms:percentile(samples,.5),rafP95Ms:percentile(samples,.95),cpuSubmitP95Ms:percentile(submit,.95),glError:gl.getError()};},
+resetTiming(){samples.length=0;submit.length=0;last=0;},
+capture(){draw();gl.finish();return canvas.toDataURL('image/png');},
+};
+function frame(now){resize();if(orbit){angle+=last?Math.min(now-last,100)*.00012:0;dirty=true;if(last&&samples.length<1200)samples.push(now-last)}const before=performance.now();const rendered=dirty;if(dirty){draw();dirty=false;if(orbit&&submit.length<1200)submit.push(performance.now()-before)}last=now;const timing=document.querySelector('#timing');if(samples.length&&samples.length%30===0)timing.textContent=`Orbit RAF p95 ${percentile(samples,.95).toFixed(1)} ms · ${samples.length} samples`;else if(!samples.length)timing.textContent='WebGL2 · 1 byte per representation edit';if(rendered&&(!orbit||samples.length%30===0))timing.dataset.metrics=JSON.stringify(window.sceneProbe.metrics);requestAnimationFrame(frame)}
+resize();requestAnimationFrame(frame);
+}
+</script>
+</html>

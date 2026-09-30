@@ -1,5 +1,13 @@
 # Research
 
+## Systems research
+
+- [Palisades scene architecture and working dated-scene experiment](2026-09-29-PALISADES-SCENE.md)
+- [Scene source, geometry, browser and parcel measurements](2026-09-29-scene-measurements.json)
+- [Design space and reusable spatial evidence experiment](2026-09-29-SYSTEMS-DESIGN-SPACE.md)
+- [Reproduced measurements and numerical probes](2026-09-29-systems-measurements.json)
+- [Reference implementation revisions and source hashes](2026-09-29-reference-implementations.json)
+
 ## September 2026 discovery
 
 - [Verified data expansion](2026-09-24-DATA-EXPANSION.md) — supersedes initial availability conclusions

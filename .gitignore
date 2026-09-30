@@ -14,3 +14,4 @@ data/out/
 web/test-results/
 web/playwright-report/
 *.tsbuildinfo
+output/

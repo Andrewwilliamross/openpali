@@ -1,0 +1,245 @@
+{
+  "inspected_at": "2026-09-29",
+  "scope": "Source inspection only; these external implementations were not built or benchmarked",
+  "implementations": [
+    {
+      "project": "differential",
+      "repo": "TimelyDataflow/differential-dataflow",
+      "commit": "aa8745f93ea8abe131104fc7885ba4fd47e63902",
+      "path": "differential-dataflow/src/operators/reduce.rs",
+      "bytes": 75738,
+      "sha256": "635e4a58c965e860154f1f550ecbe6d1c85cc953b7b91d7ff87b08f0a6b5aedf",
+      "url": "https://github.com/TimelyDataflow/differential-dataflow/blob/aa8745f93ea8abe131104fc7885ba4fd47e63902/differential-dataflow/src/operators/reduce.rs"
+    },
+    {
+      "project": "differential",
+      "repo": "TimelyDataflow/differential-dataflow",
+      "commit": "aa8745f93ea8abe131104fc7885ba4fd47e63902",
+      "path": "differential-dataflow/src/operators/arrange/arrangement.rs",
+      "bytes": 25939,
+      "sha256": "50cdb1b77c0d8cc6a7d60a26761c0b0c74353edebca237f06473e25673c08b3b",
+      "url": "https://github.com/TimelyDataflow/differential-dataflow/blob/aa8745f93ea8abe131104fc7885ba4fd47e63902/differential-dataflow/src/operators/arrange/arrangement.rs"
+    },
+    {
+      "project": "differential",
+      "repo": "TimelyDataflow/differential-dataflow",
+      "commit": "aa8745f93ea8abe131104fc7885ba4fd47e63902",
+      "path": "differential-dataflow/src/trace/mod.rs",
+      "bytes": 21708,
+      "sha256": "e8075801ab2d2c6b073b99a760d1b6337b45b1b760436392853c07c037357f1d",
+      "url": "https://github.com/TimelyDataflow/differential-dataflow/blob/aa8745f93ea8abe131104fc7885ba4fd47e63902/differential-dataflow/src/trace/mod.rs"
+    },
+    {
+      "project": "voxblox",
+      "repo": "ethz-asl/voxblox",
+      "commit": "c8066b04075d2fee509de295346b1c0b788c4f38",
+      "path": "voxblox/include/voxblox/core/voxel.h",
+      "bytes": 1787,
+      "sha256": "c8f0fb11e503a0d0a6d4ff4a42d25d85ce5c768e17d70a5d3f1ad04c6172555e",
+      "url": "https://github.com/ethz-asl/voxblox/blob/c8066b04075d2fee509de295346b1c0b788c4f38/voxblox/include/voxblox/core/voxel.h"
+    },
+    {
+      "project": "voxblox",
+      "repo": "ethz-asl/voxblox",
+      "commit": "c8066b04075d2fee509de295346b1c0b788c4f38",
+      "path": "voxblox/src/integrator/tsdf_integrator.cc",
+      "bytes": 24174,
+      "sha256": "470516dac3fda081e6551b3f8329a2e3093c2af54359c590639d8fc0519bafe3",
+      "url": "https://github.com/ethz-asl/voxblox/blob/c8066b04075d2fee509de295346b1c0b788c4f38/voxblox/src/integrator/tsdf_integrator.cc"
+    },
+    {
+      "project": "voxblox",
+      "repo": "ethz-asl/voxblox",
+      "commit": "c8066b04075d2fee509de295346b1c0b788c4f38",
+      "path": "voxblox/src/integrator/esdf_integrator.cc",
+      "bytes": 20921,
+      "sha256": "80bc0dc0f67575980a4b9e927f001ba9de9f083a141b06b03eeab89e348c956c",
+      "url": "https://github.com/ethz-asl/voxblox/blob/c8066b04075d2fee509de295346b1c0b788c4f38/voxblox/src/integrator/esdf_integrator.cc"
+    },
+    {
+      "project": "halide",
+      "repo": "halide/Halide",
+      "commit": "95127ea3c889a95f3cdca3690c8b26365dc78d3e",
+      "path": "tutorial/lesson_08_scheduling_2.cpp",
+      "bytes": 29390,
+      "sha256": "e25e3374a8d96364a4fe4ddc45912fc094ceb8ee078fc09b8c482e6cea5c88e6",
+      "url": "https://github.com/halide/Halide/blob/95127ea3c889a95f3cdca3690c8b26365dc78d3e/tutorial/lesson_08_scheduling_2.cpp"
+    },
+    {
+      "project": "halide",
+      "repo": "halide/Halide",
+      "commit": "95127ea3c889a95f3cdca3690c8b26365dc78d3e",
+      "path": "tutorial/lesson_12_using_the_gpu.cpp",
+      "bytes": 11030,
+      "sha256": "02c6bacce3b0ac85fa5a62b1a844496ce19620d539660c554b40a87f4c5da04c",
+      "url": "https://github.com/halide/Halide/blob/95127ea3c889a95f3cdca3690c8b26365dc78d3e/tutorial/lesson_12_using_the_gpu.cpp"
+    },
+    {
+      "project": "halide",
+      "repo": "halide/Halide",
+      "commit": "95127ea3c889a95f3cdca3690c8b26365dc78d3e",
+      "path": "src/Lower.cpp",
+      "bytes": 26577,
+      "sha256": "664b2d32831ccd70f1c1b57e831086714abad7d72476beb8fdf0ee936eef24fa",
+      "url": "https://github.com/halide/Halide/blob/95127ea3c889a95f3cdca3690c8b26365dc78d3e/src/Lower.cpp"
+    },
+    {
+      "project": "hierarchy",
+      "repo": "graphdeco-inria/hierarchical-3d-gaussians",
+      "commit": "596dc7081ee74e57a66502f4746328911f763b34",
+      "path": "render_hierarchy.py",
+      "bytes": 5305,
+      "sha256": "5426be0f712efc8faf21a99c3305428f700de930aa8757a3f898ebae321e04ff",
+      "url": "https://github.com/graphdeco-inria/hierarchical-3d-gaussians/blob/596dc7081ee74e57a66502f4746328911f763b34/render_hierarchy.py"
+    },
+    {
+      "project": "hierarchy",
+      "repo": "graphdeco-inria/hierarchical-3d-gaussians",
+      "commit": "596dc7081ee74e57a66502f4746328911f763b34",
+      "path": "train_coarse.py",
+      "bytes": 8726,
+      "sha256": "4f0c843bdb09a9ec7fda35fb4abfca6b2a8b534bcbc93375e73ff7e8d005a672",
+      "url": "https://github.com/graphdeco-inria/hierarchical-3d-gaussians/blob/596dc7081ee74e57a66502f4746328911f763b34/train_coarse.py"
+    },
+    {
+      "project": "hierarchy",
+      "repo": "graphdeco-inria/hierarchical-3d-gaussians",
+      "commit": "596dc7081ee74e57a66502f4746328911f763b34",
+      "path": "train_post.py",
+      "bytes": 10699,
+      "sha256": "816fff79aa1c141975d11c782d7f4af0495c3bf987c27f165bbe699a33480589",
+      "url": "https://github.com/graphdeco-inria/hierarchical-3d-gaussians/blob/596dc7081ee74e57a66502f4746328911f763b34/train_post.py"
+    },
+    {
+      "project": "hierarchy",
+      "repo": "graphdeco-inria/hierarchical-3d-gaussians",
+      "commit": "596dc7081ee74e57a66502f4746328911f763b34",
+      "path": ".gitmodules",
+      "bytes": 793,
+      "sha256": "ce9b0d1e97bda25153236efeb493643abc8c5d92c6ff438aeff38f94351cd347",
+      "url": "https://github.com/graphdeco-inria/hierarchical-3d-gaussians/blob/596dc7081ee74e57a66502f4746328911f763b34/.gitmodules"
+    },
+    {
+      "project": "gtsam",
+      "repo": "borglab/gtsam",
+      "commit": "c786d78c5a4ec6390890ab2adb98fc5581f187d7",
+      "path": "gtsam/nonlinear/ISAM2.cpp",
+      "bytes": 42302,
+      "sha256": "504b72208ceb0a0ae45484c7bd6711aeaef4ec4de15825efe46e9472117e64e5",
+      "url": "https://github.com/borglab/gtsam/blob/c786d78c5a4ec6390890ab2adb98fc5581f187d7/gtsam/nonlinear/ISAM2.cpp"
+    },
+    {
+      "project": "gtsam",
+      "repo": "borglab/gtsam",
+      "commit": "c786d78c5a4ec6390890ab2adb98fc5581f187d7",
+      "path": "gtsam/nonlinear/ISAM2-impl.cpp",
+      "bytes": 5708,
+      "sha256": "1b7b14c54e2e9f67e2fa4cb87e46bdc64f629313522a0b37da322ea3be7fafbf",
+      "url": "https://github.com/borglab/gtsam/blob/c786d78c5a4ec6390890ab2adb98fc5581f187d7/gtsam/nonlinear/ISAM2-impl.cpp"
+    },
+    {
+      "project": "teaser",
+      "repo": "MIT-SPARK/TEASER-plusplus",
+      "commit": "52a9c52ee7d4c838c5e8a75458c33178be5bfb70",
+      "path": "teaser/src/registration.cc",
+      "bytes": 33083,
+      "sha256": "4b7a4b37854106da336984c8095fdd135ee2e74a99b7e91f6b5f1fa4fdf481df",
+      "url": "https://github.com/MIT-SPARK/TEASER-plusplus/blob/52a9c52ee7d4c838c5e8a75458c33178be5bfb70/teaser/src/registration.cc"
+    },
+    {
+      "project": "teaser",
+      "repo": "MIT-SPARK/TEASER-plusplus",
+      "commit": "52a9c52ee7d4c838c5e8a75458c33178be5bfb70",
+      "path": "teaser/src/certification.cc",
+      "bytes": 25634,
+      "sha256": "9d96b395e7c7091656e23e00f836a620cae28a11fcfe8b15e04e9487523b88b7",
+      "url": "https://github.com/MIT-SPARK/TEASER-plusplus/blob/52a9c52ee7d4c838c5e8a75458c33178be5bfb70/teaser/src/certification.cc"
+    },
+    {
+      "project": "laspy",
+      "repo": "laspy/laspy",
+      "commit": "b4e14088d24e7e23f72fd9d33d61f63a9668cb74",
+      "path": "laspy/copc.py",
+      "bytes": 28794,
+      "sha256": "6dcb7c2edea19d4ed8f9994ea253671f608a1c1cab90da148a9dd50f6753765a",
+      "url": "https://github.com/laspy/laspy/blob/b4e14088d24e7e23f72fd9d33d61f63a9668cb74/laspy/copc.py"
+    },
+    {
+      "project": "mlir",
+      "repo": "llvm/llvm-project",
+      "commit": "3a2f13ff993961e7bd745a37d6f163fe46657150",
+      "path": "mlir/lib/IR/Verifier.cpp",
+      "bytes": 21924,
+      "sha256": "120a0f6fa77b2dd24adb5aa9d4393d4360e494f8ad1536c5bb07fabc6037962e",
+      "url": "https://github.com/llvm/llvm-project/blob/3a2f13ff993961e7bd745a37d6f163fe46657150/mlir/lib/IR/Verifier.cpp"
+    },
+    {
+      "project": "mlir",
+      "repo": "llvm/llvm-project",
+      "commit": "3a2f13ff993961e7bd745a37d6f163fe46657150",
+      "path": "mlir/docs/DefiningDialects/Operations.md",
+      "bytes": 81022,
+      "sha256": "6c7f0a11f2666a45cc072ee5705676d668f906a8fb2a8df07ef0dd7011028b9c",
+      "url": "https://github.com/llvm/llvm-project/blob/3a2f13ff993961e7bd745a37d6f163fe46657150/mlir/docs/DefiningDialects/Operations.md"
+    },
+    {
+      "project": "gaussianhierarchy",
+      "repo": "graphdeco-inria/gaussian-hierarchy",
+      "commit": "677c8553dc64dfd62c272eca94a291a277733113",
+      "path": "AvgMerger.cpp",
+      "bytes": 1257,
+      "sha256": "6827c786cabc44d0a563535dbbcf670ccd08fdf59bd3522ac79b8be45f73dbb2",
+      "url": "https://github.com/graphdeco-inria/gaussian-hierarchy/blob/677c8553dc64dfd62c272eca94a291a277733113/AvgMerger.cpp"
+    },
+    {
+      "project": "gaussianhierarchy",
+      "repo": "graphdeco-inria/gaussian-hierarchy",
+      "commit": "677c8553dc64dfd62c272eca94a291a277733113",
+      "path": "ClusterMerger.cpp",
+      "bytes": 4793,
+      "sha256": "6027386be515ce20bcf4f33cbd098a35d2d5d8ab967d7efbdef81eb1c73dd651",
+      "url": "https://github.com/graphdeco-inria/gaussian-hierarchy/blob/677c8553dc64dfd62c272eca94a291a277733113/ClusterMerger.cpp"
+    },
+    {
+      "project": "gaussianhierarchy",
+      "repo": "graphdeco-inria/gaussian-hierarchy",
+      "commit": "677c8553dc64dfd62c272eca94a291a277733113",
+      "path": "runtime_switching.cu",
+      "bytes": 14484,
+      "sha256": "61ed86f944d94282791fbd73401341ad79626446e3a61d756e625cbe2cc06a15",
+      "url": "https://github.com/graphdeco-inria/gaussian-hierarchy/blob/677c8553dc64dfd62c272eca94a291a277733113/runtime_switching.cu"
+    },
+    {
+      "project": "gaussianhierarchy",
+      "repo": "graphdeco-inria/gaussian-hierarchy",
+      "commit": "677c8553dc64dfd62c272eca94a291a277733113",
+      "path": "rotation_aligner.cpp",
+      "bytes": 2410,
+      "sha256": "359fc54ba74b24c41e574af517efcd117377b386b63aa89fb779da5ebf3d067c",
+      "url": "https://github.com/graphdeco-inria/gaussian-hierarchy/blob/677c8553dc64dfd62c272eca94a291a277733113/rotation_aligner.cpp"
+    }
+  ],
+  "papers_read": [
+    "Selected method excerpts from Differential dataflow CIDR 2013",
+    "Selected method excerpts from Hierarchical 3D Gaussian Representation SIGGRAPH 2024",
+    "Selected method excerpts from Voxblox IROS 2017",
+    "Selected method excerpts from TEASER IEEE T-RO 2021",
+    "Selected method excerpts from iSAM2 IJRR 2012",
+    "Selected algorithm and schedule excerpts from Halide PLDI 2013",
+    "Selected model and ceilings excerpts from Roofline SAND report 2008",
+    "Selected K-relation and positive relational algebra excerpts from Provenance Semirings PODS 2007",
+    "Parallel moment formulas from Pebay SAND2008-6212"
+  ],
+  "local_code_hashes": {
+    "pipeline/openpali/ingestion/snapshot.py": "4e86d7b07a68ecd36815c1d4a3167220c43740d729d97ec62c47a160d75e5147",
+    "pipeline/openpali/intelligence/build.py": "1473c7b5ecf7fec2b5a8110f6707dacd6ac21655b1a486c38c31c1c9542e4629",
+    "pipeline/openpali/intelligence/repository.py": "562813d737dbc5d0948b69e5d0be173c4830ed51ab2ffae28ba620ff2e7bfb44",
+    "pipeline/core/spatial/schema.py": "c7a04b696c6a4480c1c6a6acf95c7aa9cdd2eca47abda3f608212d1df8696fe0",
+    "pipeline/core/spatial/splat_tiler.py": "85dcd93b7db80ee3ed63918880749f5f75c94216b991216b436772fc78c49b5b",
+    "pipeline/core/spatial/runner.py": "48b44fa09672a0d1a1e0fd4aeec2596ae3376cceeb3014a00cf89787903e134a",
+    "pipeline/openpali/spatial/derive.py": "173155e224dbf150d40b57368ad87a29972bf72e8aba5046395b6304843d0e3a",
+    "pipeline/openpali/spatial/reconstruction.py": "18846fd5ae9a4c57fb88c597c64f18283455fdb7295be0d2c70789152becd42f",
+    "pipeline/openpali/ml/dataset.py": "c5a27dcc888249b0b64454598acf8d3b3fb2d998d96244d8e822d930f6791c3e",
+    "web/src/Map.tsx": "5a915e17a620c31fd881ec62923f184c6b68be76b2d72e59a373b36ed2503279"
+  }
+}
