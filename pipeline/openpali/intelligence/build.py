@@ -20,6 +20,7 @@ from shapely.ops import transform
 from shapely.strtree import STRtree
 
 from openpali.discovery.clearance import approved_pdf_url
+from openpali.domain.lifecycles import RECOVERY_STAGE
 from openpali.identity.ids import property_id_from_apn
 from openpali.intelligence.market import screen_transfer, market_support
 from openpali.intelligence.permits import permit_stage, timing_summary
@@ -217,7 +218,6 @@ def build(root: Path, out: Path):
         raise ValueError('incomplete permit inventory')
     permit_links = {}
     permit_timing = {}
-    ranks = {stage:i for i,stage in enumerate(['unknown','cleanup','application','design','permit','construction','construction_complete','occupancy'])}
     for table in permit_inventory['tables']:
         records = json.loads(checked(root, table['path'], table['sha256']))
         ref = source_ref(table['source_id'],table['source'],table['observed_at'],table['sha256'])
@@ -233,8 +233,7 @@ def build(root: Path, out: Path):
                 permit_links.setdefault(record['PERMIT'],set()).add(apn)
                 # Explicit residential use protects against advancing a house
                 # from completion of its ADU, garage or accessory structure.
-                stage = permit_stage(record, table['observed_at'])
-                if ranks[stage] > ranks[p['stage']]: p['stage'] = stage
+                p['stage'] = RECOVERY_STAGE.advance(p['stage'], permit_stage(record, table['observed_at']))
             else:
                 apns = permit_links.get(record.get('PERMIT'),set())
                 if len(apns) != 1: continue
