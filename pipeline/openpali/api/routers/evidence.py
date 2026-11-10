@@ -75,11 +75,16 @@ def tasks(release_id:str,kind:str='',limit:int=Query(100,ge=1,le=1000),offset:in
 
 @router.get('/releases/{release_id}/artifacts/{name}')
 def artifact(release_id:str,name:str,request:Request):
-    try: body,sha=repository().artifact(release_id,name)
+    accepts_gzip='gzip' in request.headers.get('accept-encoding','').lower()
+    try: body,sha,encoding=repository().artifact(release_id,name,gzip=accepts_gzip)
     except FileNotFoundError as exc: raise HTTPException(404,'artifact not found') from exc
     except ValueError as exc: raise HTTPException(409,str(exc)) from exc
-    headers={'ETag':f'"{sha}"','Cache-Control':'public, max-age=86400, immutable'}
-    if request.headers.get('if-none-match')==headers['ETag']: return Response(status_code=304,headers=headers)
+    # The URL names an immutable release, so the bytes behind it never change.
+    # Each encoding is its own representation with its own validator.
+    headers={'ETag':f'"{sha}"','Cache-Control':'public, max-age=31536000, immutable','Vary':'Accept-Encoding'}
+    if encoding: headers['Content-Encoding']=encoding
+    if headers['ETag'] in [tag.strip() for tag in request.headers.get('if-none-match','').split(',')]:
+        return Response(status_code=304,headers=headers)
     media='image/png' if name.endswith('.png') else 'application/geo+json' if name.endswith('.geojson') else 'application/json' if name.endswith('.json') else 'application/octet-stream'
     return Response(body,media_type=media,headers=headers)
 

@@ -62,10 +62,12 @@ const PASS_PICK = 4
 const LUT_WIDTH = 4096
 const MAX_BATCH_LOADS = 4
 const MAX_ATLAS_LOADS = 2
-const LOAD_DISTANCE_M = 9000
-const ATLAS_DISTANCE_M = 2200
+// Beyond this a structure is a few pixels: its batch is neither fetched nor drawn.
+const LOAD_DISTANCE_M = 3200
+// Roof photos only matter up close, and each is a multi-megabyte texture.
+const ATLAS_DISTANCE_M = 1400
 const ATLAS_MAX_PX = 2048
-const ATLAS_BYTE_CAP = 192 * 1024 * 1024
+const ATLAS_BYTE_CAP = 128 * 1024 * 1024
 const GEOMETRY_BYTE_CAP = 256 * 1024 * 1024
 const BATCH_UPLOADS_PER_FRAME = 2
 const GROUND_SAMPLES_PER_FRAME = 64
@@ -152,12 +154,18 @@ export class BuildingLayer implements CustomLayerInterface {
   private parcels: Map<string, ParcelStyle> | null = null
   private selectedApn: string | null = null
   private fallbackTex: WebGLTexture | null = null
+  /** local metres → clip for the frame being drawn */
+  private localMatrix: Mat4 = new Float64Array(16)
 
   // picking
   private pickFbo: WebGLFramebuffer | null = null
   private pickColor: WebGLTexture | null = null
   private pickDepth: WebGLRenderbuffer | null = null
   private pickRequests: { x: number; y: number; resolve: (apn: string | null) => void }[] = []
+  // id pixels on their way back from the GPU. A synchronous readPixels makes
+  // the main thread wait for the whole frame to finish rendering; a pixel
+  // buffer and a fence return the same answer a frame or two later for free.
+  private pickReads: { buffer: WebGLBuffer; sync: WebGLSync; resolve: (apn: string | null) => void }[] = []
 
   /** Counters for checks and benchmarks (`window.__buildings.stats`). */
   readonly stats = {
@@ -192,6 +200,7 @@ export class BuildingLayer implements CustomLayerInterface {
 
   setEnabled(on: boolean): void {
     this.enabled = on
+    if (!on) this.abandonPicks() // a disabled layer does not render, so nothing would collect them
     this.map?.triggerRepaint()
   }
 
@@ -214,6 +223,17 @@ export class BuildingLayer implements CustomLayerInterface {
       this.pickRequests.push({ x: point.x, y: point.y, resolve })
       this.map?.triggerRepaint()
     })
+  }
+
+  private abandonPicks(): void {
+    for (const request of this.pickRequests) request.resolve(null)
+    this.pickRequests = []
+    for (const read of this.pickReads) {
+      this.gl?.deleteSync(read.sync)
+      this.gl?.deleteBuffer(read.buffer)
+      read.resolve(null)
+    }
+    this.pickReads = []
   }
 
   // ---------------------------------------------------------------- setup
@@ -365,8 +385,7 @@ export class BuildingLayer implements CustomLayerInterface {
     if (this.edgeProgram) gl2.deleteProgram(this.edgeProgram)
     this.program = null
     this.edgeProgram = null
-    for (const request of this.pickRequests) request.resolve(null)
-    this.pickRequests = []
+    this.abandonPicks()
     this.manifest = null
     this.map = null
     this.gl = null
@@ -660,6 +679,7 @@ export class BuildingLayer implements CustomLayerInterface {
     const s = manifest.mercator_metre_scale
     const [ox, oy] = manifest.mercator_origin
     const local: Mat4 = composeTRS(main, [ox, oy, 0], [s, s, s])
+    this.localMatrix = local
     const planes = extractFrustumPlanes(local)
     const inverse = invert(local)
     const camera = inverse ? transformPoint(inverse, [0, 0, -0.9999]) : [0, 0, 1000]
@@ -740,6 +760,7 @@ export class BuildingLayer implements CustomLayerInterface {
           uploads = BATCH_UPLOADS_PER_FRAME
         }
       }
+      if (this.collectPicks(gl2)) repaint = true
       if (this.sampleGround(drawn)) repaint = true
       this.publishLuts(gl2)
       if (!this.fallbackTex) {
@@ -759,7 +780,10 @@ export class BuildingLayer implements CustomLayerInterface {
             [grid.extent[0] * k * s, grid.extent[1] * k * s, grid.extent[2] * k * s]))
         }
         this.draw(gl2, drawn)
-        if (this.pickRequests.length) this.resolvePicks(gl2, drawn, map)
+        if (this.pickRequests.length) {
+          this.resolvePicks(gl2, drawn, map)
+          repaint = true // come back for the answer
+        }
       } else {
         for (const request of this.pickRequests) request.resolve(null)
         this.pickRequests = []
@@ -888,30 +912,70 @@ export class BuildingLayer implements CustomLayerInterface {
     gl.depthMask(true)
     gl.colorMask(true, true, true, true)
     const scratch = new Float32Array(16)
-    const pixel = new Uint8Array(4)
+    const zoomed = new Float64Array(16)
     for (const request of requests) {
       const ndcX = (2 * request.x) / cssWidth - 1
       const ndcY = 1 - (2 * request.y) / cssHeight
+      // zoom clip space so the requested pixel fills the 1×1 target
+      const zoom = (m: ArrayLike<number>, out: Float32Array | Float64Array): void => {
+        for (let column = 0; column < 4; column++) {
+          const w = m[column * 4 + 3]
+          out[column * 4] = canvas.width * (m[column * 4] - ndcX * w)
+          out[column * 4 + 1] = canvas.height * (m[column * 4 + 1] - ndcY * w)
+          out[column * 4 + 2] = m[column * 4 + 2]
+          out[column * 4 + 3] = w
+        }
+      }
+      // only batches the pixel's own frustum passes through are drawn: one or
+      // two, instead of everything on screen
+      zoom(this.localMatrix, zoomed)
+      const planes = extractFrustumPlanes(zoomed)
+      const under = drawn.filter((batch) =>
+        sphereInFrustum(planes, batch.cx, batch.cy, batch.cz, batch.radius))
       gl.clearColor(0, 0, 0, 0)
       gl.clearDepth(1)
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-      // zoom clip space so the requested pixel fills the 1×1 target
-      this.drawPass(gl, drawn, PASS_PICK, (batch) => {
-        const m = batch.matrix
-        for (let column = 0; column < 4; column++) {
-          const w = m[column * 4 + 3]
-          scratch[column * 4] = canvas.width * (m[column * 4] - ndcX * w)
-          scratch[column * 4 + 1] = canvas.height * (m[column * 4 + 1] - ndcY * w)
-          scratch[column * 4 + 2] = m[column * 4 + 2]
-          scratch[column * 4 + 3] = w
-        }
+      this.drawPass(gl, under, PASS_PICK, (batch) => {
+        zoom(batch.matrix, scratch)
         return scratch
       })
-      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
-      const id = pixel[0] | (pixel[1] << 8)
-      request.resolve(id > 0 ? this.idToApn[id] || null : null)
+      const buffer = gl.createBuffer()
+      const sync = buffer && gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
+      if (!buffer || !sync) {
+        if (buffer) gl.deleteBuffer(buffer)
+        request.resolve(null)
+        continue
+      }
+      gl.bindBuffer(gl.PIXEL_PACK_BUFFER, buffer)
+      gl.bufferData(gl.PIXEL_PACK_BUFFER, 4, gl.STREAM_READ)
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, 0)
+      gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null)
+      this.pickReads.push({ buffer, sync, resolve: request.resolve })
     }
+    gl.flush() // so the fences can signal without waiting for another draw
     this.stats.lastPickMs = performance.now() - started
+  }
+
+  /** Deliver id pixels whose GPU work has finished. True while some are outstanding. */
+  private collectPicks(gl: WebGL2RenderingContext): boolean {
+    if (this.pickReads.length === 0) return false
+    const pixel = new Uint8Array(4)
+    this.pickReads = this.pickReads.filter((read) => {
+      const status = gl.clientWaitSync(read.sync, 0, 0)
+      if (status === gl.TIMEOUT_EXPIRED) return true
+      let id = 0
+      if (status !== gl.WAIT_FAILED) {
+        gl.bindBuffer(gl.PIXEL_PACK_BUFFER, read.buffer)
+        gl.getBufferSubData(gl.PIXEL_PACK_BUFFER, 0, pixel)
+        gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null)
+        id = pixel[0] | (pixel[1] << 8)
+      }
+      gl.deleteSync(read.sync)
+      gl.deleteBuffer(read.buffer)
+      read.resolve(id > 0 ? this.idToApn[id] || null : null)
+      return false
+    })
+    return this.pickReads.length > 0
   }
 
   private evict(gl: WebGL2RenderingContext): void {
@@ -984,6 +1048,7 @@ function snapshot(gl: WebGL2RenderingContext) {
     unpackFlipY: gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL) as boolean,
     unpackPremultiply: gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL) as boolean,
     unpackBuffer: gl.getParameter(gl.PIXEL_UNPACK_BUFFER_BINDING) as WebGLBuffer | null,
+    packBuffer: gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING) as WebGLBuffer | null,
   }
 }
 
@@ -1019,4 +1084,5 @@ function restore(gl: WebGL2RenderingContext, p: Snapshot): void {
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, p.unpackFlipY)
   gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, p.unpackPremultiply)
   gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, p.unpackBuffer)
+  gl.bindBuffer(gl.PIXEL_PACK_BUFFER, p.packBuffer)
 }

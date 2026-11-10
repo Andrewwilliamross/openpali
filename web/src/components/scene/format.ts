@@ -44,6 +44,8 @@ export interface SceneNode {
   bounds: [number, number, number, number]
   vertex_bytes: number
   index_bytes: number
+  /** v2: width of the stored triangle indices (v1 is always u32) */
+  index_type?: 'u16' | 'u32'
   /** aerial tile rectangle the batch's uv spans */
   atlas: { z: number; x: number; y: number; width: number; height: number }
   /** v2 only: position grid, local metres */

@@ -23,7 +23,7 @@ neighborhood picker. Each flies the camera to its view.
   terrain: USGS 2025 post-fire lidar (2 m tiles) where the scene build baked
   it, Mapzen terrain tiles elsewhere.
 - **Structures:** the county's 2023 building model as indexed triangle meshes
-  (`src/components/scene/`), 12,595 structures in 91 batches, about 25 MB.
+  (`src/components/scene/`), 12,595 structures in 91 batches, about 18 MB.
   Structures the county inspected as destroyed are drawn as outlined,
   translucent shells in their lot's score colour, so the cleared lot in the
   2026 imagery stays visible; standing structures are solid with the aerial
@@ -32,7 +32,8 @@ neighborhood picker. Each flies the camera to its view.
   its use.
 - **Shading:** lots and destroyed structures share one 0–100 rebuild score:
   the position of the parcel's highest agency-reported recovery milestone
-  (`stages` in `src/lib/api.ts`, ramp in `src/lib/colors.ts`). Only parcels the
+  (`REBUILD_SCORE` in `pipeline/openpali/domain/lifecycles.py`, ramp in
+  `src/lib/colors.ts`). Only parcels the
   agency fire assessment records as destroyed are scored. A structure's colour
   is one texel in a lookup texture, updated without touching geometry.
 
@@ -58,7 +59,27 @@ npm --prefix web test -- --run
 npm --prefix web run lint
 npm --prefix web run build
 sh scripts/check-fast
+make scene-verify
+make map-perf BASE=http://127.0.0.1:58080   # needs a running map and local Chrome
 ```
+
+`map-perf` flies three fixed camera paths with the building layer on and off
+and writes `data/out/checks/perf-<utc>.json`. It fails if any budget is missed:
+dropped frames ≤ 2%, building layer ≤ 2 ms at p95, scored lots on screen
+within 2 s, ≤ 5 MB of our own bytes to the first idle view, ≤ 10 ms of main
+thread per pick. Frame numbers are quantized to the display refresh and only
+compare between runs on one machine. Measure the production build (the
+container stack), not the dev server: unbundled dev modules triple the app
+transfer and the load time.
+
+## Data delivery
+
+The map loads two release artifacts, both gzip-compressed at build time and
+served immutable: `parcels.geojson` (polygons at 6 decimals with `score` and
+`weight` properties; MapLibre fetches and parses it in its worker) and
+`parcel-index.json` (one row per parcel: address, a point on the parcel,
+stage, damage, score), which drives search, neighborhood framing and
+structure colours. The main thread never holds the polygons.
 
 ## API contract
 

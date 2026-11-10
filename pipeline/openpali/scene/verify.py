@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
         check(hashlib.sha256(index_bytes).hexdigest() == node['index_sha256'], f'node {node["id"]} index hash')
         check(len(vertex_bytes) == node['vertex_count'] * VERTEX_BYTES, f'node {node["id"]} vertex length')
         vertices = np.frombuffer(vertex_bytes, dtype=VERTEX)
-        indices = np.frombuffer(index_bytes, dtype='<u4').reshape(-1, 3)
+        indices = np.frombuffer(index_bytes, dtype='<u2' if node['index_type'] == 'u16' else '<u4').reshape(-1, 3)
         check(indices.size == node['index_count'], f'node {node["id"]} index count')
         check(int(indices.max()) < len(vertices), f'node {node["id"]} index out of range')
         owners = vertices['id'][indices]
@@ -69,11 +69,14 @@ def main(argv: list[str] | None = None) -> int:
     terrain = manifest.get('terrain')
     tiles = 0
     if terrain:
+        digest = hashlib.sha256()
         for z, entries in terrain['index'].items():
             for x, y in entries:
                 path = scene / 'terrain' / z / str(x) / f'{y}.png'
                 check(path.exists(), f'terrain tile {z}/{x}/{y} is indexed but absent')
+                digest.update(f'{z}/{x}/{y}:'.encode() + hashlib.sha256(path.read_bytes()).digest())
                 tiles += 1
+        check(digest.hexdigest() == terrain['sha256'], 'terrain tiles differ from the manifest hash')
         z, (x, y) = next((z, entries[len(entries) // 2]) for z, entries in terrain['index'].items() if entries)
         height = decode_terrarium((scene / 'terrain' / z / str(x) / f'{y}.png').read_bytes())
         check(height.shape == (256, 256) and bool(np.isfinite(height).all()), 'terrain tile does not decode')

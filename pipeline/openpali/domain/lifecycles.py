@@ -143,6 +143,29 @@ RECOVERY_STAGE = Ladder(
     ),
 )
 
+#: Where each rung of the recovery ladder sits on the map's 0-100 colour ramp.
+#: A display position for an evidenced milestone, not a prediction or a
+#: quality judgment: it carries no information the stage does not. Only
+#: parcels with a destroyed-structure assessment are scored (see
+#: ``rebuild_score``); "no score" is different from a score of 0.
+REBUILD_SCORE: dict[str, int] = {
+    "unknown": 0,
+    "cleanup": 8,
+    "application": 15,
+    "design": 30,
+    "permit": 40,
+    "construction": 60,
+    "construction_complete": 92,
+    "occupancy": 100,
+}
+
+
+def rebuild_score(stage: str, damage: str) -> int | None:
+    if damage != "destroyed":
+        return None
+    return REBUILD_SCORE.get(stage, REBUILD_SCORE["unknown"])
+
+
 # --- canonical PostGIS platform ---------------------------------------------
 
 ACQUISITION_RUN = _machine(

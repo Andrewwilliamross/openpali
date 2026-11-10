@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import maplibregl, { Map as MLMap, MapMouseEvent } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { ParcelCollection } from '../lib/types'
-import { rebuildScore, scoreColor, scorePaintExpression } from '../lib/colors'
-import { geometryAreaM2, largeParcelVisualWeight } from '../lib/parcelPresentation'
+import type { MapData } from '../lib/types'
+import { scorePaintExpression, scoreRgb } from '../lib/colors'
 // Type-only import, erased at build time: the 3D renderer is code-split and
 // fetched via import('./scene/BuildingLayer') in parallel with the style.
 import type { BuildingLayer, ParcelStyle } from './scene/BuildingLayer'
@@ -49,11 +48,12 @@ const WORLD_IMAGERY_ATTRIBUTION =
 const STRUCTURES_ATTRIBUTION =
   'Structures: LA County 2023 building model (non-authoritative); destroyed structures outlined in their lot’s rebuild score'
 
-const SCORE_PROPERTY = '__score'
-const VISUAL_WEIGHT_PROPERTY = '__visual_weight'
+// feature properties written by the release build (parcels.geojson)
+const SCORE_PROPERTY = 'score'
+const VISUAL_WEIGHT_PROPERTY = 'weight'
 
 interface Props {
-  parcels: ParcelCollection | null
+  data: MapData | null
   selectedApn: string | null
   onSelect: (apn: string | null) => void
   onMapReady: (map: MLMap) => void
@@ -71,7 +71,7 @@ function demSource(): maplibregl.RasterDEMSourceSpecification {
   }
 }
 
-export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: Props) {
+export default function MapView({ data, selectedApn, onSelect, onMapReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
   const hoveredRef = useRef<string | number | null>(null)
@@ -86,42 +86,19 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
     onMapReadyRef.current = onMapReady
   })
 
-  // Presentation properties derived once per dataset:
-  // - the rebuild score that drives every colour on the map (destroyed
-  //   parcels only; the rest keep a quiet outline and stay searchable);
-  // - a reduced visual weight for legitimate acreage parcels (parks, canyons,
-  //   coastal easements) so they do not blanket the lot-level layer.
-  const renderedParcels = useMemo<ParcelCollection | null>(() => {
-    if (!parcels) return null
-    return {
-      ...parcels,
-      features: parcels.features.map((feature) => {
-        const score = rebuildScore(feature.properties)
-        return {
-          ...feature,
-          properties: {
-            ...feature.properties,
-            ...(score === null ? {} : { [SCORE_PROPERTY]: score }),
-            [VISUAL_WEIGHT_PROPERTY]: largeParcelVisualWeight(geometryAreaM2(feature.geometry)),
-          },
-        }
-      }),
-    }
-  }, [parcels])
-
   // what the 3D structures need to know about each lot
   const parcelStyles = useMemo<Map<string, ParcelStyle> | null>(() => {
-    if (!parcels) return null
+    if (!data) return null
     const styles = new Map<string, ParcelStyle>()
-    for (const f of parcels.features) {
-      const score = rebuildScore(f.properties)
-      styles.set(f.properties.apn, {
-        color: score === null ? null : hexToRgb(scoreColor(score)),
-        destroyed: f.properties.damage === 'destroyed',
+    for (const parcel of data.parcels) {
+      styles.set(parcel.apn, {
+        color: parcel.score === null ? null : scoreRgb(parcel.score),
+        destroyed: parcel.destroyed,
       })
     }
     return styles
-  }, [parcels])
+  }, [data])
+  const parcelsUrl = data?.parcelsUrl ?? null
 
   // Fetch the 3D chunk and install the building meshes. The 3D layer must
   // never take down the map: every failure leaves terrain, imagery and the
@@ -275,17 +252,19 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
   // ---- parcel source/layers ----
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !renderedParcels) return
+    if (!map || !parcelsUrl) return
 
     const install = () => {
       if (mapRef.current !== map) return
       hoveredRef.current = null
       const existing = map.getSource('parcels') as maplibregl.GeoJSONSource | undefined
       if (existing) {
-        existing.setData(renderedParcels)
+        existing.setData(parcelsUrl)
         return
       }
-      map.addSource('parcels', { type: 'geojson', data: renderedParcels, promoteId: 'apn' })
+      // by URL: MapLibre fetches, parses and tiles the polygons in its worker,
+      // so 10,000 lots never pass through the main thread
+      map.addSource('parcels', { type: 'geojson', data: parcelsUrl, promoteId: 'apn' })
       const weight = ['coalesce', ['get', VISUAL_WEIGHT_PROPERTY], 1]
       const scored = ['has', SCORE_PROPERTY] as maplibregl.FilterSpecification
       // unscored parcels: an invisible hit area (hover/click) and a quiet outline
@@ -372,7 +351,7 @@ export default function MapView({ parcels, selectedApn, onSelect, onMapReady }: 
 
     if (loadedRef.current) install()
     else map.once('load', install)
-  }, [renderedParcels])
+  }, [parcelsUrl])
 
   // selection highlight
   useEffect(() => {
@@ -391,8 +370,4 @@ function firstSymbolLayerId(map: MLMap): string | undefined {
     if (layer.type === 'symbol') return layer.id
   }
   return undefined
-}
-
-function hexToRgb(hex: string): [number, number, number] {
-  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number]
 }

@@ -10,7 +10,7 @@ from openpali.api.app import create_app
 from openpali.api.routers import evidence
 from openpali.domain.lifecycles import (
     ACQUISITION_RUN, ACQUISITION_TASK, CIVIC_SNAPSHOT, JOB_RUN, PUBLICATION,
-    RECOVERY_STAGE, IllegalTransition, catalog,
+    REBUILD_SCORE, RECOVERY_STAGE, IllegalTransition, catalog, rebuild_score,
 )
 from openpali.intelligence.repository import EvidenceRepository
 from openpali.intelligence.workspace import TaskUpdate, Workspace
@@ -79,7 +79,12 @@ def test_task_api_enforces_lifecycle(tmp_path, monkeypatch):
     assert client.get('/v1/evidence/lifecycles').json()['ladders']['recovery_stage']['order'][-1] == 'occupancy'
 
 
-def test_web_stage_legend_follows_recovery_ladder():
-    source = (PKG.parents[1] / 'web/src/lib/api.ts').read_text()
-    block = source[source.index('export const stages'):].split('\n', 1)[0]
-    assert re.findall(r'(\w+):\{label:', block) == list(RECOVERY_STAGE.order)
+def test_rebuild_score_follows_the_recovery_ladder():
+    # one score per rung, in ladder order, rising from 0 to 100: the colour
+    # ramp can never rank a later milestone below an earlier one
+    assert list(REBUILD_SCORE) == list(RECOVERY_STAGE.order)
+    scores = list(REBUILD_SCORE.values())
+    assert scores[0] == 0 and scores[-1] == 100 and scores == sorted(set(scores))
+    assert rebuild_score('permit', 'destroyed') == 40
+    assert rebuild_score('permit', 'unknown') is None  # unassessed is not zero
+    assert rebuild_score('not-a-stage', 'destroyed') == 0

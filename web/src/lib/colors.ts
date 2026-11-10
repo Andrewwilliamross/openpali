@@ -1,12 +1,10 @@
 // The score → colour ramp. Single source of truth for the draped parcel fills
-// and the live tint on the 3D structures.
+// and the 3D structures.
 //
-// A parcel's rebuild score is the position of its highest agency-reported
-// recovery milestone on a 0–100 scale (see `stages` in api.ts). It is scored
-// only for parcels the agency fire assessment records as destroyed: an
-// unassessed parcel has no score, which is different from a score of 0.
-import { stages } from './api'
-import type { ParcelProps } from './types'
+// A parcel's rebuild score is computed by the release build
+// (openpali.domain.lifecycles.REBUILD_SCORE): the position of its highest
+// agency-reported recovery milestone on a 0–100 scale. Only parcels the agency
+// fire assessment records as destroyed are scored.
 
 export const SCORE_STOPS: [number, string][] = [
   [0, '#99000d'], // deep red — no milestone established
@@ -20,11 +18,6 @@ export const SCORE_STOPS: [number, string][] = [
   [92, '#3d9f47'], // construction complete
   [100, '#1b7837'], // occupancy
 ]
-
-export function rebuildScore(p: Pick<ParcelProps, 'damage' | 'stage'>): number | null {
-  if (p.damage !== 'destroyed') return null
-  return (stages[p.stage] ?? stages.unknown).score
-}
 
 export function scoreColor(score: number): string {
   const s = Math.max(0, Math.min(100, score))
@@ -51,4 +44,9 @@ export function scorePaintExpression(property: string): unknown[] {
   const expr: unknown[] = ['interpolate', ['linear'], ['get', property]]
   for (const [stop, color] of SCORE_STOPS) expr.push(stop, color)
   return expr
+}
+
+export function scoreRgb(score: number): [number, number, number] {
+  const hex = scoreColor(score)
+  return [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)) as [number, number, number]
 }

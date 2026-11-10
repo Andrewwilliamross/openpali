@@ -1,7 +1,8 @@
-# Optional 3D building scene for the web container.
-# Build it on the host first (`make scene-build`), then publish the scene the
-# pointer names:  SCENE_ID=$(python3 -c "import json;print(json.load(open('data/out/scene/current.json'))['scene_id'])")
+# 3D building scene for the web container: the scene `make scene-build` last
+# published (data/out/scene/current), served read-only at /scene/.
+# Build it on the host first. Without this overlay the map still shows
+# terrain, imagery and scored lots, and /scene/ answers 404.
 services:
   web:
     volumes:
-      - ../data/out/scene/${SCENE_ID:?set SCENE_ID to the scene to publish}:/scene:ro
+      - ../data/out/scene/current:/scene:ro

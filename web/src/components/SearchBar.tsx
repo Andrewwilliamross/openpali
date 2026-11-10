@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
-import type { ParcelCollection } from '../lib/types'
+import type { ParcelRow } from '../lib/types'
 import { titleCase } from '../lib/format'
 import { NEIGHBORHOODS } from '../lib/neighborhoods'
 
 interface Props {
-  parcels: ParcelCollection | null
+  parcels: ParcelRow[] | null
   /** the parcel request failed: say so rather than "loading" forever */
   unavailable: boolean
   onPick: (apn: string) => void
@@ -25,12 +25,12 @@ export default function SearchBar({ parcels, unavailable, onPick, onNeighborhood
 
   const index = useMemo(
     () =>
-      (parcels?.features ?? [])
-        .filter((f) => f.properties.address)
-        .map((f) => ({
-          apn: f.properties.apn,
-          label: streetAddress(f.properties.address),
-          lc: f.properties.address.toLowerCase(),
+      (parcels ?? [])
+        .filter((parcel) => parcel.address)
+        .map((parcel) => ({
+          apn: parcel.apn,
+          label: streetAddress(parcel.address),
+          lc: parcel.address.toLowerCase(),
         })),
     [parcels],
   )

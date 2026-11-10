@@ -1,14 +1,18 @@
-import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson'
-
-/** Properties of `artifacts/parcels.geojson` in an evidence release. */
-export interface ParcelProps {
+/** One parcel from the release's `parcel-index.json`. */
+export interface ParcelRow {
   apn: string
   address: string
-  /** agency fire-damage assessment; 'unknown' is not 'undamaged' */
-  damage: 'destroyed' | 'unknown' | (string & {})
-  /** highest agency-reported recovery milestone (RECOVERY_STAGE ladder) */
-  stage: string
+  /** a point on the parcel; null when the release has no geometry for it */
+  center: [number, number] | null
+  /** agency fire-damage assessment says destroyed ('unknown' is not 'undamaged') */
+  destroyed: boolean
+  /** 0–100 position of the parcel's highest agency-reported recovery
+   *  milestone; null for parcels not assessed as destroyed (not the same as 0) */
+  score: number | null
 }
 
-export type ParcelFeature = Feature<Polygon | MultiPolygon, ParcelProps>
-export type ParcelCollection = FeatureCollection<Polygon | MultiPolygon, ParcelProps>
+export interface MapData {
+  /** `parcels.geojson` of the same release; features carry `score` and `weight` */
+  parcelsUrl: string
+  parcels: ParcelRow[]
+}

@@ -43,7 +43,10 @@ async function loadBatch(baseUrl: string, schema: string, node: SceneNode,
     bytes(`${baseUrl}/${node.id}.vertices.bin`, node.vertex_bytes, signal),
     bytes(`${baseUrl}/${node.id}.indices.bin`, node.index_bytes, signal),
   ])
-  const indices = new Uint32Array(indexBytes)
+  // stored narrow where a batch allows it; one width on the GPU keeps a single draw path
+  const indices = node.index_type === 'u16'
+    ? Uint32Array.from(new Uint16Array(indexBytes))
+    : new Uint32Array(indexBytes)
   let vertices: ArrayBuffer
   let vertexCount: number
   let grid: QuantizedGrid

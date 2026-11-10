@@ -11,6 +11,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import shutil
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -115,6 +117,32 @@ def decode(info: dict, node: dict, to_navd88, offline: bool):
     return node, p, triangles, ids, attributes, feature['featureIds'], records
 
 
+def publish(scene: Path) -> None:
+    """Make ``scene`` the current one: ``current.json`` names it, and
+    ``current/`` holds the same files for servers that mount one fixed path.
+    Hard links, not a symlink or a copy: no second 60 MB, and nothing a
+    container bind mount or an archive tool will follow out of the tree."""
+    current = OUT / 'current'
+    staging = OUT / '.current'
+    for stale in (staging,):
+        if stale.exists():
+            shutil.rmtree(stale)
+    for source in sorted(scene.rglob('*')):
+        target = staging / source.relative_to(scene)
+        if source.is_dir():
+            target.mkdir(parents=True, exist_ok=True)
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            os.link(source, target)
+        except OSError:  # a filesystem without hard links
+            shutil.copyfile(source, target)
+    if current.exists():
+        shutil.rmtree(current)
+    staging.rename(current)
+    (OUT / 'current.json').write_text(json.dumps({'scene_id': scene.name}) + '\n')
+
+
 def parcel_points() -> np.ndarray:
     """Centroids of the current release's fire-destroyed parcels (the scored lots)."""
     pointer = ROOT / 'data/out/evidence/current.json'
@@ -181,7 +209,6 @@ def main(argv: list[str] | None = None) -> int:
     ox, oy = mercator(*ORIGIN)
     staging = OUT / '.staging'
     if staging.exists():
-        import shutil
         shutil.rmtree(staging)
     (staging / 'buildings').mkdir(parents=True)
 
@@ -244,13 +271,16 @@ def main(argv: list[str] | None = None) -> int:
             if vertex_ids.max() > 65535:
                 raise ValueError('more than 65,535 structures: widen the id attribute')
             vertices, grid = quantize(local, normals, uv, vertex_ids)
-            vertex_bytes, index_bytes = vertices.tobytes(), indices.tobytes()
+            # no batch approaches 65,536 vertices, and indices are half the payload
+            index_type = 'u16' if len(vertices) <= 65536 else 'u32'
+            vertex_bytes = vertices.tobytes()
+            index_bytes = indices.astype('<u2' if index_type == 'u16' else '<u4').tobytes()
             (staging / 'buildings' / f'{node["index"]}.vertices.bin').write_bytes(vertex_bytes)
             (staging / 'buildings' / f'{node["index"]}.indices.bin').write_bytes(index_bytes)
             manifest_nodes.append({
                 'id': node['index'], 'vertex_count': len(vertices), 'index_count': int(indices.size),
                 'bounds': [float(p[:, 0].min()), float(p[:, 1].min()), float(p[:, 0].max()), float(p[:, 1].max())],
-                'vertex_bytes': len(vertex_bytes), 'index_bytes': len(index_bytes),
+                'vertex_bytes': len(vertex_bytes), 'index_bytes': len(index_bytes), 'index_type': index_type,
                 'vertex_sha256': hashlib.sha256(vertex_bytes).hexdigest(),
                 'index_sha256': hashlib.sha256(index_bytes).hexdigest(),
                 'atlas': {'z': z, 'x': x0, 'y': y0, 'width': width, 'height': height},
@@ -290,6 +320,7 @@ def main(argv: list[str] | None = None) -> int:
     # ---- terrain tiles: only those the lidar changes; the rest stay Mapzen ----
     terrain_index: dict[str, list[list[int]]] = {}
     terrain_bytes = 0
+    terrain_digest = hashlib.sha256()  # over every baked tile, in index order
     if not args.skip_terrain_tiles:
         for z in BAKE_ZOOMS:
             baked = []
@@ -302,6 +333,7 @@ def main(argv: list[str] | None = None) -> int:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(png)
                 terrain_bytes += len(png)
+                terrain_digest.update(f'{z}/{x}/{y}:'.encode() + hashlib.sha256(png).digest())
                 baked.append([x, y])
                 if count % 100 == 0:
                     log(f'  terrain z{z}: {count}/{len(candidates)}')
@@ -321,6 +353,8 @@ def main(argv: list[str] | None = None) -> int:
         'terrain': {
             'tiles': 'terrain/{z}/{x}/{y}.png', 'encoding': 'terrarium',
             'minzoom': min(BAKE_ZOOMS), 'maxzoom': max(BAKE_ZOOMS), 'index': terrain_index,
+            # the scene id is a hash of this manifest, so it must cover tile bytes
+            'sha256': terrain_digest.hexdigest(), 'bytes': terrain_bytes,
             'fallback': sources.MAPZEN + '/{z}/{x}/{y}.png', 'fallback_maxzoom': 15,
         } if terrain_index else None,
         'geometry_vintage': '2023',
@@ -338,10 +372,9 @@ def main(argv: list[str] | None = None) -> int:
 
     final = OUT / scene_id
     if final.exists():
-        import shutil
         shutil.rmtree(final)
     staging.rename(final)
-    (OUT / 'current.json').write_text(json.dumps({'scene_id': scene_id}) + '\n')
+    publish(final)
     lidar = sum(1 for s in structures if s['ground_source'] == 'usgs_2025_lidar')
     log(json.dumps({
         'scene_id': scene_id, 'structures': len(structures), 'batches': len(manifest_nodes),

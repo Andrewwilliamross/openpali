@@ -2,15 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Map as MLMap } from 'maplibre-gl'
 import MapView, { VIEW_PITCH } from './components/MapView'
 import SearchBar from './components/SearchBar'
-import { fetchParcels } from './lib/api'
-import { rebuildScore } from './lib/colors'
-import { centroid, motionMs } from './lib/format'
+import { fetchMapData } from './lib/api'
+import { motionMs } from './lib/format'
 import { NEIGHBORHOODS, neighborhoodBounds } from './lib/neighborhoods'
-import type { ParcelCollection } from './lib/types'
+import type { MapData } from './lib/types'
 
 type Parcels =
   | { status: 'loading' }
-  | { status: 'ready'; data: ParcelCollection }
+  | { status: 'ready'; data: MapData }
   | { status: 'failed' }
 
 export default function App() {
@@ -21,7 +20,7 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController()
-    fetchParcels(controller.signal)
+    fetchMapData(controller.signal)
       .then((d) => setParcels({ status: 'ready', data: d }))
       .catch(() => {
         if (!controller.signal.aborted) setParcels({ status: 'failed' })
@@ -31,17 +30,18 @@ export default function App() {
 
   // a neighborhood's view is the extent of its scored (fire-destroyed) parcels
   const hoodBounds = useMemo(
-    () => neighborhoodBounds((data?.features ?? []).filter((f) => rebuildScore(f.properties) !== null)),
+    () => neighborhoodBounds((data?.parcels ?? []).filter((parcel) => parcel.score !== null)),
     [data],
   )
 
   const handlePick = useCallback(
     (apn: string) => {
       setSelectedApn(apn)
-      const f = data?.features.find((x) => x.properties.apn === apn)
-      if (!f) return
+      // a parcel the release has no geometry for is still selectable, just not locatable
+      const center = data?.parcels.find((parcel) => parcel.apn === apn)?.center
+      if (!center) return
       mapRef.current?.flyTo({
-        center: centroid(f.geometry),
+        center,
         zoom: 17.6,
         pitch: VIEW_PITCH,
         duration: motionMs(1600),
@@ -77,14 +77,14 @@ export default function App() {
   return (
     <div className="app">
       <MapView
-        parcels={data}
+        data={data}
         selectedApn={selectedApn}
         onSelect={setSelectedApn}
         onMapReady={(m) => {
           mapRef.current = m
         }}
       />
-      <SearchBar parcels={data} unavailable={parcels.status === 'failed'} onPick={handlePick} onNeighborhood={handleNeighborhood} />
+      <SearchBar parcels={data?.parcels ?? null} unavailable={parcels.status === 'failed'} onPick={handlePick} onNeighborhood={handleNeighborhood} />
       {parcels.status === 'failed' && (
         <p className="load-error" role="alert">
           Parcel data could not load. Start the evidence API with <code>make evidence-api</code>, then reload.

@@ -1,8 +1,7 @@
 // Pacific Palisades sub-neighborhoods: community names with approximate
 // centres, not legal boundaries. Mirrors pipeline/palisades/neighborhoods.py,
 // including its nearest-centre assignment.
-import type { ParcelFeature } from './types'
-import { centroid } from './format'
+import type { ParcelRow } from './types'
 
 export interface Neighborhood {
   name: string
@@ -50,10 +49,11 @@ export type Bounds = [[number, number], [number, number]]
  * centre assignment also hands a neighborhood its outlying canyon parcels,
  * and the full extent would zoom the camera out past the streets.
  */
-export function neighborhoodBounds(parcels: ParcelFeature[]): Map<string, Bounds> {
+export function neighborhoodBounds(parcels: ParcelRow[]): Map<string, Bounds> {
   const groups = new Map<string, { lon: number[]; lat: number[] }>()
-  for (const f of parcels) {
-    const [lon, lat] = centroid(f.geometry)
+  for (const parcel of parcels) {
+    if (!parcel.center) continue
+    const [lon, lat] = parcel.center
     const name = nearestNeighborhood(lon, lat)
     const g = groups.get(name) ?? { lon: [], lat: [] }
     g.lon.push(lon)

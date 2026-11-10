@@ -29,6 +29,10 @@ MAPZEN_Z = 15
 #: baked zooms. Below 14 a pixel is wider than 15 m and Mapzen is used as is;
 #: above 16 (2 m) the client's terrain mesh cannot show more detail.
 BAKE_ZOOMS = (14, 15, 16)
+#: Baked heights are rounded to this. Terrarium stores 1/256 m, but below the
+#: lidar's own ~0.1 m vertical accuracy those bits are noise that PNG cannot
+#: compress: rounding to an eighth of a metre halves every tile.
+BAKE_STEP_M = 0.125
 
 
 def tile_lonlat(z: int, x: int, y: int, size: int = 256):
@@ -210,7 +214,7 @@ class Terrain:
         height = np.where(weight > 0, np.nan_to_num(lidar) * weight + base * (1 - weight), base)
         if not np.isfinite(height).all():
             raise ValueError(f'non-finite terrain in tile {z}/{x}/{y}')
-        return encode_terrarium(height)
+        return encode_terrarium(np.round(height / BAKE_STEP_M) * BAKE_STEP_M)
 
     def tiles_touching(self, z: int) -> list[tuple[int, int]]:
         """Web-mercator tiles at zoom z that overlap any acquired lidar tile."""
