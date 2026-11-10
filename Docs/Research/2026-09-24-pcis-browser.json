@@ -1,0 +1,26 @@
+{
+  "source_url": "https://www.ladbsservices2.lacity.org/OnlineServices/PermitReport/PcisPermitDetail?id1=25010&id2=10000&id3=03188",
+  "capture_date_utc": "2026-09-25",
+  "method": "read-only browser DOM extraction; JSON tool output archived locally",
+  "archived_at": "2026-09-25T03:38:18.920Z",
+  "path": "data/raw/pcis/25010-10000-03188.dom.json",
+  "sha256": "9ccc8656b54ff400cdac639e153748620827bbb5afaa889024fdd8b67ef7f7b0",
+  "schema_version": "pcis-dom-v1",
+  "counts": {
+    "Permit Application Status History": 6,
+    "Permit Application Clearance Information": 9,
+    "Contact Information": 2,
+    "Inspector Information": 2,
+    "Pending Inspections": 0,
+    "Inspection Request History": 34
+  },
+  "inspection_outcomes": {
+    "Not Ready for Inspection": 9,
+    "Partial Approval": 5,
+    "Approved": 9,
+    "Corrections Issued": 6,
+    "No Access for Inspection": 2,
+    "Conditional Approval": 3
+  },
+  "sections": []
+}
