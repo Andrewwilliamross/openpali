@@ -1,8 +1,10 @@
-# 3D building scene for the web container: the scene `make scene-build` last
-# published (data/out/scene/current), served read-only at /scene/.
-# Build it on the host first. Without this overlay the map still shows
+# 3D building scene for the web container: data/out/scene (the scenes
+# `make scene-build` wrote, plus the current.json pointer), served read-only
+# at /scene/. The directory itself is mounted, so publishing a new scene is
+# picked up without recreating the container.
+# Build a scene on the host first. Without this overlay the map still shows
 # terrain, imagery and scored lots, and /scene/ answers 404.
 services:
   web:
     volumes:
-      - ../data/out/scene/current:/scene:ro
+      - ../data/out/scene:/scene:ro

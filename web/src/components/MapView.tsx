@@ -10,7 +10,7 @@ import { installTerrainProtocol, NOT_BAKED, TERRAIN_TILES } from './scene/terrai
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
-const SCENE_BASE = `${import.meta.env.BASE_URL}scene`
+const SCENE_ROOT = `${import.meta.env.BASE_URL}scene`
 export const VIEW_PITCH = 60
 
 // Elevation comes through the scene's terrain protocol: USGS post-fire lidar
@@ -107,7 +107,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
     import('./scene/BuildingLayer')
       .then((mod) => {
         if (mapRef.current !== map || !loadedRef.current || buildingsRef.current) return
-        const buildings = new mod.BuildingLayer('palisades-buildings', SCENE_BASE, {
+        const buildings = new mod.BuildingLayer('palisades-buildings', SCENE_ROOT, {
           aerialTemplate: GROUND26_TILES,
         })
         buildingsRef.current = buildings
@@ -124,7 +124,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    installTerrainProtocol(SCENE_BASE)
+    installTerrainProtocol(SCENE_ROOT)
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: BASEMAP,

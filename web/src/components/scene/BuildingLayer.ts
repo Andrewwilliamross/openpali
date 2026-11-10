@@ -29,7 +29,7 @@ import {
   type SceneManifest,
   type SceneNode,
 } from './format'
-import { loadSceneManifest } from './manifest'
+import { loadScene } from './manifest'
 import { BUILDING_FRAG, BUILDING_VERT, EDGE_FRAG, EDGE_VERT, compile } from './shaders'
 import type { WorkerRequest, WorkerResponse } from './scene.worker'
 
@@ -127,7 +127,9 @@ export class BuildingLayer implements CustomLayerInterface {
   private frame = 0
   private enabled = true
 
-  private readonly baseUrl: string
+  private readonly sceneRoot: string
+  /** `<root>/<scene-id>`, known once the pointer has been read */
+  private sceneBase = ''
   private readonly aerialTemplate: string | null
   private readonly bias: { factor: number; units: number; line: number }
 
@@ -188,9 +190,9 @@ export class BuildingLayer implements CustomLayerInterface {
     this.map?.triggerRepaint()
   }
 
-  constructor(id: string, baseUrl: string, options: BuildingLayerOptions = {}) {
+  constructor(id: string, sceneRoot: string, options: BuildingLayerOptions = {}) {
     this.id = id
-    this.baseUrl = baseUrl.replace(/\/$/, '')
+    this.sceneRoot = sceneRoot.replace(/\/$/, '')
     this.aerialTemplate = options.aerialTemplate ?? null
     this.bias = options.ghostDepthBias ?? { factor: -2, units: -64, line: 6e-5 }
     this.edgeWidth = options.edgeWidth ?? 1.4
@@ -262,8 +264,9 @@ export class BuildingLayer implements CustomLayerInterface {
 
     void (async () => {
       try {
-        const manifest = await loadSceneManifest(this.baseUrl)
+        const { base, manifest } = await loadScene(this.sceneRoot)
         if (generation !== this.generation) return
+        this.sceneBase = base
         this.adopt(manifest)
         map.triggerRepaint()
       } catch (error) {
@@ -434,7 +437,7 @@ export class BuildingLayer implements CustomLayerInterface {
     this.byRequest.set(batch.requestId, { batch, kind: 'batch' })
     this.post({
       kind: 'batch', requestId: batch.requestId,
-      baseUrl: new URL([this.baseUrl, this.manifest.buffers].filter(Boolean).join('/'), location.href).href,
+      baseUrl: new URL([this.sceneBase, this.manifest.buffers].filter(Boolean).join('/'), location.href).href,
       schema: this.manifest.schema, node: batch.node,
     })
   }

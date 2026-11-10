@@ -6,7 +6,7 @@
 // answer and is fetched directly, so nothing regional is re-hosted and the
 // terrain has no edge.
 import maplibregl from 'maplibre-gl'
-import { loadSceneManifest } from './manifest'
+import { loadScene } from './manifest'
 
 export const TERRAIN_PROTOCOL = 'openpali-dem'
 export const TERRAIN_TILES = `${TERRAIN_PROTOCOL}://{z}/{x}/{y}`
@@ -26,11 +26,11 @@ interface Resolver {
 
 let installedFor: string | null = null
 
-export function installTerrainProtocol(sceneBase: string): void {
-  if (installedFor === sceneBase) return
-  installedFor = sceneBase
-  const resolver: Promise<Resolver> = loadSceneManifest(sceneBase)
-    .then((manifest) => {
+export function installTerrainProtocol(sceneRoot: string): void {
+  if (installedFor === sceneRoot) return
+  installedFor = sceneRoot
+  const resolver: Promise<Resolver> = loadScene(sceneRoot)
+    .then(({ base, manifest }) => {
       const terrain = manifest.terrain
       const baked = new Set<string>()
       for (const [z, tiles] of Object.entries(terrain?.index ?? {})) {
@@ -38,7 +38,7 @@ export function installTerrainProtocol(sceneBase: string): void {
       }
       return {
         baked,
-        template: terrain ? `${sceneBase}/${terrain.tiles}` : null,
+        template: terrain ? `${base}/${terrain.tiles}` : null,
         regional: terrain?.fallback ?? REGIONAL,
         regionalMaxzoom: terrain?.fallback_maxzoom ?? REGIONAL_MAXZOOM,
       }

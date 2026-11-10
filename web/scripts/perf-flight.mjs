@@ -64,8 +64,8 @@ context.on('requestfinished', (request) => {
   const path = url.startsWith(BASE) ? url.slice(BASE.length) : null
   const bucket = path === null ? 'third_party'
     : path.startsWith('/v1/') ? 'api'
-    : path.startsWith('/scene/terrain/') ? 'scene_terrain'
-    : path.startsWith('/scene/manifest') ? 'scene_manifest'
+    : /^\/scene\/[^/]+\/terrain\//.test(path) ? 'scene_terrain'
+    : /^\/scene\/(current\.json|[^/]+\/manifest)/.test(path) ? 'scene_manifest'
     : path.startsWith('/scene/') ? 'scene_meshes' : 'app'
   sizing.push(request.sizes().then((s) => {
     transfer[bucket] += s.responseBodySize + s.responseHeadersSize

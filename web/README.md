@@ -45,8 +45,10 @@ make scene-build   # fetch (cached in data/raw/scene), compile, register, bake t
 make scene-verify  # hashes, id integrity, registration, terrain
 ```
 
-The dev server serves the scene `data/out/scene/current.json` names at
-`/scene/`; in a container, mount it with `infra/compose.scene.yaml`. Without a
+Each build is an immutable `data/out/scene/<scene-id>/`; `current.json` names
+the published one, and the map reads that pointer once per page. The dev server
+serves the directory at `/scene/`; in a container, mount it with
+`infra/compose.scene.yaml` (a rebuild is picked up without a restart). Without a
 scene the map still shows terrain, imagery and scored lots.
 
 The evidence API still serves property records, claims and acquisition tasks;

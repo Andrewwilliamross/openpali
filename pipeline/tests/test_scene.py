@@ -1,4 +1,6 @@
 """Scene build: quantization, terrain compositing and naming, without the network."""
+import json
+
 import numpy as np
 import pytest
 
@@ -97,3 +99,18 @@ def test_bake_skips_tiles_the_lidar_does_not_touch(lidar):
     t, _ = lidar
     assert t.bake(16, 100, 100) is None
     assert terrain_module.BAKE_ZOOMS[-1] == 16
+
+
+def test_publish_swaps_the_pointer_and_leaves_scene_directories_alone(tmp_path, monkeypatch):
+    monkeypatch.setattr(build, 'OUT', tmp_path)
+    first, second = tmp_path / 'scene-a', tmp_path / 'scene-b'
+    for scene in (first, second):
+        scene.mkdir()
+        (scene / 'manifest.json').write_text(scene.name)
+    build.publish(first)
+    served = (first / 'manifest.json').stat().st_ino
+    build.publish(second)
+    assert json.loads((tmp_path / 'current.json').read_text()) == {'scene_id': 'scene-b'}
+    # a server still reading the first scene keeps the very same files
+    assert (first / 'manifest.json').stat().st_ino == served
+    assert sorted(path.name for path in tmp_path.iterdir()) == ['current.json', 'scene-a', 'scene-b']

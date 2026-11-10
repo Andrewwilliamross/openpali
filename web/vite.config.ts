@@ -1,20 +1,16 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
-import { extname, join, normalize, resolve } from 'node:path';
+import { createReadStream, statSync } from 'node:fs';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // The building scene is a generated artifact (`make scene-build`), not part of
-// the web source tree. In development it is served from where the build writes
-// it; in production the same directory is published under /scene/.
+// the web source tree. In development the scene root (immutable `<scene-id>/`
+// directories plus the `current.json` pointer) is served from where the build
+// writes it; in production the same directory is mounted under /scene/.
 const here = fileURLToPath(new URL('.', import.meta.url));
 function sceneDir(): string {
-  if (process.env.OPENPALI_SCENE_DIR) return resolve(here, process.env.OPENPALI_SCENE_DIR);
-  const root = resolve(here, '../data/out/scene');
-  const pointer = join(root, 'current.json');
-  // read per request: a rebuild is picked up on reload, without a restart
-  if (existsSync(pointer)) return join(root, JSON.parse(readFileSync(pointer, 'utf8')).scene_id);
-  return resolve(here, '../data/out/scene-prototype/buildings');
+  return resolve(here, process.env.OPENPALI_SCENE_DIR ?? '../data/out/scene');
 }
 const types: Record<string, string> = { '.json': 'application/json', '.bin': 'application/octet-stream', '.png': 'image/png' };
 function scene(): Plugin {
@@ -25,10 +21,10 @@ function scene(): Plugin {
         const dir = sceneDir();
         const path = normalize(join(dir, decodeURIComponent((req.url ?? '/').split('?')[0])));
         try {
-          if (!path.startsWith(dir)) throw new Error('outside the scene');
+          if (!path.startsWith(dir + sep)) throw new Error('outside the scene');
           const stat = statSync(path);
           if (!stat.isFile()) throw new Error('not a file');
-          res.writeHead(200, { 'Content-Type': types[extname(path)] ?? 'application/octet-stream', 'Content-Length': stat.size, 'Cache-Control': 'no-cache' });
+          res.writeHead(200, { 'Content-Type': types[extname(path)] ?? 'application/octet-stream', 'Content-Length': stat.size, 'Cache-Control': path.endsWith(`${sep}current.json`) ? 'no-cache' : 'public, max-age=31536000, immutable' });
           createReadStream(path).pipe(res);
         } catch {
           // a missing scene file is a 404, never the app's index page

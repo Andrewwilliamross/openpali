@@ -118,29 +118,16 @@ def decode(info: dict, node: dict, to_navd88, offline: bool):
 
 
 def publish(scene: Path) -> None:
-    """Make ``scene`` the current one: ``current.json`` names it, and
-    ``current/`` holds the same files for servers that mount one fixed path.
-    Hard links, not a symlink or a copy: no second 60 MB, and nothing a
-    container bind mount or an archive tool will follow out of the tree."""
-    current = OUT / 'current'
-    staging = OUT / '.current'
-    for stale in (staging,):
-        if stale.exists():
-            shutil.rmtree(stale)
-    for source in sorted(scene.rglob('*')):
-        target = staging / source.relative_to(scene)
-        if source.is_dir():
-            target.mkdir(parents=True, exist_ok=True)
-            continue
-        target.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            os.link(source, target)
-        except OSError:  # a filesystem without hard links
-            shutil.copyfile(source, target)
-    if current.exists():
-        shutil.rmtree(current)
-    staging.rename(current)
-    (OUT / 'current.json').write_text(json.dumps({'scene_id': scene.name}) + '\n')
+    """Make ``scene`` the current one by replacing the ``current.json`` pointer.
+
+    Scene directories are immutable and named by their content, so the pointer
+    is the only thing that changes, and it changes atomically: a server that
+    mounts ``data/out/scene`` keeps serving the previous scene until the
+    rename, and an interrupted build leaves the previous scene published."""
+    pointer = OUT / 'current.json'
+    staging = OUT / '.current.json'
+    staging.write_text(json.dumps({'scene_id': scene.name}) + '\n')
+    os.replace(staging, pointer)
 
 
 def parcel_points() -> np.ndarray:
@@ -372,8 +359,11 @@ def main(argv: list[str] | None = None) -> int:
 
     final = OUT / scene_id
     if final.exists():
-        shutil.rmtree(final)
-    staging.rename(final)
+        # the id is the content: an identical scene is already in place, and
+        # a published directory is never rewritten under a running server
+        shutil.rmtree(staging)
+    else:
+        staging.rename(final)
     publish(final)
     lidar = sum(1 for s in structures if s['ground_source'] == 'usgs_2025_lidar')
     log(json.dumps({
