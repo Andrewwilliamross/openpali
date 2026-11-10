@@ -23,7 +23,7 @@ An independent civic project by [RE\SPRING](https://respring.ai), built for peop
   <img src="https://img.shields.io/badge/Node-24-1557FF?style=flat-square" alt="Node 24">
 </p>
 
-> **Public project, under active development.** A bundled snapshot supports local map exploration. Release APIs, analytics, and corrections require the platform stack. The source-code license is [not yet selected](#license-and-data-rights).
+> **Public project, under active development.** The map runs locally against an evidence release you build. Release APIs, analytics, and corrections require the platform stack. The source-code license is [not yet selected](#license-and-data-rights).
 
 ## Connect, explore, analyze
 
@@ -52,16 +52,16 @@ See the [pipeline guide](pipeline/README.md) for ingestion, spatial processing, 
 
 ### Open the map locally
 
-Use **Node.js 24** and npm:
+Use **Node.js 24**, npm, and the Python 3.12 environment in `pipeline/.venv`. From the repository root:
 
 ```sh
-git clone https://github.com/Andrewwilliamross/openpali.git
-cd openpali/web
-npm ci
-npm run dev
+npm --prefix web ci
+make evidence-build   # needs the acquired source files the Docs/Research manifests name
+make evidence-api     # terminal 1: http://127.0.0.1:8000
+make evidence-web     # terminal 2: http://127.0.0.1:5173
 ```
 
-Open the URL printed by Vite. The bundled snapshot lets you explore the map without the Python services; its contents do not establish current conditions. API features need the platform below. See the [frontend guide](web/README.md).
+The map shows aerial imagery on terrain with lots shaded by rebuild stage. `make scene-build` adds the 3D structures. What it shows does not establish current conditions. See the [frontend guide](web/README.md).
 
 ### Work on the platform
 
@@ -90,12 +90,12 @@ See the [website guide](site/README.md).
 
 ## Inside the project
 
-The platform is a modular Python monolith with workers, FastAPI, and a React client. Source bytes are content-addressed, observations are retained over time, and release APIs select artifacts through a published manifest. PostGIS stores the evidence ledger; release gates and rollback preserve an inspectable publication history. The frontend also keeps a static snapshot path for local exploration.
+The platform is a modular Python monolith with workers, FastAPI, and a React client. Source bytes are content-addressed, observations are retained over time, and release APIs select artifacts through a published manifest. PostGIS stores the evidence ledger; release gates and rollback preserve an inspectable publication history.
 
 | Directory | Start here for |
 | --- | --- |
 | [`pipeline/openpali/`](pipeline/openpali/) | Domain semantics, source adapters, ledger, API, analytics, ML, and spatial pipelines. |
-| [`web/`](web/README.md) | React, TypeScript, MapLibre, and the generated API client. |
+| [`web/`](web/README.md) | React, TypeScript, MapLibre, and the 3D structure renderer. |
 | [`infra/`](infra/README.md) | PostGIS, object storage, Prefect, MLflow, API, and local operations. |
 | [`contracts/`](contracts/) | The checked-in OpenAPI contract. |
 | [`site/`](site/README.md) | The small project website. |

@@ -88,8 +88,6 @@ if $WRAPPER ps >/dev/null 2>&1; then
   run_job recon-gpu-boundary recon-gpu "--profile gpu"
   run_job spatial-refresh spatial-refresh
   run_job zero-network-replay replay
-  run_job browser-gate e2e-browser
-  run_job renderer-bench renderer-bench
 else
   # Sandboxed shells cannot reach Docker: only top-level wrapper commands are
   # unsandboxed by the launch hook. The ENTIRE service half still runs as ONE

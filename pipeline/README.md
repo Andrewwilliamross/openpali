@@ -69,6 +69,9 @@ routes and spatial asset URLs.
 | `openpali/spatial/` | USGS acquisition, derivation, asset registration, and reconstruction |
 | `openpali/orchestration/` | Prefect flows, deployments, and jobs |
 | `openpali/api/` | FastAPI routes, schemas, errors, and health checks |
+| `openpali/intelligence/` | The evidence release the map reads (`make evidence-build`) |
+| `openpali/discovery/` | Source collectors that retain the raw bytes a release is built from |
+| `openpali/scene/` | 3D building scene and lidar terrain for the map (`make scene-build`) |
 | `migrations/` | Alembic database migrations |
 | `tests/` | Unit, semantic, contract, spatial, and opt-in integration checks |
 
@@ -102,8 +105,8 @@ acquisition alone does not make data ready to publish.
 
 There are also two retained paths in this directory:
 
-- `run.py` and `palisades/` build the static fallback under
-  `web/public/data/`. They now emit evidence lanes with provenance and
+- `run.py` and `palisades/` build a static bundle under
+  `web/public/data/`, which the map no longer reads. They emit evidence lanes with provenance and
   validation checks. `run.py --offline` needs previously cached source
   responses; a fresh checkout does not contain that cache.
 - `run_spatial.py` and `core/spatial/` contain the earlier GeoParquet,
@@ -125,9 +128,9 @@ Run a focused test file while developing, then the shared fast gate from
 the repository root. Integration tests in `tests/integration/` are enabled
 by `OPENPALI_INTEGRATION=1` in the `test-integration` Compose job.
 `./scripts/check-full` adds the service-backed checks, ML and spatial drills,
-replay, browser checks, and other extended validation.
+replay, and other extended validation.
 
-When changing API schemas, update `contracts/openapi.json` and regenerate
-the web client; see [the API contract workflow](../web/README.md#api-contract).
+When changing API schemas, update `contracts/openapi.json` and
+`web/src/lib/api.ts`; see [the API contract workflow](../web/README.md#api-contract).
 For contribution expectations and source-data care, see
 [CONTRIBUTING.md](../CONTRIBUTING.md).

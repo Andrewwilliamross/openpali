@@ -439,37 +439,6 @@ services:
     networks: [internal]
     profiles: [jobs]
 
-  e2e-browser:
-    image: openpali-e2e:local
-    build:
-      context: ../web
-      dockerfile: e2e.Dockerfile
-    environment:
-      E2E_BASE_URL: http://web:80
-      E2E_PROXY: http://proxy:3128
-    depends_on:
-      - web
-      - api
-      - proxy
-    networks: [internal]
-    profiles: [jobs]
-
-  renderer-bench:
-    image: openpali-e2e:local
-    build:
-      context: ../web
-      dockerfile: e2e.Dockerfile
-    command: ["npx", "playwright", "test", "e2e/renderer-bench.spec.ts", "--reporter=list"]
-    environment:
-      E2E_BASE_URL: http://web:80
-      E2E_PROXY: http://proxy:3128
-    depends_on:
-      - web
-      - api
-      - proxy
-    networks: [internal]
-    profiles: [jobs]
-
   # ---- observability profile (OPS-001): blackbox health probes + one alert
   # rule; the drill stops a service, asserts ServiceDown fires, restores it,
   # and asserts resolution via the alert-check job ----

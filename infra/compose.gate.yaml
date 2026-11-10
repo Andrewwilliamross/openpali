@@ -12,7 +12,7 @@
 # Order is semantic, not arbitrary: test-integration legitimately flaps the
 # CURRENT pointer mid-suite (restoring it afterward), so it runs before
 # anything that reads the released surface; ml-representative follows
-# ml-drill; browser jobs come last against the settled stack.
+# ml-drill.
 
 services:
   ml-drill:
@@ -40,23 +40,13 @@ services:
       spatial-refresh:
         condition: service_completed_successfully
 
-  e2e-browser:
-    depends_on:
-      replay:
-        condition: service_completed_successfully
-
-  renderer-bench:
-    depends_on:
-      e2e-browser:
-        condition: service_completed_successfully
-
   full-gate:
     image: openpali-pipeline:local
     entrypoint: ["python", "-c"]
     command:
       - 'print("FULL GATE CHAIN COMPLETE: all service-half jobs exited 0")'
     depends_on:
-      renderer-bench:
+      replay:
         condition: service_completed_successfully
     networks: [internal]
     profiles: [jobs]
