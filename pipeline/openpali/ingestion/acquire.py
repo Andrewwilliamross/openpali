@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from openpali.adapters.arcgis_source import ArcGISLayerAdapter, _raw_key_for, utcnow
 from openpali.adapters.base import AcquisitionError, AcquisitionRequest, RawAcquisition
+from openpali.domain.lifecycles import ACQUISITION_RUN
 from openpali.identity.ids import acquisition_run_id
 from openpali.storage.models import (
     AcquisitionPage,
@@ -122,6 +123,10 @@ def run_acquisition(
     )
     if existing is None:
         session.add(run_row)
+        session.flush()
+    else:
+        # Retrying a failed run in place: it is running again, not still failed.
+        run_row.status = ACQUISITION_RUN.require(run_row.status, "running")
         session.flush()
 
     try:

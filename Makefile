@@ -25,6 +25,24 @@ build:
 refresh: data build
 
 # Verified portable research release; independent of the production pointer.
+# 3D building scene: county building meshes, registered to lidar terrain.
+# Fetches into data/raw/scene (cached, hashed); writes data/out/scene/<scene-id>.
+.PHONY: scene-plan scene-build scene-verify map-perf
+scene-plan:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.build --plan
+
+scene-build:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.build
+
+scene-verify:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.verify
+
+# Fly fixed camera paths over a running map and check the performance budgets.
+# BASE defaults to the dev server; the container stack is http://127.0.0.1:58080.
+BASE ?= http://127.0.0.1:5173
+map-perf:
+	node web/scripts/perf-flight.mjs --base $(BASE)
+
 .PHONY: evidence-build evidence-api evidence-web evidence-import
 evidence-build:
 	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.intelligence.build

@@ -4,6 +4,8 @@ from functools import lru_cache
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Query, Request, Response
 from openpali.intelligence.repository import EvidenceRepository
+from openpali.api.problem import problem_response
+from openpali.domain.lifecycles import ACQUISITION_TASK, IllegalTransition, catalog
 from openpali.intelligence.workspace import ProjectClaim, TaskUpdate, Workspace
 
 router=APIRouter(prefix='/v1/evidence',tags=['evidence workspace'])
@@ -73,11 +75,16 @@ def tasks(release_id:str,kind:str='',limit:int=Query(100,ge=1,le=1000),offset:in
 
 @router.get('/releases/{release_id}/artifacts/{name}')
 def artifact(release_id:str,name:str,request:Request):
-    try: body,sha=repository().artifact(release_id,name)
+    accepts_gzip='gzip' in request.headers.get('accept-encoding','').lower()
+    try: body,sha,encoding=repository().artifact(release_id,name,gzip=accepts_gzip)
     except FileNotFoundError as exc: raise HTTPException(404,'artifact not found') from exc
     except ValueError as exc: raise HTTPException(409,str(exc)) from exc
-    headers={'ETag':f'"{sha}"','Cache-Control':'public, max-age=86400, immutable'}
-    if request.headers.get('if-none-match')==headers['ETag']: return Response(status_code=304,headers=headers)
+    # The URL names an immutable release, so the bytes behind it never change.
+    # Each encoding is its own representation with its own validator.
+    headers={'ETag':f'"{sha}"','Cache-Control':'public, max-age=31536000, immutable','Vary':'Accept-Encoding'}
+    if encoding: headers['Content-Encoding']=encoding
+    if headers['ETag'] in [tag.strip() for tag in request.headers.get('if-none-match','').split(',')]:
+        return Response(status_code=304,headers=headers)
     media='image/png' if name.endswith('.png') else 'application/geo+json' if name.endswith('.geojson') else 'application/json' if name.endswith('.json') else 'application/octet-stream'
     return Response(body,media_type=media,headers=headers)
 
@@ -96,16 +103,42 @@ def claim(release_id:str,body:ProjectClaim,request:Request):
     return workspace().append('claim',body.apn,release_id,dict(body.model_dump(mode='json'),verification='unverified',publication='local_draft'))
 
 
-@router.post('/releases/{release_id}/tasks/{task_id}',status_code=201)
-def update_task(release_id:str,task_id:str,body:TaskUpdate,request:Request):
-    writable(request)
+def require_task(release_id,task_id):
     if not any(t['task_id']==task_id for p in load(release_id)['properties'].values() for t in p['tasks']):
         raise HTTPException(404,'task not in release')
-    return workspace().append('task',task_id,release_id,body.model_dump(mode='json'))
+
+
+def workspace_enabled():
+    return os.environ.get('OPENPALI_LOCAL_WORKSPACE')=='1'
+
+
+@router.get('/lifecycles')
+def lifecycles():
+    """Every declared state machine: states, legal moves and terminal states."""
+    return catalog()
+
+
+@router.post('/releases/{release_id}/tasks/{task_id}',status_code=201,
+             responses={200:{'description':'Task already in the requested state; no event appended'},
+                        409:{'description':'Illegal transition; body lists current state and allowed_next'}})
+def update_task(release_id:str,task_id:str,body:TaskUpdate,request:Request,response:Response):
+    writable(request); require_task(release_id,task_id)
+    ops=workspace(); current,history=ops.task_status(task_id)
+    try: ACQUISITION_TASK.require(current,body.status)
+    except IllegalTransition as exc:
+        return problem_response(409,title=str(exc),type_='https://openpali.org/problems/illegal-transition',
+                                lifecycle=exc.lifecycle,current=current,requested=body.status,allowed_next=exc.allowed)
+    if body.status==current:
+        # Idempotent retry (double click, second tab, agent retry): no duplicate event.
+        response.status_code=200
+        return history[-1]
+    return ops.append('task',task_id,release_id,body.model_dump(mode='json'))
 
 
 @router.get('/releases/{release_id}/tasks/{task_id}/history')
 def task_history(release_id:str,task_id:str):
-    if not any(t['task_id']==task_id for p in load(release_id)['properties'].values() for t in p['tasks']):
-        raise HTTPException(404,'task not in release')
-    return dict(items=workspace().list('task',task_id) if os.environ.get('OPENPALI_LOCAL_WORKSPACE')=='1' else [])
+    require_task(release_id,task_id)
+    if not workspace_enabled():
+        return dict(items=[],status='open',allowed_next=[],writable=False)
+    current,history=workspace().task_status(task_id)
+    return dict(items=history,status=current,allowed_next=sorted(ACQUISITION_TASK.allowed(current)),writable=True)

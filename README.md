@@ -35,7 +35,8 @@ Unknown damage and unknown current vacancy remain unknown.
 
 ## Connect, explore, analyze
 
-- React, official coss components, and MapLibre parcel search and map.
+- A 3D MapLibre map: aerial imagery on terrain, pre-fire structures, and lots
+  shaded by rebuild score, with address search and neighborhood jumps.
 - Immutable, hash-verified evidence releases and a release-pinned read API.
 - Cleanup status and source PDF links, current permit rows, inspection requests,
   detailed sampled PCIS outcomes, assessor and recorded transfer histories.
@@ -64,7 +65,7 @@ Unknown damage and unknown current vacancy remain unknown.
 - `pipeline/openpali/{ingestion,storage,publication}/`: canonical PostGIS ledger,
   source-run membership, snapshots and production publication. The portable import
   command stages data here without moving the production release pointer.
-- `web/`: coss / React / Tailwind 4 / MapLibre client.
+- `web/`: React / MapLibre client with a WebGL2 structure renderer.
 - `infra/`: PostGIS, S3, orchestration and canonical service stack. The optional
   `compose.evidence.yaml` mounts portable artifacts read-only.
 - `pipeline/palisades/`: legacy static producer, retained for comparison; the new
@@ -117,7 +118,7 @@ missing evidence and acquisition paths, rather than manufacturing those results.
 - [Long-term recovery intelligence plan](Docs/Plans/2026-09-24-RECOVERY-INTELLIGENCE.md)
 - [Systems design space](Docs/Research/2026-09-29-SYSTEMS-DESIGN-SPACE.md)
 - [Palisades scene experiment](Docs/Research/2026-09-29-PALISADES-SCENE.md)
-- [Frontend source and coss attribution](web/README.md)
+- [Frontend source](web/README.md)
 
 ## Contribute
 

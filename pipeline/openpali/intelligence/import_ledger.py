@@ -20,7 +20,7 @@ from openpali.intelligence.build import digest
 
 def import_release(session, root, release_id):
     repo=EvidenceRepository(root); data=repo.release(release_id)
-    body,sha=repo.artifact(release_id,'release.json')
+    body,sha,_=repo.artifact(release_id,'release.json')
     observed=max(datetime.fromisoformat(e['observed_at'].replace('Z','+00:00')) for p in data['properties'].values() for e in p['evidence'] if e.get('observed_at'))
     source_id='research_evidence'; run_id=release_id
     session.execute(insert(Source).values(source_id=source_id,title='Verified multi-source research evidence release',criticality='optional',terms_reference='Per-record original agency source links and rights; local staging only').on_conflict_do_nothing(index_elements=['source_id']))

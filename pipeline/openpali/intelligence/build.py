@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from datetime import datetime
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -20,11 +21,20 @@ from shapely.ops import transform
 from shapely.strtree import STRtree
 
 from openpali.discovery.clearance import approved_pdf_url
+from openpali.domain.lifecycles import RECOVERY_STAGE, rebuild_score
 from openpali.identity.ids import property_id_from_apn
 from openpali.intelligence.market import screen_transfer, market_support
 from openpali.intelligence.permits import permit_stage, timing_summary
 
-POLICY = 'evidence-v1'
+# v2: map artifacts are derived for delivery (rounded coordinates, score and
+# visual weight as properties, a parcel index, gzip siblings). Artifact bytes
+# are immutable per release id, so a change to how they are derived is a new
+# policy version, and therefore a new release id.
+POLICY = 'evidence-v2'
+#: 6 decimal degrees is about 0.1 m: below parcel survey accuracy, a third of the bytes
+COORDINATE_DECIMALS = 6
+#: gzip siblings are written for artifacts a browser fetches as text
+COMPRESSIBLE = ('.json', '.geojson')
 RESEARCH = 'Docs/Research/2026-09-24-'
 
 
@@ -34,6 +44,52 @@ def encoded(value):
 
 def digest(body):
     return hashlib.sha256(body).hexdigest()
+
+
+def rounded(coordinates):
+    """GeoJSON coordinates at delivery precision, consecutive duplicates removed."""
+    if isinstance(coordinates[0], (int, float)):
+        return [round(coordinates[0], COORDINATE_DECIMALS), round(coordinates[1], COORDINATE_DECIMALS)]
+    out = [rounded(c) for c in coordinates]
+    if out and isinstance(out[0][0], (int, float)):
+        distinct = [c for i, c in enumerate(out) if i == 0 or c != out[i - 1]]
+        # a ring needs four positions; never round a sliver out of existence
+        if len(distinct) >= 4: out = distinct
+    return out
+
+
+def visual_weight(area_m2):
+    """Fill strength for a parcel: acreage parcels (parks, canyons, coastal
+    easements) fade toward 0.35 so they do not blanket the lot-level layer."""
+    if area_m2 <= 20_000: return 1.0
+    if area_m2 >= 100_000: return 0.35
+    return round(1 - (area_m2 - 20_000) / 80_000 * 0.65, 3)
+
+
+def map_artifacts(properties):
+    """The two artifacts the map loads: polygons for drawing, a compact index
+    for search, framing and the 3D structures. Derived from the release payload
+    only, so they are as reproducible as the release itself."""
+    project = Transformer.from_crs(4326, 26911, always_xy=True).transform
+    features, rows = [], []
+    for p in properties.values():
+        score = rebuild_score(p['stage'], p['damage'])
+        lon = lat = None
+        if p['geometry']:
+            geometry = shape(p['geometry'])
+            # a point guaranteed to lie on the parcel, unlike the centroid of an L-shaped lot
+            point = geometry.representative_point()
+            lon, lat = round(point.x, COORDINATE_DECIMALS), round(point.y, COORDINATE_DECIMALS)
+            shown = {k: p[k] for k in ('apn', 'address', 'stage', 'damage')}
+            if score is not None: shown['score'] = score
+            weight = visual_weight(transform(project, geometry).area)
+            if weight < 1: shown['weight'] = weight
+            features.append(dict(type='Feature', id=p['apn'], properties=shown,
+                geometry=dict(type=p['geometry']['type'], coordinates=rounded(p['geometry']['coordinates']))))
+        rows.append([p['apn'], p['address'], lon, lat, p['stage'], p['damage'], score])
+    index = dict(fields=['apn', 'address', 'lon', 'lat', 'stage', 'damage', 'score'], rows=rows)
+    return {'parcels.geojson': encoded(dict(type='FeatureCollection', features=features)),
+            'parcel-index.json': encoded(index)}
 
 
 def checked(root: Path, path: str, sha: str | None = None):
@@ -217,7 +273,6 @@ def build(root: Path, out: Path):
         raise ValueError('incomplete permit inventory')
     permit_links = {}
     permit_timing = {}
-    ranks = {stage:i for i,stage in enumerate(['unknown','cleanup','application','design','permit','construction','construction_complete','occupancy'])}
     for table in permit_inventory['tables']:
         records = json.loads(checked(root, table['path'], table['sha256']))
         ref = source_ref(table['source_id'],table['source'],table['observed_at'],table['sha256'])
@@ -233,8 +288,7 @@ def build(root: Path, out: Path):
                 permit_links.setdefault(record['PERMIT'],set()).add(apn)
                 # Explicit residential use protects against advancing a house
                 # from completion of its ADU, garage or accessory structure.
-                stage = permit_stage(record, table['observed_at'])
-                if ranks[stage] > ranks[p['stage']]: p['stage'] = stage
+                p['stage'] = RECOVERY_STAGE.advance(p['stage'], permit_stage(record, table['observed_at']))
             else:
                 apns = permit_links.get(record.get('PERMIT'),set())
                 if len(apns) != 1: continue
@@ -305,15 +359,22 @@ def build(root: Path, out: Path):
     payload['release_id'] = release_id
     dest = out / release_id; dest.mkdir(parents=True, exist_ok=True)
     outputs = {'release.json': encoded(payload), **assets}
-    features = [dict(type='Feature', id=p['apn'], geometry=p['geometry'], properties={k:p[k] for k in ('apn','address','stage','damage')}) for p in properties.values() if p['geometry']]
-    outputs['parcels.geojson'] = encoded(dict(type='FeatureCollection', features=features))
+    outputs.update(map_artifacts(properties))
+    artifacts = {}
     for name, body in outputs.items():
-        path = dest / name
-        if path.exists() and path.read_bytes() != body:
-            raise ValueError('immutable release collision')
-        path.write_bytes(body)
-    manifest = dict(release_id=release_id, schema_version=POLICY, counts=counts,
-                    artifacts={name:dict(sha256=digest(body), bytes=len(body)) for name,body in outputs.items()})
+        entry = artifacts[name] = dict(sha256=digest(body), bytes=len(body))
+        files = {name: body}
+        if name.endswith(COMPRESSIBLE):
+            # mtime=0: the compressed bytes are as reproducible as the artifact
+            packed = gzip.compress(body, compresslevel=9, mtime=0)
+            entry['gzip'] = dict(sha256=digest(packed), bytes=len(packed))
+            files[name + '.gz'] = packed
+        for filename, content in files.items():
+            path = dest / filename
+            if path.exists() and path.read_bytes() != content:
+                raise ValueError('immutable release collision')
+            path.write_bytes(content)
+    manifest = dict(release_id=release_id, schema_version=POLICY, counts=counts, artifacts=artifacts)
     (dest/'manifest.json').write_bytes(encoded(manifest))
     out.mkdir(parents=True, exist_ok=True)
     tmp = out/'current.tmp'; tmp.write_bytes(encoded(manifest)); tmp.replace(out/'current.json')

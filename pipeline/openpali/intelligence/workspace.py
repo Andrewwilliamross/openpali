@@ -10,6 +10,7 @@ from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Literal
 from pydantic import BaseModel, Field, HttpUrl, model_validator
+from openpali.domain.lifecycles import ACQUISITION_TASK
 
 
 class ProjectClaim(BaseModel):
@@ -36,6 +37,7 @@ class ProjectClaim(BaseModel):
 
 
 class TaskUpdate(BaseModel):
+    # Legal order is ACQUISITION_TASK in openpali.domain.lifecycles.
     status: Literal['queued','in_progress','needs_review']
     note: str = Field(min_length=5,max_length=2000)
     evidence_url: HttpUrl | None = None
@@ -61,4 +63,9 @@ class Workspace:
     def list(self,kind,subject):
         with self.connect() as conn:
             rows=conn.execute('SELECT id,release_id,created_at,payload FROM events WHERE kind=? AND subject=? ORDER BY created_at',(kind,subject)).fetchall()
-        return [dict(id=r[0],release_id=r[1],created_at=r[2],payload=json.loads(r[3])) for r in rows]
+        return [dict(id=r[0],kind=kind,subject=subject,release_id=r[1],created_at=r[2],payload=json.loads(r[3])) for r in rows]
+
+    def task_status(self,task_id):
+        """Current lifecycle state, replayed from the append-only event log."""
+        history=self.list('task',task_id)
+        return (history[-1]['payload']['status'] if history else 'open'),history
