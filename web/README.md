@@ -1,99 +1,93 @@
-# OpenPali · the map
+# OpenPali map
 
-The public interface for exploring Palisades recovery evidence: a searchable
-2D map, property timelines, source context, and optional 3D. Built with React,
-TypeScript, Vite, MapLibre GL, and a WebGL2 renderer.
+React + TypeScript + Vite + MapLibre, with a custom WebGL2 mesh renderer for the
+3D structures.
 
-## Start here
-
-Use Node.js 24 to match CI. From this directory:
+From the repository root:
 
 ```sh
-npm ci
-npm run dev
+npm --prefix web ci --cache .npm-cache
+make evidence-build
+make evidence-api  # terminal 1, localhost:8000
+make evidence-web  # terminal 2, localhost:5173
 ```
 
-Open the URL Vite prints (normally `http://localhost:5173`). The repository
-includes a static data bundle under `public/data/`, so you can work on the
-map without starting the backend. This is a saved fallback, not a live feed.
-External basemap tiles still need network access.
+The source acquisition cache must exist before `evidence-build`; build errors
+identify missing or altered inputs. It never silently substitutes fixtures.
+The map reads one evidence release when it loads. Reload to adopt a new one.
 
-The development server proxies `/v1` and `/health` to the API at
-`http://localhost:58000`. To use live releases, correction submission,
-forecasts, source status, and release-selected post-fire spatial assets,
-start the [local platform](../infra/README.md). Without it, the map displays
-the bundled fallback and API-dependent features remain unavailable.
+The interface is the map plus two controls: an address / APN search and a
+neighborhood picker. Each flies the camera to its view.
 
-## Routes and code
+- **Ground:** EagleView 2026 county mosaic over Esri World Imagery, draped on
+  terrain: USGS 2025 post-fire lidar (2 m tiles) where the scene build baked
+  it, Mapzen terrain tiles elsewhere.
+- **Structures:** the county's 2023 building model as indexed triangle meshes
+  (`src/components/scene/`), 12,595 structures in 91 batches, about 18 MB.
+  Structures the county inspected as destroyed are drawn as outlined,
+  translucent shells in their lot's score colour, so the cleared lot in the
+  2026 imagery stays visible; standing structures are solid with the aerial
+  photo on their roofs. This is what stood before the fire, not current
+  construction. County terms label the model non-authoritative and restrict
+  its use.
+- **Shading:** lots and destroyed structures share one 0–100 rebuild score:
+  the position of the parcel's highest agency-reported recovery milestone
+  (`REBUILD_SCORE` in `pipeline/openpali/domain/lifecycles.py`, ramp in
+  `src/lib/colors.ts`). Only parcels the
+  agency fire assessment records as destroyed are scored. A structure's colour
+  is one texel in a lookup texture, updated without touching geometry.
 
-| Route or directory | Purpose |
-| --- | --- |
-| `/map` | Main map; `/` redirects here |
-| `/property/:apn` | Shareable property selection using a 10-digit APN |
-| `/methods` | What the evidence, dates, statistics, and imagery mean |
-| `/status` | Source and release status |
-| `src/components/MapView.tsx` | MapLibre map and optional 3D loading |
-| `src/components/spatial/` | Property card, forecasts, corrections, rendering, and tile handling |
-| `src/lib/` | API-to-view mapping, coverage, formatting, and spatial source discovery |
-| `src/api/generated/` | Generated API client; regenerate instead of hand-editing |
-| `e2e/` | Playwright checks against the running platform |
-
-The UI starts in 2D. The 3D renderer loads on request and requires WebGL2.
-Post-fire spatial URLs are selected from a release manifest. Historical
-imagery and models must retain their dates and rights labels.
-
-`App.tsx` loads bundled geometry and details, then overlays API release
-metadata and counts when available. Preserve the distinction between the
-saved fallback and API data when changing this path.
-
-## Everyday checks
+The scene is a generated artifact, not part of this directory:
 
 ```sh
-npm test
-npm run lint
-npm run build
+make scene-plan    # what a build would fetch that is not cached
+make scene-build   # fetch (cached in data/raw/scene), compile, register, bake terrain
+make scene-verify  # hashes, id integrity, registration, terrain
 ```
 
-The build runs TypeScript checking before Vite. `npm run preview` serves the
-production build for a local frontend check; Vite's development API proxy
-does not apply to that preview server.
+Each build is an immutable `data/out/scene/<scene-id>/`; `current.json` names
+the published one, and the map reads that pointer once per page. The dev server
+serves the directory at `/scene/`; in a container, mount it with
+`infra/compose.scene.yaml` (a rebuild is picked up without a restart). Without a
+scene the map still shows terrain, imagery and scored lots.
 
-The repository-wide `../scripts/check-fast` runs the Python and web unit
-suites, lint, type checks, and API drift checks. Playwright runs separately
-against an initialized platform:
+## Checks
 
 ```sh
-npx playwright test
+npm --prefix web test -- --run
+npm --prefix web run lint
+npm --prefix web run build
+sh scripts/check-fast
+make scene-verify
+make map-perf BASE=http://127.0.0.1:58080   # needs a running map and local Chrome
 ```
 
-Install the browser dependencies for your environment first, or use the
-`e2e-browser` Compose job documented by the platform configuration.
-`playwright.config.ts` defaults to `http://localhost:58080`; set
-`E2E_BASE_URL` to use another local instance. Headless 3D checks use software
-rendering, so their timings are not hardware GPU benchmarks.
+`map-perf` flies three fixed camera paths with the building layer on and off
+and writes `data/out/checks/perf-<utc>.json`. It fails if any budget is missed:
+dropped frames ≤ 2%, building layer ≤ 2 ms at p95, scored lots on screen
+within 2 s, ≤ 5 MB of our own bytes to the first idle view, ≤ 10 ms of main
+thread per pick. Frame numbers are quantized to the display refresh and only
+compare between runs on one machine. Measure the production build (the
+container stack), not the dev server: unbundled dev modules triple the app
+transfer and the load time.
+
+## Data delivery
+
+The map loads two release artifacts, both gzip-compressed at build time and
+served immutable: `parcels.geojson` (polygons at 6 decimals with `score` and
+`weight` properties; MapLibre fetches and parses it in its worker) and
+`parcel-index.json` (one row per parcel: address, a point on the parcel,
+stage, damage, score), which drives search, neighborhood framing and
+structure colours. The main thread never holds the polygons.
 
 ## API contract
 
-FastAPI owns the schema. After changing the API, run these commands from
-the repository root with the Python environment and web dependencies installed:
+FastAPI owns `contracts/openapi.json`. After an API change, export it from the
+repository root with `pipeline/.venv/bin/python -m openpali.api.app export-openapi`
+and update `web/src/lib/api.ts` as needed. The fast gate checks schema drift.
 
-```sh
-pipeline/.venv/bin/openpali export-openapi > contracts/openapi.json
-cd web
-npx openapi-ts
-npm run build
-```
+## Project identity
 
-The generator reads `openapi-ts.config.ts` and writes `src/api/generated/`.
-Commit the contract and client with the API change. `scripts/check-fast`
-compares the exported schema with the committed contract.
-
-## Working on the interface
-
-Use evidence labels that say exactly what a source documents. Missing public
-evidence is an explicit state, and scheduled inspections are not inspection
-outcomes. Keep source links, release identity, fallback states, and property
-correction paths visible.
-
-Check keyboard access, narrow layouts, and reduced-motion behavior for UI
-changes. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the shared workflow.
+The current [Signal brand kit](../Docs/Brand/README.md) supplies the OpenPali
+mark, favicon and local DM Sans font. See the
+[contributor guide](../CONTRIBUTING.md) for the shared workflow.

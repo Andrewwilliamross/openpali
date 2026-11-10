@@ -1,0 +1,1854 @@
+[
+  {
+    "name": "sewer_near_677",
+    "url": "https://maps.lacity.org/lahub/rest/services/Sewer_Information/MapServer/9/query?f=json&where=1%3D1&geometry=%7B%22x%22%3A+-118.52860947%2C+%22y%22%3A+34.04256777%2C+%22spatialReference%22%3A+%7B%22wkid%22%3A+4326%7D%7D&geometryType=esriGeometryPoint&inSR=4326&distance=50&units=esriSRUnit_Meter&spatialRel=esriSpatialRelIntersects&outFields=%2A&outSR=4326&returnGeometry=true&resultRecordCount=10",
+    "sha256": "70b3d545ccf51480d91a8a0492d1ab975f183b1f3b849a35f6f11972d60aa861",
+    "status": 200,
+    "retrieved_at": "2026-09-25T03:36:21.085424+00:00",
+    "body": {
+      "displayFieldName": "SERVICEID",
+      "fieldAliases": {
+        "OBJECTID": "OBJECTID",
+        "ENABLED": "Enabled",
+        "ASSETID": "ASSETID",
+        "SERVICEID": "SERVICEID",
+        "PIPE_ID": "PIPE_ID",
+        "CLASS": "PIPE_CLASS",
+        "PIPE_SUBTYPE": "PIPE_SUBTYPE",
+        "UP_STRUCT": "UP_STRUCT",
+        "DN_STRUCT": "DN_STRUCT",
+        "PIPE_LABEL": "PIPE_LABEL",
+        "REMARKS": "REMARKS",
+        "ENG_DIST": "ENG_DIST",
+        "BASIN": "BASIN",
+        "UP_INV": "UP_INV",
+        "DN_INV": "DN_INV",
+        "PIPE_LENG": "PIPE_LENG",
+        "SLOPE_PCT": "SLOPE_PCT",
+        "PIPE_SIZE": "PIPE_SIZE",
+        "PIPE_WIDTH": "PIPE_WIDTH",
+        "PIPE_MAT": "PIPE_MAT",
+        "PIPE_SHAPE": "PIPE_SHAPE",
+        "REHAB": "REHAB",
+        "STREET": "STREET",
+        "BLOCK": "BLOCK",
+        "LINER": "LINER",
+        "C_SLOPE": "C_SLOPE",
+        "C_UP_INV": "C_UP_INV",
+        "C_DN_INV": "C_DN_INV",
+        "C_PIPE_LEN": "C_PIPE_LEN",
+        "UP_STA_100": "UP_STA_100",
+        "UP_STA_PLS": "UP_STA_PLS",
+        "DN_STA_100": "DN_STA_100",
+        "DN_STA_PLS": "DN_STA_PLS",
+        "YEAR_INST": "YEAR_INST",
+        "NO_LAT": "NO_LAT",
+        "GRV_FM": "GRV_FM",
+        "EASEMENT": "EASEMENT",
+        "PIPE_STATUS": "PIPE_STATUS",
+        "COMMENTS": "COMMENTS",
+        "WYE_CON": "WYE_CON",
+        "MON_INST": "MON_INST",
+        "PLAN1": "PLAN1",
+        "PLAN2": "PLAN2",
+        "PROF": "PROF",
+        "WYEMAP": "WYEMAP",
+        "HR_VER": "HR_VER",
+        "PCT_ENTRY": "PCT_ENTRY",
+        "WYE_MAT": "WYE_MAT",
+        "WYE_DIAM": "WYE_DIAM",
+        "WYE_LENG": "WYE_LENG",
+        "WYE_UPDATE": "WYE_UPDATE",
+        "EST_UPINV": "EST_UPINV",
+        "EST_DNINV": "EST_DNINV",
+        "EST_MATL": "EST_MATL",
+        "LINER_DATE": "LINER_DATE",
+        "EST_YEAR": "EST_YEAR",
+        "EST_YR_LEV": "EST_YR_LEV",
+        "SLOPE2": "SLOPE2",
+        "V_CURVE": "V_CURVE",
+        "PCT_ENTRY2": "PCT_ENTRY2",
+        "CAPACITY": "CAPACITY",
+        "SYSTEM": "SYSTEM",
+        "TRTMNT_LOC": "TRTMNT_LOC",
+        "OWNER": "OWNER",
+        "CRTN_DT": "CRTN_DT",
+        "LAST_UPDATE": "LAST_UPDATE",
+        "USER_ID": "USER_ID",
+        "VDATUM": "VDATUM",
+        "UP_MH": "UP_MH",
+        "DN_MH": "DN_MH",
+        "SAN_PIPE_ID": "SAN_PIPE_ID",
+        "LAYER": "LAYER",
+        "SHAPE_Length": "Shape_Length",
+        "MATERIAL_DESCRIPTION": "MATERIAL_DESCRIPTION",
+        "TOOLTIP": "TOOLTIP",
+        "NLA_URL": "NLA_URL",
+        "CLASS_DESC": "CLASS_DESC",
+        "ENG_DIST_DESC": "ENG_DIST_DESC",
+        "REHAB_DESC": "REHAB_DESC",
+        "GRV_FM_DESC": "GRV_FM_DESC",
+        "HR_VER_DESC": "HR_VER_DESC",
+        "SYSTEM_DESC": "SYSTEM_DESC",
+        "TRTMNT_LOC_DESC": "TRTMNT_LOC_DESC",
+        "OWNER_DESC": "OWNER_DESC",
+        "PIPE_SUBTYPE_DESC": "PIPE_SUBTYPE_DESC",
+        "PIPE_STATUS_DESC": "PIPE_STATUS_DESC",
+        "PIPE_LEN_CALC": "PIPE_LEN_CALC",
+        "UP_INV_CALC": "UP_INV_CALC",
+        "DN_INV_CALC": "DN_INV_CALC",
+        "SLOPE_EST": "SPLOE_EST"
+      },
+      "geometryType": "esriGeometryPolyline",
+      "spatialReference": {
+        "wkid": 4326,
+        "latestWkid": 4326
+      },
+      "fields": [
+        {
+          "name": "OBJECTID",
+          "type": "esriFieldTypeOID",
+          "alias": "OBJECTID"
+        },
+        {
+          "name": "ENABLED",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "Enabled"
+        },
+        {
+          "name": "ASSETID",
+          "type": "esriFieldTypeDouble",
+          "alias": "ASSETID"
+        },
+        {
+          "name": "SERVICEID",
+          "type": "esriFieldTypeString",
+          "alias": "SERVICEID",
+          "length": 25
+        },
+        {
+          "name": "PIPE_ID",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_ID",
+          "length": 17
+        },
+        {
+          "name": "CLASS",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "PIPE_CLASS"
+        },
+        {
+          "name": "PIPE_SUBTYPE",
+          "type": "esriFieldTypeInteger",
+          "alias": "PIPE_SUBTYPE"
+        },
+        {
+          "name": "UP_STRUCT",
+          "type": "esriFieldTypeInteger",
+          "alias": "UP_STRUCT"
+        },
+        {
+          "name": "DN_STRUCT",
+          "type": "esriFieldTypeInteger",
+          "alias": "DN_STRUCT"
+        },
+        {
+          "name": "PIPE_LABEL",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_LABEL",
+          "length": 1
+        },
+        {
+          "name": "REMARKS",
+          "type": "esriFieldTypeString",
+          "alias": "REMARKS",
+          "length": 32
+        },
+        {
+          "name": "ENG_DIST",
+          "type": "esriFieldTypeString",
+          "alias": "ENG_DIST",
+          "length": 2
+        },
+        {
+          "name": "BASIN",
+          "type": "esriFieldTypeString",
+          "alias": "BASIN",
+          "length": 5
+        },
+        {
+          "name": "UP_INV",
+          "type": "esriFieldTypeDouble",
+          "alias": "UP_INV"
+        },
+        {
+          "name": "DN_INV",
+          "type": "esriFieldTypeDouble",
+          "alias": "DN_INV"
+        },
+        {
+          "name": "PIPE_LENG",
+          "type": "esriFieldTypeDouble",
+          "alias": "PIPE_LENG"
+        },
+        {
+          "name": "SLOPE_PCT",
+          "type": "esriFieldTypeDouble",
+          "alias": "SLOPE_PCT"
+        },
+        {
+          "name": "PIPE_SIZE",
+          "type": "esriFieldTypeDouble",
+          "alias": "PIPE_SIZE"
+        },
+        {
+          "name": "PIPE_WIDTH",
+          "type": "esriFieldTypeDouble",
+          "alias": "PIPE_WIDTH"
+        },
+        {
+          "name": "PIPE_MAT",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_MAT",
+          "length": 4
+        },
+        {
+          "name": "PIPE_SHAPE",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_SHAPE",
+          "length": 4
+        },
+        {
+          "name": "REHAB",
+          "type": "esriFieldTypeString",
+          "alias": "REHAB",
+          "length": 1
+        },
+        {
+          "name": "STREET",
+          "type": "esriFieldTypeString",
+          "alias": "STREET",
+          "length": 25
+        },
+        {
+          "name": "BLOCK",
+          "type": "esriFieldTypeString",
+          "alias": "BLOCK",
+          "length": 7
+        },
+        {
+          "name": "LINER",
+          "type": "esriFieldTypeString",
+          "alias": "LINER",
+          "length": 2
+        },
+        {
+          "name": "C_SLOPE",
+          "type": "esriFieldTypeString",
+          "alias": "C_SLOPE",
+          "length": 1
+        },
+        {
+          "name": "C_UP_INV",
+          "type": "esriFieldTypeString",
+          "alias": "C_UP_INV",
+          "length": 1
+        },
+        {
+          "name": "C_DN_INV",
+          "type": "esriFieldTypeString",
+          "alias": "C_DN_INV",
+          "length": 1
+        },
+        {
+          "name": "C_PIPE_LEN",
+          "type": "esriFieldTypeString",
+          "alias": "C_PIPE_LEN",
+          "length": 1
+        },
+        {
+          "name": "UP_STA_100",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "UP_STA_100"
+        },
+        {
+          "name": "UP_STA_PLS",
+          "type": "esriFieldTypeDouble",
+          "alias": "UP_STA_PLS"
+        },
+        {
+          "name": "DN_STA_100",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "DN_STA_100"
+        },
+        {
+          "name": "DN_STA_PLS",
+          "type": "esriFieldTypeDouble",
+          "alias": "DN_STA_PLS"
+        },
+        {
+          "name": "YEAR_INST",
+          "type": "esriFieldTypeString",
+          "alias": "YEAR_INST",
+          "length": 4
+        },
+        {
+          "name": "NO_LAT",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "NO_LAT"
+        },
+        {
+          "name": "GRV_FM",
+          "type": "esriFieldTypeString",
+          "alias": "GRV_FM",
+          "length": 2
+        },
+        {
+          "name": "EASEMENT",
+          "type": "esriFieldTypeString",
+          "alias": "EASEMENT",
+          "length": 1
+        },
+        {
+          "name": "PIPE_STATUS",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_STATUS",
+          "length": 1
+        },
+        {
+          "name": "COMMENTS",
+          "type": "esriFieldTypeString",
+          "alias": "COMMENTS",
+          "length": 400
+        },
+        {
+          "name": "WYE_CON",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "WYE_CON"
+        },
+        {
+          "name": "MON_INST",
+          "type": "esriFieldTypeString",
+          "alias": "MON_INST",
+          "length": 2
+        },
+        {
+          "name": "PLAN1",
+          "type": "esriFieldTypeString",
+          "alias": "PLAN1",
+          "length": 12
+        },
+        {
+          "name": "PLAN2",
+          "type": "esriFieldTypeString",
+          "alias": "PLAN2",
+          "length": 12
+        },
+        {
+          "name": "PROF",
+          "type": "esriFieldTypeString",
+          "alias": "PROF",
+          "length": 12
+        },
+        {
+          "name": "WYEMAP",
+          "type": "esriFieldTypeString",
+          "alias": "WYEMAP",
+          "length": 12
+        },
+        {
+          "name": "HR_VER",
+          "type": "esriFieldTypeString",
+          "alias": "HR_VER",
+          "length": 1
+        },
+        {
+          "name": "PCT_ENTRY",
+          "type": "esriFieldTypeString",
+          "alias": "PCT_ENTRY",
+          "length": 1
+        },
+        {
+          "name": "WYE_MAT",
+          "type": "esriFieldTypeString",
+          "alias": "WYE_MAT",
+          "length": 3
+        },
+        {
+          "name": "WYE_DIAM",
+          "type": "esriFieldTypeDouble",
+          "alias": "WYE_DIAM"
+        },
+        {
+          "name": "WYE_LENG",
+          "type": "esriFieldTypeDouble",
+          "alias": "WYE_LENG"
+        },
+        {
+          "name": "WYE_UPDATE",
+          "type": "esriFieldTypeString",
+          "alias": "WYE_UPDATE",
+          "length": 1
+        },
+        {
+          "name": "EST_UPINV",
+          "type": "esriFieldTypeString",
+          "alias": "EST_UPINV",
+          "length": 1
+        },
+        {
+          "name": "EST_DNINV",
+          "type": "esriFieldTypeString",
+          "alias": "EST_DNINV",
+          "length": 1
+        },
+        {
+          "name": "EST_MATL",
+          "type": "esriFieldTypeString",
+          "alias": "EST_MATL",
+          "length": 1
+        },
+        {
+          "name": "LINER_DATE",
+          "type": "esriFieldTypeString",
+          "alias": "LINER_DATE",
+          "length": 4
+        },
+        {
+          "name": "EST_YEAR",
+          "type": "esriFieldTypeString",
+          "alias": "EST_YEAR",
+          "length": 1
+        },
+        {
+          "name": "EST_YR_LEV",
+          "type": "esriFieldTypeString",
+          "alias": "EST_YR_LEV",
+          "length": 1
+        },
+        {
+          "name": "SLOPE2",
+          "type": "esriFieldTypeDouble",
+          "alias": "SLOPE2"
+        },
+        {
+          "name": "V_CURVE",
+          "type": "esriFieldTypeString",
+          "alias": "V_CURVE",
+          "length": 1
+        },
+        {
+          "name": "PCT_ENTRY2",
+          "type": "esriFieldTypeString",
+          "alias": "PCT_ENTRY2",
+          "length": 1
+        },
+        {
+          "name": "CAPACITY",
+          "type": "esriFieldTypeDouble",
+          "alias": "CAPACITY"
+        },
+        {
+          "name": "SYSTEM",
+          "type": "esriFieldTypeString",
+          "alias": "SYSTEM",
+          "length": 8
+        },
+        {
+          "name": "TRTMNT_LOC",
+          "type": "esriFieldTypeString",
+          "alias": "TRTMNT_LOC",
+          "length": 4
+        },
+        {
+          "name": "OWNER",
+          "type": "esriFieldTypeString",
+          "alias": "OWNER",
+          "length": 6
+        },
+        {
+          "name": "CRTN_DT",
+          "type": "esriFieldTypeDate",
+          "alias": "CRTN_DT",
+          "length": 8
+        },
+        {
+          "name": "LAST_UPDATE",
+          "type": "esriFieldTypeDate",
+          "alias": "LAST_UPDATE",
+          "length": 8
+        },
+        {
+          "name": "USER_ID",
+          "type": "esriFieldTypeString",
+          "alias": "USER_ID",
+          "length": 8
+        },
+        {
+          "name": "VDATUM",
+          "type": "esriFieldTypeString",
+          "alias": "VDATUM",
+          "length": 2
+        },
+        {
+          "name": "UP_MH",
+          "type": "esriFieldTypeInteger",
+          "alias": "UP_MH"
+        },
+        {
+          "name": "DN_MH",
+          "type": "esriFieldTypeInteger",
+          "alias": "DN_MH"
+        },
+        {
+          "name": "SAN_PIPE_ID",
+          "type": "esriFieldTypeString",
+          "alias": "SAN_PIPE_ID",
+          "length": 17
+        },
+        {
+          "name": "LAYER",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "LAYER"
+        },
+        {
+          "name": "SHAPE_Length",
+          "type": "esriFieldTypeDouble",
+          "alias": "Shape_Length"
+        },
+        {
+          "name": "MATERIAL_DESCRIPTION",
+          "type": "esriFieldTypeString",
+          "alias": "MATERIAL_DESCRIPTION",
+          "length": 300
+        },
+        {
+          "name": "TOOLTIP",
+          "type": "esriFieldTypeString",
+          "alias": "TOOLTIP",
+          "length": 296
+        },
+        {
+          "name": "NLA_URL",
+          "type": "esriFieldTypeString",
+          "alias": "NLA_URL",
+          "length": 60
+        },
+        {
+          "name": "CLASS_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "CLASS_DESC",
+          "length": 28
+        },
+        {
+          "name": "ENG_DIST_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "ENG_DIST_DESC",
+          "length": 19
+        },
+        {
+          "name": "REHAB_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "REHAB_DESC",
+          "length": 3
+        },
+        {
+          "name": "GRV_FM_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "GRV_FM_DESC",
+          "length": 10
+        },
+        {
+          "name": "HR_VER_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "HR_VER_DESC",
+          "length": 10
+        },
+        {
+          "name": "SYSTEM_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "SYSTEM_DESC",
+          "length": 60
+        },
+        {
+          "name": "TRTMNT_LOC_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "TRTMNT_LOC_DESC",
+          "length": 28
+        },
+        {
+          "name": "OWNER_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "OWNER_DESC",
+          "length": 20
+        },
+        {
+          "name": "PIPE_SUBTYPE_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_SUBTYPE_DESC",
+          "length": 160
+        },
+        {
+          "name": "PIPE_STATUS_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "PIPE_STATUS_DESC",
+          "length": 50
+        },
+        {
+          "name": "PIPE_LEN_CALC",
+          "type": "esriFieldTypeDouble",
+          "alias": "PIPE_LEN_CALC"
+        },
+        {
+          "name": "UP_INV_CALC",
+          "type": "esriFieldTypeDouble",
+          "alias": "UP_INV_CALC"
+        },
+        {
+          "name": "DN_INV_CALC",
+          "type": "esriFieldTypeDouble",
+          "alias": "DN_INV_CALC"
+        },
+        {
+          "name": "SLOPE_EST",
+          "type": "esriFieldTypeDouble",
+          "alias": "SPLOE_EST"
+        }
+      ],
+      "features": [
+        {
+          "attributes": {
+            "OBJECTID": 46873,
+            "ENABLED": 1,
+            "ASSETID": 222727,
+            "SERVICEID": null,
+            "PIPE_ID": "5211005952110044A",
+            "CLASS": 3,
+            "PIPE_SUBTYPE": 1,
+            "UP_STRUCT": 52110059,
+            "DN_STRUCT": 52110044,
+            "PIPE_LABEL": "A",
+            "REMARKS": " ",
+            "ENG_DIST": "W",
+            "BASIN": "C08",
+            "UP_INV": 304.33,
+            "DN_INV": 301.8,
+            "PIPE_LENG": 337,
+            "SLOPE_PCT": 0.0076,
+            "PIPE_SIZE": 8,
+            "PIPE_WIDTH": 0,
+            "PIPE_MAT": "VCP",
+            "PIPE_SHAPE": null,
+            "REHAB": "N",
+            "STREET": "VIA DE LA PAZ",
+            "BLOCK": "600",
+            "LINER": null,
+            "C_SLOPE": "N",
+            "C_UP_INV": " ",
+            "C_DN_INV": "N",
+            "C_PIPE_LEN": "N",
+            "UP_STA_100": 3,
+            "UP_STA_PLS": 37,
+            "DN_STA_100": 0,
+            "DN_STA_PLS": 0,
+            "YEAR_INST": "1935",
+            "NO_LAT": 6,
+            "GRV_FM": "GR",
+            "EASEMENT": "N",
+            "PIPE_STATUS": "F",
+            "COMMENTS": " ",
+            "WYE_CON": 1,
+            "MON_INST": " ",
+            "PLAN1": "DL-1454",
+            "PLAN2": null,
+            "PROF": "P-4922",
+            "WYEMAP": "126-125-2",
+            "HR_VER": "N",
+            "PCT_ENTRY": "N",
+            "WYE_MAT": " ",
+            "WYE_DIAM": 0,
+            "WYE_LENG": 0,
+            "WYE_UPDATE": "N",
+            "EST_UPINV": "N",
+            "EST_DNINV": "N",
+            "EST_MATL": "N",
+            "LINER_DATE": null,
+            "EST_YEAR": "N",
+            "EST_YR_LEV": " ",
+            "SLOPE2": 0,
+            "V_CURVE": "N",
+            "PCT_ENTRY2": " ",
+            "CAPACITY": 1.08084,
+            "SYSTEM": "BPASS",
+            "TRTMNT_LOC": " ",
+            "OWNER": " ",
+            "CRTN_DT": null,
+            "LAST_UPDATE": 1196899200000,
+            "USER_ID": "RZGARCIA",
+            "VDATUM": null,
+            "UP_MH": 52110059,
+            "DN_MH": 52110044,
+            "SAN_PIPE_ID": "5211005952110044A",
+            "LAYER": 1,
+            "SHAPE_Length": 124.7170004489235,
+            "MATERIAL_DESCRIPTION": "Vitrified Clay Pipe",
+            "TOOLTIP": "52110059-52110044A\\nUpstream Stationing: 3 + 37\\nDownstream Stationing: 0 + 0",
+            "NLA_URL": "navigatela/reports/wastewater_pipes.cfm?PK=5211005952110044A",
+            "CLASS_DESC": "Secondary Sewer",
+            "ENG_DIST_DESC": "West Los Angeles",
+            "REHAB_DESC": "No",
+            "GRV_FM_DESC": "Gravity",
+            "HR_VER_DESC": null,
+            "SYSTEM_DESC": "Brentwood / Pacific Palisades Area Sewer System",
+            "TRTMNT_LOC_DESC": null,
+            "OWNER_DESC": null,
+            "PIPE_SUBTYPE_DESC": "Gravity",
+            "PIPE_STATUS_DESC": "As Built",
+            "PIPE_LEN_CALC": null,
+            "UP_INV_CALC": null,
+            "DN_INV_CALC": null,
+            "SLOPE_EST": null
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -118.52847675348217,
+                  34.0417089754236
+                ],
+                [
+                  -118.52847345307181,
+                  34.04172217982418
+                ],
+                [
+                  -118.52845126558263,
+                  34.041810965388876
+                ],
+                [
+                  -118.52841096805732,
+                  34.04197237450271
+                ],
+                [
+                  -118.52837735040443,
+                  34.042106893772775
+                ],
+                [
+                  -118.52833769607281,
+                  34.042265621115845
+                ],
+                [
+                  -118.52831081308966,
+                  34.04237325046866
+                ],
+                [
+                  -118.52828057579718,
+                  34.04249431322955
+                ],
+                [
+                  -118.52824966746319,
+                  34.04261805775849
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "OBJECTID": 77999,
+            "ENABLED": 1,
+            "ASSETID": 222703,
+            "SERVICEID": null,
+            "PIPE_ID": "5211004452110043A",
+            "CLASS": 3,
+            "PIPE_SUBTYPE": 1,
+            "UP_STRUCT": 52110044,
+            "DN_STRUCT": 52110043,
+            "PIPE_LABEL": "A",
+            "REMARKS": " ",
+            "ENG_DIST": "W",
+            "BASIN": "C08",
+            "UP_INV": 294.53000000000003,
+            "DN_INV": 293.67,
+            "PIPE_LENG": 184,
+            "SLOPE_PCT": 0.0048000000000000004,
+            "PIPE_SIZE": 8,
+            "PIPE_WIDTH": 0,
+            "PIPE_MAT": "VCP",
+            "PIPE_SHAPE": null,
+            "REHAB": "N",
+            "STREET": "DE PAUW ST ALLEY",
+            "BLOCK": "600",
+            "LINER": null,
+            "C_SLOPE": "N",
+            "C_UP_INV": " ",
+            "C_DN_INV": "N",
+            "C_PIPE_LEN": "N",
+            "UP_STA_100": 1,
+            "UP_STA_PLS": 84,
+            "DN_STA_100": 0,
+            "DN_STA_PLS": 0,
+            "YEAR_INST": "1935",
+            "NO_LAT": 0,
+            "GRV_FM": "GR",
+            "EASEMENT": "N",
+            "PIPE_STATUS": "F",
+            "COMMENTS": " ",
+            "WYE_CON": 4,
+            "MON_INST": " ",
+            "PLAN1": "DL-1454",
+            "PLAN2": null,
+            "PROF": "P-6765",
+            "WYEMAP": "126-125-2",
+            "HR_VER": "N",
+            "PCT_ENTRY": "Y",
+            "WYE_MAT": " ",
+            "WYE_DIAM": 0,
+            "WYE_LENG": 0,
+            "WYE_UPDATE": "N",
+            "EST_UPINV": "N",
+            "EST_DNINV": "N",
+            "EST_MATL": "N",
+            "LINER_DATE": null,
+            "EST_YEAR": "N",
+            "EST_YR_LEV": " ",
+            "SLOPE2": 0,
+            "V_CURVE": "N",
+            "PCT_ENTRY2": " ",
+            "CAPACITY": 0.8544799999999999,
+            "SYSTEM": "BPASS",
+            "TRTMNT_LOC": " ",
+            "OWNER": " ",
+            "CRTN_DT": null,
+            "LAST_UPDATE": 1196899200000,
+            "USER_ID": "RZGARCIA",
+            "VDATUM": null,
+            "UP_MH": 52110044,
+            "DN_MH": 52110043,
+            "SAN_PIPE_ID": "5211004452110043A",
+            "LAYER": 1,
+            "SHAPE_Length": 67.66921601065253,
+            "MATERIAL_DESCRIPTION": "Vitrified Clay Pipe",
+            "TOOLTIP": "52110044-52110043A\\nUpstream Stationing: 1 + 84\\nDownstream Stationing: 0 + 0",
+            "NLA_URL": "navigatela/reports/wastewater_pipes.cfm?PK=5211004452110043A",
+            "CLASS_DESC": "Secondary Sewer",
+            "ENG_DIST_DESC": "West Los Angeles",
+            "REHAB_DESC": "No",
+            "GRV_FM_DESC": "Gravity",
+            "HR_VER_DESC": null,
+            "SYSTEM_DESC": "Brentwood / Pacific Palisades Area Sewer System",
+            "TRTMNT_LOC_DESC": null,
+            "OWNER_DESC": null,
+            "PIPE_SUBTYPE_DESC": "Gravity",
+            "PIPE_STATUS_DESC": "As Built",
+            "PIPE_LEN_CALC": null,
+            "UP_INV_CALC": null,
+            "DN_INV_CALC": null,
+            "SLOPE_EST": null
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -118.52824966746319,
+                  34.04261805775849
+                ],
+                [
+                  -118.5285506578806,
+                  34.04266998080242
+                ],
+                [
+                  -118.52856035070252,
+                  34.042671656363126
+                ],
+                [
+                  -118.52871874973826,
+                  34.04269896851852
+                ],
+                [
+                  -118.52872522030326,
+                  34.0427000850624
+                ],
+                [
+                  -118.52884479055915,
+                  34.04272072027846
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "OBJECTID": 117751,
+            "ENABLED": 1,
+            "ASSETID": 222716,
+            "SERVICEID": null,
+            "PIPE_ID": "5211004352110058A",
+            "CLASS": 3,
+            "PIPE_SUBTYPE": 1,
+            "UP_STRUCT": 52110043,
+            "DN_STRUCT": 52110058,
+            "PIPE_LABEL": "A",
+            "REMARKS": " ",
+            "ENG_DIST": "W",
+            "BASIN": "C08",
+            "UP_INV": 293.47,
+            "DN_INV": 292,
+            "PIPE_LENG": 287.40000000000003,
+            "SLOPE_PCT": 0.005200000000000001,
+            "PIPE_SIZE": 8,
+            "PIPE_WIDTH": 0,
+            "PIPE_MAT": "VCP",
+            "PIPE_SHAPE": null,
+            "REHAB": "N",
+            "STREET": "DE PAUW ST ALLEY",
+            "BLOCK": "600",
+            "LINER": null,
+            "C_SLOPE": "N",
+            "C_UP_INV": " ",
+            "C_DN_INV": "N",
+            "C_PIPE_LEN": "N",
+            "UP_STA_100": 8,
+            "UP_STA_PLS": 66.73,
+            "DN_STA_100": 5,
+            "DN_STA_PLS": 79.33,
+            "YEAR_INST": "1935",
+            "NO_LAT": 0,
+            "GRV_FM": "GR",
+            "EASEMENT": "N",
+            "PIPE_STATUS": "F",
+            "COMMENTS": " ",
+            "WYE_CON": 5,
+            "MON_INST": " ",
+            "PLAN1": "DL-1454",
+            "PLAN2": null,
+            "PROF": "P-6765",
+            "WYEMAP": "126-125-2",
+            "HR_VER": "N",
+            "PCT_ENTRY": "N",
+            "WYE_MAT": " ",
+            "WYE_DIAM": 0,
+            "WYE_LENG": 0,
+            "WYE_UPDATE": "N",
+            "EST_UPINV": "N",
+            "EST_DNINV": "N",
+            "EST_MATL": "N",
+            "LINER_DATE": null,
+            "EST_YEAR": "N",
+            "EST_YR_LEV": " ",
+            "SLOPE2": 0,
+            "V_CURVE": "N",
+            "PCT_ENTRY2": " ",
+            "CAPACITY": 0.8544799999999999,
+            "SYSTEM": "BPASS",
+            "TRTMNT_LOC": " ",
+            "OWNER": " ",
+            "CRTN_DT": null,
+            "LAST_UPDATE": 1196899200000,
+            "USER_ID": "RZGARCIA",
+            "VDATUM": null,
+            "UP_MH": 52110043,
+            "DN_MH": 52110058,
+            "SAN_PIPE_ID": "5211004352110058A",
+            "LAYER": 1,
+            "SHAPE_Length": 105.92237580143279,
+            "MATERIAL_DESCRIPTION": "Vitrified Clay Pipe",
+            "TOOLTIP": "52110043-52110058A\\nUpstream Stationing: 8 + 66.73\\nDownstream Stationing: 5 + 79.33",
+            "NLA_URL": "navigatela/reports/wastewater_pipes.cfm?PK=5211004352110058A",
+            "CLASS_DESC": "Secondary Sewer",
+            "ENG_DIST_DESC": "West Los Angeles",
+            "REHAB_DESC": "No",
+            "GRV_FM_DESC": "Gravity",
+            "HR_VER_DESC": null,
+            "SYSTEM_DESC": "Brentwood / Pacific Palisades Area Sewer System",
+            "TRTMNT_LOC_DESC": null,
+            "OWNER_DESC": null,
+            "PIPE_SUBTYPE_DESC": "Gravity",
+            "PIPE_STATUS_DESC": "As Built",
+            "PIPE_LEN_CALC": null,
+            "UP_INV_CALC": null,
+            "DN_INV_CALC": null,
+            "SLOPE_EST": null
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -118.52884479055915,
+                  34.04272072027846
+                ],
+                [
+                  -118.52888664396656,
+                  34.0425530755645
+                ],
+                [
+                  -118.52891349910196,
+                  34.04244544643984
+                ],
+                [
+                  -118.5289477312025,
+                  34.0423082450118
+                ],
+                [
+                  -118.52897997982286,
+                  34.04217908997071
+                ],
+                [
+                  -118.52901421192338,
+                  34.04204188811176
+                ],
+                [
+                  -118.52903749895052,
+                  34.04194860977673
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "attributes": {
+            "OBJECTID": 139976,
+            "ENABLED": 1,
+            "ASSETID": 222702,
+            "SERVICEID": null,
+            "PIPE_ID": "5211003552110044A",
+            "CLASS": 3,
+            "PIPE_SUBTYPE": 1,
+            "UP_STRUCT": 52110035,
+            "DN_STRUCT": 52110044,
+            "PIPE_LABEL": "A",
+            "REMARKS": " ",
+            "ENG_DIST": "W",
+            "BASIN": "C08",
+            "UP_INV": 295.68,
+            "DN_INV": 294.79,
+            "PIPE_LENG": 223,
+            "SLOPE_PCT": 0.004,
+            "PIPE_SIZE": 8,
+            "PIPE_WIDTH": 0,
+            "PIPE_MAT": "VCP",
+            "PIPE_SHAPE": "CIR",
+            "REHAB": "N",
+            "STREET": "VIA DE LA PAZ",
+            "BLOCK": "700",
+            "LINER": null,
+            "C_SLOPE": "N",
+            "C_UP_INV": "N",
+            "C_DN_INV": "N",
+            "C_PIPE_LEN": "N",
+            "UP_STA_100": 2,
+            "UP_STA_PLS": 23,
+            "DN_STA_100": 0,
+            "DN_STA_PLS": 0,
+            "YEAR_INST": "2014",
+            "NO_LAT": 4,
+            "GRV_FM": "GR",
+            "EASEMENT": "N",
+            "PIPE_STATUS": "F",
+            "COMMENTS": "OLD PLAN DL-1454 (1935)",
+            "WYE_CON": 2,
+            "MON_INST": "07",
+            "PLAN1": "B-4668",
+            "PLAN2": null,
+            "PROF": "P-4922",
+            "WYEMAP": "126-125-2",
+            "HR_VER": null,
+            "PCT_ENTRY": "N",
+            "WYE_MAT": " ",
+            "WYE_DIAM": 0,
+            "WYE_LENG": 0,
+            "WYE_UPDATE": "N",
+            "EST_UPINV": "N",
+            "EST_DNINV": "N",
+            "EST_MATL": "N",
+            "LINER_DATE": null,
+            "EST_YEAR": "N",
+            "EST_YR_LEV": " ",
+            "SLOPE2": 0,
+            "V_CURVE": "N",
+            "PCT_ENTRY2": "N",
+            "CAPACITY": 0.76427,
+            "SYSTEM": null,
+            "TRTMNT_LOC": " ",
+            "OWNER": " ",
+            "CRTN_DT": null,
+            "LAST_UPDATE": 1422489600000,
+            "USER_ID": "AHILARIO",
+            "VDATUM": null,
+            "UP_MH": 52110035,
+            "DN_MH": 52110044,
+            "SAN_PIPE_ID": "5211003552110044A",
+            "LAYER": 1,
+            "SHAPE_Length": 82.1481646005823,
+            "MATERIAL_DESCRIPTION": "Vitrified Clay Pipe",
+            "TOOLTIP": "52110035-52110044A\\nUpstream Stationing: 2 + 23\\nDownstream Stationing: 0 + 0",
+            "NLA_URL": "navigatela/reports/wastewater_pipes.cfm?PK=5211003552110044A",
+            "CLASS_DESC": "Secondary Sewer",
+            "ENG_DIST_DESC": "West Los Angeles",
+            "REHAB_DESC": "No",
+            "GRV_FM_DESC": "Gravity",
+            "HR_VER_DESC": null,
+            "SYSTEM_DESC": null,
+            "TRTMNT_LOC_DESC": null,
+            "OWNER_DESC": null,
+            "PIPE_SUBTYPE_DESC": "Gravity",
+            "PIPE_STATUS_DESC": "As Built",
+            "PIPE_LEN_CALC": null,
+            "UP_INV_CALC": null,
+            "DN_INV_CALC": null,
+            "SLOPE_EST": null
+          },
+          "geometry": {
+            "paths": [
+              [
+                [
+                  -118.52810044831136,
+                  34.04321690482687
+                ],
+                [
+                  -118.52812094517118,
+                  34.04313465322652
+                ],
+                [
+                  -118.5281269818499,
+                  34.04311044518826
+                ],
+                [
+                  -118.52815646545582,
+                  34.042992065236014
+                ],
+                [
+                  -118.5281658555455,
+                  34.04295437753713
+                ],
+                [
+                  -118.52819067240353,
+                  34.042854840872714
+                ],
+                [
+                  -118.52820207471945,
+                  34.04280910730877
+                ],
+                [
+                  -118.52824966746319,
+                  34.04261805775849
+                ]
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "storm_near_677",
+    "url": "https://maps.lacity.org/lahub/rest/services/Stormwater_Information/MapServer/10/query?f=json&where=1%3D1&geometry=%7B%22x%22%3A+-118.52860947%2C+%22y%22%3A+34.04256777%2C+%22spatialReference%22%3A+%7B%22wkid%22%3A+4326%7D%7D&geometryType=esriGeometryPoint&inSR=4326&distance=50&units=esriSRUnit_Meter&spatialRel=esriSpatialRelIntersects&outFields=%2A&outSR=4326&returnGeometry=true&resultRecordCount=10",
+    "sha256": "572bf5bf8b38b26650bd9c9ee90ecc08096ae8df9d75053e6ac4ce7062c6bb3e",
+    "status": 200,
+    "retrieved_at": "2026-09-25T03:36:21.059753+00:00",
+    "body": {
+      "displayFieldName": "NAME",
+      "fieldAliases": {
+        "OBJECTID": "OBJECTID",
+        "ENABLED": "ENABLED",
+        "ASSETID": "ASSETID",
+        "ADD_DATE": "ADD_DATE",
+        "MOD_DATE": "MOD_DATE",
+        "LENGTH": "LENGTH",
+        "PLAN_ID": "PLAN_ID",
+        "PLAN_NO": "PLAN_NO",
+        "SHEET_NO": "SHEET_NO",
+        "OWNER": "OWNER",
+        "WIDTH": "WIDTH",
+        "F_STATION": "F_STATION",
+        "T_STATION": "T_STATION",
+        "CROSS_SECTION_SHAPE": "CROSS_SECTION_SHAPE",
+        "MATERIAL": "MATERIAL",
+        "SLOPE": "SLOPE",
+        "SLOPE_CALC": "SLOPE_CALC",
+        "Q10": "Q10",
+        "Q50": "Q50",
+        "Q_DESIGN": "Q_DESIGN",
+        "ACQUIRE": "ACQUIRE",
+        "PHYSICAL": "PHYSICAL",
+        "CAPACITY": "CAPACITY",
+        "OVERALL": "OVERALL",
+        "LIFE": "LIFE",
+        "COST": "COST",
+        "ASBDATE": "ASBDATE",
+        "ASBFLAG": "ASBFLAG",
+        "UPDATED_BY": "UPDATED_BY",
+        "INSTALL_DATE": "INSTALL_DATE",
+        "NAME": "NAME",
+        "UP_ELEV": "UP_ELEV",
+        "DN_ELEV": "DN_ELEV",
+        "TO_DIR": "TO_DIR",
+        "N_COEF": "N_COEF",
+        "ADMINISTRATIVEAREA": "ADMINISTRATIVEAREA",
+        "OPERATIONALAREA": "OPERATIONALAREA",
+        "LIFECYCLESTATUS": "LIFECYCLESTATUS",
+        "WATERTYPE": "WATERTYPE",
+        "UP_COVER": "UP_COVER",
+        "DN_COVER": "DN_COVER",
+        "BEDDING": "BEDDING",
+        "RW_WIDTH": "RW_WIDTH",
+        "SUBTYPE": "SUBTYPE",
+        "SD_TYPE": "SD_TYPE",
+        "PLAN_NO2": "PLAN_NO2",
+        "PLAN_NO3": "PLAN_NO3",
+        "MAINTAINED_BY": "MAINTAINED_BY",
+        "DIAMETER_HEIGHT": "DIAMETER_HEIGHT",
+        "REC_ID": "REC_ID",
+        "OBJ_ID": "OBJ_ID",
+        "TO_CENT": "TO_CENT",
+        "TO_CURB": "TO_CURB",
+        "RD_SLOPE": "RD_SLOPE",
+        "STREET_WIDTH": "STREET_WIDTH",
+        "CURB_HEIGHT": "CURB_HEIGHT",
+        "FLOW_ACCUMULATION": "FLOW_ACCUMULATION",
+        "DIAMETER": "DIAMETER",
+        "SD_SLOPE": "SD_SLOPE",
+        "Z_VALUE": "Z_VALUE",
+        "TYPE": "TYPE",
+        "LAYER": "LAYER",
+        "SHAPE_Length": "Shape_Length",
+        "TOOLTIP": "TOOLTIP",
+        "NLA_URL": "NLA_URL",
+        "SUBTYPE_DESC": "SUBTYPE_DESC",
+        "OWNER_DESC": "OWNER_DESC",
+        "MATERIAL_DESC": "MATERIAL_DESC",
+        "DESCRIPTION": "DESCRIPTION",
+        "PIPESHAPE_DESC": "PIPESHAPE_DESC",
+        "DUMMY_FIELD_1": "DUMMY_FIELD_1",
+        "DUMMY_FIELD_2": "DUMMY_FIELD_2",
+        "DUMMY_FIELD_3": "DUMMY_FIELD_3",
+        "COMMENTS": "COMMENTS"
+      },
+      "geometryType": "esriGeometryPolyline",
+      "spatialReference": {
+        "wkid": 4326,
+        "latestWkid": 4326
+      },
+      "fields": [
+        {
+          "name": "OBJECTID",
+          "type": "esriFieldTypeOID",
+          "alias": "OBJECTID"
+        },
+        {
+          "name": "ENABLED",
+          "type": "esriFieldTypeInteger",
+          "alias": "ENABLED"
+        },
+        {
+          "name": "ASSETID",
+          "type": "esriFieldTypeDouble",
+          "alias": "ASSETID"
+        },
+        {
+          "name": "ADD_DATE",
+          "type": "esriFieldTypeDate",
+          "alias": "ADD_DATE",
+          "length": 8
+        },
+        {
+          "name": "MOD_DATE",
+          "type": "esriFieldTypeDate",
+          "alias": "MOD_DATE",
+          "length": 8
+        },
+        {
+          "name": "LENGTH",
+          "type": "esriFieldTypeDouble",
+          "alias": "LENGTH"
+        },
+        {
+          "name": "PLAN_ID",
+          "type": "esriFieldTypeDouble",
+          "alias": "PLAN_ID"
+        },
+        {
+          "name": "PLAN_NO",
+          "type": "esriFieldTypeString",
+          "alias": "PLAN_NO",
+          "length": 12
+        },
+        {
+          "name": "SHEET_NO",
+          "type": "esriFieldTypeInteger",
+          "alias": "SHEET_NO"
+        },
+        {
+          "name": "OWNER",
+          "type": "esriFieldTypeInteger",
+          "alias": "OWNER"
+        },
+        {
+          "name": "WIDTH",
+          "type": "esriFieldTypeDouble",
+          "alias": "WIDTH"
+        },
+        {
+          "name": "F_STATION",
+          "type": "esriFieldTypeDouble",
+          "alias": "F_STATION"
+        },
+        {
+          "name": "T_STATION",
+          "type": "esriFieldTypeDouble",
+          "alias": "T_STATION"
+        },
+        {
+          "name": "CROSS_SECTION_SHAPE",
+          "type": "esriFieldTypeInteger",
+          "alias": "CROSS_SECTION_SHAPE"
+        },
+        {
+          "name": "MATERIAL",
+          "type": "esriFieldTypeInteger",
+          "alias": "MATERIAL"
+        },
+        {
+          "name": "SLOPE",
+          "type": "esriFieldTypeDouble",
+          "alias": "SLOPE"
+        },
+        {
+          "name": "SLOPE_CALC",
+          "type": "esriFieldTypeDouble",
+          "alias": "SLOPE_CALC"
+        },
+        {
+          "name": "Q10",
+          "type": "esriFieldTypeDouble",
+          "alias": "Q10"
+        },
+        {
+          "name": "Q50",
+          "type": "esriFieldTypeDouble",
+          "alias": "Q50"
+        },
+        {
+          "name": "Q_DESIGN",
+          "type": "esriFieldTypeDouble",
+          "alias": "Q_DESIGN"
+        },
+        {
+          "name": "ACQUIRE",
+          "type": "esriFieldTypeDate",
+          "alias": "ACQUIRE",
+          "length": 8
+        },
+        {
+          "name": "PHYSICAL",
+          "type": "esriFieldTypeString",
+          "alias": "PHYSICAL",
+          "length": 1
+        },
+        {
+          "name": "CAPACITY",
+          "type": "esriFieldTypeString",
+          "alias": "CAPACITY",
+          "length": 1
+        },
+        {
+          "name": "OVERALL",
+          "type": "esriFieldTypeString",
+          "alias": "OVERALL",
+          "length": 1
+        },
+        {
+          "name": "LIFE",
+          "type": "esriFieldTypeDouble",
+          "alias": "LIFE"
+        },
+        {
+          "name": "COST",
+          "type": "esriFieldTypeDouble",
+          "alias": "COST"
+        },
+        {
+          "name": "ASBDATE",
+          "type": "esriFieldTypeDate",
+          "alias": "ASBDATE",
+          "length": 8
+        },
+        {
+          "name": "ASBFLAG",
+          "type": "esriFieldTypeInteger",
+          "alias": "ASBFLAG"
+        },
+        {
+          "name": "UPDATED_BY",
+          "type": "esriFieldTypeString",
+          "alias": "UPDATED_BY",
+          "length": 10
+        },
+        {
+          "name": "INSTALL_DATE",
+          "type": "esriFieldTypeDate",
+          "alias": "INSTALL_DATE",
+          "length": 8
+        },
+        {
+          "name": "NAME",
+          "type": "esriFieldTypeString",
+          "alias": "NAME",
+          "length": 50
+        },
+        {
+          "name": "UP_ELEV",
+          "type": "esriFieldTypeDouble",
+          "alias": "UP_ELEV"
+        },
+        {
+          "name": "DN_ELEV",
+          "type": "esriFieldTypeDouble",
+          "alias": "DN_ELEV"
+        },
+        {
+          "name": "TO_DIR",
+          "type": "esriFieldTypeString",
+          "alias": "TO_DIR",
+          "length": 50
+        },
+        {
+          "name": "N_COEF",
+          "type": "esriFieldTypeDouble",
+          "alias": "N_COEF"
+        },
+        {
+          "name": "ADMINISTRATIVEAREA",
+          "type": "esriFieldTypeString",
+          "alias": "ADMINISTRATIVEAREA",
+          "length": 60
+        },
+        {
+          "name": "OPERATIONALAREA",
+          "type": "esriFieldTypeString",
+          "alias": "OPERATIONALAREA",
+          "length": 60
+        },
+        {
+          "name": "LIFECYCLESTATUS",
+          "type": "esriFieldTypeString",
+          "alias": "LIFECYCLESTATUS",
+          "length": 20
+        },
+        {
+          "name": "WATERTYPE",
+          "type": "esriFieldTypeString",
+          "alias": "WATERTYPE",
+          "length": 255
+        },
+        {
+          "name": "UP_COVER",
+          "type": "esriFieldTypeString",
+          "alias": "UP_COVER",
+          "length": 50
+        },
+        {
+          "name": "DN_COVER",
+          "type": "esriFieldTypeString",
+          "alias": "DN_COVER",
+          "length": 50
+        },
+        {
+          "name": "BEDDING",
+          "type": "esriFieldTypeString",
+          "alias": "BEDDING",
+          "length": 100
+        },
+        {
+          "name": "RW_WIDTH",
+          "type": "esriFieldTypeDouble",
+          "alias": "RW_WIDTH"
+        },
+        {
+          "name": "SUBTYPE",
+          "type": "esriFieldTypeInteger",
+          "alias": "SUBTYPE"
+        },
+        {
+          "name": "SD_TYPE",
+          "type": "esriFieldTypeInteger",
+          "alias": "SD_TYPE"
+        },
+        {
+          "name": "PLAN_NO2",
+          "type": "esriFieldTypeString",
+          "alias": "PLAN_NO2",
+          "length": 12
+        },
+        {
+          "name": "PLAN_NO3",
+          "type": "esriFieldTypeString",
+          "alias": "PLAN_NO3",
+          "length": 12
+        },
+        {
+          "name": "MAINTAINED_BY",
+          "type": "esriFieldTypeString",
+          "alias": "MAINTAINED_BY",
+          "length": 10
+        },
+        {
+          "name": "DIAMETER_HEIGHT",
+          "type": "esriFieldTypeDouble",
+          "alias": "DIAMETER_HEIGHT"
+        },
+        {
+          "name": "REC_ID",
+          "type": "esriFieldTypeInteger",
+          "alias": "REC_ID"
+        },
+        {
+          "name": "OBJ_ID",
+          "type": "esriFieldTypeInteger",
+          "alias": "OBJ_ID"
+        },
+        {
+          "name": "TO_CENT",
+          "type": "esriFieldTypeDouble",
+          "alias": "TO_CENT"
+        },
+        {
+          "name": "TO_CURB",
+          "type": "esriFieldTypeDouble",
+          "alias": "TO_CURB"
+        },
+        {
+          "name": "RD_SLOPE",
+          "type": "esriFieldTypeDouble",
+          "alias": "RD_SLOPE"
+        },
+        {
+          "name": "STREET_WIDTH",
+          "type": "esriFieldTypeDouble",
+          "alias": "STREET_WIDTH"
+        },
+        {
+          "name": "CURB_HEIGHT",
+          "type": "esriFieldTypeDouble",
+          "alias": "CURB_HEIGHT"
+        },
+        {
+          "name": "FLOW_ACCUMULATION",
+          "type": "esriFieldTypeDouble",
+          "alias": "FLOW_ACCUMULATION"
+        },
+        {
+          "name": "DIAMETER",
+          "type": "esriFieldTypeInteger",
+          "alias": "DIAMETER"
+        },
+        {
+          "name": "SD_SLOPE",
+          "type": "esriFieldTypeDouble",
+          "alias": "SD_SLOPE"
+        },
+        {
+          "name": "Z_VALUE",
+          "type": "esriFieldTypeDouble",
+          "alias": "Z_VALUE"
+        },
+        {
+          "name": "TYPE",
+          "type": "esriFieldTypeString",
+          "alias": "TYPE",
+          "length": 20
+        },
+        {
+          "name": "LAYER",
+          "type": "esriFieldTypeSmallInteger",
+          "alias": "LAYER"
+        },
+        {
+          "name": "SHAPE_Length",
+          "type": "esriFieldTypeDouble",
+          "alias": "Shape_Length"
+        },
+        {
+          "name": "TOOLTIP",
+          "type": "esriFieldTypeString",
+          "alias": "TOOLTIP",
+          "length": 12
+        },
+        {
+          "name": "NLA_URL",
+          "type": "esriFieldTypeString",
+          "alias": "NLA_URL",
+          "length": 75
+        },
+        {
+          "name": "SUBTYPE_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "SUBTYPE_DESC",
+          "length": 160
+        },
+        {
+          "name": "OWNER_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "OWNER_DESC",
+          "length": 50
+        },
+        {
+          "name": "MATERIAL_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "MATERIAL_DESC",
+          "length": 50
+        },
+        {
+          "name": "DESCRIPTION",
+          "type": "esriFieldTypeString",
+          "alias": "DESCRIPTION",
+          "length": 50
+        },
+        {
+          "name": "PIPESHAPE_DESC",
+          "type": "esriFieldTypeString",
+          "alias": "PIPESHAPE_DESC",
+          "length": 50
+        },
+        {
+          "name": "DUMMY_FIELD_1",
+          "type": "esriFieldTypeString",
+          "alias": "DUMMY_FIELD_1",
+          "length": 50
+        },
+        {
+          "name": "DUMMY_FIELD_2",
+          "type": "esriFieldTypeString",
+          "alias": "DUMMY_FIELD_2",
+          "length": 50
+        },
+        {
+          "name": "DUMMY_FIELD_3",
+          "type": "esriFieldTypeString",
+          "alias": "DUMMY_FIELD_3",
+          "length": 50
+        },
+        {
+          "name": "COMMENTS",
+          "type": "esriFieldTypeString",
+          "alias": "COMMENTS",
+          "length": 255
+        }
+      ],
+      "features": []
+    }
+  },
+  {
+    "name": "materials",
+    "url": "https://api.bls.gov/publicAPI/v2/timeseries/data/WPU081?startyear=2025&endyear=2026",
+    "sha256": "9a4d6243cdcc8f48b956782d2a040a96e36064068fb1a61251c16af2ab4c8c37",
+    "status": 200,
+    "retrieved_at": "2026-09-25T03:36:21.350529+00:00",
+    "body": {
+      "status": "REQUEST_SUCCEEDED",
+      "responseTime": 96,
+      "message": [],
+      "Results": {
+        "series": [
+          {
+            "seriesID": "WPU081",
+            "data": [
+              {
+                "year": "2026",
+                "period": "M08",
+                "periodName": "August",
+                "latest": "true",
+                "value": "286.633",
+                "footnotes": [
+                  {
+                    "code": "P",
+                    "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                  }
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M07",
+                "periodName": "July",
+                "value": "291.011",
+                "footnotes": [
+                  {
+                    "code": "P",
+                    "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                  }
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M06",
+                "periodName": "June",
+                "value": "280.234",
+                "footnotes": [
+                  {
+                    "code": "P",
+                    "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                  }
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M05",
+                "periodName": "May",
+                "value": "281.228",
+                "footnotes": [
+                  {
+                    "code": "P",
+                    "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+                  }
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M04",
+                "periodName": "April",
+                "value": "280.362",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M03",
+                "periodName": "March",
+                "value": "270.805",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M02",
+                "periodName": "February",
+                "value": "272.101",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2026",
+                "period": "M01",
+                "periodName": "January",
+                "value": "265.325",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M12",
+                "periodName": "December",
+                "value": "259.127",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M11",
+                "periodName": "November",
+                "value": "259.469",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M10",
+                "periodName": "October",
+                "value": "259.115",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M09",
+                "periodName": "September",
+                "value": "259.750",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M08",
+                "periodName": "August",
+                "value": "266.293",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M07",
+                "periodName": "July",
+                "value": "264.248",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M06",
+                "periodName": "June",
+                "value": "266.567",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M05",
+                "periodName": "May",
+                "value": "269.699",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M04",
+                "periodName": "April",
+                "value": "274.511",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M03",
+                "periodName": "March",
+                "value": "278.435",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M02",
+                "periodName": "February",
+                "value": "269.404",
+                "footnotes": [
+                  {}
+                ]
+              },
+              {
+                "year": "2025",
+                "period": "M01",
+                "periodName": "January",
+                "value": "264.294",
+                "footnotes": [
+                  {}
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

@@ -1,6 +1,6 @@
-node_modules/
+node_modules
 dist/
-.venv/
+.venv
 .uv-cache/
 __pycache__/
 *.pyc
@@ -13,7 +13,6 @@ data/out/
 .playwright-browsers/
 web/test-results/
 web/playwright-report/
-
-# Local branding/browser review artifacts
+*.tsbuildinfo
+output/
 .playwright-cli/
-output/playwright/
