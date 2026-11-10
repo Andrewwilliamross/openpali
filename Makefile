@@ -25,6 +25,18 @@ build:
 refresh: data build
 
 # Verified portable research release; independent of the production pointer.
+# 3D building scene: county building meshes, registered to lidar terrain.
+# Fetches into data/raw/scene (cached, hashed); writes data/out/scene/<scene-id>.
+.PHONY: scene-plan scene-build scene-verify
+scene-plan:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.build --plan
+
+scene-build:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.build
+
+scene-verify:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.verify
+
 .PHONY: evidence-build evidence-api evidence-web evidence-import
 evidence-build:
 	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.intelligence.build
