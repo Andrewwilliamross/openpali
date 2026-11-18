@@ -40,8 +40,12 @@ export interface ParcelStyle {
 }
 
 export interface BuildingLayerOptions {
-  /** `{z}/{x}/{y}` aerial tiles projected onto the roofs of standing structures */
-  aerialTemplate?: string
+  /**
+   * Map source drawing the same imagery on the ground. Roof textures wait
+   * until it has loaded: both come from one host over a handful of
+   * connections, and the ground is most of what the eye reads as sharp.
+   */
+  aerialSource?: string
   /**
    * Depth bias for the ghost passes. Destroyed structures are drawn where
    * their foundations meet steep ground; without a bias the hillside slices
@@ -66,7 +70,6 @@ const MAX_ATLAS_LOADS = 2
 const LOAD_DISTANCE_M = 3200
 // Roof photos only matter up close, and each is a multi-megabyte texture.
 const ATLAS_DISTANCE_M = 1400
-const ATLAS_MAX_PX = 2048
 const ATLAS_BYTE_CAP = 128 * 1024 * 1024
 const GEOMETRY_BYTE_CAP = 256 * 1024 * 1024
 const BATCH_UPLOADS_PER_FRAME = 2
@@ -130,7 +133,7 @@ export class BuildingLayer implements CustomLayerInterface {
   private readonly sceneRoot: string
   /** `<root>/<scene-id>`, known once the pointer has been read */
   private sceneBase = ''
-  private readonly aerialTemplate: string | null
+  private readonly aerialSource: string | null
   private readonly bias: { factor: number; units: number; line: number }
 
   // per-structure tables, indexed by structure id
@@ -176,6 +179,8 @@ export class BuildingLayer implements CustomLayerInterface {
     triangles: 0,
     batchesReady: 0,
     batchesDrawn: 0,
+    /** batches and roof textures in view that are in flight or still to request */
+    loading: 0,
     geometryBytes: 0,
     atlasBytes: 0,
     groundSamples: 0,
@@ -193,7 +198,7 @@ export class BuildingLayer implements CustomLayerInterface {
   constructor(id: string, sceneRoot: string, options: BuildingLayerOptions = {}) {
     this.id = id
     this.sceneRoot = sceneRoot.replace(/\/$/, '')
-    this.aerialTemplate = options.aerialTemplate ?? null
+    this.aerialSource = options.aerialSource ?? null
     this.bias = options.ghostDepthBias ?? { factor: -2, units: -64, line: 6e-5 }
     this.edgeWidth = options.edgeWidth ?? 1.4
   }
@@ -437,19 +442,21 @@ export class BuildingLayer implements CustomLayerInterface {
     this.byRequest.set(batch.requestId, { batch, kind: 'batch' })
     this.post({
       kind: 'batch', requestId: batch.requestId,
-      baseUrl: new URL([this.sceneBase, this.manifest.buffers].filter(Boolean).join('/'), location.href).href,
-      schema: this.manifest.schema, node: batch.node,
+      baseUrl: this.bufferUrl(), schema: this.manifest.schema, node: batch.node,
     })
   }
 
+  private bufferUrl(): string {
+    return new URL([this.sceneBase, this.manifest?.buffers].filter(Boolean).join('/'), location.href).href
+  }
+
   private requestAtlas(batch: Batch): void {
-    if (!this.aerialTemplate) return
     batch.atlasState = 'loading'
     batch.atlasRequestId = this.nextRequestId++
     this.byRequest.set(batch.atlasRequestId, { batch, kind: 'atlas' })
     this.post({
-      kind: 'atlas', requestId: batch.atlasRequestId, node: batch.node,
-      template: this.aerialTemplate, maxPx: ATLAS_MAX_PX,
+      kind: 'atlas', requestId: batch.atlasRequestId,
+      url: `${this.bufferUrl()}/${batch.node.atlas.image}`,
     })
   }
 
@@ -704,25 +711,31 @@ export class BuildingLayer implements CustomLayerInterface {
       }
       if (batch.state === 'ready') {
         drawn.push(batch)
-        if (batch.atlasState === 'idle' && batch.hasSolid && distance < ATLAS_DISTANCE_M) {
+        if (batch.atlasState === 'idle' && batch.node.atlas.image && batch.hasSolid
+            && distance < ATLAS_DISTANCE_M) {
           wanted.push({ batch, distance })
         }
       } else if (batch.state === 'idle') {
         wanted.push({ batch, distance })
       }
     }
+    this.stats.loading = loading + atlasLoading + wanted.length
     wanted.sort((a, b) => a.distance - b.distance) // nearest first
+    const groundReady = !this.aerialSource || !map.getSource(this.aerialSource)
+      || map.isSourceLoaded(this.aerialSource)
     for (const { batch } of wanted) {
       if (batch.state === 'idle') {
         if (loading < MAX_BATCH_LOADS) {
           this.requestBatch(batch)
           loading++
         }
-      } else if (atlasLoading < MAX_ATLAS_LOADS) {
+      } else if (groundReady && atlasLoading < MAX_ATLAS_LOADS) {
         this.requestAtlas(batch)
         atlasLoading++
       }
     }
+    // nothing else is guaranteed to draw a frame when the ground finishes
+    if (!groundReady && wanted.some(({ batch }) => batch.state === 'ready')) map.triggerRepaint()
 
     // ---- GL state envelope ----
     const prev = snapshot(gl2)

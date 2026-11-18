@@ -46,8 +46,9 @@ export interface SceneNode {
   index_bytes: number
   /** v2: width of the stored triangle indices (v1 is always u32) */
   index_type?: 'u16' | 'u32'
-  /** aerial tile rectangle the batch's uv spans */
-  atlas: { z: number; x: number; y: number; width: number; height: number }
+  /** aerial tile rectangle the batch's uv spans, and the build's stitched
+   *  image of it (absent when the scene was built without imagery) */
+  atlas: { z: number; x: number; y: number; width: number; height: number; image?: string }
   /** v2 only: position grid, local metres */
   grid?: QuantizedGrid
 }

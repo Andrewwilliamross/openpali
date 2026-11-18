@@ -20,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import sources
+from . import imagery, sources
 from .sources import OUT, RAW, ROOT, SCENE_LAYER, fetch, mercator, strings
 from .terrain import BAKE_ZOOMS, Terrain
 
@@ -179,6 +179,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--plan', action='store_true', help='list what a build would fetch, then stop')
     parser.add_argument('--skip-terrain-tiles', action='store_true',
                         help='register structures but do not bake terrain tiles')
+    parser.add_argument('--skip-roof-images', action='store_true',
+                        help='do not fetch aerial tiles; standing roofs are drawn untextured')
     args = parser.parse_args(argv)
     if args.plan:
         return plan(args.offline)
@@ -274,6 +276,23 @@ def main(argv: list[str] | None = None) -> int:
                 'grid': grid,
             })
     log(f'compiled {len(structures):,} structures in {len(manifest_nodes)} batches')
+
+    # ---- roof images: each batch's aerial tile rectangle, stitched once here
+    # so the map fetches one file per batch instead of up to 64 vendor tiles ----
+    def roof(node: dict) -> None:
+        rect = node['atlas']
+        body = imagery.atlas(rect['z'], rect['x'], rect['y'], rect['width'], rect['height'],
+                             offline=args.offline)
+        if body is None:
+            return
+        name = f'{node["id"]}.roof.webp'
+        (staging / 'buildings' / name).write_bytes(body)
+        rect.update(image=name, bytes=len(body), sha256=hashlib.sha256(body).hexdigest())
+    if not args.skip_roof_images:
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            list(pool.map(roof, manifest_nodes))
+        roofs = [n['atlas'] for n in manifest_nodes if 'image' in n['atlas']]
+        log(f'roof images: {len(roofs)} batches, {sum(r["bytes"] for r in roofs) / 1e6:.1f} MB')
 
     # ---- ground registration, measured against the surface the map will draw ----
     terrain = Terrain(records, offline=args.offline)

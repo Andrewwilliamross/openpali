@@ -30,7 +30,8 @@ from openpali.intelligence.permits import permit_stage, timing_summary
 # visual weight as properties, a parcel index, gzip siblings). Artifact bytes
 # are immutable per release id, so a change to how they are derived is a new
 # policy version, and therefore a new release id.
-POLICY = 'evidence-v2'
+# v3: parcels that share one polygon (condominium units) are drawn once.
+POLICY = 'evidence-v3'
 #: 6 decimal degrees is about 0.1 m: below parcel survey accuracy, a third of the bytes
 COORDINATE_DECIMALS = 6
 #: gzip siblings are written for artifacts a browser fetches as text
@@ -87,6 +88,20 @@ def map_artifacts(properties):
             features.append(dict(type='Feature', id=p['apn'], properties=shown,
                 geometry=dict(type=p['geometry']['type'], coordinates=rounded(p['geometry']['coordinates']))))
         rows.append([p['apn'], p['address'], lon, lat, p['stage'], p['damage'], score])
+    # Condominium units are separate parcels on one polygon, up to a hundred
+    # deep. Drawn each in turn, their translucent fills and lines pile up into
+    # a solid block, so the map draws the polygon once: the first unit carries
+    # the score most of the scored units hold (the lower on a tie) as
+    # `lot_score`, and the rest are marked `under` and left undrawn. Every
+    # unit keeps its own score and stays selectable.
+    stacks = {}
+    for feature in features:
+        stacks.setdefault(json.dumps(feature['geometry']['coordinates']), []).append(feature['properties'])
+    for units in stacks.values():
+        if len(units) == 1: continue
+        scores = [u['score'] for u in units if 'score' in u]
+        if scores: units[0]['lot_score'] = max(sorted(set(scores)), key=scores.count)
+        for unit in units[1:]: unit['under'] = True
     index = dict(fields=['apn', 'address', 'lon', 'lat', 'stage', 'damage', 'score'], rows=rows)
     return {'parcels.geojson': encoded(dict(type='FeatureCollection', features=features)),
             'parcel-index.json': encoded(index)}

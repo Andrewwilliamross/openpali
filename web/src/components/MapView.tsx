@@ -6,11 +6,18 @@ import { scorePaintExpression, scoreRgb } from '../lib/colors'
 // Type-only import, erased at build time: the 3D renderer is code-split and
 // fetched via import('./scene/BuildingLayer') in parallel with the style.
 import type { BuildingLayer, ParcelStyle } from './scene/BuildingLayer'
+import { AERIAL_TILES, installImageryProtocol } from './scene/imageryProtocol'
 import { installTerrainProtocol, NOT_BAKED, TERRAIN_TILES } from './scene/terrainProtocol'
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
+// The map is about the Palisades Fire area and nothing else: the camera stays
+// inside this box (the built scene's extent plus a margin, [w, s, e, n]) and
+// no imagery is requested outside it. Terrain is left unbounded so the
+// mountains behind do not end in a wall.
+const AREA: [number, number, number, number] = [-118.70, 34.02, -118.48, 34.14]
 const SCENE_ROOT = `${import.meta.env.BASE_URL}scene`
+const IMAGERY_ROOT = `${import.meta.env.BASE_URL}imagery`
 export const VIEW_PITCH = 60
 
 // Elevation comes through the scene's terrain protocol: USGS post-fire lidar
@@ -36,9 +43,6 @@ const DEM_ATTRIBUTION =
 //    release dates are publish dates, not capture dates).
 const GROUND26_TILES =
   'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-CALOSA26-WX2j52mKfq/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
-// CALOSA26-145 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
-const GROUND26_BOUNDS: [number, number, number, number] =
-  [-118.9998, 33.6569, -117.6031, 34.8690]
 const GROUND26_ATTRIBUTION =
   'Imagery: EagleView 2026 Mosaic (LA County LARIAC WMTS)'
 const WORLD_IMAGERY_TILES =
@@ -49,7 +53,10 @@ const STRUCTURES_ATTRIBUTION =
   'Structures: LA County 2023 building model (non-authoritative); destroyed structures outlined in their lot’s rebuild score'
 
 // feature properties written by the release build (parcels.geojson)
-const SCORE_PROPERTY = 'score'
+// A lot's score. Condominium units share one polygon: the release draws it
+// once, with `lot_score` on the unit that is drawn and `under` on the rest.
+const SCORE = ['coalesce', ['get', 'lot_score'], ['get', 'score']]
+const DRAWN = ['!', ['has', 'under']]
 const VISUAL_WEIGHT_PROPERTY = 'weight'
 
 interface Props {
@@ -102,13 +109,13 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
 
   // Fetch the 3D chunk and install the building meshes. The 3D layer must
   // never take down the map: every failure leaves terrain, imagery and the
-  // draped score fills working.
+  // draped lot lines working.
   const installBuildings = useCallback((map: MLMap) => {
     import('./scene/BuildingLayer')
       .then((mod) => {
         if (mapRef.current !== map || !loadedRef.current || buildingsRef.current) return
         const buildings = new mod.BuildingLayer('palisades-buildings', SCENE_ROOT, {
-          aerialTemplate: GROUND26_TILES,
+          aerialSource: 'ground-imagery',
         })
         buildingsRef.current = buildings
         map.addLayer(buildings)
@@ -125,6 +132,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
     installTerrainProtocol(SCENE_ROOT)
+    installImageryProtocol(IMAGERY_ROOT, GROUND26_TILES)
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: BASEMAP,
@@ -133,7 +141,8 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       pitch: VIEW_PITCH,
       bearing: -12,
       maxPitch: 85,
-      minZoom: 10,
+      minZoom: 12,
+      maxBounds: AREA,
       maxZoom: 19,
       attributionControl: false,
     })
@@ -172,24 +181,26 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         tiles: [WORLD_IMAGERY_TILES],
         tileSize: 256,
         maxzoom: 19,
+        bounds: AREA,
         attribution: WORLD_IMAGERY_ATTRIBUTION,
       })
       map.addSource('ground-imagery', {
         type: 'raster',
-        tiles: [GROUND26_TILES],
+        // our mirror of the vendor's tiles where there is one, the vendor elsewhere
+        tiles: [AERIAL_TILES],
         tileSize: 256,
         // the WMTS serves nothing below z11 (404s) — without minzoom MapLibre
         // requests far-field low-zoom tiles at oblique pitch and logs failures
         minzoom: 11,
         maxzoom: 21,
-        bounds: GROUND26_BOUNDS,
+        bounds: AREA,
         attribution: GROUND26_ATTRIBUTION,
       })
       for (const id of ['ground-imagery-world', 'ground-imagery']) {
         map.addLayer({ id, type: 'raster', source: id }, firstSymbolLayerId(map))
       }
       // hillshade and terrain use separate DEM source instances (ML guidance)
-      map.addSource('hillshade-dem', demSource())
+      map.addSource('hillshade-dem', { ...demSource(), bounds: AREA })
       map.addLayer(
         {
           id: 'hills',
@@ -266,7 +277,11 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       // so 10,000 lots never pass through the main thread
       map.addSource('parcels', { type: 'geojson', data: parcelsUrl, promoteId: 'apn' })
       const weight = ['coalesce', ['get', VISUAL_WEIGHT_PROPERTY], 1]
-      const scored = ['has', SCORE_PROPERTY] as maplibregl.FilterSpecification
+      const hasScore = ['any', ['has', 'lot_score'], ['has', 'score']]
+      const scored = ['all', DRAWN, hasScore] as unknown as maplibregl.FilterSpecification
+      const hover = ['boolean', ['feature-state', 'hover'], false]
+      // a highlighted lot is filled in its score colour, white when it has none
+      const highlight = ['case', hasScore, scorePaintExpression(SCORE), '#ffffff']
       // unscored parcels: an invisible hit area (hover/click) and a quiet outline
       map.addLayer({
         id: 'parcel-hit',
@@ -278,23 +293,28 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         id: 'parcel-fill',
         type: 'fill',
         source: 'parcels',
-        filter: scored,
         paint: {
-          'fill-color': scorePaintExpression(SCORE_PROPERTY) as never,
-          'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0.9,
-            // light enough that the structures standing on a lot read clearly
-            ['*', 0.34, weight],
-          ] as never,
+          'fill-color': highlight as never,
+          // the score is carried by the lot line and the building outlines;
+          // a lot is only filled while the pointer is on it or it is selected
+          'fill-opacity': ['case', hover, 0.4, 0] as never,
+        },
+      })
+      map.addLayer({
+        id: 'parcel-selected-fill',
+        type: 'fill',
+        source: 'parcels',
+        filter: ['==', ['get', 'apn'], selectedApnRef.current ?? ''],
+        paint: {
+          'fill-color': highlight as never,
+          'fill-opacity': 0.4,
         },
       })
       map.addLayer({
         id: 'parcel-outline',
         type: 'line',
         source: 'parcels',
-        filter: ['!', scored] as never,
+        filter: ['all', DRAWN, ['!', hasScore]] as never,
         minzoom: 15,
         paint: { 'line-color': '#ffffff', 'line-width': 0.6, 'line-opacity': 0.35 },
       })
@@ -304,9 +324,13 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         source: 'parcels',
         filter: scored,
         paint: {
-          'line-color': scorePaintExpression(SCORE_PROPERTY) as never,
+          'line-color': scorePaintExpression(SCORE) as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
-          'line-opacity': ['*', 0.8, weight] as never,
+          // far out the lot line is all there is to colour; close in it
+          // recedes so the building outlines carry the score
+          'line-opacity': [
+            'interpolate', ['linear'], ['zoom'], 14.5, ['*', 0.6, weight], 16.5, ['*', 0.2, weight],
+          ] as never,
         },
       })
       map.addLayer({
@@ -359,7 +383,9 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
     buildingsRef.current?.select(selectedApn)
     const map = mapRef.current
     if (!map || !loadedRef.current || !map.getLayer('parcel-selected')) return
-    map.setFilter('parcel-selected', ['==', ['get', 'apn'], selectedApn ?? ''])
+    for (const id of ['parcel-selected', 'parcel-selected-fill']) {
+      map.setFilter(id, ['==', ['get', 'apn'], selectedApn ?? ''])
+    }
   }, [selectedApn])
 
   return <div ref={containerRef} className="map-container" aria-label="3D map of the Palisades rebuild" />
