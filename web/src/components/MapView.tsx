@@ -267,6 +267,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       map.addSource('parcels', { type: 'geojson', data: parcelsUrl, promoteId: 'apn' })
       const weight = ['coalesce', ['get', VISUAL_WEIGHT_PROPERTY], 1]
       const scored = ['has', SCORE_PROPERTY] as maplibregl.FilterSpecification
+      const hover = ['boolean', ['feature-state', 'hover'], false]
       // unscored parcels: an invisible hit area (hover/click) and a quiet outline
       map.addLayer({
         id: 'parcel-hit',
@@ -281,12 +282,13 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         filter: scored,
         paint: {
           'fill-color': scorePaintExpression(SCORE_PROPERTY) as never,
+          // far out a lot is a few pixels and its fill is the map; close in
+          // the building outlines carry the score, and a lot is only filled
+          // while the pointer is on it
           'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0.9,
-            // light enough that the structures standing on a lot read clearly
-            ['*', 0.34, weight],
+            'interpolate', ['linear'], ['zoom'],
+            14.5, ['case', hover, 0.3, ['*', 0.34, weight]],
+            16, ['case', hover, 0.3, 0],
           ] as never,
         },
       })
@@ -306,7 +308,11 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         paint: {
           'line-color': scorePaintExpression(SCORE_PROPERTY) as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
-          'line-opacity': ['*', 0.8, weight] as never,
+          // far out the lot line is all there is to colour; close in it
+          // recedes so the building outlines carry the score
+          'line-opacity': [
+            'interpolate', ['linear'], ['zoom'], 14.5, ['*', 0.8, weight], 16.5, ['*', 0.3, weight],
+          ] as never,
         },
       })
       map.addLayer({
