@@ -276,6 +276,8 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       const hasScore = ['any', ['has', 'lot_score'], ['has', 'score']]
       const scored = ['all', DRAWN, hasScore] as unknown as maplibregl.FilterSpecification
       const hover = ['boolean', ['feature-state', 'hover'], false]
+      // a highlighted lot is filled in its score colour, white when it has none
+      const highlight = ['case', hasScore, scorePaintExpression(SCORE), '#ffffff']
       // unscored parcels: an invisible hit area (hover/click) and a quiet outline
       map.addLayer({
         id: 'parcel-hit',
@@ -287,12 +289,21 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         id: 'parcel-fill',
         type: 'fill',
         source: 'parcels',
-        filter: scored,
         paint: {
-          'fill-color': scorePaintExpression(SCORE) as never,
+          'fill-color': highlight as never,
           // the score is carried by the lot line and the building outlines;
-          // a lot is only filled while the pointer is on it
-          'fill-opacity': ['case', hover, 0.3, 0] as never,
+          // a lot is only filled while the pointer is on it or it is selected
+          'fill-opacity': ['case', hover, 0.4, 0] as never,
+        },
+      })
+      map.addLayer({
+        id: 'parcel-selected-fill',
+        type: 'fill',
+        source: 'parcels',
+        filter: ['==', ['get', 'apn'], selectedApnRef.current ?? ''],
+        paint: {
+          'fill-color': highlight as never,
+          'fill-opacity': 0.4,
         },
       })
       map.addLayer({
@@ -368,7 +379,9 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
     buildingsRef.current?.select(selectedApn)
     const map = mapRef.current
     if (!map || !loadedRef.current || !map.getLayer('parcel-selected')) return
-    map.setFilter('parcel-selected', ['==', ['get', 'apn'], selectedApn ?? ''])
+    for (const id of ['parcel-selected', 'parcel-selected-fill']) {
+      map.setFilter(id, ['==', ['get', 'apn'], selectedApn ?? ''])
+    }
   }, [selectedApn])
 
   return <div ref={containerRef} className="map-container" aria-label="3D map of the Palisades rebuild" />
