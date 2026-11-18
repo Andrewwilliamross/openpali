@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 #: Version stamp for observation derivation; bump when any mapping changes.
-TAXONOMY_VERSION = "taxonomy-v1"
+TAXONOMY_VERSION = "taxonomy-v2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,6 +82,7 @@ class CountyProgressCategory(str, Enum):
     APPLICATION_RECEIVED = "application_received"
     PLANS_APPROVED = "plans_approved"
     PERMIT_ISSUED = "permit_issued"
+    IN_CONSTRUCTION = "in_construction"
     CONSTRUCTION_COMPLETED = "construction_completed"
     UNDOCUMENTED = "undocumented"
 
@@ -146,6 +147,20 @@ EVIDENCE: list[DomainEvidence] = [
         verified_on="2026-07-11",
         method="live groupBy statistics, FIRE_NAME='Palisades' (4 values)",
         reference="state/evidence/domain-probe-2026-07-11.json",
+    ),
+    DomainEvidence(
+        source_id="county_base",
+        field="REBUILD_PROGRESS",
+        verified_on="2026-11-18",
+        method="live fetch of destroyed Palisades parcels (5,877 rows)",
+        reference="101 rows are 'Rebuild In Construction'; treated as coarse in-progress construction, not completion",
+    ),
+    DomainEvidence(
+        source_id="malibu_dash",
+        field="iconShape",
+        verified_on="2026-11-18",
+        method="live fetch of PalisadesRebuildStatsDetailWithBPComplete (302 markers)",
+        reference="new value BuildingComplete (1 row, GreenHouse icon, PVPF 25-013); coarse construction completion, not occupancy",
     ),
     DomainEvidence(
         source_id="county_base",
@@ -217,18 +232,22 @@ COUNTY_REBUILD_PROGRESS_DOMAIN: dict[str, CountyProgressCategory] = {
     "rebuild applications received": CountyProgressCategory.APPLICATION_RECEIVED,
     "building plans approved": CountyProgressCategory.PLANS_APPROVED,
     "building permits issued": CountyProgressCategory.PERMIT_ISSUED,
+    # Live 2026-11-18: 101 destroyed parcels. Coarse dashboard stage between
+    # permit issuance and construction completed — not a completion fact.
+    "rebuild in construction": CountyProgressCategory.IN_CONSTRUCTION,
     "construction completed": CountyProgressCategory.CONSTRUCTION_COMPLETED,
 }
 
-#: Malibu dashboard marker iconShape (full observed domain, live 2026-07-11,
-#: 269 rows; see state/evidence/domain-probe-supplement-2026-07-11.md). The
-#: feed is an undocumented internal endpoint of the official city dashboard;
-#: derived observations must carry a coarse/unofficial-feed detail flag.
+#: Malibu dashboard marker iconShape. July 2026 observed 269 rows and four
+#: shapes. Live 2026-11-18 observed 302 rows and added BuildingComplete (1).
+#: The feed is an internal endpoint of the official city dashboard; derived
+#: observations must carry a coarse/unofficial-feed detail flag.
 MALIBU_MARKER_DOMAIN: dict[str, str] = {
     "inplanning": "in_planning",
     "pendingbsreview": "pending_building_safety_review",
     "inbpc": "in_building_plan_check",
     "permitissued": "permit_issued",
+    "buildingcomplete": "building_complete",
 }
 
 #: County DEBRIS_CLEARED observed domain ('Yes' 308 / 'NA' 12,075 on
