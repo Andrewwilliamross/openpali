@@ -42,6 +42,9 @@ const FLIGHTS = [
     { center: [-118.612, 34.0385], bearing: -40, duration: 5000 }],
 ]
 
+// Lachman Lane, Castellammare side: outside every flight path, so its tiles are cold
+const CLOSE_VIEW = { center: [-118.5412, 34.0478], zoom: 18.6, pitch: 62, bearing: 25 }
+
 const browser = await chromium.launch({
   channel: 'chrome',
   headless: !HEADED,
@@ -59,8 +62,15 @@ page.on('console', (m) => {
 // (context-level, so requests made by the scene worker are counted too)
 const transfer = { app: 0, api: 0, scene_meshes: 0, scene_terrain: 0, scene_manifest: 0, third_party: 0 }
 const sizing = []
+// ground imagery, counted apart: it is most of what a close view waits for
+const imagery = { requests: 0, bytes: 0, fallback_requests: 0, fallback_bytes: 0 }
 context.on('requestfinished', (request) => {
   const url = request.url()
+  const kind = /pictometry\.com|\/imagery\//.test(url) ? '' : /arcgis\.com/.test(url) ? 'fallback_' : null
+  if (kind !== null) {
+    imagery[`${kind}requests`]++
+    sizing.push(request.sizes().then((s) => { imagery[`${kind}bytes`] += s.responseBodySize }).catch(() => {}))
+  }
   const path = url.startsWith(BASE) ? url.slice(BASE.length) : null
   const bucket = path === null ? 'third_party'
     : path.startsWith('/v1/') ? 'api'
@@ -95,7 +105,7 @@ await page.addInitScript(() => {
       const map = window.__map
       const b = window.__buildings
       const quiet = map && map.loaded() && !map.isMoving() && map.areTilesLoaded()
-      if (quiet && b) {
+      if (quiet && b && b.stats.loading === 0) {
         const frames = b.stats.frames
         setTimeout(() => (b.stats.frames - frames <= 2 || performance.now() - started > timeout
           ? done(performance.now() - started) : check()), 500)
@@ -153,6 +163,32 @@ try {
       : done(Math.round(1000 / ((t[t.length - 1] - t[5]) / (t.length - 6)))))
     requestAnimationFrame(tick)
   }))
+
+  // a tilted close view nothing has visited yet: how long until the ground is sharp
+  {
+    await Promise.all(sizing)
+    const before = { ...imagery }
+    const started = Date.now()
+    const ground = await page.evaluate((view) => new Promise((done) => {
+      const map = window.__map
+      const t0 = performance.now()
+      map.jumpTo(view)
+      const check = () => (map.isSourceLoaded('ground-imagery') || performance.now() - t0 > 60000
+        ? done(Math.round(performance.now() - t0)) : setTimeout(check, 50))
+      setTimeout(check, 200) // let the new view's tiles be requested first
+    }), CLOSE_VIEW)
+    await page.evaluate(() => window.__settle(60000))
+    const settle = Date.now() - started
+    await Promise.all(sizing)
+    result.close_view = {
+      ground_sharp_ms: ground, // every ground imagery tile for the view is in
+      settle_ms: settle, // roofs too
+      imagery_requests: imagery.requests - before.requests,
+      imagery_mb: +((imagery.bytes - before.bytes) / 1e6).toFixed(2),
+      fallback_requests: imagery.fallback_requests - before.fallback_requests,
+      fallback_mb: +((imagery.fallback_bytes - before.fallback_bytes) / 1e6).toFixed(2),
+    }
+  }
 
   for (const [name, start, motion] of FLIGHTS) {
     const fly = async (buildings) => {

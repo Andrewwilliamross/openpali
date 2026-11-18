@@ -26,7 +26,7 @@ refresh: data build
 
 # 3D building scene: county building meshes, registered to lidar terrain.
 # Fetches into data/raw/scene (cached, hashed); writes data/out/scene/<scene-id>.
-.PHONY: scene-plan scene-build scene-verify map-perf
+.PHONY: scene-plan scene-build scene-verify imagery-plan imagery-mirror map-perf
 scene-plan:
 	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.build --plan
 
@@ -35,6 +35,14 @@ scene-build:
 
 scene-verify:
 	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.verify
+
+# WebP mirror of the aerial imagery around the release's parcels (about 8 GB
+# fetched into data/raw/imagery, resumable; writes data/out/imagery).
+imagery-plan:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.imagery --plan
+
+imagery-mirror:
+	PYTHONPATH=pipeline pipeline/.venv/bin/python -m openpali.scene.imagery
 
 # Fly fixed camera paths over a running map and check the performance budgets.
 # BASE defaults to the dev server; the container stack is http://127.0.0.1:58080.

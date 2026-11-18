@@ -4,32 +4,39 @@ import { createReadStream, statSync } from 'node:fs';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// The building scene is a generated artifact (`make scene-build`), not part of
-// the web source tree. In development the scene root (immutable `<scene-id>/`
-// directories plus the `current.json` pointer) is served from where the build
-// writes it; in production the same directory is mounted under /scene/.
+// The building scene (`make scene-build`) and the imagery mirror
+// (`make imagery-mirror`) are generated artifacts, not part of the web source
+// tree. In development each is served from where its build writes it; in
+// production the same directories are mounted under /scene/ and /imagery/.
+// Scene directories are immutable and named by their content; the two small
+// documents that say what is current are always revalidated.
 const here = fileURLToPath(new URL('.', import.meta.url));
-function sceneDir(): string {
-  return resolve(here, process.env.OPENPALI_SCENE_DIR ?? '../data/out/scene');
+const generated: Record<string, () => string> = {
+  '/scene': () => resolve(here, process.env.OPENPALI_SCENE_DIR ?? '../data/out/scene'),
+  '/imagery': () => resolve(here, process.env.OPENPALI_IMAGERY_DIR ?? '../data/out/imagery'),
+};
+function cacheControl(mount: string, path: string): string {
+  if (path.endsWith(`${sep}current.json`) || path.endsWith(`${sep}index.json`)) return 'no-cache';
+  return mount === '/scene' ? 'public, max-age=31536000, immutable' : 'public, max-age=604800';
 }
-const types: Record<string, string> = { '.json': 'application/json', '.bin': 'application/octet-stream', '.png': 'image/png' };
+const types: Record<string, string> = { '.json': 'application/json', '.bin': 'application/octet-stream', '.png': 'image/png', '.webp': 'image/webp' };
 function scene(): Plugin {
   return {
     name: 'openpali-scene',
     configureServer(server) {
-      server.middlewares.use('/scene', (req, res) => {
-        const dir = sceneDir();
+      for (const [mount, where] of Object.entries(generated)) server.middlewares.use(mount, (req, res) => {
+        const dir = where();
         const path = normalize(join(dir, decodeURIComponent((req.url ?? '/').split('?')[0])));
         try {
-          if (!path.startsWith(dir + sep)) throw new Error('outside the scene');
+          if (!path.startsWith(dir + sep)) throw new Error('outside the mount');
           const stat = statSync(path);
           if (!stat.isFile()) throw new Error('not a file');
-          res.writeHead(200, { 'Content-Type': types[extname(path)] ?? 'application/octet-stream', 'Content-Length': stat.size, 'Cache-Control': path.endsWith(`${sep}current.json`) ? 'no-cache' : 'public, max-age=31536000, immutable' });
+          res.writeHead(200, { 'Content-Type': types[extname(path)] ?? 'application/octet-stream', 'Content-Length': stat.size, 'Cache-Control': cacheControl(mount, path) });
           createReadStream(path).pipe(res);
         } catch {
-          // a missing scene file is a 404, never the app's index page
+          // a missing file is a 404, never the app's index page
           res.writeHead(404, { 'Content-Type': 'text/plain' });
-          res.end('scene asset not found');
+          res.end('not found');
         }
       });
     },

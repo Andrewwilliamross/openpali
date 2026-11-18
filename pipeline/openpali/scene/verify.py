@@ -54,6 +54,9 @@ def main(argv: list[str] | None = None) -> int:
         owners = vertices['id'][indices]
         check(bool((owners == owners[:, :1]).all()), f'node {node["id"]} has a triangle spanning two structures')
         check(int(vertices['id'].min()) >= 1 and int(vertices['id'].max()) <= len(ids), f'node {node["id"]} id out of range')
+        if 'image' in node['atlas']:
+            roof = (scene / manifest['buffers'] / node['atlas']['image']).read_bytes()
+            check(hashlib.sha256(roof).hexdigest() == node['atlas']['sha256'], f'node {node["id"]} roof image hash')
         grid = node['grid']
         check(all(e > 0 and np.isfinite(e) for e in grid['extent']), f'node {node["id"]} grid extent')
         # each structure's lowest dequantized vertex must agree with its table entry

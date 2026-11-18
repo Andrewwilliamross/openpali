@@ -6,11 +6,13 @@ import { scorePaintExpression, scoreRgb } from '../lib/colors'
 // Type-only import, erased at build time: the 3D renderer is code-split and
 // fetched via import('./scene/BuildingLayer') in parallel with the style.
 import type { BuildingLayer, ParcelStyle } from './scene/BuildingLayer'
+import { AERIAL_TILES, installImageryProtocol } from './scene/imageryProtocol'
 import { installTerrainProtocol, NOT_BAKED, TERRAIN_TILES } from './scene/terrainProtocol'
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
 const SCENE_ROOT = `${import.meta.env.BASE_URL}scene`
+const IMAGERY_ROOT = `${import.meta.env.BASE_URL}imagery`
 export const VIEW_PITCH = 60
 
 // Elevation comes through the scene's terrain protocol: USGS post-fire lidar
@@ -102,13 +104,13 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
 
   // Fetch the 3D chunk and install the building meshes. The 3D layer must
   // never take down the map: every failure leaves terrain, imagery and the
-  // draped score fills working.
+  // draped lot lines working.
   const installBuildings = useCallback((map: MLMap) => {
     import('./scene/BuildingLayer')
       .then((mod) => {
         if (mapRef.current !== map || !loadedRef.current || buildingsRef.current) return
         const buildings = new mod.BuildingLayer('palisades-buildings', SCENE_ROOT, {
-          aerialTemplate: GROUND26_TILES,
+          aerialSource: 'ground-imagery',
         })
         buildingsRef.current = buildings
         map.addLayer(buildings)
@@ -125,6 +127,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
     installTerrainProtocol(SCENE_ROOT)
+    installImageryProtocol(IMAGERY_ROOT, GROUND26_TILES)
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: BASEMAP,
@@ -176,7 +179,8 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       })
       map.addSource('ground-imagery', {
         type: 'raster',
-        tiles: [GROUND26_TILES],
+        // our mirror of the vendor's tiles where there is one, the vendor elsewhere
+        tiles: [AERIAL_TILES],
         tileSize: 256,
         // the WMTS serves nothing below z11 (404s) — without minzoom MapLibre
         // requests far-field low-zoom tiles at oblique pitch and logs failures
