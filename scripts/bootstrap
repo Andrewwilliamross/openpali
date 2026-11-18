@@ -25,7 +25,12 @@ if [ ! -x pipeline/.venv/bin/python ]; then
 fi
 pipeline/.venv/bin/python -m ensurepip --upgrade >/dev/null 2>&1 || true
 # pip >=24.2 defaults to the macOS system truststore, which sandboxed runs
-# cannot reach; certifi-based legacy certs work everywhere.
+# cannot reach; certifi-based legacy certs work everywhere. Ubuntu's
+# ensurepip is pip 24.0, which rejects PIP_USE_DEPRECATED=legacy-certs, so
+# upgrade pip before exporting the flag when this pip does not accept it.
+if ! PIP_USE_DEPRECATED=legacy-certs pipeline/.venv/bin/python -m pip --version >/dev/null 2>&1; then
+  pipeline/.venv/bin/python -m pip install -q --upgrade pip
+fi
 export PIP_USE_DEPRECATED=legacy-certs
 pipeline/.venv/bin/python -m pip install -q --upgrade pip
 (cd pipeline && .venv/bin/python -m pip install -q -r requirements-lock.txt \
