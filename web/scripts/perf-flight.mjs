@@ -60,7 +60,7 @@ page.on('console', (m) => {
 
 // ---- transfer accounting, by who serves the bytes ----
 // (context-level, so requests made by the scene worker are counted too)
-const transfer = { app: 0, api: 0, scene_meshes: 0, scene_terrain: 0, scene_manifest: 0, third_party: 0 }
+const transfer = { app: 0, api: 0, scene_meshes: 0, scene_terrain: 0, scene_manifest: 0, imagery: 0, third_party: 0 }
 const sizing = []
 // ground imagery, counted apart: it is most of what a close view waits for
 const imagery = { requests: 0, bytes: 0, fallback_requests: 0, fallback_bytes: 0 }
@@ -74,6 +74,7 @@ context.on('requestfinished', (request) => {
   const path = url.startsWith(BASE) ? url.slice(BASE.length) : null
   const bucket = path === null ? 'third_party'
     : path.startsWith('/v1/') ? 'api'
+    : path.startsWith('/imagery/') ? 'imagery' // mirrored tiles: the vendor's share, moved to this host
     : /^\/scene\/[^/]+\/terrain\//.test(path) ? 'scene_terrain'
     : /^\/scene\/(current\.json|[^/]+\/manifest)/.test(path) ? 'scene_manifest'
     : path.startsWith('/scene/') ? 'scene_meshes' : 'app'
@@ -151,7 +152,7 @@ try {
   await Promise.all(sizing)
   result.first_view.transfer_mb = Object.fromEntries(
     Object.entries(transfer).map(([k, v]) => [k, +(v / 1e6).toFixed(2)]))
-  result.first_view.own_transfer_mb = +((Object.values(transfer).reduce((a, b) => a + b, 0) - transfer.third_party) / 1e6).toFixed(2)
+  result.first_view.own_transfer_mb = +((Object.values(transfer).reduce((a, b) => a + b, 0) - transfer.third_party - transfer.imagery) / 1e6).toFixed(2)
   result.gpu = await page.evaluate(() => {
     const gl = document.createElement('canvas').getContext('webgl2')
     const info = gl?.getExtension('WEBGL_debug_renderer_info')
