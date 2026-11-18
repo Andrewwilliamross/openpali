@@ -290,14 +290,9 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         filter: scored,
         paint: {
           'fill-color': scorePaintExpression(SCORE) as never,
-          // far out a lot is a few pixels and its fill is the map; close in
-          // the building outlines carry the score, and a lot is only filled
-          // while the pointer is on it
-          'fill-opacity': [
-            'interpolate', ['linear'], ['zoom'],
-            14.5, ['case', hover, 0.3, ['*', 0.34, weight]],
-            16, ['case', hover, 0.3, 0],
-          ] as never,
+          // the score is carried by the lot line and the building outlines;
+          // a lot is only filled while the pointer is on it
+          'fill-opacity': ['case', hover, 0.3, 0] as never,
         },
       })
       map.addLayer({
