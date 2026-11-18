@@ -315,7 +315,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
           // far out the lot line is all there is to colour; close in it
           // recedes so the building outlines carry the score
           'line-opacity': [
-            'interpolate', ['linear'], ['zoom'], 14.5, ['*', 0.8, weight], 16.5, ['*', 0.3, weight],
+            'interpolate', ['linear'], ['zoom'], 14.5, ['*', 0.6, weight], 16.5, ['*', 0.2, weight],
           ] as never,
         },
       })

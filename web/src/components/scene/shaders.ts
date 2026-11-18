@@ -163,8 +163,8 @@ void main() {
   int flags = int(v_state.a * 255.0 + 0.5);
   // destroyed: the lot's score colour; standing: light grey
   vec4 line = (flags & 3) == 2
-    ? vec4(v_state.rgb, 1.0)
-    : vec4(vec3(0.88), 0.85);
+    ? vec4(v_state.rgb, 0.6)
+    : vec4(vec3(0.88), 0.45);
   if ((flags & 4) != 0) line = vec4(1.0);
   float alpha = line.a * clamp(0.5 * u_width - abs(v_across) + 0.5, 0.0, 1.0);
   fragColor = vec4(line.rgb * alpha, alpha);
