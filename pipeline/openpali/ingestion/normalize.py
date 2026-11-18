@@ -202,6 +202,11 @@ def normalize_county_parcel(
                 "rebuild_permit_issued",
                 "Building permit issued (county dashboard, coarse)",
             ),
+            CountyProgressCategory.IN_CONSTRUCTION.value: (
+                MilestoneLane.CONSTRUCTION,
+                "construction_in_progress",
+                "Rebuild in construction (county dashboard, coarse)",
+            ),
             CountyProgressCategory.CONSTRUCTION_COMPLETED.value: (
                 MilestoneLane.CONSTRUCTION,
                 "construction_completed",
@@ -633,6 +638,21 @@ def normalize_malibu_marker(
                 source_record=source_record,
                 policy_version=DERIVATION,
                 label="Rebuild permit issued (Malibu dashboard, coarse)",
+                detail=common_detail,
+            )
+        )
+    elif interpretation.category == "building_complete":
+        result.observations.append(
+            RecoveryObservation(
+                subject=subject,
+                lane=MilestoneLane.CONSTRUCTION,
+                event_type="construction_completed",
+                status=ObservationStatus.AGENCY_REPORTED,
+                occurred=UnknownDate(),
+                observed_at=observed_at,
+                source_record=source_record,
+                policy_version=DERIVATION,
+                label="Building complete (Malibu dashboard, coarse)",
                 detail=common_detail,
             )
         )

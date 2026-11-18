@@ -351,6 +351,8 @@ def independent_lane_signals(case: dict) -> dict[str, dict[str, str]]:
             upgrade(apn, "design_review", "milestone_reached")
         elif progress == "building permits issued":
             upgrade(apn, "permitting", "milestone_reached")
+        elif progress == "rebuild in construction":
+            upgrade(apn, "construction", "in_progress")
         elif progress == "construction completed":
             upgrade(apn, "construction", "milestone_reached")
 
@@ -398,6 +400,8 @@ def independent_lane_signals(case: dict) -> dict[str, dict[str, str]]:
             continue
         if shape == "permitissued":
             upgrade(apn, "permitting", "milestone_reached")
+        elif shape == "buildingcomplete":
+            upgrade(apn, "construction", "milestone_reached")
         elif shape in ("inplanning", "pendingbsreview", "inbpc"):
             upgrade(apn, "design_review", "in_progress")
 

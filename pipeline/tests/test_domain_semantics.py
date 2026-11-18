@@ -18,8 +18,11 @@ from openpali.domain.observations import (
 )
 from openpali.domain.policy import PermitQualification, classify_permit
 from openpali.domain.revisions import Retraction, apply_retractions
+from openpali.domain.lanes import LaneSignal, project_lanes
 from openpali.domain.taxonomy import (
+    interpret_county_progress,
     interpret_inspection_status,
+    interpret_malibu_marker,
     interpret_permit_status,
     interpret_rebuild_flag,
     interpret_roe_status,
@@ -104,6 +107,29 @@ class TestTaxonomyFailClosed:
         ):
             assert interpret_permit_status(value).documented, value
         assert not interpret_permit_status("Permit Finaled").documented
+
+    def test_rebuild_in_construction_is_in_progress_not_complete(self):
+        interpretation = interpret_county_progress("Rebuild In Construction")
+        assert interpretation.documented
+        assert interpretation.category == "in_construction"
+        observation = RecoveryObservation(
+            subject=SubjectRef(SubjectType.PARCEL, "4412013017"),
+            lane=MilestoneLane.CONSTRUCTION,
+            event_type="construction_in_progress",
+            status=ObservationStatus.AGENCY_REPORTED,
+            occurred=UnknownDate(),
+            observed_at=OBSERVED,
+            source_record=SOURCE,
+            policy_version="taxonomy-v2",
+        )
+        projection = project_lanes([observation]).lane(MilestoneLane.CONSTRUCTION)
+        assert projection.signal is LaneSignal.IN_PROGRESS
+        assert projection.reached_milestones == ()
+
+    def test_malibu_building_complete_is_documented_completion(self):
+        interpretation = interpret_malibu_marker("BuildingComplete")
+        assert interpretation.documented
+        assert interpretation.category == "building_complete"
 
 
 class TestQualificationPolicy:
