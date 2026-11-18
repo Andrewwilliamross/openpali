@@ -6,17 +6,17 @@
 // agency-reported recovery milestone on a 0–100 scale. Only parcels the agency
 // fire assessment records as destroyed are scored.
 
+// Red → orange → yellow → green, one clearly different step per milestone a
+// lot can hold (the scores REBUILD_SCORE assigns); a finished home is green.
 export const SCORE_STOPS: [number, string][] = [
-  [0, '#99000d'], // deep red — no milestone established
-  [8, '#cb181d'], // lot cleared
-  [15, '#f05e3d'], // application submitted
-  [30, '#fd8d3c'], // plans approved
-  [40, '#fdc23c'], // permitted
-  [50, '#d0d943'], // construction starting
-  [65, '#a4cf3f'], // construction under way
-  [80, '#66bb52'], // finishing
-  [92, '#3d9f47'], // construction complete
-  [100, '#1b7837'], // occupancy
+  [0, '#d7191c'], // red — no milestone established
+  [8, '#e9502a'], // lot cleared
+  [15, '#f57f2a'], // orange — application submitted
+  [30, '#fbac33'], // plans approved
+  [40, '#fde23b'], // yellow — permitted
+  [60, '#a6d93f'], // under construction
+  [92, '#2fb24c'], // green — construction complete
+  [100, '#2fb24c'], // occupancy
 ]
 
 export function scoreColor(score: number): string {

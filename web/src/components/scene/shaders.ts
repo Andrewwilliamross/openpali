@@ -77,7 +77,7 @@ void main() {
   if (u_pass == 0) {
     // standing structure: the aerial photo on roofs, lit neutral walls
     vec4 photo = texture(u_aerial, v_uv);
-    vec3 wall = vec3(0.82, 0.80, 0.76) * (0.58 + 0.42 * lambert);
+    vec3 wall = vec3(0.86, 0.86, 0.85) * (0.70 + 0.30 * lambert);
     vec3 rgb = mix(wall, photo.rgb, roof * u_hasAerial * photo.a);
     if (selected) rgb = mix(rgb, vec3(1.0), 0.35);
     fragColor = vec4(rgb, 1.0);
@@ -161,10 +161,10 @@ out vec4 fragColor;
 
 void main() {
   int flags = int(v_state.a * 255.0 + 0.5);
-  // destroyed: the lot's score colour; standing: ink
+  // destroyed: the lot's score colour; standing: light grey
   vec4 line = (flags & 3) == 2
     ? vec4(v_state.rgb, 1.0)
-    : vec4(vec3(0.10), 0.55);
+    : vec4(vec3(0.88), 0.85);
   if ((flags & 4) != 0) line = vec4(1.0);
   float alpha = line.a * clamp(0.5 * u_width - abs(v_across) + 0.5, 0.0, 1.0);
   fragColor = vec4(line.rgb * alpha, alpha);
