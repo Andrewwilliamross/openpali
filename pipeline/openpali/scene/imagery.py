@@ -41,6 +41,8 @@ RAW = ROOT / 'data/raw/imagery' / LAYER
 OUT = ROOT / 'data/out/imagery'
 SCHEMA = 'openpali-imagery-v1'
 
+#: the map's extent (MapView.tsx AREA): a parcel outside it is never drawn
+AREA = (-118.70, 34.02, -118.48, 34.14)
 #: parcels are covered by whole tiles of this zoom, plus one tile all round
 COVER_ZOOM = 18
 #: finest mirrored zoom; fetched, and the zooms down to COVER_ZOOM derived from it
@@ -124,6 +126,9 @@ def cover() -> list[tuple[int, int]]:
         polygons = [geometry['coordinates']] if geometry['type'] == 'Polygon' else geometry['coordinates']
         for polygon in polygons:
             ring = np.asarray(polygon[0])[:, :2]
+            if not (AREA[0] <= ring[:, 0].min() and ring[:, 0].max() <= AREA[2]
+                    and AREA[1] <= ring[:, 1].min() and ring[:, 1].max() <= AREA[3]):
+                continue
             mx, my = mercator(ring[:, 0], ring[:, 1])
             for x in range(int(mx.min() * n) - 1, int(mx.max() * n) + 2):
                 for y in range(int(my.min() * n) - 1, int(my.max() * n) + 2):

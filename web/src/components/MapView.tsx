@@ -11,6 +11,11 @@ import { installTerrainProtocol, NOT_BAKED, TERRAIN_TILES } from './scene/terrai
 
 const BASEMAP = 'https://tiles.openfreemap.org/styles/positron'
 const PALISADES_CENTER: [number, number] = [-118.5295, 34.0465]
+// The map is about the Palisades Fire area and nothing else: the camera stays
+// inside this box (the built scene's extent plus a margin, [w, s, e, n]) and
+// no imagery is requested outside it. Terrain is left unbounded so the
+// mountains behind do not end in a wall.
+const AREA: [number, number, number, number] = [-118.70, 34.02, -118.48, 34.14]
 const SCENE_ROOT = `${import.meta.env.BASE_URL}scene`
 const IMAGERY_ROOT = `${import.meta.env.BASE_URL}imagery`
 export const VIEW_PITCH = 60
@@ -38,9 +43,6 @@ const DEM_ATTRIBUTION =
 //    release dates are publish dates, not capture dates).
 const GROUND26_TILES =
   'https://svc.pictometry.com/Image/BCC27E3E-766E-CE0B-7D11-AA4760AC43ED/wmts/PICT-CALOSA26-WX2j52mKfq/default/GoogleMapsCompatible/{z}/{x}/{y}.png'
-// CALOSA26-145 WMTS advertised extent (EPSG:3857) → WGS84 bounds for the source
-const GROUND26_BOUNDS: [number, number, number, number] =
-  [-118.9998, 33.6569, -117.6031, 34.8690]
 const GROUND26_ATTRIBUTION =
   'Imagery: EagleView 2026 Mosaic (LA County LARIAC WMTS)'
 const WORLD_IMAGERY_TILES =
@@ -139,7 +141,8 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       pitch: VIEW_PITCH,
       bearing: -12,
       maxPitch: 85,
-      minZoom: 10,
+      minZoom: 12,
+      maxBounds: AREA,
       maxZoom: 19,
       attributionControl: false,
     })
@@ -178,6 +181,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         tiles: [WORLD_IMAGERY_TILES],
         tileSize: 256,
         maxzoom: 19,
+        bounds: AREA,
         attribution: WORLD_IMAGERY_ATTRIBUTION,
       })
       map.addSource('ground-imagery', {
@@ -189,14 +193,14 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         // requests far-field low-zoom tiles at oblique pitch and logs failures
         minzoom: 11,
         maxzoom: 21,
-        bounds: GROUND26_BOUNDS,
+        bounds: AREA,
         attribution: GROUND26_ATTRIBUTION,
       })
       for (const id of ['ground-imagery-world', 'ground-imagery']) {
         map.addLayer({ id, type: 'raster', source: id }, firstSymbolLayerId(map))
       }
       // hillshade and terrain use separate DEM source instances (ML guidance)
-      map.addSource('hillshade-dem', demSource())
+      map.addSource('hillshade-dem', { ...demSource(), bounds: AREA })
       map.addLayer(
         {
           id: 'hills',
