@@ -51,7 +51,10 @@ const STRUCTURES_ATTRIBUTION =
   'Structures: LA County 2023 building model (non-authoritative); destroyed structures outlined in their lot’s rebuild score'
 
 // feature properties written by the release build (parcels.geojson)
-const SCORE_PROPERTY = 'score'
+// A lot's score. Condominium units share one polygon: the release draws it
+// once, with `lot_score` on the unit that is drawn and `under` on the rest.
+const SCORE = ['coalesce', ['get', 'lot_score'], ['get', 'score']]
+const DRAWN = ['!', ['has', 'under']]
 const VISUAL_WEIGHT_PROPERTY = 'weight'
 
 interface Props {
@@ -270,7 +273,8 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
       // so 10,000 lots never pass through the main thread
       map.addSource('parcels', { type: 'geojson', data: parcelsUrl, promoteId: 'apn' })
       const weight = ['coalesce', ['get', VISUAL_WEIGHT_PROPERTY], 1]
-      const scored = ['has', SCORE_PROPERTY] as maplibregl.FilterSpecification
+      const hasScore = ['any', ['has', 'lot_score'], ['has', 'score']]
+      const scored = ['all', DRAWN, hasScore] as unknown as maplibregl.FilterSpecification
       const hover = ['boolean', ['feature-state', 'hover'], false]
       // unscored parcels: an invisible hit area (hover/click) and a quiet outline
       map.addLayer({
@@ -285,7 +289,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         source: 'parcels',
         filter: scored,
         paint: {
-          'fill-color': scorePaintExpression(SCORE_PROPERTY) as never,
+          'fill-color': scorePaintExpression(SCORE) as never,
           // far out a lot is a few pixels and its fill is the map; close in
           // the building outlines carry the score, and a lot is only filled
           // while the pointer is on it
@@ -300,7 +304,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         id: 'parcel-outline',
         type: 'line',
         source: 'parcels',
-        filter: ['!', scored] as never,
+        filter: ['all', DRAWN, ['!', hasScore]] as never,
         minzoom: 15,
         paint: { 'line-color': '#ffffff', 'line-width': 0.6, 'line-opacity': 0.35 },
       })
@@ -310,7 +314,7 @@ export default function MapView({ data, selectedApn, onSelect, onMapReady }: Pro
         source: 'parcels',
         filter: scored,
         paint: {
-          'line-color': scorePaintExpression(SCORE_PROPERTY) as never,
+          'line-color': scorePaintExpression(SCORE) as never,
           'line-width': ['interpolate', ['linear'], ['zoom'], 13, 0.4, 16, 1.6] as never,
           // far out the lot line is all there is to colour; close in it
           // recedes so the building outlines carry the score

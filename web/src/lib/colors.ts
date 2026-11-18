@@ -39,9 +39,9 @@ function lerpHex(a: string, b: string, t: number): string {
   return '#' + out.map((v) => v.toString(16).padStart(2, '0')).join('')
 }
 
-/** MapLibre data-driven colour expression over a numeric score property. */
-export function scorePaintExpression(property: string): unknown[] {
-  const expr: unknown[] = ['interpolate', ['linear'], ['get', property]]
+/** MapLibre data-driven colour expression over an expression yielding a score. */
+export function scorePaintExpression(score: unknown[]): unknown[] {
+  const expr: unknown[] = ['interpolate', ['linear'], score]
   for (const [stop, color] of SCORE_STOPS) expr.push(stop, color)
   return expr
 }

@@ -61,6 +61,23 @@ def test_accessory_permits_and_impossible_dates_never_advance_house():
     assert permit_stage(row,'2026-09-25T00:00:00+00:00')=='unknown'
 
 
+def test_units_sharing_a_polygon_are_drawn_once_with_the_common_score():
+    from openpali.intelligence.build import map_artifacts
+    ring=[[[-118.527,34.044],[-118.526,34.044],[-118.526,34.045],[-118.527,34.045],[-118.527,34.044]]]
+    units=[]
+    for n,stage in enumerate(('unknown','cleanup','cleanup')):
+        unit=property_row(f'441201400{n}',f'1 CONDO WAY NO {n}')
+        unit.update(damage='destroyed',stage=stage,geometry=dict(type='Polygon',coordinates=ring))
+        units.append(unit)
+    alone=property_row('4412014009','9 ALONE ST');alone.update(damage='destroyed',stage='permit',
+        geometry=dict(type='Polygon',coordinates=[[[x+1,y] for x,y in ring[0]]]))
+    shown=[f['properties'] for f in json.loads(map_artifacts({p['apn']:p for p in (*units,alone)})['parcels.geojson'])['features']]
+    assert shown[0]['lot_score']==8 and 'under' not in shown[0]
+    assert [p.get('under') for p in shown[1:]]==[True,True,None]
+    assert [p['score'] for p in shown]==[0,8,8,40]  # each unit keeps its own score
+    assert 'lot_score' not in shown[3]
+
+
 def test_map_artifacts_are_rounded_scored_and_indexed():
     from openpali.intelligence.build import map_artifacts, rounded
     burned=property_row('4412013017','677 VIA DE LA PAZ');burned.update(damage='destroyed',stage='permit',
